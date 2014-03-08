@@ -622,7 +622,7 @@ namespace {
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1, DEPTH_ZERO)
-                                      : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+                                      : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, (eval < beta + 100));
         (ss+1)->skipNullMove = false;
         pos.undo_null_move();
 
@@ -638,7 +638,7 @@ namespace {
             // Do verification search at high depths
             ss->skipNullMove = true;
             Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta, DEPTH_ZERO)
-                                        :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false);
+                                        :  search<NonPV>(pos, ss, beta-1, beta, depth-R, true);
             ss->skipNullMove = false;
 
             if (v >= beta)
@@ -682,11 +682,10 @@ namespace {
         && !ttMove
         && (PvNode || ss->staticEval + Value(256) >= beta))
     {
-        Depth d = depth - 3 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
+        Depth d = depth - 2 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
 
         ss->skipNullMove = true;
-        PvNode ? search<   PV>(pos, ss, alpha, beta, d, false)
-               : search<NonPV>(pos, ss, alpha, beta, d, cutNode);
+        search<PvNode ? PV : NonPV>(pos, ss, alpha, beta, d, true);
         ss->skipNullMove = false;
 
         tte = TT.probe(posKey);
