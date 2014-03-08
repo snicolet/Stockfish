@@ -682,7 +682,7 @@ namespace {
         && !ttMove
         && (PvNode || ss->staticEval + Value(256) >= beta))
     {
-        Depth d = depth - 2 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
+        Depth d = depth - ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
 
         ss->skipNullMove = true;
         PvNode ? search<   PV>(pos, ss, alpha, beta, d, false)
