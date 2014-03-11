@@ -566,6 +566,14 @@ namespace {
     {
         eval = ss->staticEval = evaluate(pos);
         TT.store(posKey, VALUE_NONE, BOUND_NONE, DEPTH_NONE, MOVE_NONE, ss->staticEval);
+        
+        // Update heuristicly the CUT/ALL status of the node
+        // which was given by the father of this node.
+        if (abs(beta) < VALUE_MATE_IN_MAX_PLY)
+        {
+            cutNode |= (eval >= beta + 200);
+            cutNode &= (eval >= beta - 200);
+        }
     }
 
     if (   !pos.captured_piece_type()
@@ -622,7 +630,7 @@ namespace {
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1, DEPTH_ZERO)
-                                      : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, (eval < beta + 100));
+                                      : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
         (ss+1)->skipNullMove = false;
         pos.undo_null_move();
 
@@ -653,6 +661,8 @@ namespace {
     if (   !PvNode
         &&  depth >= 5 * ONE_PLY
         && !ss->skipNullMove
+        &&  eval >= beta + 100
+        &&  abs(eval) < VALUE_MATE_IN_MAX_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
         Value rbeta = std::min(beta + 200, VALUE_INFINITE);
@@ -670,7 +680,7 @@ namespace {
             {
                 ss->currentMove = move;
                 pos.do_move(move, st, ci, pos.gives_check(move, ci));
-                value = -search<NonPV>(pos, ss+1, -rbeta, -rbeta+1, rdepth, !cutNode);
+                value = -search<NonPV>(pos, ss+1, -rbeta, -rbeta+1, rdepth, false);
                 pos.undo_move(move);
                 if (value >= rbeta)
                     return value;
@@ -679,13 +689,13 @@ namespace {
 
     // Step 10. Internal iterative deepening (skipped when in check)
     if (    depth >= (PvNode ? 5 * ONE_PLY : 8 * ONE_PLY)
-        && !ttMove
-        && (PvNode || ss->staticEval + Value(256) >= beta))
+        && !ttMove)
     {
-        Depth d = depth - 2 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
+        Depth d = depth - 3 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
 
         ss->skipNullMove = true;
-        search<PvNode ? PV : NonPV>(pos, ss, alpha, beta, d, true);
+        PvNode ? search<   PV>(pos, ss, alpha, beta, d, false)
+               : search<NonPV>(pos, ss, alpha, beta, d, cutNode);
         ss->skipNullMove = false;
 
         tte = TT.probe(posKey);
@@ -853,19 +863,25 @@ moves_loop: // When in check and at SpNode search starts from here
           continue;
       }
 
-      pvMove = PvNode && moveCount == 1;
+      pvMove = PvNode && (moveCount == 1);
       ss->currentMove = move;
       if (!SpNode && !captureOrPromotion && quietCount < 64)
           quietsSearched[quietCount++] = move;
+        
+      // Update the heuristic CUT/ALL status of the node
+       if (cutNode && (moveCount >= 2))
+       {
+           cutNode = false;
+           depth -= ONE_PLY;
+       }
 
-      // Step 14. Make the move
+      // Step 14. Make the move !
       pos.do_move(move, st, ci, givesCheck);
 
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
           && !pvMove
-          && !captureOrPromotion
           &&  move != ttMove
           &&  move != ss->killers[0]
           &&  move != ss->killers[1])
