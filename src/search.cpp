@@ -566,14 +566,6 @@ namespace {
     {
         eval = ss->staticEval = evaluate(pos);
         TT.store(posKey, VALUE_NONE, BOUND_NONE, DEPTH_NONE, MOVE_NONE, ss->staticEval);
-        
-        // Update heuristicly the CUT/ALL status of the node
-        // which was given by the father of this node.
-        if (abs(beta) < VALUE_MATE_IN_MAX_PLY)
-        {
-            cutNode |= (eval >= beta + 200);
-            cutNode &= (eval >= beta - 200);
-        }
     }
 
     if (   !pos.captured_piece_type()
@@ -623,7 +615,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R =  4 * ONE_PLY
+        Depth R =  3 * ONE_PLY
                  + depth / 4
                  + int(eval - beta) / PawnValueMg * ONE_PLY;
 
@@ -689,7 +681,8 @@ namespace {
 
     // Step 10. Internal iterative deepening (skipped when in check)
     if (    depth >= (PvNode ? 5 * ONE_PLY : 8 * ONE_PLY)
-        && !ttMove)
+        && !ttMove
+        && (PvNode || ss->staticEval + Value(256) >= beta))
     {
         Depth d = depth - 3 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
 
@@ -867,15 +860,8 @@ moves_loop: // When in check and at SpNode search starts from here
       ss->currentMove = move;
       if (!SpNode && !captureOrPromotion && quietCount < 64)
           quietsSearched[quietCount++] = move;
-        
-      // Update the heuristic CUT/ALL status of the node
-       if (cutNode && (moveCount >= 2))
-       {
-           cutNode = false;
-           depth -= ONE_PLY;
-       }
 
-      // Step 14. Make the move !
+      // Step 14. Make the move
       pos.do_move(move, st, ci, givesCheck);
 
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
@@ -939,7 +925,7 @@ moves_loop: // When in check and at SpNode search starts from here
                                      : - search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
       // Step 17. Undo move
       pos.undo_move(move);
-
+      
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
 
       // Step 18. Check for new best move
