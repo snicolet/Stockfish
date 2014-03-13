@@ -637,6 +637,7 @@ namespace {
 
             // Do verification search at high depths
             ss->skipNullMove = true;
+            R -= ONE_PLY;
             Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta, DEPTH_ZERO)
                                         :  search<NonPV>(pos, ss, beta-1, beta, depth-R, true);
             ss->skipNullMove = false;
@@ -684,11 +685,11 @@ namespace {
         && !ttMove
         && (PvNode || ss->staticEval + Value(256) >= beta))
     {
-        Depth d = depth - 3 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
+        Depth d = depth - 2 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
 
         ss->skipNullMove = true;
-        PvNode ? search<   PV>(pos, ss, alpha, beta, d, false)
-               : search<NonPV>(pos, ss, alpha, beta, d, cutNode);
+        PvNode ? search<   PV>(pos, ss, alpha, beta, d, true)
+               : search<NonPV>(pos, ss, alpha, beta, d, true);
         ss->skipNullMove = false;
 
         tte = TT.probe(posKey);
@@ -863,6 +864,17 @@ moves_loop: // When in check and at SpNode search starts from here
 
       // Step 14. Make the move
       pos.do_move(move, st, ci, givesCheck);
+      
+      // Autocorrect the CUT status of the node after a few moves without
+      // a fail-high. We suppose that if a node, which we previously thought
+      // was a CUT node, has not failed-high after a few moves, then it is
+      // probably in fact a ALL node.
+      if (!pvMove && cutNode && (moveCount > 4))
+      {
+          cutNode = false;
+          depth -= ONE_PLY;
+      }
+      
 
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
@@ -925,7 +937,7 @@ moves_loop: // When in check and at SpNode search starts from here
                                      : - search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
       // Step 17. Undo move
       pos.undo_move(move);
-      
+
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
 
       // Step 18. Check for new best move
