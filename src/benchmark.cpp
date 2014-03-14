@@ -149,6 +149,8 @@ void benchmark(const Position& current, istream& is) {
           nodes += Search::RootPos.nodes_searched();
       }
   }
+  
+  dbg_print();
 
   elapsed = Time::now() - elapsed + 1; // Ensure positivity to avoid a 'divide by zero'
 

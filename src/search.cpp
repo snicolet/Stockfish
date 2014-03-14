@@ -637,7 +637,6 @@ namespace {
 
             // Do verification search at high depths
             ss->skipNullMove = true;
-            R -= ONE_PLY;
             Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta, DEPTH_ZERO)
                                         :  search<NonPV>(pos, ss, beta-1, beta, depth-R, true);
             ss->skipNullMove = false;
@@ -685,11 +684,11 @@ namespace {
         && !ttMove
         && (PvNode || ss->staticEval + Value(256) >= beta))
     {
-        Depth d = depth - 2 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
+        Depth d = depth - 3 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
 
         ss->skipNullMove = true;
-        PvNode ? search<   PV>(pos, ss, alpha, beta, d, true)
-               : search<NonPV>(pos, ss, alpha, beta, d, true);
+        PvNode ? search<   PV>(pos, ss, alpha, beta, d, false)
+               : search<NonPV>(pos, ss, alpha, beta, d, cutNode);
         ss->skipNullMove = false;
 
         tte = TT.probe(posKey);
@@ -869,12 +868,11 @@ moves_loop: // When in check and at SpNode search starts from here
       // a fail-high. We suppose that if a node, which we previously thought
       // was a CUT node, has not failed-high after a few moves, then it is
       // probably in fact a ALL node.
-      if (!pvMove && cutNode && (moveCount > 4))
+      if (!pvMove && cutNode && moveCount > 4)
       {
           cutNode = false;
-          depth -= ONE_PLY;
+        //  depth -= ONE_PLY;
       }
-      
 
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
@@ -885,7 +883,7 @@ moves_loop: // When in check and at SpNode search starts from here
           &&  move != ss->killers[0]
           &&  move != ss->killers[1])
       {
-          ss->reduction = reduction<PvNode>(improving, depth, moveCount);
+          ss->reduction = reduction<PvNode>(improving, depth, moveCount) + ONE_PLY / 4;
 
           if (!PvNode && cutNode)
               ss->reduction += ONE_PLY;
