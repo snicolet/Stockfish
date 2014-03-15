@@ -638,7 +638,7 @@ namespace {
             // Do verification search at high depths
             ss->skipNullMove = true;
             Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta, DEPTH_ZERO)
-                                        :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false);
+                                        :  search<NonPV>(pos, ss, beta-1, beta, depth-R, true);
             ss->skipNullMove = false;
 
             if (v >= beta)
@@ -653,6 +653,8 @@ namespace {
     if (   !PvNode
         &&  depth >= 5 * ONE_PLY
         && !ss->skipNullMove
+        &&  eval >= beta + 100
+        &&  abs(eval) < VALUE_MATE_IN_MAX_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
         Value rbeta = std::min(beta + 200, VALUE_INFINITE);
@@ -670,7 +672,7 @@ namespace {
             {
                 ss->currentMove = move;
                 pos.do_move(move, st, ci, pos.gives_check(move, ci));
-                value = -search<NonPV>(pos, ss+1, -rbeta, -rbeta+1, rdepth, !cutNode);
+                value = -search<NonPV>(pos, ss+1, -rbeta, -rbeta+1, rdepth, false);
                 pos.undo_move(move);
                 if (value >= rbeta)
                     return value;
@@ -682,10 +684,11 @@ namespace {
         && !ttMove
         && (PvNode || ss->staticEval + Value(256) >= beta))
     {
-        Depth d = depth - 2 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
+        Depth d = depth - 3 * ONE_PLY - (PvNode ? DEPTH_ZERO : depth / 4);
 
         ss->skipNullMove = true;
-        search<PvNode ? PV : NonPV>(pos, ss, alpha, beta, d, true);
+        PvNode ? search<   PV>(pos, ss, alpha, beta, d, false)
+               : search<NonPV>(pos, ss, alpha, beta, d, cutNode);
         ss->skipNullMove = false;
 
         tte = TT.probe(posKey);
@@ -853,13 +856,25 @@ moves_loop: // When in check and at SpNode search starts from here
           continue;
       }
 
-      pvMove = PvNode && moveCount == 1;
+      pvMove = PvNode && (moveCount == 1);
       ss->currentMove = move;
       if (!SpNode && !captureOrPromotion && quietCount < 64)
           quietsSearched[quietCount++] = move;
 
       // Step 14. Make the move
       pos.do_move(move, st, ci, givesCheck);
+      
+      // Autocorrect the CUT status of a node after a few moves without a
+      // fail-high. The idea is that, in case we thought the current node
+      // was a CUT node, but it has not failed-high after a few moves, then
+      // this current node is in fact an ALL node (probably). We also change
+      // the depth because there will (probably) be a fail-high in the father
+      // of the current node, so it's worth having a little bit more accuracy.
+      if (!pvMove && cutNode && (moveCount > 4))
+      {
+          cutNode = false;
+          depth += 3 * ONE_PLY / 4;
+      }
 
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
@@ -870,7 +885,7 @@ moves_loop: // When in check and at SpNode search starts from here
           &&  move != ss->killers[0]
           &&  move != ss->killers[1])
       {
-          ss->reduction = reduction<PvNode>(improving, depth, moveCount);
+          ss->reduction = reduction<PvNode>(improving, depth, moveCount) + 3 * ONE_PLY / 4 ;
 
           if (!PvNode && cutNode)
               ss->reduction += ONE_PLY;
