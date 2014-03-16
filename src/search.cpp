@@ -898,7 +898,7 @@ moves_loop: // When in check and at SpNode search starts from here
           
           
           if (captureOrPromotion)
-             ss->reduction = ss->reduction - ONE_PLY - ONE_PLY; 
+             ss->reduction = ss->reduction - ONE_PLY - ONE_PLY;
              // ss->reduction =  - ONE_PLY;
           
 
