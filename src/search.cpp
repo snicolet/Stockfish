@@ -873,7 +873,7 @@ moves_loop: // When in check and at SpNode search starts from here
       if (!pvMove && cutNode && (moveCount > 4))
       {
           cutNode = false;
-          // depth += ONE_PLY / 2;
+          depth += ONE_PLY / 2;
       }
 
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
@@ -885,7 +885,7 @@ moves_loop: // When in check and at SpNode search starts from here
           &&  move != ss->killers[0]
           &&  move != ss->killers[1])
       {
-          ss->reduction = reduction<PvNode>(improving, depth, moveCount) + 3 * ONE_PLY / 4 ;
+          ss->reduction = reduction<PvNode>(improving, depth, moveCount);
 
           if (!PvNode && cutNode)
               ss->reduction += ONE_PLY;
@@ -896,9 +896,10 @@ moves_loop: // When in check and at SpNode search starts from here
           if (move == countermoves[0] || move == countermoves[1])
               ss->reduction = std::max(DEPTH_ZERO, ss->reduction - ONE_PLY);
           
-          
           if (captureOrPromotion)
-              ss->reduction = ss->reduction - ONE_PLY;
+             ss->reduction = ss->reduction - ONE_PLY;
+          else
+             ss->reduction = ss->reduction + ONE_PLY;
           
 
           Depth d = std::max(newDepth - ss->reduction, ONE_PLY);
