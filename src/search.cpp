@@ -867,25 +867,19 @@ moves_loop: // When in check and at SpNode search starts from here
       // Autocorrect the CUT status of a node after a few moves without a
       // fail-high. The idea is that, in case we thought the current node
       // was a CUT node, but it has not failed-high after a few moves, then
-      // this current node is in fact an ALL node (probably). We also change
-      // the depth because there will (probably) be a fail-high in the father
-      // of the current node, so it's worth having a little bit more accuracy.
+      // this current node is in fact an ALL node (probably).
       if (!pvMove && cutNode && (moveCount > 4))
-      {
           cutNode = false;
-          depth += ONE_PLY / 2;
-      }
 
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
           && !pvMove
-          // && !captureOrPromotion
           &&  move != ttMove
           &&  move != ss->killers[0]
           &&  move != ss->killers[1])
       {
-          ss->reduction = reduction<PvNode>(improving, depth, moveCount);
+          ss->reduction = reduction<PvNode>(improving, depth, moveCount) + ONE_PLY / 2;
 
           if (!PvNode && cutNode)
               ss->reduction += ONE_PLY;
@@ -897,10 +891,7 @@ moves_loop: // When in check and at SpNode search starts from here
               ss->reduction = std::max(DEPTH_ZERO, ss->reduction - ONE_PLY);
           
           if (captureOrPromotion)
-             ss->reduction = ss->reduction - ONE_PLY;
-          else
-             ss->reduction = ss->reduction + ONE_PLY;
-          
+              ss->reduction = ss->reduction - ONE_PLY; 
 
           Depth d = std::max(newDepth - ss->reduction, ONE_PLY);
           if (SpNode)
