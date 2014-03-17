@@ -863,23 +863,17 @@ moves_loop: // When in check and at SpNode search starts from here
 
       // Step 14. Make the move
       pos.do_move(move, st, ci, givesCheck);
-      
-      // Autocorrect the CUT status of a node after a few moves without a
-      // fail-high. The idea is that, in case we thought the current node
-      // was a CUT node, but it has not failed-high after a few moves, then
-      // this current node is in fact an ALL node (probably).
-      if (!pvMove && cutNode && (moveCount > 4))
-          cutNode = false;
 
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
           && !pvMove
+          && !captureOrPromotion
           &&  move != ttMove
           &&  move != ss->killers[0]
           &&  move != ss->killers[1])
       {
-          ss->reduction = reduction<PvNode>(improving, depth, moveCount) + ONE_PLY / 2;
+          ss->reduction = reduction<PvNode>(improving, depth, moveCount);
 
           if (!PvNode && cutNode)
               ss->reduction += ONE_PLY;
@@ -889,9 +883,6 @@ moves_loop: // When in check and at SpNode search starts from here
 
           if (move == countermoves[0] || move == countermoves[1])
               ss->reduction = std::max(DEPTH_ZERO, ss->reduction - ONE_PLY);
-          
-          if (captureOrPromotion)
-              ss->reduction = ss->reduction - 2 * ONE_PLY;
 
           Depth d = std::max(newDepth - ss->reduction, ONE_PLY);
           if (SpNode)
@@ -1624,7 +1615,7 @@ void check_time() {
   }
 
   Time::point elapsed = Time::now() - SearchTime;
-  bool stillAtFirstMove =    Signals.firstRootMove
+  bool stillAtFirstMove =    Signals.firstRootMov
                          && !Signals.failedLowAtRoot
                          &&  elapsed > TimeMgr.available_time() * 75 / 100;
 
