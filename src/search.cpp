@@ -1615,7 +1615,7 @@ void check_time() {
   }
 
   Time::point elapsed = Time::now() - SearchTime;
-  bool stillAtFirstMove =    Signals.firstRootMov
+  bool stillAtFirstMove =    Signals.firstRootMove
                          && !Signals.failedLowAtRoot
                          &&  elapsed > TimeMgr.available_time() * 75 / 100;
 
