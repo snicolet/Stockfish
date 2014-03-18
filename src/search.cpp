@@ -882,9 +882,6 @@ moves_loop: // When in check and at SpNode search starts from here
           
           if (captureOrPromotion)
               ss->reduction = std::max(DEPTH_ZERO, ss->reduction - ONE_PLY);
-         
-        //  if (captureOrPromotion)
-         //     ss->reduction =  - ONE_PLY;
 
           Depth d = std::max(newDepth - ss->reduction, ONE_PLY);
           if (SpNode)
