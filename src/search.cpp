@@ -653,6 +653,8 @@ namespace {
     if (   !PvNode
         &&  depth >= 5 * ONE_PLY
         && !ss->skipNullMove
+        &&  eval > beta + 100
+        &&  abs(eval) < VALUE_MATE_IN_MAX_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
         Value rbeta = std::min(beta + 200, VALUE_INFINITE);
@@ -670,7 +672,7 @@ namespace {
             {
                 ss->currentMove = move;
                 pos.do_move(move, st, ci, pos.gives_check(move, ci));
-                value = -search<NonPV>(pos, ss+1, -rbeta, -rbeta+1, rdepth, !cutNode);
+                value = -search<NonPV>(pos, ss+1, -rbeta, -rbeta+1, rdepth, false);
                 pos.undo_move(move);
                 if (value >= rbeta)
                     return value;
@@ -869,7 +871,7 @@ moves_loop: // When in check and at SpNode search starts from here
           &&  move != ss->killers[0]
           &&  move != ss->killers[1])
       {
-          ss->reduction = reduction<PvNode>(improving, depth, moveCount) + ONE_PLY / 2;
+          ss->reduction = reduction<PvNode>(improving, depth, moveCount);
 
           if (!PvNode && cutNode)
               ss->reduction += ONE_PLY;
@@ -881,7 +883,7 @@ moves_loop: // When in check and at SpNode search starts from here
               ss->reduction = std::max(DEPTH_ZERO, ss->reduction - ONE_PLY);
           
           if (captureOrPromotion)
-              ss->reduction = std::max(DEPTH_ZERO, ss->reduction - ONE_PLY - ONE_PLY - ONE_PLY);
+              ss->reduction = std::max(DEPTH_ZERO, ss->reduction - ONE_PLY - ONE_PLY);
 
           Depth d = std::max(newDepth - ss->reduction, ONE_PLY);
           if (SpNode)
