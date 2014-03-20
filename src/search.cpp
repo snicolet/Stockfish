@@ -873,7 +873,7 @@ moves_loop: // When in check and at SpNode search starts from here
           ss->reduction = reduction<PvNode>(improving, depth, moveCount);
           
           if (abs(eval) < VALUE_MATE_IN_MAX_PLY)
-              ss->reduction += (abs(eval - alpha) * ONE_PLY) / 100;
+              ss->reduction += (abs(eval - alpha) * ONE_PLY) / 200;
 
           if (!PvNode && cutNode)
               ss->reduction += ONE_PLY;
