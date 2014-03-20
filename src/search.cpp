@@ -653,10 +653,12 @@ namespace {
     if (   !PvNode
         &&  depth >= 5 * ONE_PLY
         && !ss->skipNullMove
+        &&  eval >= beta + 100
+        &&  abs(eval) < VALUE_MATE_IN_MAX_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
         Value rbeta = std::min(beta + 200, VALUE_INFINITE);
-        Depth rdepth = depth - 4 * ONE_PLY;
+        Depth rdepth = depth - 4 * ONE_PLY - ONE_PLY / 2;
 
         assert(rdepth >= ONE_PLY);
         assert((ss-1)->currentMove != MOVE_NONE);
@@ -670,7 +672,7 @@ namespace {
             {
                 ss->currentMove = move;
                 pos.do_move(move, st, ci, pos.gives_check(move, ci));
-                value = -search<NonPV>(pos, ss+1, -rbeta, -rbeta+1, rdepth, !cutNode);
+                value = -search<NonPV>(pos, ss+1, -rbeta, -rbeta+1, rdepth, false);
                 pos.undo_move(move);
                 if (value >= rbeta)
                     return value;
