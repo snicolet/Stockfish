@@ -881,11 +881,15 @@ moves_loop: // When in check and at SpNode search starts from here
           if (move == countermoves[0] || move == countermoves[1])
               ss->reduction = std::max(DEPTH_ZERO, ss->reduction - ONE_PLY);
 
-          Depth d = std::max(newDepth - ss->reduction, ONE_PLY);
+          Depth d = newDepth - ss->reduction;
+          
           if (SpNode)
               alpha = splitPoint->alpha;
 
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          value = d < ONE_PLY ?
+                   givesCheck ? -qsearch<NonPV,  true>(pos, ss+1, -(alpha+1), -alpha, DEPTH_ZERO)
+                              : -qsearch<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, DEPTH_ZERO)
+                              : - search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           // Research at intermediate depth if reduction is very high
           if (value > alpha && ss->reduction >= 4 * ONE_PLY)
