@@ -864,7 +864,7 @@ moves_loop: // When in check and at SpNode search starts from here
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       
-      bool LMR_worth_to_try =  abs(eval) >= VALUE_MATE_IN_MAX_PLY || eval < alpha + 100;
+      bool LMR_worth_to_try =  abs(eval) >= VALUE_MATE_IN_MAX_PLY || eval < alpha + 200;
       
       if (    depth >= 3 * ONE_PLY
           &&  LMR_worth_to_try
@@ -875,13 +875,6 @@ moves_loop: // When in check and at SpNode search starts from here
           &&  move != ss->killers[1])
       {
           ss->reduction = reduction<PvNode>(improving, depth, moveCount);
-          
-          /*
-          if (abs(eval) < VALUE_MATE_IN_MAX_PLY)
-              ss->reduction =  3 * ss->reduction / 4 +
-                               std::max(DEPTH_ZERO,
-                                        (abs(eval - alpha) * ONE_PLY) / 300 - ONE_PLY / 2);
-        */
 
           if (!PvNode && cutNode)
               ss->reduction += ONE_PLY;
