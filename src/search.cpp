@@ -864,7 +864,7 @@ moves_loop: // When in check and at SpNode search starts from here
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       
-      bool LMR_worth_to_try =  abs(eval) >= VALUE_MATE_IN_MAX_PLY || eval < alpha + 150;
+      bool LMR_worth_to_try =  abs(eval) >= VALUE_MATE_IN_MAX_PLY || eval < alpha + 100;
       
       if (    depth >= 3 * ONE_PLY
           &&  LMR_worth_to_try
