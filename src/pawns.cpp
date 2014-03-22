@@ -163,8 +163,8 @@ namespace {
             e->passedPawns[Us] |= s;
 
         // Score this pawn
-        if (isolated && !passed)
-            value -= Isolated[opposed][f];
+        if (isolated)
+            value -= (passed ? Isolated[opposed][f] / 2 : Isolated[opposed][f]);
 
         if (doubled)
             value -= Doubled[f];
