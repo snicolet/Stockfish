@@ -873,25 +873,22 @@ moves_loop: // When in check and at SpNode search starts from here
       {
           ss->reduction = reduction<PvNode>(improving, depth, moveCount);
           
-          bool localCutNode =
-                          (abs(beta) < VALUE_MATE_IN_MAX_PLY)
-                       && (abs(eval) < VALUE_MATE_IN_MAX_PLY)
-                       && (eval > beta + 50);
+          if (   !PvNode
+              &&  abs(beta) < VALUE_MATE_IN_MAX_PLY
+              &&  abs(eval) < VALUE_MATE_IN_MAX_PLY
+              &&  eval > beta + 50)      // probable cut node
+              ss->reduction += ONE_PLY;
           
-          if (!PvNode && localCutNode)
-              ss->reduction += ONE_PLY / 2;
-          
-          else if (History[pos.piece_on(to_sq(move))][to_sq(move)] < 0)
+          if (History[pos.piece_on(to_sq(move))][to_sq(move)] < 0)
               ss->reduction += ONE_PLY / 2;
 
           if (move == countermoves[0] || move == countermoves[1])
               ss->reduction = std::max(DEPTH_ZERO, ss->reduction - ONE_PLY);
 
-          Depth d = newDepth - ss->reduction;
-          
           if (SpNode)
               alpha = splitPoint->alpha;
           
+          Depth d = newDepth - ss->reduction;
           value = d < ONE_PLY ?
                    givesCheck ? -qsearch<NonPV,  true>(pos, ss+1, -(alpha+1), -alpha, DEPTH_ZERO)
                               : -qsearch<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, DEPTH_ZERO)
