@@ -61,7 +61,7 @@ namespace {
   const Score PawnsFileSpan = S(0, 15);
 
   // Unsupported pawn penalty
-  const Score UnsupportedPawnPenalty = S(20, 10);
+  const Score UnsupportedPawnPenalty = S(20, 40);
 
   // Weakness of our pawn shelter in front of the king indexed by [rank]
   const Value ShelterWeakness[RANK_NB] =
