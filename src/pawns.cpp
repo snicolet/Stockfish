@@ -119,9 +119,6 @@ namespace {
         // Previous rank
         p = rank_bb(s - pawn_push(Us));
 
-        // Previous rank
-        p = rank_bb(s - pawn_push(Us));
-
         // Our rank plus previous one
         b = rank_bb(s) | p;
 
@@ -176,9 +173,6 @@ namespace {
         if (isolated)
             value -= Isolated[opposed][f];
         
-        if (unsupported && !isolated)
-            value -= UnsupportedPawnPenalty;
-
         if (unsupported && !isolated)
             value -= UnsupportedPawnPenalty;
 
