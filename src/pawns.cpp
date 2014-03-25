@@ -170,7 +170,7 @@ namespace {
             e->passedPawns[Us] |= s;
 
         // Score this pawn
-        if (isolated)
+        if (isolated && !passed)
             value -= Isolated[opposed][f];
         
         if (unsupported && !isolated)
