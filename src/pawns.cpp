@@ -59,17 +59,10 @@ namespace {
 
   // Bonus for file distance of the two outermost pawns
   const Score PawnsFileSpan = S(0, 15);
-<<<<<<< HEAD
   
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
-  
-=======
 
-  // Unsupported pawn penalty
-  const Score UnsupportedPawnPenalty = S(20, 10);
-
->>>>>>> master
   // Weakness of our pawn shelter in front of the king indexed by [rank]
   const Value ShelterWeakness[RANK_NB] =
   { V(100), V(0), V(27), V(73), V(92), V(101), V(101) };
@@ -132,13 +125,8 @@ namespace {
         // Our rank plus previous one
         b = rank_bb(s) | p;
 
-<<<<<<< HEAD
-        // Flag the pawn as passed, isolated, doubled, unsupported or
-        // connected (but not the backward one).
-=======
         // Flag the pawn as passed, isolated, doubled,
         // unsupported or connected (but not the backward one).
->>>>>>> master
         connected   =   ourPawns   & adjacent_files_bb(f) & b;
         unsupported = !(ourPawns   & adjacent_files_bb(f) & p);
         isolated    = !(ourPawns   & adjacent_files_bb(f));
