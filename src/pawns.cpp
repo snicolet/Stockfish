@@ -171,7 +171,7 @@ namespace {
 
         // Score this pawn
         if (isolated)
-            value -= (passed ? Isolated[opposed][f] / 2 : Isolated[opposed][f]);
+            value -= (passed ? 3 * Isolated[opposed][f] / 4 : Isolated[opposed][f]);
         
         if (unsupported && !isolated)
             value -= UnsupportedPawnPenalty;
