@@ -64,6 +64,12 @@ namespace {
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
   
+=======
+
+  // Unsupported pawn penalty
+  const Score UnsupportedPawnPenalty = S(20, 10);
+
+>>>>>>> master
   // Weakness of our pawn shelter in front of the king indexed by [rank]
   const Value ShelterWeakness[RANK_NB] =
   { V(100), V(0), V(27), V(73), V(92), V(101), V(101) };
@@ -121,12 +127,18 @@ namespace {
         p = rank_bb(s - pawn_push(Us));
 
         // Previous rank
+        p = rank_bb(s - pawn_push(Us));
+
         // Our rank plus previous one
         b = rank_bb(s) | p;
 
+<<<<<<< HEAD
         // Flag the pawn as passed, isolated, doubled, unsupported or
         // connected (but not the backward one).
 =======
+        // Flag the pawn as passed, isolated, doubled,
+        // unsupported or connected (but not the backward one).
+>>>>>>> master
         connected   =   ourPawns   & adjacent_files_bb(f) & b;
         unsupported = !(ourPawns   & adjacent_files_bb(f) & p);
         isolated    = !(ourPawns   & adjacent_files_bb(f));
@@ -180,6 +192,8 @@ namespace {
             value -= UnsupportedPawnPenalty;
 
         if (unsupported && !isolated)
+            value -= UnsupportedPawnPenalty;
+
         if (doubled)
             value -= Doubled[f];
 
@@ -271,7 +285,6 @@ Value Entry::shelter_storm(const Position& pos, Square ksq) {
       b  = theirPawns & file_bb(f);
       rkThem = b ? relative_rank(Us, frontmost_sq(Them, b)) : RANK_1;
 
-      if (   (MiddleEdges & (f | rkThem))
       if (   (MiddleEdges & make_square(f, rkThem))
           && file_of(ksq) == f
           && relative_rank(Us, ksq) == rkThem - 1)
