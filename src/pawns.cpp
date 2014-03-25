@@ -59,6 +59,7 @@ namespace {
 
   // Bonus for file distance of the two outermost pawns
   const Score PawnsFileSpan = S(0, 15);
+<<<<<<< HEAD
   
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
@@ -119,11 +120,13 @@ namespace {
         // Previous rank
         p = rank_bb(s - pawn_push(Us));
 
+        // Previous rank
         // Our rank plus previous one
         b = rank_bb(s) | p;
 
         // Flag the pawn as passed, isolated, doubled, unsupported or
         // connected (but not the backward one).
+=======
         connected   =   ourPawns   & adjacent_files_bb(f) & b;
         unsupported = !(ourPawns   & adjacent_files_bb(f) & p);
         isolated    = !(ourPawns   & adjacent_files_bb(f));
@@ -176,6 +179,7 @@ namespace {
         if (unsupported && !isolated)
             value -= UnsupportedPawnPenalty;
 
+        if (unsupported && !isolated)
         if (doubled)
             value -= Doubled[f];
 
@@ -268,6 +272,7 @@ Value Entry::shelter_storm(const Position& pos, Square ksq) {
       rkThem = b ? relative_rank(Us, frontmost_sq(Them, b)) : RANK_1;
 
       if (   (MiddleEdges & (f | rkThem))
+      if (   (MiddleEdges & make_square(f, rkThem))
           && file_of(ksq) == f
           && relative_rank(Us, ksq) == rkThem - 1)
           safety += Value(200);

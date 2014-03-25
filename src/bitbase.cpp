@@ -111,6 +111,7 @@ namespace {
     bksq = Square((idx >>  6) & 0x3F);
     us   = Color ((idx >> 12) & 0x01);
     psq  = File  ((idx >> 13) & 0x03) | Rank(RANK_7 - (idx >> 15));
+    psq  = make_square(File((idx >> 13) & 0x03), Rank(RANK_7 - (idx >> 15)));
     result  = UNKNOWN;
 
     // Check if two pieces are on the same square or if a king can be captured
