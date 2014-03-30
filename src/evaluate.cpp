@@ -355,9 +355,9 @@ Value do_evaluate(const Position& pos) {
   int whiteMaterial = 5 * popcount<Full>(pos.pieces(WHITE));
   int blackMaterial = 5 * popcount<Full>(pos.pieces(BLACK));
   if (mg_value(score) > VALUE_DRAW)
-      score += make_score(whiteMaterial, whiteMaterial);
+      score += make_score(whiteMaterial, whiteMaterial / 2 );
   else if (mg_value(score) < VALUE_DRAW)
-      score -= make_score(blackMaterial, blackMaterial);
+      score -= make_score(blackMaterial, blackMaterial / 2 );
 
 
   // Scale winning side if position is more drawish than it appears
@@ -385,8 +385,6 @@ Value do_evaluate(const Position& pos) {
           // a bit drawish, but not as drawish as with only the two bishops.
            sf = ScaleFactor(50 * sf / SCALE_FACTOR_NORMAL);
   }
-  
-  
 
   Value v = interpolate(score, ei.mi->game_phase(), sf);
 
