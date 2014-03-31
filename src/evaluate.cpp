@@ -355,9 +355,9 @@ Value do_evaluate(const Position& pos) {
   int whiteMaterial = 5 * popcount<Full>(pos.pieces(WHITE));
   int blackMaterial = 5 * popcount<Full>(pos.pieces(BLACK));
   if (mg_value(score) > VALUE_DRAW)
-      score += make_score(whiteMaterial, whiteMaterial / 2 );
+      score += make_score(whiteMaterial , (whiteMaterial+blackMaterial/2) / 2 );
   else if (mg_value(score) < VALUE_DRAW)
-      score -= make_score(blackMaterial, blackMaterial / 2 );
+      score -= make_score(blackMaterial , (blackMaterial+whiteMaterial/2) / 2 );
 
 
   // Scale winning side if position is more drawish than it appears
