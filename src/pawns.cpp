@@ -60,8 +60,13 @@ namespace {
   // Bonus for file distance of the two outermost pawns
   const Score PawnsFileSpan = S(0, 15);
 
-  // Unsupported pawn penalty
-  const Score UnsupportedPawnPenalty = S(20, 10);
+  // Bonus/Malus for pawns on semi-opened files by supported flag
+  const Score SemiOpen[2] = {
+    S(-20, -10), S(0, 0) };
+
+  // Support pawn value by supported flag
+  const Score Support[2] = {
+    S(0, -10), S(20, 0) };
 
   // Weakness of our pawn shelter in front of the king indexed by [rank]
   const Value ShelterWeakness[RANK_NB] =
@@ -92,7 +97,7 @@ namespace {
     Bitboard b, p;
     Square s;
     File f;
-    bool passed, isolated, doubled, opposed, connected, backward, candidate, unsupported;
+    bool passed, isolated, doubled, opposed, connected, backward, candidate, supported, semiOpen;
     Score value = SCORE_ZERO;
     const Square* pl = pos.list<PAWN>(Us);
 
@@ -122,14 +127,17 @@ namespace {
         // Our rank plus previous one
         b = rank_bb(s) | p;
 
-        // Flag the pawn as passed, isolated, doubled,
-        // unsupported or connected (but not the backward one).
+        // Flag the pawn as connected, supported, isolated, opposed,
+        // doubled or passed (other flags will be calculated later).
         connected   =   ourPawns   & adjacent_files_bb(f) & b;
-        unsupported = !(ourPawns   & adjacent_files_bb(f) & p);
+        supported   =   ourPawns   & adjacent_files_bb(f) & p;
         isolated    = !(ourPawns   & adjacent_files_bb(f));
         doubled     =   ourPawns   & forward_bb(Us, s);
         opposed     =   theirPawns & forward_bb(Us, s);
         passed      = !(theirPawns & passed_pawn_mask(Us, s));
+        
+        // Test for semi-open pawn.
+        semiOpen    = !opposed && !doubled && !passed;
 
         // Test for backward pawn.
         // If the pawn is passed, isolated, or connected it cannot be
@@ -172,15 +180,17 @@ namespace {
         // Score this pawn
         if (isolated)
             value -= Isolated[opposed][f];
-
-        if (unsupported && !isolated)
-            value -= UnsupportedPawnPenalty;
+        else
+            value += Support[supported];
 
         if (doubled)
             value -= Doubled[f];
 
         if (backward)
             value -= Backward[opposed][f];
+        
+        if (semiOpen)
+            value += SemiOpen[supported];
 
         if (connected)
             value += Connected[f][relative_rank(Us, s)];

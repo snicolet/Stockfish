@@ -175,7 +175,7 @@ enum Value {
   VALUE_ENSURE_INTEGER_SIZE_P = INT_MAX,
   VALUE_ENSURE_INTEGER_SIZE_N = INT_MIN,
 
-  PawnValueMg   = 198,   PawnValueEg   = 258,
+  PawnValueMg   = 178,   PawnValueEg   = 258,
   KnightValueMg = 817,   KnightValueEg = 846,
   BishopValueMg = 836,   BishopValueEg = 857,
   RookValueMg   = 1270,  RookValueEg   = 1278,
