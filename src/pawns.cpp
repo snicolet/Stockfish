@@ -64,9 +64,8 @@ namespace {
   const Score SemiOpen[2] = {
     S(-20, -10), S(0, 0) };
 
-  // Support pawn value by supported flag
-  const Score Support[2] = {
-    S(0, -10), S(20, 0) };
+  // Unsupported pawn penalty
+  const Score UnsupportedPawnPenalty = S(20, 10);
 
   // Weakness of our pawn shelter in front of the king indexed by [rank]
   const Value ShelterWeakness[RANK_NB] =
@@ -180,8 +179,9 @@ namespace {
         // Score this pawn
         if (isolated)
             value -= Isolated[opposed][f];
-        else
-            value += Support[supported];
+
+        if (!supported && !isolated)
+            value -= UnsupportedPawnPenalty;
 
         if (doubled)
             value -= Doubled[f];
