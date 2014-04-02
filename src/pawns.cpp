@@ -42,13 +42,6 @@ namespace {
   { S(25, 30), S(36, 35), S(40, 35), S(40, 35),
     S(40, 35), S(40, 35), S(36, 35), S(25, 30) } };
 
-  // Backward pawn penalty by opposed flag and file
-  const Score Backward[2][FILE_NB] = {
-  { S(30, 42), S(43, 46), S(49, 46), S(49, 46),
-    S(49, 46), S(49, 46), S(43, 46), S(30, 42) },
-  { S(20, 28), S(29, 31), S(33, 31), S(33, 31),
-    S(33, 31), S(33, 31), S(29, 31), S(20, 28) } };
-
   // Connected pawn bonus by file and rank (initialized by formula)
   Score Connected[FILE_NB][RANK_NB];
 
@@ -62,10 +55,11 @@ namespace {
 
   // Bonus/Malus for pawns on semi-opened files by supported flag
   const Score SemiOpen[2] = {
-    S(-20, -10), S(0, 0) };
+    S(0, 0), S(20, 10) };
 
-  // Unsupported pawn penalty
-  const Score UnsupportedPawnPenalty = S(20, 10);
+  // Support pawn value by supported flag
+  const Score Support[2] = {
+    S(-10, -10), S(20, 10) };
 
   // Weakness of our pawn shelter in front of the king indexed by [rank]
   const Value ShelterWeakness[RANK_NB] =
@@ -89,14 +83,13 @@ namespace {
   Score evaluate(const Position& pos, Pawns::Entry* e) {
 
     const Color  Them  = (Us == WHITE ? BLACK    : WHITE);
-    const Square Up    = (Us == WHITE ? DELTA_N  : DELTA_S);
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
     Bitboard b, p;
     Square s;
     File f;
-    bool passed, isolated, doubled, opposed, connected, backward, candidate, supported, semiOpen;
+    bool passed, isolated, doubled, opposed, connected, candidate, supported, semiOpen;
     Score value = SCORE_ZERO;
     const Square* pl = pos.list<PAWN>(Us);
 
@@ -138,35 +131,13 @@ namespace {
         // Test for semi-open pawn.
         semiOpen    = !opposed && !doubled && !passed;
 
-        // Test for backward pawn.
-        // If the pawn is passed, isolated, or connected it cannot be
-        // backward. If there are friendly pawns behind on adjacent files
-        // or if it can capture an enemy pawn it cannot be backward either.
-        if (   (passed | isolated | connected)
-            || (ourPawns & pawn_attack_span(Them, s))
-            || (pos.attacks_from<PAWN>(s, Us) & theirPawns))
-            backward = false;
-        else
-        {
-            // We now know that there are no friendly pawns beside or behind this
-            // pawn on adjacent files. We now check whether the pawn is
-            // backward by looking in the forward direction on the adjacent
-            // files, and picking the closest pawn there.
-            b = pawn_attack_span(Us, s) & (ourPawns | theirPawns);
-            b = pawn_attack_span(Us, s) & rank_bb(backmost_sq(Us, b));
-
-            // If we have an enemy pawn in the same or next rank, the pawn is
-            // backward because it cannot advance without being captured.
-            backward = (b | shift_bb<Up>(b)) & theirPawns;
-        }
-
         assert(opposed | passed | (pawn_attack_span(Us, s) & theirPawns));
 
         // A not-passed pawn is a candidate to become passed, if it is free to
         // advance and if the number of friendly pawns beside or behind this
         // pawn on adjacent files is higher than or equal to the number of
         // enemy pawns in the forward direction on the adjacent files.
-        candidate =   !(opposed | passed | backward | isolated)
+        candidate =   !(opposed | passed | isolated)
                    && (b = pawn_attack_span(Them, s + pawn_push(Us)) & ourPawns) != 0
                    &&  popcount<Max15>(b) >= popcount<Max15>(pawn_attack_span(Us, s) & theirPawns);
 
@@ -179,15 +150,11 @@ namespace {
         // Score this pawn
         if (isolated)
             value -= Isolated[opposed][f];
-
-        if (!supported && !isolated)
-            value -= UnsupportedPawnPenalty;
+        else
+            value += Support[supported];
 
         if (doubled)
             value -= Doubled[f];
-
-        if (backward)
-            value -= Backward[opposed][f];
         
         if (semiOpen)
             value += SemiOpen[supported];
