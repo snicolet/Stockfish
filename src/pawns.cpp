@@ -62,6 +62,9 @@ namespace {
 
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
+  
+  // Doubled and isolated pawn penalty
+  const Score DoubledIsolatedPawnPenalty = S(15, 39);
 
   // Weakness of our pawn shelter in front of the king indexed by [rank]
   const Value ShelterWeakness[RANK_NB] =
@@ -178,6 +181,9 @@ namespace {
 
         if (doubled)
             value -= Doubled[f];
+        
+        if (doubled && isolated && opposed)
+            value -= DoubledIsolatedPawnPenalty;
 
         if (backward)
             value -= Backward[opposed][f];
