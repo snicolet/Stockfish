@@ -64,7 +64,7 @@ namespace {
   const Score UnsupportedPawnPenalty = S(20, 10);
   
   // Doubled and isolated pawn penalty
-  const Score DoubledIsolatedPawnPenalty = S(15, 39);
+  const Score DoubledIsolatedPawnPenalty = S(20, 40);
 
   // Weakness of our pawn shelter in front of the king indexed by [rank]
   const Value ShelterWeakness[RANK_NB] =
