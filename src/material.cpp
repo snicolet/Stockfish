@@ -126,6 +126,16 @@ namespace {
             value -= 66 * 16;
     }
 
+    // Rook and pawns vs. 3 minors slightly favours the minors
+    if (pieceCount[Us][ROOK] - pieceCount[Them][ROOK] == 1)
+    {
+        int n = pieceCount[Them][KNIGHT] - pieceCount[Us][KNIGHT];
+        int b = pieceCount[Them][BISHOP] - pieceCount[Us][BISHOP];
+
+        if ((n == 2 && b == 1) || (n == 1 && b == 2))
+            value += 66 * (pieceCount[Us][PAWN] - pieceCount[Them][PAWN] - 3 ) * 16;
+    }
+
     return value;
   }
 
