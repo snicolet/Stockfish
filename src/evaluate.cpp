@@ -347,14 +347,40 @@ Value do_evaluate(const Position& pos) {
       score += apply_weight(s * ei.mi->space_weight(), Weights[Space]);
   }
   
-  // Keep material if ahead
+  // Keep pawns and exchange pieces if ahead
   int whiteMaterial = 5 * popcount<Full>(pos.pieces(WHITE));
   int blackMaterial = 5 * popcount<Full>(pos.pieces(BLACK));
+  int whitePawns    = 5 * pos.count<PAWN>(WHITE);
+  int blackPawns    = 5 * pos.count<PAWN>(BLACK);
+  int whiteImb      = whitePawns - whiteMaterial;
+  int blackImb      = blackPawns - blackMaterial;
+  
+  /*
   if (mg_value(score) > VALUE_DRAW)
-      score += make_score(whiteMaterial , (whiteMaterial+blackMaterial/2) / 2 );
+      score += make_score(  whiteImb ,
+                            whiteImb  / 2);
   else if (mg_value(score) < VALUE_DRAW)
-      score -= make_score(blackMaterial , (blackMaterial+whiteMaterial/2) / 2 );
-
+      score -= make_score(  blackImb ,
+                            blackImb  / 2);
+  */
+  
+  
+  if (mg_value(score) > VALUE_DRAW)
+      score += make_score(  whiteImb + blackImb/2,
+                           (whiteImb + blackImb/2) / 2);
+  else if (mg_value(score) < VALUE_DRAW)
+      score -= make_score(  blackImb + whiteImb/2 ,
+                           (blackImb + whiteImb/2) / 2);
+  
+  
+  /*
+  if (mg_value(score) > VALUE_DRAW)
+      score += make_score(  whiteImb - blackImb/2,
+                           (whiteImb - blackImb/2) / 2);
+  else if (mg_value(score) < VALUE_DRAW)
+      score -= make_score(  blackImb - whiteImb/2 ,
+                           (blackImb - whiteImb/2) / 2);
+  */
 
   // Scale winning side if position is more drawish than it appears
   ScaleFactor sf = eg_value(score) > VALUE_DRAW ? ei.mi->scale_factor(pos, WHITE)
