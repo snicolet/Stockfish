@@ -364,23 +364,31 @@ Value do_evaluate(const Position& pos) {
                             blackImb  / 2);
   */
   
-  
+  /*
   if (mg_value(score) > VALUE_DRAW)
-      score += make_score(  whiteImb + blackImb/2,
-                           (whiteImb + blackImb/2) / 2);
+      score += make_score(  whiteImb + blackImb / 2,
+                           (whiteImb + blackImb / 2) / 2);
   else if (mg_value(score) < VALUE_DRAW)
-      score -= make_score(  blackImb + whiteImb/2 ,
-                           (blackImb + whiteImb/2) / 2);
-  
+      score -= make_score(  blackImb + whiteImb / 2 ,
+                           (blackImb + whiteImb / 2) / 2);
+  */
   
   /*
   if (mg_value(score) > VALUE_DRAW)
-      score += make_score(  whiteImb - blackImb/2,
-                           (whiteImb - blackImb/2) / 2);
+      score += make_score(  whiteImb - blackImb / 2,
+                           (whiteImb - blackImb / 2) / 2);
   else if (mg_value(score) < VALUE_DRAW)
-      score -= make_score(  blackImb - whiteImb/2 ,
-                           (blackImb - whiteImb/2) / 2);
+      score -= make_score(  blackImb - whiteImb / 2 ,
+                           (blackImb - whiteImb / 2) / 2);
   */
+  
+  if (mg_value(score) > VALUE_DRAW)
+      score += make_score(  (whiteImb + blackImb) / 2,
+                            (whiteImb + blackImb) / 4);
+  else if (mg_value(score) < VALUE_DRAW)
+      score -= make_score(  (blackImb + whiteImb) / 2 ,
+                            (blackImb + whiteImb) / 4);
+  
 
   // Scale winning side if position is more drawish than it appears
   ScaleFactor sf = eg_value(score) > VALUE_DRAW ? ei.mi->scale_factor(pos, WHITE)
