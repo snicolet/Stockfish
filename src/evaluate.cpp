@@ -347,48 +347,20 @@ Value do_evaluate(const Position& pos) {
       score += apply_weight(s * ei.mi->space_weight(), Weights[Space]);
   }
   
-  // Keep pawns and exchange pieces if ahead
-  int whiteMaterial = 5 * popcount<Full>(pos.pieces(WHITE));
-  int blackMaterial = 5 * popcount<Full>(pos.pieces(BLACK));
-  int whitePawns    = 5 * pos.count<PAWN>(WHITE);
-  int blackPawns    = 5 * pos.count<PAWN>(BLACK);
-  int whiteImb      = whitePawns - whiteMaterial;
-  int blackImb      = blackPawns - blackMaterial;
-  
-  /*
+  // If ahead, keep pawns and exchange pieces
+  int wp  = pos.count<PAWN>(WHITE);
+  int bp  = pos.count<PAWN>(BLACK);
+  int wm  = popcount<Full>(pos.pieces(WHITE)) - wp;
+  int bm  = popcount<Full>(pos.pieces(BLACK)) - bp;
+    
+  int whiteFlexibility = (6 * wp - 2 * bp - 12 * wm - 8 * bm) / 6;
+  int blackFlexibility = (6 * bp - 2 * wp - 12 * bm - 8 * wm) / 6;
+    
   if (mg_value(score) > VALUE_DRAW)
-      score += make_score(  whiteImb ,
-                            whiteImb  / 2);
+      score += make_score( whiteFlexibility / 2 - blackFlexibility , whiteFlexibility / 2 );
   else if (mg_value(score) < VALUE_DRAW)
-      score -= make_score(  blackImb ,
-                            blackImb  / 2);
-  */
-  
-  /*
-  if (mg_value(score) > VALUE_DRAW)
-      score += make_score(  whiteImb + blackImb / 2,
-                           (whiteImb + blackImb / 2) / 2);
-  else if (mg_value(score) < VALUE_DRAW)
-      score -= make_score(  blackImb + whiteImb / 2 ,
-                           (blackImb + whiteImb / 2) / 2);
-  */
-  
-  /*
-  if (mg_value(score) > VALUE_DRAW)
-      score += make_score(  whiteImb - blackImb / 2,
-                           (whiteImb - blackImb / 2) / 2);
-  else if (mg_value(score) < VALUE_DRAW)
-      score -= make_score(  blackImb - whiteImb / 2 ,
-                           (blackImb - whiteImb / 2) / 2);
-  */
-  
-  if (mg_value(score) > VALUE_DRAW)
-      score += make_score(  (whiteImb + blackImb) / 2,
-                            (whiteImb + blackImb) / 4);
-  else if (mg_value(score) < VALUE_DRAW)
-      score -= make_score(  (blackImb + whiteImb) / 2 ,
-                            (blackImb + whiteImb) / 4);
-  
+      score -= make_score( blackFlexibility / 2 - whiteFlexibility , blackFlexibility / 2 );
+
 
   // Scale winning side if position is more drawish than it appears
   ScaleFactor sf = eg_value(score) > VALUE_DRAW ? ei.mi->scale_factor(pos, WHITE)
