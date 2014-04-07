@@ -1226,7 +1226,7 @@ bool Position::pos_is_ok(int* step) const {
           || st->materialKey != si.materialKey
           || st->npMaterial[WHITE] != si.npMaterial[WHITE]
           || st->npMaterial[BLACK] != si.npMaterial[BLACK]
-          || st->psq != si.psq
+          || score_to_int(st->psq) != score_to_int(si.psq)
           || st->checkersBB != si.checkersBB)
           return false;
   }

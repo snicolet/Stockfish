@@ -341,7 +341,7 @@ Value do_evaluate(const Position& pos) {
               - evaluate_unstoppable_pawns(pos, BLACK, ei);
 
   // Evaluate space for both sides, only in middlegame
-  if (ei.mi->space_weight())
+  if (score_to_int(ei.mi->space_weight()) != 0)
   {
       int s = evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei);
       score += apply_weight(s * ei.mi->space_weight(), Weights[Space]);
