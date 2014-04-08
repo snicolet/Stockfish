@@ -65,8 +65,8 @@ namespace {
 
   // Bonus/Malus for pawns on semi-opened files by [backward,unsupported] flags
   const Score SemiOpen[2][2] = {
-    { S(20,10), S(-20,-10) },    // supported, unsupported
-    { S(0, 0) , S(-40,-20) } };  // backward supported, backward unsupported
+    { V(15), V(-15) },    // supported, unsupported
+    { V(0) , V(-30) } };  // backward supported, backward unsupported
 
   // Weakness of our pawn shelter in front of the king indexed by [rank]
   const Value ShelterWeakness[RANK_NB] =
