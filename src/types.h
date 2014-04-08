@@ -253,12 +253,32 @@ enum Score {
   SCORE_ENSURE_INTEGER_SIZE_N = INT_MIN
 };
 
-inline Score make_score(int mg, int eg) { return Score((mg << 16) + eg); }
+
+extern void dbg_mean_of(int v);
+
+// utility function to catch overflow in score manipulations
+inline void check_value_overflow(int64_t value) {
+  assert(value >= SHRT_MIN);
+  assert(value <= SHRT_MAX);
+  assert(value >= -VALUE_NONE);
+  assert(value <=  VALUE_NONE);
+}
+
+//inline Score make_score(int mg, int eg) { return Score((mg << 16) + eg); }
+inline Score make_score(int mg, int eg) {
+  check_value_overflow(mg);
+  check_value_overflow(eg);
+  return Score((mg << 16) + eg);
+}
 
 /// Extracting the signed lower and upper 16 bits is not so trivial because
 /// according to the standard a simple cast to short is implementation defined
 /// and so is a right shift of a signed integer.
-inline Value mg_value(Score s) { return Value(((s + 0x8000) & ~0xffff) / 0x10000); }
+inline Value mg_value(Score s) {
+  int result = ((s + 0x8000) & ~0xffff) / 0x10000;
+  check_value_overflow(result);
+  return Value(result);
+}
 
 /// On Intel 64 bit we have a small speed regression with the standard conforming
 /// version. Therefore, in this case we use faster code that, although not 100%
@@ -304,7 +324,62 @@ ENABLE_OPERATORS_ON(Rank)
 inline Value operator+(Value v, int i) { return Value(int(v) + i); }
 inline Value operator-(Value v, int i) { return Value(int(v) - i); }
 
-ENABLE_SAFE_OPERATORS_ON(Score)
+//ENABLE_SAFE_OPERATORS_ON(Score)
+
+#define CHECK_OVERFLOW(d1, d2, op)  \
+    int64_t m1 = mg_value(d1);      \
+    int64_t m2 = mg_value(d2);      \
+    int64_t e1 = eg_value(d1);      \
+    int64_t e2 = eg_value(d2);      \
+    check_value_overflow(m1);       \
+    check_value_overflow(m2);       \
+    check_value_overflow(e1);       \
+    check_value_overflow(e2);       \
+    check_value_overflow(m1 op m2);  \
+    check_value_overflow(e1 op e2);  \
+
+
+
+inline Score operator+(const Score d1, const Score d2) {
+    CHECK_OVERFLOW(d1, d2, +)
+    return Score(int(d1) + int(d2));
+}
+
+inline Score operator-(const Score d1, const Score d2) {
+    CHECK_OVERFLOW( d1, d2, -)
+    return Score(int(d1) - int(d2));
+}
+
+inline Score operator*(int i, const Score d) {
+    CHECK_OVERFLOW(make_score(i , i), d , *)
+    return Score(i * int(d));
+}
+
+inline Score operator*(const Score d, int i) {
+    CHECK_OVERFLOW(make_score(i , i), d , *)
+    return Score(int(d) * i);
+}
+
+inline Score operator-(const Score d) {
+    CHECK_OVERFLOW(make_score(0 , 0), d , -)
+    return Score(-int(d));
+}
+
+inline Score& operator+=(Score& d1, const Score d2) {
+    CHECK_OVERFLOW(d1, d2, +)
+    return d1 = d1 + d2;
+}
+
+inline Score& operator-=(Score& d1, const Score d2) {
+    CHECK_OVERFLOW(d1, d2, -)
+    return d1 = d1 - d2;
+}
+
+inline Score& operator*=(Score& d, int i) {
+    CHECK_OVERFLOW(d, make_score(i , i), *)
+    return d = Score(int(d) * i);
+}
+
 
 /// Only declared but not defined. We don't want to multiply two scores due to
 /// a very high risk of overflow. So user should explicitly convert to integer.
