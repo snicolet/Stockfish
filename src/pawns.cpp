@@ -92,7 +92,7 @@ namespace {
     Bitboard b, p;
     Square s;
     File f;
-    bool passed, isolated, doubled, opposed, connected, backward, candidate, unsupported, blocked;
+    bool passed, isolated, doubled, opposed, connected, backward, candidate, unsupported;
     Score value = SCORE_ZERO;
     const Square* pl = pos.list<PAWN>(Us);
 
@@ -130,19 +130,12 @@ namespace {
         doubled     =   ourPawns   & forward_bb(Us, s);
         opposed     =   theirPawns & forward_bb(Us, s);
         passed      = !(theirPawns & passed_pawn_mask(Us, s));
-        blocked     =   theirPawns & (s + pawn_push(Us));
 
         // Test for backward pawn.
-        
-        // If the pawn is blocked and if it is the base of a pawn island
-        // (meaning there are no friendly pawns on its side or behind
-        // it on adjacent files), then we consider it backward.
-        if (blocked && !isolated && !(ourPawns & pawn_attack_span(Them, s + pawn_push(Us))))
-            backward = true;
         // If the pawn is passed, isolated, or connected it cannot be
         // backward. If there are friendly pawns behind on adjacent files
         // or if it can capture an enemy pawn it cannot be backward either.
-        else if ((passed | isolated | connected)
+        if (   (passed | isolated | connected)
             || (ourPawns & pawn_attack_span(Them, s))
             || (pos.attacks_from<PAWN>(s, Us) & theirPawns))
             backward = false;
