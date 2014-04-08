@@ -137,12 +137,12 @@ namespace {
         // If the pawn is blocked and if it is the base of a pawn island
         // (meaning there are no friendly pawns on its side or behind
         // it on adjacent files), then we consider it backward.
-        if (blocked && !(ourPawns & pawn_attack_span(Them, s + pawn_push(Us))))
+        if (blocked && !isolated && !(ourPawns & pawn_attack_span(Them, s + pawn_push(Us))))
             backward = true;
         // If the pawn is passed, isolated, or connected it cannot be
         // backward. If there are friendly pawns behind on adjacent files
         // or if it can capture an enemy pawn it cannot be backward either.
-        else if (   (passed | isolated | connected)
+        else if ((passed | isolated | connected)
             || (ourPawns & pawn_attack_span(Them, s))
             || (pos.attacks_from<PAWN>(s, Us) & theirPawns))
             backward = false;
