@@ -63,6 +63,11 @@ namespace {
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
 
+  // Bonus/Malus for pawns on semi-opened files by [backward,unsupported] flags
+  const Score SemiOpen[2][2] = {
+    { S(20,10), S(-20,-10) },    // supported, unsupported
+    { S(0, 0) , S(-40,-20) } };  // backward supported, backward unsupported
+
   // Weakness of our pawn shelter in front of the king indexed by [rank]
   const Value ShelterWeakness[RANK_NB] =
   { V(100), V(0), V(27), V(73), V(92), V(101), V(101) };
@@ -92,7 +97,7 @@ namespace {
     Bitboard b, p;
     Square s;
     File f;
-    bool passed, isolated, doubled, opposed, connected, backward, candidate, unsupported;
+    bool passed, isolated, doubled, opposed, connected, backward, candidate, unsupported, semiOpen;
     Score value = SCORE_ZERO;
     const Square* pl = pos.list<PAWN>(Us);
 
@@ -130,6 +135,9 @@ namespace {
         doubled     =   ourPawns   & forward_bb(Us, s);
         opposed     =   theirPawns & forward_bb(Us, s);
         passed      = !(theirPawns & passed_pawn_mask(Us, s));
+        
+        // Test for semi-open pawn.
+        semiOpen    = !opposed && !doubled && !passed;
 
         // Test for backward pawn.
         // If the pawn is passed, isolated, or connected it cannot be
@@ -181,6 +189,9 @@ namespace {
 
         if (backward)
             value -= Backward[opposed][f];
+        
+        if (semiOpen)
+            value += SemiOpen[backward][unsupported];
 
         if (connected)
             value += Connected[f][relative_rank(Us, s)];
