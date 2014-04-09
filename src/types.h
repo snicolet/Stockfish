@@ -282,7 +282,7 @@ inline Value operator-(Value v, int i) { return Value(int(v) - i); }
 /// The Score union stores a middlegame and an endgame value in a single
 /// 32 bits register. In these 32 bits, 16 bits are used to store the endgame
 /// value and 16 bits are used to store the middlegame value. We use type
-/// puning (union) to be able to store the score either as a record with
+/// punning (union) to be able to store the score either as a record with
 /// separate fields for middlegame and endgame values, or as a 32 bits
 /// integer (in the same place in memory).
 struct score_record { int16_t  eg , mg ;};
