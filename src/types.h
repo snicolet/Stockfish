@@ -298,7 +298,7 @@ inline Value eg_value(Score s) { return Value(s.record.eg); }
 /// Creator function, to make a Score from a pair of midgame and endgame values
 inline Score make_score(int mg, int eg) {
    score_record  r = { mg , eg };
-   Score s ;
+   Score s;
    s.record = r;
    return s;
 }
@@ -310,8 +310,8 @@ inline int32_t  score_to_int(Score   s) { return s.integer; }
 /// SCORE_ZERO
 const Score SCORE_ZERO  =  make_score(0,0);
 
-// Add the usual operators to the Score typeScore
-// to be able to add, substract, etc... the scores
+// Add the usual operators to the Score type, to be able
+// to add, substract, etc... the scores
 ENABLE_SAFE_OPERATORS_ON( Score , int_to_score , score_to_int )
 
 
