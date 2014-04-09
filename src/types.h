@@ -280,19 +280,19 @@ inline Value operator+(Value v, int i) { return Value(int(v) + i); }
 inline Value operator-(Value v, int i) { return Value(int(v) - i); }
 
 /// The Score union stores a middlegame and an endgame value in a single
-/// 32 bits register. In these 32 bits, 16 bits are used to store the endgame
-/// value and 16 bits are used to store the middlegame value. We use type
+/// 64 bits register. In these 64 bits, 32 bits are used to store the endgame
+/// value and 32 bits are used to store the middlegame value. We use type
 /// punning (union) to be able to store the score either as a record with
-/// separate fields for middlegame and endgame values, or as a 32 bits
+/// separate fields for middlegame and endgame values, or as a 64 bits
 /// integer (in the same place in memory).
-struct score_record { int16_t  eg , mg ;};
+struct score_record { int32_t  eg , mg ;};
 union Score {
-    uint32_t      integer;
+    int64_t       integer;
     score_record  record;
 };
 
 /// Extractor functions to get the midgame and endgame values from a score
-inline Value mg_value(Score s) { return Value(s.record.mg + (uint16_t(s.record.eg) >> 15)); }
+inline Value mg_value(Score s) { return Value(s.record.mg + (uint32_t(s.record.eg) >> 31)); }
 inline Value eg_value(Score s) { return Value(s.record.eg); }
 
 /// Creator function, to make a Score from a pair of midgame and endgame values
@@ -304,8 +304,8 @@ inline Score make_score(int mg, int eg) {
 }
 
 /// Conversion functions from Score to integer, and vice-versa.
-inline Score     int_to_score(uint32_t a) { Score s; s.integer = a; return s; }
-inline uint32_t  score_to_int(Score    s) { return s.integer; }
+inline Score     int_to_score(int64_t a) { Score s; s.integer = a; return s; }
+inline int64_t   score_to_int(Score   s) { return s.integer; }
 
 /// SCORE_ZERO
 const Score SCORE_ZERO  =  make_score(0,0);
