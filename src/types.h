@@ -285,27 +285,27 @@ inline Value operator-(Value v, int i) { return Value(int(v) - i); }
 /// puning (union) to be able to store the score either as a record with
 /// separate fields for middlegame and endgame values, or as a 32 bits
 /// integer (in the same place in memory).
-struct score_record { int16_t  mg, eg; };
+struct score_record { int16_t  eg , mg ;};
 union Score {
-    int32_t       integer;
+    uint32_t      integer;
     score_record  record;
 };
 
 /// Extractor functions to get the midgame and endgame values from a score
-inline Value mg_value(Score s) { return Value(s.record.mg); }
+inline Value mg_value(Score s) { return Value(s.record.mg + (uint16_t(s.record.eg) >> 15)); }
 inline Value eg_value(Score s) { return Value(s.record.eg); }
 
 /// Creator function, to make a Score from a pair of midgame and endgame values
 inline Score make_score(int mg, int eg) {
-   score_record  r = { mg , eg };
+   score_record  r = { eg , mg - (eg < 0)};
    Score s;
    s.record = r;
    return s;
 }
 
 /// Conversion functions from Score to integer, and vice-versa.
-inline Score    int_to_score(int32_t a) { Score s; s.integer = a; return s; }
-inline int32_t  score_to_int(Score   s) { return s.integer; }
+inline Score     int_to_score(uint32_t a) { Score s; s.integer = a; return s; }
+inline uint32_t  score_to_int(Score    s) { return s.integer; }
 
 /// SCORE_ZERO
 const Score SCORE_ZERO  =  make_score(0,0);

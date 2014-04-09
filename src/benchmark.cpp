@@ -75,36 +75,6 @@ static const char* Defaults[] = {
 
 void benchmark(const Position& current, istream& is) {
 
-
-  Score a = make_score(5, 5);
-  Score b = make_score(10, 3);
-  Score c = make_score(0, -3);
-  Score d = a - b;
-  
-  Score e = make_score(-3, -3);
-  Score f = make_score(3, 10);
-  Score g = a - f;
-  Score h = -b;
-  Score i = e + f;
-  Score j = e + b;
-  Score k = -f;
-
-  cerr << "\n a = ( "         << mg_value(a) << " , " << eg_value(a) << ")";
-  cerr << "\n b = ( "         << mg_value(b) << " , " << eg_value(b) << ")";
-  cerr << "\n c = ( "         << mg_value(c) << " , " << eg_value(c) << ")";
-  cerr << "\n d = a - b = ( " << mg_value(d) << " , " << eg_value(d) << ")";
-  
-  cerr << "\n e = ( "         << mg_value(e) << " , " << eg_value(e) << ")";
-  cerr << "\n f = ( "         << mg_value(f) << " , " << eg_value(f) << ")";
-  cerr << "\n g = a - f = ( " << mg_value(g) << " , " << eg_value(g) << ")";
-  cerr << "\n h = -b = ( "    << mg_value(h) << " , " << eg_value(h) << ")";
-  
-  cerr << "\n i = e + f = ( " << mg_value(i) << " , " << eg_value(i) << ")";
-  cerr << "\n j = e + b = ( " << mg_value(j) << " , " << eg_value(j) << ")";
-  
-  cerr << "\n k = -f = ( "    << mg_value(k) << " , " << eg_value(k) << ")";
-
-
   string token;
   Search::LimitsType limits;
   vector<string> fens;
