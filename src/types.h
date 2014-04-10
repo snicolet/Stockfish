@@ -242,72 +242,82 @@ enum Rank {
 };
 
 
-/// The Score enum stores a middlegame and an endgame value in a single integer
-/// (enum). The least significant 16 bits are used to store the endgame value
-/// and the upper 16 bits are used to store the middlegame value. The compiler
-/// is free to choose the enum type as long as it can store the data, so we
-/// ensure that Score is an integer type by assigning some big int values.
-enum Score {
-  SCORE_ZERO,
-  SCORE_ENSURE_INTEGER_SIZE_P = INT_MAX,
-  SCORE_ENSURE_INTEGER_SIZE_N = INT_MIN
-};
+/// Macros to add the usual operators (+,-,*, etc.) to a new type,
+/// as long as the new type is compatible with integer. The para-
+/// meter T is the type, while to_T is the name of the function
+/// to project an integer to type T, and to_int is the name of
+/// the reverse function to project a type T to integer (they can
+/// be simple cast functions, or something more elaborate).
 
-inline Score make_score(int mg, int eg) { return Score((mg << 16) + eg); }
+#define ENABLE_SAFE_OPERATORS_ON( T , to_T , to_int)                                 \
+inline T operator+(const T d1, const T d2) { return to_T(to_int(d1) + to_int(d2)); } \
+inline T operator-(const T d1, const T d2) { return to_T(to_int(d1) - to_int(d2)); } \
+inline T operator*(int i, const T d) { return to_T(i * to_int(d)); }                 \
+inline T operator*(const T d, int i) { return to_T(to_int(d) * i); }                 \
+inline T operator-(const T d) { return to_T(-to_int(d)); }                           \
+inline T& operator+=(T& d1, const T d2) { return d1 = d1 + d2; }                     \
+inline T& operator-=(T& d1, const T d2) { return d1 = d1 - d2; }                     \
+inline T& operator*=(T& d, int i) { return d = to_T(to_int(d) * i); }
 
-/// Extracting the signed lower and upper 16 bits is not so trivial because
-/// according to the standard a simple cast to short is implementation defined
-/// and so is a right shift of a signed integer.
-inline Value mg_value(Score s) { return Value(((s + 0x8000) & ~0xffff) / 0x10000); }
+#define ENABLE_OPERATORS_ON( T , to_T , to_int )                              \
+ENABLE_SAFE_OPERATORS_ON( T , to_T , to_int )                                 \
+inline T& operator++(T& d) { return d = to_T(to_int(d) + 1); }                \
+inline T& operator--(T& d) { return d = to_T(to_int(d) - 1); }                \
+inline T operator/(const T d, int i) { return to_T(to_int(d) / i); }          \
+inline T& operator/=(T& d, int i) { return d = to_T(to_int(d) / i); }
 
-/// On Intel 64 bit we have a small speed regression with the standard conforming
-/// version. Therefore, in this case we use faster code that, although not 100%
-/// standard compliant, seems to work for Intel and MSVC.
-#if defined(IS_64BIT) && (!defined(__GNUC__) || defined(__INTEL_COMPILER))
-
-inline Value eg_value(Score s) { return Value(int16_t(s & 0xFFFF)); }
-
-#else
-
-inline Value eg_value(Score s) {
-  return Value((int)(unsigned(s) & 0x7FFFU) - (int)(unsigned(s) & 0x8000U));
-}
-
-#endif
-
-#define ENABLE_SAFE_OPERATORS_ON(T)                                         \
-inline T operator+(const T d1, const T d2) { return T(int(d1) + int(d2)); } \
-inline T operator-(const T d1, const T d2) { return T(int(d1) - int(d2)); } \
-inline T operator*(int i, const T d) { return T(i * int(d)); }              \
-inline T operator*(const T d, int i) { return T(int(d) * i); }              \
-inline T operator-(const T d) { return T(-int(d)); }                        \
-inline T& operator+=(T& d1, const T d2) { return d1 = d1 + d2; }            \
-inline T& operator-=(T& d1, const T d2) { return d1 = d1 - d2; }            \
-inline T& operator*=(T& d, int i) { return d = T(int(d) * i); }
-
-#define ENABLE_OPERATORS_ON(T) ENABLE_SAFE_OPERATORS_ON(T)                  \
-inline T& operator++(T& d) { return d = T(int(d) + 1); }                    \
-inline T& operator--(T& d) { return d = T(int(d) - 1); }                    \
-inline T operator/(const T d, int i) { return T(int(d) / i); }              \
-inline T& operator/=(T& d, int i) { return d = T(int(d) / i); }
-
-ENABLE_OPERATORS_ON(Value)
-ENABLE_OPERATORS_ON(PieceType)
-ENABLE_OPERATORS_ON(Piece)
-ENABLE_OPERATORS_ON(Color)
-ENABLE_OPERATORS_ON(Depth)
-ENABLE_OPERATORS_ON(Square)
-ENABLE_OPERATORS_ON(File)
-ENABLE_OPERATORS_ON(Rank)
+ENABLE_OPERATORS_ON( Value     , Value     , int )
+ENABLE_OPERATORS_ON( PieceType , PieceType , int )
+ENABLE_OPERATORS_ON( Piece     , Piece     , int )
+ENABLE_OPERATORS_ON( Color     , Color     , int )
+ENABLE_OPERATORS_ON( Depth     , Depth     , int )
+ENABLE_OPERATORS_ON( Square    , Square    , int )
+ENABLE_OPERATORS_ON( File      , File      , int )
+ENABLE_OPERATORS_ON( Rank      , Rank      , int )
 
 /// Additional operators to add integers to a Value
 inline Value operator+(Value v, int i) { return Value(int(v) + i); }
 inline Value operator-(Value v, int i) { return Value(int(v) - i); }
 
-ENABLE_SAFE_OPERATORS_ON(Score)
+/// The Score union stores a middlegame and an endgame value in a single
+/// 64 bits register. In these 64 bits, 32 bits are used to store the endgame
+/// value and 32 bits are used to store the middlegame value. We use type
+/// punning (union) to be able to store the score either as a record with
+/// separate fields for middlegame and endgame values, or as a 64 bits
+/// integer (in the same place in memory).
+struct score_record { int32_t  eg , mg ;};
+union Score {
+    int64_t       integer;
+    score_record  record;
+};
 
-/// Only declared but not defined. We don't want to multiply two scores due to
-/// a very high risk of overflow. So user should explicitly convert to integer.
+/// Extractor functions to get the midgame and endgame values from a score.
+/// The only tricky bit is to get the sign bit of eg when extracting mg.
+inline Value eg_value(Score s) { return Value(s.record.eg); }
+inline Value mg_value(Score s) { return Value(s.record.mg + (uint32_t(s.record.eg) >> 31)); }
+
+/// Creator function, to make a Score from a pair of (midgame, endgame) values
+inline Score make_score(int mg, int eg) {
+   score_record  r = { eg , mg - (eg < 0)};
+   Score s;
+   s.record = r;
+   return s;
+}
+
+/// Conversion functions from Score to integer, and vice-versa.
+inline Score     int_to_score(int64_t a) { Score s; s.integer = a; return s; }
+inline int64_t   score_to_int(Score   s) { return s.integer; }
+
+/// SCORE_ZERO
+const Score SCORE_ZERO  =  make_score(0,0);
+
+// Add the usual operators to the Score type, to be able
+// to add, substract, etc... the scores
+ENABLE_SAFE_OPERATORS_ON( Score , int_to_score , score_to_int )
+
+/// Multiplication of two scores is only declared but not defined. We don't
+/// want to multiply two scores due to a very high risk of overflow, so user
+/// are forced to explicitly convert to integer.
 inline Score operator*(Score s1, Score s2);
 
 /// Division of a Score must be handled separately for each term
