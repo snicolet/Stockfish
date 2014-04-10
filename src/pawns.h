@@ -36,6 +36,7 @@ struct Entry {
 
   Score pawns_value() const { return value; }
   Bitboard pawn_attacks(Color c) const { return pawnAttacks[c]; }
+  Bitboard unsupported_pawns(Color c) const { return unsupportedPawns[c]; }
   Bitboard passed_pawns(Color c) const { return passedPawns[c]; }
   Bitboard candidate_pawns(Color c) const { return candidatePawns[c]; }
   int pawns_on_same_color_squares(Color c, Square s) const { return pawnsOnSquares[c][!!(DarkSquares & s)]; }
@@ -61,6 +62,7 @@ struct Entry {
   Key key;
   Bitboard passedPawns[COLOR_NB];
   Bitboard candidatePawns[COLOR_NB];
+  Bitboard unsupportedPawns[COLOR_NB];
   Bitboard pawnAttacks[COLOR_NB];
   Square kingSquares[COLOR_NB];
   int minKPdistance[COLOR_NB];

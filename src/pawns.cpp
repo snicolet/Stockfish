@@ -103,6 +103,7 @@ namespace {
     e->kingSquares[Us] = SQ_NONE;
     e->semiopenFiles[Us] = 0xFF;
     e->pawnAttacks[Us] = shift_bb<Right>(ourPawns) | shift_bb<Left>(ourPawns);
+    e->unsupportedPawns[Us] = ourPawns & ~e->pawnAttacks[Us];
     e->pawnsOnSquares[Us][BLACK] = popcount<Max15>(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
@@ -125,7 +126,10 @@ namespace {
         // Flag the pawn as passed, isolated, doubled,
         // unsupported or connected (but not the backward one).
         connected   =   ourPawns   & adjacent_files_bb(f) & b;
-        unsupported = !(ourPawns   & adjacent_files_bb(f) & p);
+        //unsupported = !(ourPawns   & adjacent_files_bb(f) & p);
+        
+        unsupported = s & e->unsupportedPawns[Us];
+        
         isolated    = !(ourPawns   & adjacent_files_bb(f));
         doubled     =   ourPawns   & forward_bb(Us, s);
         opposed     =   theirPawns & forward_bb(Us, s);
