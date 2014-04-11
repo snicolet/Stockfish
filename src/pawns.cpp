@@ -126,9 +126,7 @@ namespace {
         // Flag the pawn as passed, isolated, doubled,
         // unsupported or connected (but not the backward one).
         connected   =   ourPawns   & adjacent_files_bb(f) & b;
-        //unsupported = !(ourPawns   & adjacent_files_bb(f) & p);
-        
-        unsupported = s & e->unsupportedPawns[Us];
+        unsupported = !(ourPawns   & adjacent_files_bb(f) & p);
         
         isolated    = !(ourPawns   & adjacent_files_bb(f));
         doubled     =   ourPawns   & forward_bb(Us, s);
