@@ -361,12 +361,13 @@ Value do_evaluate(const Position& pos) {
   int wm  = popcount<Full>(pos.pieces(WHITE)) - wp;
   int bm  = popcount<Full>(pos.pieces(BLACK)) - bp;
 
-  int flexibility =  6 * wp - 2 * bp - 7 * wm + 7 * bm ;
+  int whiteFlexibility = 25 * wp - 2 * bp - 10 * wm - 5 * bm;
+  int blackFlexibility = 25 * bp - 2 * wp - 10 * bm - 5 * wm;
 
   if (mg_value(score) > VALUE_DRAW)
-      score += make_score( flexibility, flexibility / 2 );
+      score += make_score( (whiteFlexibility - 2 * blackFlexibility) / 4 , whiteFlexibility / 2 - blackFlexibility / 4 );
   else if (mg_value(score) < VALUE_DRAW)
-      score -= make_score( flexibility, flexibility / 2 );
+      score -= make_score( (blackFlexibility - 2 * whiteFlexibility) / 4 , blackFlexibility / 2 - whiteFlexibility / 4 );
 
   // Scale winning side if position is more drawish than it appears
   ScaleFactor sf = eg_value(score) > VALUE_DRAW ? ei.mi->scale_factor(pos, WHITE)
