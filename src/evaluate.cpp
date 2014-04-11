@@ -365,9 +365,9 @@ Value do_evaluate(const Position& pos) {
   int blackFlexibility = ( -3 * wp + 5 * bm - 10 * wm);
 
   if (mg_value(score) > VALUE_DRAW)
-      score += make_score(  whiteFlexibility, whiteFlexibility / 2 );
+      score += make_score(  blackFlexibility, whiteFlexibility / 2 );
   else if (mg_value(score) < VALUE_DRAW)
-      score -= make_score(  blackFlexibility, blackFlexibility / 2 );
+      score -= make_score(  whiteFlexibility, blackFlexibility / 2 );
 
   // Scale winning side if position is more drawish than it appears
   ScaleFactor sf = eg_value(score) > VALUE_DRAW ? ei.mi->scale_factor(pos, WHITE)
