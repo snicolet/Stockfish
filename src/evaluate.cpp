@@ -449,7 +449,7 @@ Value do_evaluate(const Position& pos) {
     else if (f > FILE_H) f = FILE_H;
 
     // Initial bonus based on square
-    Value bonus = 2 * Outpost[Pt == BISHOP][relative_square(Us, make_square(f, rank_of(s)))];
+    Value bonus = Outpost[Pt == BISHOP][relative_square(Us, make_square(f, rank_of(s)))];
 
     // Increase bonus if supported by pawn, especially if the opponent has
     // no minor piece which can trade with the outpost piece.
