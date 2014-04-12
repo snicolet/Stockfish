@@ -169,7 +169,7 @@ namespace {
   const Score KnightPawns      = make_score( 8,  4);
   const Score MinorBehindPawn  = make_score(16,  0);
   const Score UndefendedMinor  = make_score(25, 10);
-  const Score EatablePawn      = make_score(10,  7);
+  const Score EatableEnemy     = make_score(10,  7);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
 
@@ -543,7 +543,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b, undefendedMinors, weakEnemies, eatablePawns;
+    Bitboard b, undefendedMinors, weakEnemies, eatableEnemies;
     Score score = SCORE_ZERO;
 
     // Undefended minors get penalized even if they are not under attack
@@ -569,12 +569,10 @@ namespace {
         if (b)
             score += Threat[1][type_of(pos.piece_on(lsb(b)))];
 
-        // add a bonus for each pawn we can grab
-        eatablePawns =   pos.pieces(Them, PAWN)
-                       & ei.attackedBy[Us][ALL_PIECES]
-                       & ~ei.attackedBy[Them][ALL_PIECES];
-        if (eatablePawns)
-            score += EatablePawn * popcount<Max15>(eatablePawns);
+        // add a bonus for each pawn or piece we can grab
+        eatableEnemies = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
+        if (eatableEnemies)
+            score += EatableEnemy * popcount<Max15>(eatableEnemies);
     }
 
     if (Trace)
