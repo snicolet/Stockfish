@@ -438,9 +438,18 @@ Value do_evaluate(const Position& pos) {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
     assert (Pt == BISHOP || Pt == KNIGHT);
+    
+    // We would like to move the Outpost array to the West or to the East,
+    // depending on which side the opponent king is : queenside or kingside.
+    // Moving the array is difficult, instead we move s in the opposite direction.
+    const int delta[] = { -2, -2, -1, 0, 0, 1, 2, 2 };
+    
+    File f = File( file_of(s) - delta[file_of(pos.king_square(Them))] );
+    if (f < FILE_A) f = FILE_A;
+    else if (f > FILE_H) f = FILE_H;
 
     // Initial bonus based on square
-    Value bonus = Outpost[Pt == BISHOP][relative_square(Us, s)];
+    Value bonus = 3 * Outpost[Pt == BISHOP][relative_square(Us, make_square(f, rank_of(s)))];
 
     // Increase bonus if supported by pawn, especially if the opponent has
     // no minor piece which can trade with the outpost piece.
