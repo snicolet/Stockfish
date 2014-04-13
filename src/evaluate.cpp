@@ -572,7 +572,8 @@ namespace {
         // add a bonus for each unit (pawn or piece) we can grab
         eatableEnemies = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
         if (eatableEnemies)
-            score += more_than_one(eatableEnemies) ?  2 * EatableEnemy : EatableEnemy;
+            score += more_than_one(eatableEnemies) ? EatableEnemy * popcount<Max15>(eatableEnemies)
+                                                   : EatableEnemy;
     }
 
     if (Trace)
