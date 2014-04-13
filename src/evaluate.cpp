@@ -553,7 +553,7 @@ namespace {
     if (undefendedMinors)
         score += UndefendedMinor;
 
-    // Enemy pieces not defended by a pawn and under our attack
+    // Enemy units not defended by a pawn and under our attack
     weakEnemies =  pos.pieces(Them)
                  & ~ei.attackedBy[Them][PAWN]
                  & ei.attackedBy[Us][ALL_PIECES];
@@ -561,7 +561,7 @@ namespace {
     // Add a bonus according if the attacking pieces are minor or major
     if (weakEnemies)
     {
-        b = weakEnemies & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
+        b = weakEnemies & (ei.attackedBy[Us][PAWN] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         if (b)
             score += Threat[0][type_of(pos.piece_on(lsb(b)))];
 
@@ -569,7 +569,7 @@ namespace {
         if (b)
             score += Threat[1][type_of(pos.piece_on(lsb(b)))];
 
-        // add a bonus for each pawn or piece we can grab
+        // add a bonus for each unit (pawn or piece) we can grab
         eatableEnemies = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
         if (eatableEnemies)
             score += EatableEnemy * popcount<Max15>(eatableEnemies);
