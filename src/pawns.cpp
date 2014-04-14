@@ -57,8 +57,10 @@ namespace {
     S( 0, 0), S( 6, 13), S(6,13), S(14,29),
     S(34,68), S(83,166), S(0, 0), S( 0, 0) };
 
-  // Bonus for file distance of the two outermost pawns
-  const Score PawnsFileSpan = S(0, 15);
+  // Bonus for file distance of the two outermost pawns indexed by
+  // [presence of a friendly passed pawn]
+  const Score PawnsFileSpan[2] = {
+    S(0, 25), S(0, 7) };
 
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
@@ -199,7 +201,7 @@ namespace {
     if (pos.count<PAWN>(Us) > 1)
     {
         b = e->semiopenFiles[Us] ^ 0xFF;
-        value += PawnsFileSpan * int(msb(b) - lsb(b));
+        value += int(msb(b) - lsb(b)) * PawnsFileSpan[!!e->passedPawns[Us]];
     }
 
     return value;
