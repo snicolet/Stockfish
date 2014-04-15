@@ -169,7 +169,8 @@ namespace {
   const Score KnightPawns      = make_score( 8,  4);
   const Score MinorBehindPawn  = make_score(16,  0);
   const Score UndefendedMinor  = make_score(25, 10);
-  const Score WinningAPawn     = make_score(10, 20);
+  const Score EatableEnemy     = make_score(15, 10);
+  const Score WinningExchange  = make_score(15, 90);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
 
@@ -543,7 +544,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b, s, undefendedMinors, weakEnemies, targetPawns;
+    Bitboard b, s, undefendedMinors, weakEnemies, eatableEnemies, targets;
     uint64_t attack, defense;
     Score score = SCORE_ZERO;
 
@@ -562,47 +563,54 @@ namespace {
     // Add a bonus according if the attacking pieces are minor or major
     if (weakEnemies)
     {
-        b = weakEnemies & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
+        b = weakEnemies & (ei.attackedBy[Us][PAWN] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         if (b)
             score += Threat[0][type_of(pos.piece_on(lsb(b)))];
 
         b = weakEnemies & (ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][QUEEN]);
         if (b)
             score += Threat[1][type_of(pos.piece_on(lsb(b)))];
-        
-        // We define target pawns to be enemy pawns protected by
-        // pieces, not protected by pawns, and under our attack.
-        targetPawns =   weakEnemies 
-                      & pos.pieces(Them, PAWN)
-                      & ei.attackedBy[Them][ALL_PIECES];
-        
-        // Loop over all target pawns to compare attack and defense
+
+        // add a bonus for each unit (pawn or piece) we can grab
+        eatableEnemies = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
+        if (eatableEnemies)
+            score += more_than_one(eatableEnemies) ? EatableEnemy * popcount<Max15>(eatableEnemies)
+                                                   : EatableEnemy;
+
+
+        // We define target units to be enemy units (pawn or piece)
+        // not protected by pawns, protected by at least one peice, 
+        // and under our attack.
+        targets =   weakEnemies 
+             //   & pos.pieces(Them, PAWN)
+                  & ei.attackedBy[Them][ALL_PIECES];
+
+        // Loop over all target units to compare attack and defense
         // on each target. The variable s is the bitboard containing
         // each single target in turn, and we calculate an approximation 
         // of defenders and attackers on that square.
-        while (targetPawns) 
+        while (targets)
         {
-            s = targetPawns & (targetPawns ^ (targetPawns - 1));
-            targetPawns ^= s;
-            
+            s = targets & (targets ^ (targets - 1));
+            targets ^= s;
+
             defense =    (s & ei.attackedBy[Them][KNIGHT]) 
                        + (s & ei.attackedBy[Them][BISHOP])
                        + (s & ei.attackedBy[Them][ROOK])
                        + (s & ei.attackedBy[Them][QUEEN])
                        + (s & ei.attackedBy[Them][KING]);
-            
+
             attack  =    (s & ei.attackedBy[Us][PAWN])
                        + (s & ei.attackedBy[Us][KNIGHT]) 
                        + (s & ei.attackedBy[Us][BISHOP])
                        + (s & ei.attackedBy[Us][ROOK])
                        + (s & ei.attackedBy[Us][QUEEN])
                        + (s & ei.attackedBy[Us][KING]);
-            
+
             if (attack > defense)
-                score += WinningAPawn;
-            
-        }
-        
+                score += WinningExchange;
+        }  // while (targets)
+
     }
 
     if (Trace)
