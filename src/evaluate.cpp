@@ -170,7 +170,7 @@ namespace {
   const Score MinorBehindPawn  = make_score(16,  0);
   const Score UndefendedMinor  = make_score(25, 10);
   const Score EatableEnemy     = make_score(15, 10);
-  const Score WinningExchange  = make_score(15, 90);
+  const Score WinningExchange  = make_score(15, 10);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
 
@@ -582,7 +582,7 @@ namespace {
         // not protected by pawns, protected by at least one peice, 
         // and under our attack.
         targets =   weakEnemies 
-             //   & pos.pieces(Them, PAWN)
+               //   & pos.pieces(Them, PAWN)
                   & ei.attackedBy[Them][ALL_PIECES];
 
         // Loop over all target units to compare attack and defense
