@@ -570,9 +570,9 @@ namespace {
         if (b)
             score += Threat[1][type_of(pos.piece_on(lsb(b)))];
 
-        // We define a target to be an enemy piece (minor or major) 
+        // We define a target to be an enemy pawn
         // not protected by pawns, and under our attack.
-        targets = ~pos.pieces(Them, PAWN) & weakEnemies;
+        targets = pos.pieces(Them, PAWN) & weakEnemies;
 
         // Loop over all targets to compare attack and defense
         // on each target. The variable s is the bitboard containing
