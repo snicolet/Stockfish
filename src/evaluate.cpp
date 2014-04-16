@@ -169,7 +169,7 @@ namespace {
   const Score KnightPawns      = make_score( 8,  4);
   const Score MinorBehindPawn  = make_score(16,  0);
   const Score UndefendedMinor  = make_score(25, 10);
-  const Score WinningExchange  = make_score(15, 10);
+  const Score WinningExchange  = make_score(90, 20);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
 
@@ -570,14 +570,11 @@ namespace {
         if (b)
             score += Threat[1][type_of(pos.piece_on(lsb(b)))];
 
-        // We define a target to be an enemy pawn
-        // not protected by pawns, and under our attack.
-        targets = pos.pieces(Them, PAWN) & weakEnemies;
-
         // Loop over all targets to compare attack and defense
         // on each target. The variable s is the bitboard containing
         // each single target in turn, and we calculate an approximation 
         // of defenders and attackers on that square.
+        targets = weakEnemies;
         while (targets)
         {
             s = targets & (targets ^ (targets - 1));
