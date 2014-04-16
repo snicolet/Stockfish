@@ -157,6 +157,12 @@ namespace {
   const Score ThreatenedByPawn[] = {
     S(0, 0), S(0, 0), S(56, 70), S(56, 70), S(76, 99), S(86, 118)
   };
+  
+  // WinningExchange[flag] contains a bonus for a exchange winning
+  // material on a square, indexed by [side to move == Us]
+  const Score WinningExchange[2] = {
+     S(50, 15) , S(90, 20)
+  };
 
   #undef S
 
@@ -169,7 +175,6 @@ namespace {
   const Score KnightPawns      = make_score( 8,  4);
   const Score MinorBehindPawn  = make_score(16,  0);
   const Score UndefendedMinor  = make_score(25, 10);
-  const Score WinningExchange  = make_score(90, 20);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
 
@@ -574,7 +579,7 @@ namespace {
         // on each target. The variable s is the bitboard containing
         // each single target in turn, and we calculate an approximation 
         // of defenders and attackers on that square.
-        targets = weakEnemies;
+        targets = weakEnemies & pos.pieces(Them, PAWN);
         while (targets)
         {
             s = targets & (targets ^ (targets - 1));
@@ -594,7 +599,8 @@ namespace {
                        + (s & ei.attackedBy[Us][KING]);
 
             if (attack > defense)
-                score += WinningExchange;
+                score += WinningExchange[pos.side_to_move() == Us];
+                
         }  // while (targets)
     }
 
