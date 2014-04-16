@@ -563,7 +563,7 @@ namespace {
     // Add a bonus according if the attacking pieces are minor or major
     if (weakEnemies)
     {
-        b = weakEnemies & (ei.attackedBy[Us][PAWN] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
+        b = weakEnemies & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         if (b)
             score += Threat[0][type_of(pos.piece_on(lsb(b)))];
 
@@ -571,19 +571,17 @@ namespace {
         if (b)
             score += Threat[1][type_of(pos.piece_on(lsb(b)))];
 
-        // add a bonus for each unit (pawn or piece) we can grab
+        // add a bonus for each unit (pawn or piece) we can grab for free
         eatableEnemies = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
         if (eatableEnemies)
             score += more_than_one(eatableEnemies) ? EatableEnemy * popcount<Max15>(eatableEnemies)
                                                    : EatableEnemy;
 
-
         // We define target units to be enemy units (pawn or piece)
-        // not protected by pawns, protected by at least one peice, 
+        // not protected by pawns, protected by at least one piece, 
         // and under our attack.
-        targets =   weakEnemies 
-               //   & pos.pieces(Them, PAWN)
-                  & ei.attackedBy[Them][ALL_PIECES];
+        targets =    weakEnemies
+                  &  ei.attackedBy[Them][ALL_PIECES];
 
         // Loop over all target units to compare attack and defense
         // on each target. The variable s is the bitboard containing
