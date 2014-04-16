@@ -169,6 +169,8 @@ namespace {
   const Score KnightPawns      = make_score( 8,  4);
   const Score MinorBehindPawn  = make_score(16,  0);
   const Score UndefendedMinor  = make_score(25, 10);
+  const Score EatableEnemy     = make_score(15, 10);
+  const Score WinningExchange  = make_score(15, 10);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
 
@@ -542,7 +544,8 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b, undefendedMinors, weakEnemies;
+    Bitboard b, s, undefendedMinors, weakEnemies, eatableEnemies, targets;
+    uint64_t attack, defense;
     Score score = SCORE_ZERO;
 
     // Undefended minors get penalized even if they are not under attack
@@ -567,6 +570,43 @@ namespace {
         b = weakEnemies & (ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][QUEEN]);
         if (b)
             score += Threat[1][type_of(pos.piece_on(lsb(b)))];
+
+        // Add a bonus for each unit (pawn or piece) we can grab for free
+        eatableEnemies = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
+        if (eatableEnemies)
+            score += more_than_one(eatableEnemies) ? EatableEnemy * popcount<Max15>(eatableEnemies)
+                                                   : EatableEnemy;
+
+        // We define a target unit to be an enemy unit (pawn or piece) 
+        // not protected by pawns, protected by at least one piece,
+        // and under our attack.
+        targets = weakEnemies & ei.attackedBy[Them][ALL_PIECES];
+
+        // Loop over all target units to compare attack and defense
+        // on each target. The variable s is the bitboard containing
+        // each single target in turn, and we calculate an approximation 
+        // of defenders and attackers on that square.
+        while (targets)
+        {
+            s = targets & (targets ^ (targets - 1));
+            targets ^= s;
+
+            defense =    (s & ei.attackedBy[Them][KNIGHT]) 
+                       + (s & ei.attackedBy[Them][BISHOP])
+                       + (s & ei.attackedBy[Them][ROOK])
+                       + (s & ei.attackedBy[Them][QUEEN])
+                       + (s & ei.attackedBy[Them][KING]);
+
+            attack  =    (s & ei.attackedBy[Us][PAWN])
+                       + (s & ei.attackedBy[Us][KNIGHT]) 
+                       + (s & ei.attackedBy[Us][BISHOP])
+                       + (s & ei.attackedBy[Us][ROOK])
+                       + (s & ei.attackedBy[Us][QUEEN])
+                       + (s & ei.attackedBy[Us][KING]);
+
+            if (attack > defense)
+                score += WinningExchange;
+        }  // while (targets)
     }
 
     if (Trace)
