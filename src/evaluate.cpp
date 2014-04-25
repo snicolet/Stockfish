@@ -126,11 +126,11 @@ namespace {
       S( 25, 41), S( 25, 41), S(25, 41), S(25, 41) }
   };
 
-  // Outpost[PieceType][Square] contains bonuses for knights and bishops outposts,
-  // indexed by piece type and square (from white's point of view).
+  // Outpost[PieceType][Square] contains bonuses for pieces outposts, indexed by piece type
+  // and square from white's point of view, and supposing black king in the middle.
   const Value Outpost[][SQUARE_NB] = {
   {// A     B     C     D     E     F     G     H
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0), // Knights
+    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0), // Knights or Rooks or Queen
     V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),
     V(0), V(0), V(4), V(8), V(8), V(4), V(0), V(0),
     V(0), V(4),V(17),V(26),V(26),V(17), V(4), V(0),
@@ -144,6 +144,10 @@ namespace {
     V(0),V(10),V(21),V(21),V(21),V(21),V(10), V(0),
     V(0), V(5), V(8), V(8), V(8), V(8), V(5), V(0) }
   };
+  
+  // Outpost_[File][PieceType][Square] stores shifted versions
+  // of the Outpost array, depending on the opponent's king file.
+  Value Outpost_[FILE_NB][2][SQUARE_NB] = {};
 
   // Threat[attacking][attacked] contains bonuses according to which piece
   // type attacks which one.
@@ -263,30 +267,38 @@ namespace {
   }
 
 
-  // evaluate_outposts() evaluates bishop and knight outpost squares
+  // evaluate_outposts() evaluates outpost squares for pieces near the ennemy king.
 
   template<PieceType Pt, Color Us>
   Score evaluate_outposts(const Position& pos, EvalInfo& ei, Square s) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
+    
+    // Outpost piece bonus based on square and file of opponent king.
+    Value bonus = Outpost_[file_of(pos.king_square(Them))][Pt == BISHOP][relative_square(Us, s)];
+    
+    if (!bonus)
+        return SCORE_ZERO;
 
-    assert (Pt == BISHOP || Pt == KNIGHT);
+    Bitboard supported = (ei.attackedBy[Us][PAWN] | 
+                          ei.attackedBy[Us][QUEEN] | 
+                          ei.attackedBy[Us][ROOK]) & s;
+    Bitboard attacked  = (ei.attackedBy[Them][BISHOP] | 
+                          ei.attackedBy[Them][KNIGHT] | 
+                          ei.attackedBy[Them][ROOK]   |
+                          ei.attackedBy[Them][QUEEN]  |
+                          ei.attackedBy[Them][PAWN]) & s;      
+    Bitboard unstable  =   (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s))
+                         | (squares_of_color(s) & pos.pieces(Them, BISHOP)); 
 
-    // Initial bonus based on square
-    Value bonus = Outpost[Pt == BISHOP][relative_square(Us, s)];
-
-    // Increase bonus if supported by pawn, especially if the opponent has
-    // no minor piece which can trade with the outpost piece.
-    if (bonus && (ei.attackedBy[Us][PAWN] & s))
-    {
-        if (   !pos.pieces(Them, KNIGHT)
-            && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
-            bonus += bonus + bonus / 2;
-        else
-            bonus += bonus / 2;
-    }
-
-    return make_score(bonus, bonus);
+    // Decrease the bonus when the outpost is attacked or unstable,  
+    // and increase it when the outpost is supported by our other pieces.
+    bonus *=  attacked  ? 6   :
+              unstable  ? 54  :
+              supported ? 237 :
+                          202 ;
+    
+    return make_score(bonus / 64, bonus / 64);
   }
 
 
@@ -340,16 +352,15 @@ namespace {
         // of threat evaluation must be done later when we have full attack info.
         if (ei.attackedBy[Them][PAWN] & s)
             score -= ThreatenedByPawn[Pt];
+        
+        // Piece outposts squares
+        score += evaluate_outposts<Pt, Us>(pos, ei, s);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Penalty for bishop with same colored pawns
             if (Pt == BISHOP)
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
-
-            // Bishop and knight outposts squares
-            if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
-                score += evaluate_outposts<Pt, Us>(pos, ei, s);
 
             // Bishop or knight behind a pawn
             if (    relative_rank(Us, s) < RANK_5
@@ -941,6 +952,24 @@ namespace Eval {
         KingDanger[1][i] = apply_weight(make_score(t, 0), Weights[KingDangerUs]);
         KingDanger[0][i] = apply_weight(make_score(t, 0), Weights[KingDangerThem]);
     }
+    
+    // Outpost bonus based on square. To put pressure on the opponent king,
+    // we would like to move the Outpost array the West or to the East, 
+    // depending on which side the opponent king is : queenside or kingside.
+    // Moving the array is difficult, instead we move s in the opposite direction,
+    // read the original Outpost array and cache the result in the Outpost_ array.
+    
+    const int delta[] = { -2, -1, -1, 0, 0, 1, 1, 2};
+    
+    for (Square opponentKing = SQ_A1 ; opponentKing <= SQ_H8 ; ++opponentKing)
+    	for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
+    	{
+    		File f = File( file_of(s) - delta[file_of(opponentKing)] );
+    		if (f < FILE_A) f = FILE_A; else if (f > FILE_H) f = FILE_H;
+    
+            Outpost_[file_of(opponentKing)][0][s] = Outpost[0][make_square(f, rank_of(s))] / 2;
+    		Outpost_[file_of(opponentKing)][1][s] = Outpost[1][make_square(f, rank_of(s))] / 2;
+    	}
   }
 
 } // namespace Eval
