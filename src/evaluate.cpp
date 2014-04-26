@@ -157,6 +157,12 @@ namespace {
   const Score ThreatenedByPawn[] = {
     S(0, 0), S(0, 0), S(56, 70), S(56, 70), S(76, 99), S(86, 118)
   };
+  
+  // EatableEnemy[flag] contains a bonus for each threat of winning a pawn
+  // or a piece on a unprotected square, indexed by [side to move == Us]
+  const Score EatableEnemy[2] =  {
+     S(23, 20) , S(35, 45)
+  };
 
   #undef S
 
@@ -531,7 +537,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b, undefendedMinors, weakEnemies;
+    Bitboard b, undefendedMinors, weakEnemies, eatableEnemies;
     Score score = SCORE_ZERO;
 
     // Undefended minors get penalized even if they are not under attack
@@ -541,7 +547,7 @@ namespace {
     if (undefendedMinors)
         score += UndefendedMinor;
 
-    // Enemy pieces not defended by a pawn and under our attack
+    // Enemy units not defended by a pawn and under our attack
     weakEnemies =  pos.pieces(Them)
                  & ~ei.attackedBy[Them][PAWN]
                  & ei.attackedBy[Us][ALL_PIECES];
@@ -549,13 +555,20 @@ namespace {
     // Add a bonus according if the attacking pieces are minor or major
     if (weakEnemies)
     {
-        b = weakEnemies & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
+        b = weakEnemies & (ei.attackedBy[Us][PAWN] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         if (b)
             score += Threat[0][type_of(pos.piece_on(lsb(b)))];
 
         b = weakEnemies & (ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][QUEEN]);
         if (b)
             score += Threat[1][type_of(pos.piece_on(lsb(b)))];
+
+        // Add a bonus for each unit (pawn or piece) we can grab directly
+        eatableEnemies = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
+        if (eatableEnemies)
+            score += more_than_one(eatableEnemies) ? EatableEnemy[Them == pos.side_to_move()] * popcount<Max15>(eatableEnemies)
+                                                   : EatableEnemy[Us == pos.side_to_move()];
+        
     }
 
     if (Trace)
