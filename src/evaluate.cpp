@@ -145,9 +145,9 @@ namespace {
     V(0), V(5), V(8), V(8), V(8), V(8), V(5), V(0) }
   };
   
-  // Outpost_[File][PieceType][Square] stores shifted versions
+  // ShiftedOutpost[File][PieceType][Square] stores shifted versions
   // of the Outpost array, depending on the opponent's king file.
-  Value Outpost_[FILE_NB][2][SQUARE_NB] = {};
+  Value ShiftedOutpost[FILE_NB][2][SQUARE_NB];
 
   // Threat[attacking][attacked] contains bonuses according to which piece
   // type attacks which one.
@@ -275,21 +275,21 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     
     // Outpost piece bonus based on square and file of opponent king.
-    Value bonus = Outpost_[file_of(pos.king_square(Them))][Pt == BISHOP][relative_square(Us, s)];
+    Value bonus = ShiftedOutpost[file_of(pos.king_square(Them))][Pt == BISHOP][relative_square(Us, s)];
     
     if (!bonus)
         return SCORE_ZERO;
 
-    Bitboard supported = (ei.attackedBy[Us][PAWN] | 
-                          ei.attackedBy[Us][QUEEN] | 
-                          ei.attackedBy[Us][ROOK]) & s;
-    Bitboard attacked  = (ei.attackedBy[Them][BISHOP] | 
-                          ei.attackedBy[Them][KNIGHT] | 
-                          ei.attackedBy[Them][ROOK]   |
-                          ei.attackedBy[Them][QUEEN]  |
-                          ei.attackedBy[Them][PAWN]) & s;      
-    Bitboard unstable  =   (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s))
-                         | (squares_of_color(s) & pos.pieces(Them, BISHOP)); 
+    bool supported = (ei.attackedBy[Us][PAWN] | 
+                      ei.attackedBy[Us][QUEEN] | 
+                      ei.attackedBy[Us][ROOK]) & s;
+    bool attacked  = (ei.attackedBy[Them][BISHOP] | 
+                      ei.attackedBy[Them][KNIGHT] | 
+                      ei.attackedBy[Them][ROOK]   |
+                      ei.attackedBy[Them][QUEEN]  |
+                      ei.attackedBy[Them][PAWN]) & s;      
+    bool unstable  =   (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s))
+                     | (squares_of_color(s) & pos.pieces(Them, BISHOP)); 
 
     // Decrease the bonus when the outpost is attacked or unstable,  
     // and increase it when the outpost is supported by our other pieces.
@@ -929,7 +929,6 @@ namespace Eval {
     return Tracing::do_trace(pos);
   }
 
-
   /// init() computes evaluation weights from the corresponding UCI parameters
   /// and setup king tables.
 
@@ -957,19 +956,19 @@ namespace Eval {
     // we would like to move the Outpost array the West or to the East, 
     // depending on which side the opponent king is : queenside or kingside.
     // Moving the array is difficult, instead we move s in the opposite direction,
-    // read the original Outpost array and cache the result in the Outpost_ array.
+    // read the original Outpost array and cache the result in the ShiftedOutpost array.
     
     const int delta[] = { -2, -1, -1, 0, 0, 1, 1, 2};
     
-    for (Square opponentKing = SQ_A1 ; opponentKing <= SQ_H8 ; ++opponentKing)
+    for (File opponentKing = FILE_A ; opponentKing <= FILE_H ; ++opponentKing)
     	for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
     	{
-    		File f = File( file_of(s) - delta[file_of(opponentKing)] );
+    		File f = File( file_of(s) - delta[opponentKing] );
     		if (f < FILE_A) f = FILE_A; else if (f > FILE_H) f = FILE_H;
     
-            Outpost_[file_of(opponentKing)][0][s] = Outpost[0][make_square(f, rank_of(s))] / 2;
-    		Outpost_[file_of(opponentKing)][1][s] = Outpost[1][make_square(f, rank_of(s))] / 2;
-    	}
+            ShiftedOutpost[opponentKing][0][s] = Outpost[0][make_square(f, rank_of(s))] / 2;
+            ShiftedOutpost[opponentKing][1][s] = Outpost[1][make_square(f, rank_of(s))] / 2;
+    	}     	
   }
 
 } // namespace Eval
