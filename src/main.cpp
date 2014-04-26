@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
   Search::init();
   Pawns::init();
   Eval::init();
+  Eval::init_clop_params();
   Threads.init();
   TT.resize(Options["Hash"]);
 

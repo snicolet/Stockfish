@@ -69,6 +69,12 @@ void init(OptionsMap& o) {
   o["Space"]                    << Option(100, 0, 200, on_eval);
   o["Aggressiveness"]           << Option(100, 0, 200, on_eval);
   o["Cowardice"]                << Option(100, 0, 200, on_eval);
+  
+  o["midgameTradeclop"]       << Option(0,  0, 200, on_eval);  // CLOP !
+  o["endgameDeltaclop"]       << Option(0, -100, 100, on_eval);  // CLOP !
+  o["STMmidgameTradeclop"]    << Option(0,  0, 200, on_eval);  // CLOP !
+  o["STMendgameDeltaclop"]    << Option(0, -100, 100, on_eval);  // CLOP !
+    
   o["Min Split Depth"]          << Option(0, 0, 12, on_threads);
   o["Threads"]                  << Option(1, 1, MAX_THREADS, on_threads);
   o["Idle Threads Sleep"]       << Option(true);

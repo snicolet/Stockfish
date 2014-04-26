@@ -30,6 +30,8 @@ extern void init();
 extern Value evaluate(const Position& pos);
 extern std::string trace(const Position& pos);
 
+extern void init_clop_params();
+
 }
 
 #endif // #ifndef EVALUATE_H_INCLUDED

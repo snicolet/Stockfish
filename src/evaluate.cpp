@@ -157,6 +157,24 @@ namespace {
   const Score ThreatenedByPawn[] = {
     S(0, 0), S(0, 0), S(56, 70), S(56, 70), S(76, 99), S(86, 118)
   };
+  
+  // EatableEnemy[flag] contains a bonus for each threat of winning a pawn
+  // or a piece on a unprotected square, indexed by [side to move == Us]
+  const Score EatableEnemy[2] =  {
+     S(23, 20) , S(35, 45)
+  };
+  
+  // WinningTrade[flag] contains a bonus for each threat of a trade winning 
+  // material on a protected square, indexed by [side to move == Us]
+  //const Score WinningTrade[2] = {
+    // S(50, 15) , S(90, 20)
+  //};
+    
+  int midgameTradeclop;       // CLOP !
+  int endgameDeltaclop;       // CLOP !
+  int STMmidgameTradeclop;    // CLOP !
+  int STMendgameDeltaclop;    // CLOP !
+  Score WinningTrade[2];      // CLOP !
 
   #undef S
 
@@ -169,6 +187,8 @@ namespace {
   const Score UndefendedMinor  = make_score(25, 10);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
+  
+  
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -531,7 +551,8 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b, undefendedMinors, weakEnemies;
+    Bitboard b, s, undefendedMinors, weakEnemies, eatableEnemies, targets;
+    uint64_t attack, defense;
     Score score = SCORE_ZERO;
 
     // Undefended minors get penalized even if they are not under attack
@@ -541,7 +562,7 @@ namespace {
     if (undefendedMinors)
         score += UndefendedMinor;
 
-    // Enemy pieces not defended by a pawn and under our attack
+    // Enemy units not defended by a pawn and under our attack
     weakEnemies =  pos.pieces(Them)
                  & ~ei.attackedBy[Them][PAWN]
                  & ei.attackedBy[Us][ALL_PIECES];
@@ -549,13 +570,51 @@ namespace {
     // Add a bonus according if the attacking pieces are minor or major
     if (weakEnemies)
     {
-        b = weakEnemies & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
+        b = weakEnemies & (ei.attackedBy[Us][PAWN] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         if (b)
             score += Threat[0][type_of(pos.piece_on(lsb(b)))];
 
         b = weakEnemies & (ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][QUEEN]);
         if (b)
             score += Threat[1][type_of(pos.piece_on(lsb(b)))];
+
+        // Add a bonus for each unit (pawn or piece) we can grab
+        eatableEnemies = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
+        if (eatableEnemies)
+            score += more_than_one(eatableEnemies) ? EatableEnemy[Them == pos.side_to_move()] * popcount<Max15>(eatableEnemies)
+                                                   : EatableEnemy[Us == pos.side_to_move()];
+        
+        // Loop over all targets to compare attack and defense
+        // on each target. The variable s is the bitboard containing
+        // each single target in turn, and we calculate an approximation 
+        // of defenders and attackers on that square.
+        /*
+        targets =    weakEnemies 
+                  & ~eatableEnemies 
+                  & ei.attackedBy[Them][ALL_PIECES]
+                  & pos.pieces(Them, PAWN) ;
+        while (targets)
+        {
+            s = targets & (targets ^ (targets - 1));
+            targets ^= s;
+
+            defense =    (s & ei.attackedBy[Them][KNIGHT]) 
+                       + (s & ei.attackedBy[Them][BISHOP])
+                       + (s & ei.attackedBy[Them][ROOK])
+                       + (s & ei.attackedBy[Them][QUEEN])
+                       + (s & ei.attackedBy[Them][KING]);
+
+            attack  =    (s & ei.attackedBy[Us][PAWN])
+                       + (s & ei.attackedBy[Us][KNIGHT]) 
+                       + (s & ei.attackedBy[Us][BISHOP])
+                       + (s & ei.attackedBy[Us][ROOK])
+                       + (s & ei.attackedBy[Us][QUEEN])
+                       + (s & ei.attackedBy[Us][KING]);
+
+            if (attack > defense)
+                score += WinningTrade[pos.side_to_move() == Us];
+                
+        }  // while (targets) */
     }
 
     if (Trace)
@@ -941,6 +1000,20 @@ namespace Eval {
         KingDanger[1][i] = apply_weight(make_score(t, 0), Weights[KingDangerUs]);
         KingDanger[0][i] = apply_weight(make_score(t, 0), Weights[KingDangerThem]);
     }
+    
+    init_clop_params();    // CLOP !
+  }
+  
+  void init_clop_params() {
+
+    midgameTradeclop       = int(Options["midgameTradeclop"]);    // CLOP !
+    endgameDeltaclop       = int(Options["endgameDeltaclop"]);    // CLOP !
+    STMmidgameTradeclop    = int(Options["STMmidgameTradeclop"]);    // CLOP !
+    STMendgameDeltaclop    = int(Options["STMendgameDeltaclop"]);    // CLOP !
+   
+    WinningTrade[0] = make_score(midgameTradeclop    , midgameTradeclop     + endgameDeltaclop );
+    WinningTrade[1] = make_score(STMmidgameTradeclop , STMmidgameTradeclop  + STMendgameDeltaclop );
+       
   }
 
 } // namespace Eval
