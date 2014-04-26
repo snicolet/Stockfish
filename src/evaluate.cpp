@@ -163,18 +163,16 @@ namespace {
   const Score EatableEnemy[2] =  {
      S(23, 20) , S(35, 45)
   };
-  
-  // WinningTrade[flag] contains a bonus for each threat of a trade winning 
-  // material on a protected square, indexed by [side to move == Us]
-  //const Score WinningTrade[2] = {
-    // S(50, 15) , S(90, 20)
-  //};
     
+  /*
+  int sum;       // CLOP !
+  int diff;       // CLOP !
   int midgameTradeclop;       // CLOP !
   int endgameDeltaclop;       // CLOP !
   int STMmidgameTradeclop;    // CLOP !
   int STMendgameDeltaclop;    // CLOP !
   Score WinningTrade[2];      // CLOP !
+  */
 
   #undef S
 
@@ -185,10 +183,10 @@ namespace {
   const Score BishopPawns      = make_score( 8, 12);
   const Score MinorBehindPawn  = make_score(16,  0);
   const Score UndefendedMinor  = make_score(25, 10);
+  const Score WinningTrade     = make_score(45, 45);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
-  
-  
+
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -588,7 +586,6 @@ namespace {
         // on each target. The variable s is the bitboard containing
         // each single target in turn, and we calculate an approximation 
         // of defenders and attackers on that square.
-        /*
         targets =    weakEnemies 
                   & ~eatableEnemies 
                   & ei.attackedBy[Them][ALL_PIECES]
@@ -612,9 +609,9 @@ namespace {
                        + (s & ei.attackedBy[Us][KING]);
 
             if (attack > defense)
-                score += WinningTrade[pos.side_to_move() == Us];
+                score += WinningTrade;
                 
-        }  // while (targets) */
+        }  // while (targets) 
     }
 
     if (Trace)
@@ -1006,13 +1003,20 @@ namespace Eval {
   
   void init_clop_params() {
 
-    midgameTradeclop       = int(Options["midgameTradeclop"]);    // CLOP !
+    /*
+    sum                    = int(Options["sum"]);    // CLOP !
     endgameDeltaclop       = int(Options["endgameDeltaclop"]);    // CLOP !
-    STMmidgameTradeclop    = int(Options["STMmidgameTradeclop"]);    // CLOP !
+    diff                   = int(Options["diff"]);    // CLOP !
     STMendgameDeltaclop    = int(Options["STMendgameDeltaclop"]);    // CLOP !
+   
+   
+    midgameTradeclop    = (sum + diff) / 2;
+    STMmidgameTradeclop = (sum - diff) / 2;
+   
    
     WinningTrade[0] = make_score(midgameTradeclop    , midgameTradeclop     + endgameDeltaclop );
     WinningTrade[1] = make_score(STMmidgameTradeclop , STMmidgameTradeclop  + STMendgameDeltaclop );
+    */
        
   }
 
