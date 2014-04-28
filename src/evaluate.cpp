@@ -249,13 +249,20 @@ namespace {
 
     // Calculate pawns attacks, using only pawns which are not pinned
     Bitboard pinnedPawns = ei.pinnedPieces[Us] & pos.pieces(Us, PAWN);
-    if (!pinnedPawns)
+    if (!pinnedPawns) {
         ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
+    }
     else {
-        Bitboard nonPinned = pos.pieces(Us, PAWN) ^ pinnedPawns;
-        Bitboard attacks   = (Us == WHITE ? shift_bb<DELTA_NE>(nonPinned) | shift_bb<DELTA_NW>(nonPinned)
-                                          : shift_bb<DELTA_SE>(nonPinned) | shift_bb<DELTA_SW>(nonPinned));
-        ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = attacks;                         
+        Bitboard notPinned = pos.pieces(Us, PAWN) ^ pinnedPawns;
+
+        // attacks from not pinned pawns
+        Bitboard attacks1  = (Us == WHITE ? shift_bb<DELTA_NE>(notPinned) | shift_bb<DELTA_NW>(notPinned)
+                                          : shift_bb<DELTA_SE>(notPinned) | shift_bb<DELTA_SW>(notPinned));
+
+        // attacks from pinned pawns
+        Bitboard attacks2 = (ei.pi->pawn_attacks(Us) ^ attacks1) & DiagonalPinningMask[pos.king_square(Us)];
+
+        ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = attacks1 | attacks2;                         
     }
 
     Bitboard b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.king_square(Them));
