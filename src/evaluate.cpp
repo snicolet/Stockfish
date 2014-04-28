@@ -247,8 +247,23 @@ namespace {
 
     ei.pinnedPieces[Us] = pos.pinned_pieces(Us);
 
+    // Calculate accurate pawns attacks, taking pinned pawns into account
+    Bitboard pinnedPawns = ei.pinnedPieces[Us] & pos.pieces(Us, PAWN);
+    if (!pinnedPawns)
+        ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
+    else {
+        Bitboard nonPinned = pos.pieces(Us, PAWN) ^ pinnedPawns;
+        Bitboard attacks   = (Us == WHITE ? shift_bb<DELTA_NE>(nonPinned) | shift_bb<DELTA_NW>(nonPinned)
+                                          : shift_bb<DELTA_SE>(nonPinned) | shift_bb<DELTA_SW>(nonPinned));
+        do {
+            Square s = pop_lsb(&pinnedPawns);
+            attacks |= pos.attacks_from<PAWN>(s, Us) & LineBB[pos.king_square(Us)][s];
+        } while (pinnedPawns);                                
+    	                                     
+        ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = attacks;                         
+    }
+
     Bitboard b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.king_square(Them));
-    ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
 
     // Init king safety tables only if we are going to use them
     if (pos.count<QUEEN>(Us) && pos.non_pawn_material(Us) > QueenValueMg + PawnValueMg)
