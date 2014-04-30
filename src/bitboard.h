@@ -126,18 +126,6 @@ inline int rank_distance(Square s1, Square s2) {
 }
 
 
-/// shift_bb() moves bitboard one step along direction Delta. Mainly for pawns.
-
-template<Square Delta>
-inline Bitboard shift_bb(Bitboard b) {
-
-  return  Delta == DELTA_N  ?  b             << 8 : Delta == DELTA_S  ?  b             >> 8
-        : Delta == DELTA_NE ? (b & ~FileHBB) << 9 : Delta == DELTA_SE ? (b & ~FileHBB) >> 7
-        : Delta == DELTA_NW ? (b & ~FileABB) << 7 : Delta == DELTA_SW ? (b & ~FileABB) >> 9
-        : 0;
-}
-
-
 /// white_pawn_attacks() calculates the pawn attacks of bitboard b for White.
 
 inline Bitboard white_pawn_attacks(Bitboard b) {
@@ -149,6 +137,18 @@ inline Bitboard white_pawn_attacks(Bitboard b) {
 
 inline Bitboard black_pawn_attacks(Bitboard b) {
   return  ((b & ~FileHBB) >> 7) | ((b & ~FileABB) >> 9) ;
+}
+
+
+/// shift_bb() moves bitboard one step along direction Delta. Mainly for pawns.
+
+template<Square Delta>
+inline Bitboard shift_bb(Bitboard b) {
+
+  return  Delta == DELTA_N  ?  b             << 8 : Delta == DELTA_S  ?  b             >> 8
+        : Delta == DELTA_NE ? (b & ~FileHBB) << 9 : Delta == DELTA_SE ? (b & ~FileHBB) >> 7
+        : Delta == DELTA_NW ? (b & ~FileABB) << 7 : Delta == DELTA_SW ? (b & ~FileABB) >> 9
+        : 0;
 }
 
 

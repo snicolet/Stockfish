@@ -237,14 +237,10 @@ namespace {
 
     ei.pinnedPieces[Us] = pos.pinned_pieces(Us);
 
+    // Calculate attacks from pinned pawns and not pinned pawns
     Bitboard b = ~ei.pinnedPieces[Us] & pos.pieces(Us, PAWN);
-
-    // attacks from not pinned pawns
-    Bitboard attacks1  = (Us == WHITE ? shift_bb<DELTA_NE>(b) | shift_bb<DELTA_NW>(b)
-                                      : shift_bb<DELTA_SE>(b) | shift_bb<DELTA_SW>(b));
-    // attacks from pinned pawns
+    Bitboard attacks1 = (Us == WHITE ? white_pawn_attacks(b) : black_pawn_attacks(b));
     Bitboard attacks2 = (ei.pi->pawn_attacks(Us) ^ attacks1) & DiagonalPinningMask[pos.king_square(Us)];
-
     ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = attacks1 | attacks2;
 
     b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.king_square(Them));
@@ -443,6 +439,7 @@ namespace {
         attackUnits =  std::min(20, (ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]) / 2)
                      + 3 * (ei.kingAdjacentZoneAttacksCount[Them] + popcount<Max15>(undefended))
                      + 2 * (ei.pinnedPieces[Us] != 0)
+                    // + 5 * ((ei.pinnedPieces[Us] & pos.pieces(Us, PAWN)) != 0)
                      - mg_value(score) / 32;
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
