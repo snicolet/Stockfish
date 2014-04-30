@@ -80,6 +80,7 @@ extern Bitboard ForwardBB[COLOR_NB][SQUARE_NB];
 extern Bitboard PassedPawnMask[COLOR_NB][SQUARE_NB];
 extern Bitboard PawnAttackSpan[COLOR_NB][SQUARE_NB];
 extern Bitboard PseudoAttacks[PIECE_TYPE_NB][SQUARE_NB];
+extern Bitboard DiagonalPinningMask[SQUARE_NB];
 
 extern int SquareDistance[SQUARE_NB][SQUARE_NB];
 
@@ -122,6 +123,20 @@ inline int file_distance(Square s1, Square s2) {
 
 inline int rank_distance(Square s1, Square s2) {
   return abs(rank_of(s1) - rank_of(s2));
+}
+
+
+/// white_pawn_attacks() calculates the pawn attacks of bitboard b for White.
+
+inline Bitboard white_pawn_attacks(Bitboard b) {
+  return  ((b & ~FileHBB) << 9) | ((b & ~FileABB) << 7) ;
+}
+
+
+/// black_pawn_attacks() calculates the pawn attacks of bitboard b for Black.
+
+inline Bitboard black_pawn_attacks(Bitboard b) {
+  return  ((b & ~FileHBB) >> 7) | ((b & ~FileABB) >> 9) ;
 }
 
 
