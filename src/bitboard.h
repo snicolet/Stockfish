@@ -138,6 +138,20 @@ inline Bitboard shift_bb(Bitboard b) {
 }
 
 
+/// white_pawn_attacks() calculates the pawn attacks of bitboard b for White.
+
+inline Bitboard white_pawn_attacks(Bitboard b) {
+  return  ((b & ~FileHBB) << 9) | ((b & ~FileABB) << 7) ;
+}
+
+
+/// black_pawn_attacks() calculates the pawn attacks of bitboard b for Black.
+
+inline Bitboard black_pawn_attacks(Bitboard b) {
+  return  ((b & ~FileHBB) >> 7) | ((b & ~FileABB) >> 9) ;
+}
+
+
 /// rank_bb() and file_bb() take a file or a square as input and return
 /// a bitboard representing all squares on the given file or rank.
 
