@@ -170,6 +170,7 @@ namespace {
   const Score BishopPawns      = make_score( 8, 12);
   const Score MinorBehindPawn  = make_score(16,  0);
   const Score UndefendedMinor  = make_score(25, 10);
+  const Score WinningTrade     = make_score(45, 45);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
 
@@ -236,8 +237,25 @@ namespace {
 
     ei.pinnedPieces[Us] = pos.pinned_pieces(Us);
 
+    // Calculate pawns attacks, using only pawns which are not pinned
+    Bitboard pinnedPawns = ei.pinnedPieces[Us] & pos.pieces(Us, PAWN);
+    if (!pinnedPawns) {
+        ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
+    }
+    else {
+        Bitboard notPinned = pos.pieces(Us, PAWN) & ~ei.pinnedPieces[Us];
+
+        // attacks from not pinned pawns
+        Bitboard attacks1  = (Us == WHITE ? shift_bb<DELTA_NE>(notPinned) | shift_bb<DELTA_NW>(notPinned)
+                                          : shift_bb<DELTA_SE>(notPinned) | shift_bb<DELTA_SW>(notPinned));
+
+        // attacks from pinned pawns
+        Bitboard attacks2 = (ei.pi->pawn_attacks(Us) ^ attacks1) & DiagonalPinningMask[pos.king_square(Us)];
+
+        ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = attacks1 | attacks2;                         
+    }
+
     Bitboard b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.king_square(Them));
-    ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
 
     // Init king safety tables only if we are going to use them
     if (pos.count<QUEEN>(Us) && pos.non_pawn_material(Us) > QueenValueMg + PawnValueMg)
@@ -520,7 +538,8 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b, undefendedMinors, weakEnemies;
+    Bitboard b, s, undefendedMinors, weakEnemies, targets;
+    uint64_t attack, defense;
     Score score = SCORE_ZERO;
 
     // Undefended minors get penalized even if they are not under attack
@@ -550,6 +569,36 @@ namespace {
         if (b)
             score += more_than_one(b) ? Hanging[Us != pos.side_to_move()] * popcount<Max15>(b)
                                       : Hanging[Us == pos.side_to_move()];
+        
+        // Loop over all other targets to compare attack and defense
+        // on each target. The variable s is the bitboard containing
+        // each single target in turn, and we compare approximations
+        // of defenders and attackers on that square.
+        targets =    weakEnemies 
+                  & ei.attackedBy[Them][ALL_PIECES]
+                  & pos.pieces(Them, PAWN) ;
+        while (targets)
+        {
+            s = targets & (targets ^ (targets - 1));
+            targets ^= s;
+
+            defense =    (s & ei.attackedBy[Them][KNIGHT]) 
+                       + (s & ei.attackedBy[Them][BISHOP])
+                       + (s & ei.attackedBy[Them][ROOK])
+                       + (s & ei.attackedBy[Them][QUEEN])
+                       + (s & ei.attackedBy[Them][KING]);
+
+            attack  =    (s & ei.attackedBy[Us][PAWN])
+                       + (s & ei.attackedBy[Us][KNIGHT]) 
+                       + (s & ei.attackedBy[Us][BISHOP])
+                       + (s & ei.attackedBy[Us][ROOK])
+                       + (s & ei.attackedBy[Us][QUEEN])
+                       + (s & ei.attackedBy[Us][KING]);
+
+            if (attack > defense)
+                score += WinningTrade;
+                
+        }  // while (targets) 
     }
 
     if (Trace)
