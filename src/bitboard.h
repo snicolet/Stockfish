@@ -125,6 +125,20 @@ inline int rank_distance(Square s1, Square s2) {
 }
 
 
+/// white_pawn_attacks() calculates the pawn attacks of bitboard b for White.
+
+inline Bitboard white_pawn_attacks(Bitboard b) {
+  return  ((b & ~FileHBB) << 9) | ((b & ~FileABB) << 7) ;
+}
+
+
+/// black_pawn_attacks() calculates the pawn attacks of bitboard b for Black.
+
+inline Bitboard black_pawn_attacks(Bitboard b) {
+  return  ((b & ~FileHBB) >> 7) | ((b & ~FileABB) >> 9) ;
+}
+
+
 /// shift_bb() moves bitboard one step along direction Delta. Mainly for pawns.
 
 template<Square Delta>
