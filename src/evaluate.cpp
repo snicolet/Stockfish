@@ -169,7 +169,8 @@ namespace {
   const Score RookSemiopenFile = make_score(19, 10);
   const Score BishopPawns      = make_score( 8, 12);
   const Score MinorBehindPawn  = make_score(16,  0);
-  const Score UndefendedMinor  = make_score(25, 10);
+  const Score Coordination     = make_score(20, 10);
+  const Score PawnHelp         = make_score(-5, 10);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
 
@@ -528,25 +529,28 @@ namespace {
 
     Bitboard b, weakEnemies;
     Score score = SCORE_ZERO;
-    
+
     // side-to-move factor (1 or 2)
     int stmf = (1 + (Us == pos.side_to_move()));
 
-    // Undefended minors get penalized even if they are not under attack
+    // Uncoordinated minors get penalized even if they are not under attack
     b = pos.pieces(Them, BISHOP, KNIGHT) & ~ei.attackedBy[Them][ALL_PIECES];
-    score += UndefendedMinor * zero_one_many(b);
-    
-    // Undefended majors get penalized even if they are not under attack
-    b = pos.pieces(Them, QUEEN, ROOK) & ~ei.attackedBy[Them][ROOK];
-    score += UndefendedMinor * zero_one_many(b);
-    
+    score += stmf * Coordination * zero_one_many(b);
+
+    // Uncoordinated rooks get penalized
+    if (pos.count<ROOK>(Them) > 0) {
+        b = pos.pieces(Them, ROOK, QUEEN) & ~(ei.attackedBy[Them][ROOK] | ei.attackedBy[Them][QUEEN]);
+        score += stmf * Coordination * zero_one_many(b);
+    }
+
     // Undefended pawns get penalized even if they are not under attack
     b = pos.pieces(Them, PAWN) & ~(  ei.attackedBy[Them][KING] 
                                    | ei.attackedBy[Them][KNIGHT]
                                    | ei.attackedBy[Them][BISHOP]
                                    | ei.attackedBy[Them][ROOK]
                                    | ei.attackedBy[Them][QUEEN]);
-    score += UndefendedMinor * zero_one_many(b);
+    score += PawnHelp * zero_one_many(b);
+    
 
     // Enemies not defended by a pawn and under our attack
     weakEnemies =  pos.pieces(Them)
@@ -558,11 +562,11 @@ namespace {
     {
         b = weakEnemies & (ei.attackedBy[Us][PAWN] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         if (b)
-            score += stmf * Threat[0][type_of(pos.piece_on(lsb(b)))];
+            score += Threat[0][type_of(pos.piece_on(lsb(b)))];
 
         b = weakEnemies & (ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][QUEEN]);
         if (b)
-            score += stmf * Threat[1][type_of(pos.piece_on(lsb(b)))];
+            score += Threat[1][type_of(pos.piece_on(lsb(b)))];
 
         b = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
         if (b)
