@@ -533,23 +533,23 @@ namespace {
     // side-to-move factor (1 or 2)
     int stmf = (1 + (Us == pos.side_to_move()));
 
-    // Uncoordinated minors get penalized even if they are not under attack
+    // Uncoordinated minors get penalized
     b = pos.pieces(Them, BISHOP, KNIGHT) & ~ei.attackedBy[Them][ALL_PIECES];
-    score += stmf * Coordination * zero_one_many(b);
+    score += stmf * zero_one_many(b) * Coordination ;
 
     // Uncoordinated rooks get penalized
     if (pos.count<ROOK>(Them) > 0) {
         b = pos.pieces(Them, ROOK, QUEEN) & ~(ei.attackedBy[Them][ROOK] | ei.attackedBy[Them][QUEEN]);
-        score += stmf * Coordination * zero_one_many(b);
+        score += stmf * zero_one_many(b) * Coordination ;
     }
 
-    // Undefended pawns get penalized even if they are not under attack
+    // Pawns get penalized in endgame when they are not helped by pieces
     b = pos.pieces(Them, PAWN) & ~(  ei.attackedBy[Them][KING] 
                                    | ei.attackedBy[Them][KNIGHT]
                                    | ei.attackedBy[Them][BISHOP]
                                    | ei.attackedBy[Them][ROOK]
                                    | ei.attackedBy[Them][QUEEN]);
-    score += PawnHelp * zero_one_many(b);
+    score += zero_one_many(b) * PawnHelp;
     
 
     // Enemies not defended by a pawn and under our attack
