@@ -512,6 +512,12 @@ namespace {
   }
 
 
+  // zero_one_many() return 0 if b is empty, 1 if it has one bit set and 2 otherwise
+
+  inline int zero_one_many(Bitboard b) {
+	return (!!b) * (1 + more_than_one(b));
+  }
+
   // evaluate_threats() assigns bonuses according to the type of attacking piece
   // and the type of attacked one.
 
@@ -520,15 +526,27 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b, undefendedMinors, weakEnemies;
+    Bitboard b, weakEnemies;
     Score score = SCORE_ZERO;
+    
+    // side-to-move factor (1 or 2)
+    int stmf = (1 + (Us == pos.side_to_move()));
 
     // Undefended minors get penalized even if they are not under attack
-    undefendedMinors =  pos.pieces(Them, BISHOP, KNIGHT)
-                      & ~ei.attackedBy[Them][ALL_PIECES];
-
-    if (undefendedMinors)
-        score += UndefendedMinor;
+    b = pos.pieces(Them, BISHOP, KNIGHT) & ~ei.attackedBy[Them][ALL_PIECES];
+    score += UndefendedMinor * zero_one_many(b);
+    
+    // Undefended majors get penalized even if they are not under attack
+    b = pos.pieces(Them, QUEEN, ROOK) & ~ei.attackedBy[Them][ROOK];
+    score += UndefendedMinor * zero_one_many(b);
+    
+    // Undefended pawns get penalized even if they are not under attack
+    b = pos.pieces(Them, PAWN) & ~(  ei.attackedBy[Them][KING] 
+                                   | ei.attackedBy[Them][KNIGHT]
+                                   | ei.attackedBy[Them][BISHOP]
+                                   | ei.attackedBy[Them][ROOK]
+                                   | ei.attackedBy[Them][QUEEN]);
+    score += UndefendedMinor * zero_one_many(b);
 
     // Enemies not defended by a pawn and under our attack
     weakEnemies =  pos.pieces(Them)
@@ -540,11 +558,11 @@ namespace {
     {
         b = weakEnemies & (ei.attackedBy[Us][PAWN] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         if (b)
-            score += Threat[0][type_of(pos.piece_on(lsb(b)))];
+            score += stmf * Threat[0][type_of(pos.piece_on(lsb(b)))];
 
         b = weakEnemies & (ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][QUEEN]);
         if (b)
-            score += Threat[1][type_of(pos.piece_on(lsb(b)))];
+            score += stmf * Threat[1][type_of(pos.piece_on(lsb(b)))];
 
         b = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
         if (b)
