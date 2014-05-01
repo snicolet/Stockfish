@@ -438,7 +438,7 @@ namespace {
         attackUnits =  std::min(20, (ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]) / 2)
                      + 3 * (ei.kingAdjacentZoneAttacksCount[Them] + popcount<Max15>(undefended))
                      + 2 * (ei.pinnedPieces[Us] != 0)
-                     + 5 * ((ei.pinnedPieces[Us] & pos.pieces(Us, PAWN)) != 0)
+                     + 3 * ((ei.pinnedPieces[Us] & pos.pieces(Us, PAWN)) != 0);
                      - mg_value(score) / 32;
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
