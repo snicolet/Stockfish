@@ -169,7 +169,9 @@ namespace {
   const Score RookSemiopenFile = make_score(19, 10);
   const Score BishopPawns      = make_score( 8, 12);
   const Score MinorBehindPawn  = make_score(16,  0);
-  const Score UndefendedMinor  = make_score(25, 10);
+  const Score Coordination     = make_score(11,  5);
+  const Score RookCoordination = make_score(15,  7);
+  const Score PawnHelp         = make_score(-8, 11);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
 
@@ -520,15 +522,30 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b, undefendedMinors, weakEnemies;
+    Bitboard b, weakEnemies;
     Score score = SCORE_ZERO;
 
-    // Undefended minors get penalized even if they are not under attack
-    undefendedMinors =  pos.pieces(Them, BISHOP, KNIGHT)
-                      & ~ei.attackedBy[Them][ALL_PIECES];
+    // side-to-move factor (1 or 2)
+    int stmf = (1 + (Us == pos.side_to_move()));
 
-    if (undefendedMinors)
-        score += UndefendedMinor;
+    // Uncoordinated minors get penalized
+    b = pos.pieces(Them, BISHOP, KNIGHT) & ~ei.attackedBy[Them][ALL_PIECES];
+    score += stmf * zero_one_many(b) * Coordination ;
+
+    // Uncoordinated rooks get penalized
+    if (pos.count<ROOK>(Them) > 0) 
+    {
+        b = pos.pieces(Them, ROOK, QUEEN) & ~(ei.attackedBy[Them][ROOK] | ei.attackedBy[Them][QUEEN]);
+        score += stmf * zero_one_many(b) * RookCoordination ;
+    }
+
+    // Pawns get penalized in endgame when they are not helped by pieces
+    b = pos.pieces(Them, PAWN) & ~(  ei.attackedBy[Them][KING] 
+                                   | ei.attackedBy[Them][KNIGHT]
+                                   | ei.attackedBy[Them][BISHOP]
+                                   | ei.attackedBy[Them][ROOK]
+                                   | ei.attackedBy[Them][QUEEN]);
+    score += zero_one_many(b) * PawnHelp;
 
     // Enemies not defended by a pawn and under our attack
     weakEnemies =  pos.pieces(Them)
