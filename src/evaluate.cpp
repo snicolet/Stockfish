@@ -511,8 +511,7 @@ namespace {
   }
 
 
-  // evaluate_coordination() assigns bonuses to a color if that color
-  // has a material advantage and the opponent is discoordinated
+  // evaluate_coordination() assigns bonuses to a color if the opponent is uncoordinated
 
   template<Color Us, bool Trace>
   Score evaluate_coordination(const Position& pos, const EvalInfo& ei) {
@@ -523,14 +522,14 @@ namespace {
     Score score = SCORE_ZERO;
     Score Coordination;
 
-    // Coordination bonus depends on material and side to move
+    // Coordination bonus depends on material advantage and side to move
     Score material = (Us == WHITE ? pos.psq_score() : -pos.psq_score());
-    
+
     if (eg_value(material) >= 0) 
         Coordination =  4 * (1 + (Us == pos.side_to_move())) * material;
     else 
-    	Coordination = -2 * (1 + (Us == pos.side_to_move())) * material;
-    
+        Coordination = -2 * (1 + (Us == pos.side_to_move())) * material;
+
 	// Uncoordinated minors get penalized
 	b = pos.pieces(Them, BISHOP, KNIGHT) & ~ei.attackedBy[Them][ALL_PIECES];
 	score += Coordination * zero_one_many(b) / 128;
@@ -541,15 +540,16 @@ namespace {
 		b = pos.pieces(Them, ROOK, QUEEN) & ~(ei.attackedBy[Them][ROOK] | ei.attackedBy[Them][QUEEN]);
 		score += Coordination * zero_one_many(b) / 256;
 	}
-    
+
     // Pawns get penalized when they are not helped by pieces (for endgame)
 	b = pos.pieces(Them, PAWN) & ~(  ei.attackedBy[Them][KING] 
 								   | ei.attackedBy[Them][KNIGHT]
 								   | ei.attackedBy[Them][BISHOP]
 								   | ei.attackedBy[Them][ROOK]
 								   | ei.attackedBy[Them][QUEEN]);
-	score += make_score(-mg_value(Coordination), eg_value(Coordination)) * zero_one_many(b) / 128;
-	
+	Score PawnHelp = make_score(-mg_value(Coordination) + 10, eg_value(Coordination) + 10);
+	score += zero_one_many(b) * PawnHelp / 128;
+
     return score;
   }
 
