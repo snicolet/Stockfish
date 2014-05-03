@@ -169,9 +169,6 @@ namespace {
   const Score RookSemiopenFile = make_score(19, 10);
   const Score BishopPawns      = make_score( 8, 12);
   const Score MinorBehindPawn  = make_score(16,  0);
-  const Score Coordination     = make_score(25, 10);
-  const Score RookCoordination = make_score(15, 10);
-  const Score PawnHelp         = make_score(-10, 10);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
 
@@ -514,6 +511,49 @@ namespace {
   }
 
 
+  // evaluate_coordination() assigns bonuses to a color if that color
+  // has a material advantage and the opponent is discoordinated
+
+  template<Color Us, bool Trace>
+  Score evaluate_coordination(const Position& pos, const EvalInfo& ei) {
+
+    const Color Them = (Us == WHITE ? BLACK : WHITE);
+
+    Bitboard b;
+    Score score = SCORE_ZERO;
+    Score Coordination;
+
+    // Coordination bonus depends on material and side to move
+    Score material = (Us == WHITE ? pos.psq_score() : -pos.psq_score());
+    
+    if (eg_value(material) >= 0) 
+        Coordination =  4 * (1 + (Us == pos.side_to_move())) * material;
+    else 
+    	Coordination = -2 * (1 + (Us == pos.side_to_move())) * material;
+    
+	// Uncoordinated minors get penalized
+	b = pos.pieces(Them, BISHOP, KNIGHT) & ~ei.attackedBy[Them][ALL_PIECES];
+	score += Coordination * zero_one_many(b) / 128;
+
+	// Uncoordinated rooks get penalized
+	if (pos.count<ROOK>(Them) > 0) 
+	{
+		b = pos.pieces(Them, ROOK, QUEEN) & ~(ei.attackedBy[Them][ROOK] | ei.attackedBy[Them][QUEEN]);
+		score += Coordination * zero_one_many(b) / 256;
+	}
+    
+    // Pawns get penalized when they are not helped by pieces (for endgame)
+	b = pos.pieces(Them, PAWN) & ~(  ei.attackedBy[Them][KING] 
+								   | ei.attackedBy[Them][KNIGHT]
+								   | ei.attackedBy[Them][BISHOP]
+								   | ei.attackedBy[Them][ROOK]
+								   | ei.attackedBy[Them][QUEEN]);
+	score += make_score(-mg_value(Coordination), eg_value(Coordination)) * zero_one_many(b) / 128;
+	
+    return score;
+  }
+
+
   // evaluate_threats() assigns bonuses according to the type of attacking piece
   // and the type of attacked one.
 
@@ -524,28 +564,6 @@ namespace {
 
     Bitboard b, weakEnemies;
     Score score = SCORE_ZERO;
-
-    // side-to-move factor (1 or 2)
-    int stmf = (1 + (Us == pos.side_to_move()));
-
-    // Uncoordinated minors get penalized
-    b = pos.pieces(Them, BISHOP, KNIGHT) & ~ei.attackedBy[Them][ALL_PIECES];
-    score += stmf * zero_one_many(b) * Coordination ;
-
-    // Uncoordinated rooks get penalized
-    if (pos.count<ROOK>(Them) > 0) 
-    {
-        b = pos.pieces(Them, ROOK, QUEEN) & ~(ei.attackedBy[Them][ROOK] | ei.attackedBy[Them][QUEEN]);
-        score += stmf * zero_one_many(b) * RookCoordination ;
-    }
-
-    // Pawns get penalized in endgame when they are not helped by pieces
-    b = pos.pieces(Them, PAWN) & ~(  ei.attackedBy[Them][KING] 
-                                   | ei.attackedBy[Them][KNIGHT]
-                                   | ei.attackedBy[Them][BISHOP]
-                                   | ei.attackedBy[Them][ROOK]
-                                   | ei.attackedBy[Them][QUEEN]);
-    score += zero_one_many(b) * PawnHelp;
 
     // Enemies not defended by a pawn and under our attack
     weakEnemies =  pos.pieces(Them)
@@ -761,6 +779,10 @@ namespace {
     // Evaluate tactical threats, we need full attack information including king
     score +=  evaluate_threats<WHITE, Trace>(pos, ei)
             - evaluate_threats<BLACK, Trace>(pos, ei);
+    
+    // Evaluate coordination, we need full attack information including king
+    score +=  evaluate_coordination<WHITE, Trace>(pos, ei)
+            - evaluate_coordination<BLACK, Trace>(pos, ei);
 
     // Evaluate passed pawns, we need full attack information including king
     score +=  evaluate_passed_pawns<WHITE, Trace>(pos, ei)
