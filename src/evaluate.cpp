@@ -169,9 +169,9 @@ namespace {
   const Score RookSemiopenFile = make_score(19, 10);
   const Score BishopPawns      = make_score( 8, 12);
   const Score MinorBehindPawn  = make_score(16,  0);
-  const Score Coordination     = make_score(11,  5);
-  const Score RookCoordination = make_score(15,  7);
-  const Score PawnHelp         = make_score(-8, 11);
+  const Score Coordination     = make_score(25, 10);
+  const Score RookCoordination = make_score(15, 10);
+  const Score PawnHelp         = make_score(-10, 10);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
 
