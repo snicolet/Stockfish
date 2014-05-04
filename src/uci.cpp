@@ -200,7 +200,7 @@ void UCI::loop(int argc, char* argv[]) {
           Search::RootColor = pos.side_to_move(); // Ensure it is set
           sync_cout << Eval::trace(pos) << sync_endl;
       }
-      else if (token == "ucinewgame") TT.clear();
+      else if (token == "ucinewgame") { TT.clear(); Eval::init(); }
       else if (token == "go")         go(pos, is);
       else if (token == "position")   position(pos, is);
       else if (token == "setoption")  setoption(is);

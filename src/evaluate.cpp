@@ -176,6 +176,8 @@ namespace {
   const Score UndefendedMinor  = make_score(25, 10);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
+  
+  int ca, cu, cs, cn;  // CLOP
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -260,7 +262,10 @@ namespace {
 
   template<PieceType Pt, Color Us>
   Score evaluate_one_outpost(const Position& pos, EvalInfo& ei, Square s) {
-
+  
+    if (SQ_NONE == s)
+        return SCORE_ZERO;
+    
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     
     // Outpost piece bonus based on square and file of opponent king.
@@ -282,12 +287,19 @@ namespace {
 
     // Decrease the bonus when the outpost is attacked or unstable,  
     // and increase it when the outpost is supported by our other pieces.
+    /*
     bonus *=  attacked  ? 6   :
               unstable  ? 54  :
               supported ? 237 :
                           202 ;
+    */
     
-    return make_score(bonus / 128, bonus / 128);
+    bonus *=  attacked  ? ca   :
+              unstable  ? cu  :
+              supported ? cs :
+                          cn ;
+    
+    return make_score(bonus / 64, bonus / 64);
   }
 
 
@@ -296,25 +308,18 @@ namespace {
   template<Color Us>
   Score evaluate_outposts(const Position& pos, EvalInfo& ei) {
 
-    Square s;
     Score score = SCORE_ZERO;
-    const Square* pl;
     
-    pl = pos.list<KNIGHT>(Us);
-    while ((s = *pl++) != SQ_NONE)  
-       score += evaluate_one_outpost<KNIGHT, Us>(pos, ei, s);
+    score += evaluate_one_outpost<KNIGHT, Us>(pos, ei, pos.list<KNIGHT>(Us)[0])
+          +  evaluate_one_outpost<KNIGHT, Us>(pos, ei, pos.list<KNIGHT>(Us)[1])
     
-    pl = pos.list<BISHOP>(Us);
-    while ((s = *pl++) != SQ_NONE)  
-       score += evaluate_one_outpost<BISHOP, Us>(pos, ei, s);
+          +  evaluate_one_outpost<BISHOP, Us>(pos, ei, pos.list<BISHOP>(Us)[0])
+          +  evaluate_one_outpost<BISHOP, Us>(pos, ei, pos.list<BISHOP>(Us)[1])
     
-    pl = pos.list<ROOK>(Us);
-    while ((s = *pl++) != SQ_NONE)  
-       score += evaluate_one_outpost<ROOK, Us>(pos, ei, s);
+          +  evaluate_one_outpost<ROOK,   Us>(pos, ei, pos.list<ROOK  >(Us)[0])
+          +  evaluate_one_outpost<ROOK,   Us>(pos, ei, pos.list<ROOK  >(Us)[1])
     
-    pl = pos.list<QUEEN>(Us);
-    while ((s = *pl++) != SQ_NONE)  
-       score += evaluate_one_outpost<QUEEN, Us>(pos, ei, s);
+          +  evaluate_one_outpost<QUEEN,  Us>(pos, ei, pos.list<QUEEN >(Us)[0]);
     
     return score;
   }
@@ -986,9 +991,14 @@ namespace Eval {
             File f = File( file_of(s) - delta[opponentKing] );
             if (f < FILE_A) f = FILE_A; else if (f > FILE_H) f = FILE_H;
 
-            Outpost[opponentKing][0][s] = CenteredOutpost[0][make_square(f, rank_of(s))];
-            Outpost[opponentKing][1][s] = CenteredOutpost[1][make_square(f, rank_of(s))];
-    	}     	
+            Outpost[opponentKing][0][s] = CenteredOutpost[0][make_square(f, rank_of(s))] / 2;
+            Outpost[opponentKing][1][s] = CenteredOutpost[1][make_square(f, rank_of(s))] / 2;
+    	}
+
+   ca   = int(Options["ca"]);    // CLOP !
+   cu   = int(Options["cu"]);   // CLOP !
+   cs   = int(Options["cs"]);   // CLOP !
+   cn   = int(Options["cn"]); // CLOP !
   }
 
 } // namespace Eval

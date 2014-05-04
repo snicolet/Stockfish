@@ -69,6 +69,13 @@ void init(OptionsMap& o) {
   o["Space"]                    << Option(100, 0, 200, on_eval);
   o["Aggressiveness"]           << Option(100, 0, 200, on_eval);
   o["Cowardice"]                << Option(100, 0, 200, on_eval);
+  
+  o["ca"]                << Option(100, -1000, 1000, on_eval);
+  o["cu"]                << Option(100, -1000, 1000, on_eval);
+  o["cs"]                << Option(100, -1000, 1000, on_eval);
+  o["cn"]                << Option(100, -1000, 1000, on_eval);
+
+
   o["Min Split Depth"]          << Option(0, 0, 12, on_threads);
   o["Threads"]                  << Option(1, 1, MAX_THREADS, on_threads);
   o["Idle Threads Sleep"]       << Option(true);
