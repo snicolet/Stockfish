@@ -256,10 +256,10 @@ namespace {
   }
 
 
-  // evaluate_outpost() evaluates outpost square for one piece near the ennemy king.
+  // evaluate_one_outpost() evaluates the outpost square for one piece near the ennemy king.
 
   template<PieceType Pt, Color Us>
-  Score evaluate_outpost(const Position& pos, EvalInfo& ei, Square s) {
+  Score evaluate_one_outpost(const Position& pos, EvalInfo& ei, Square s) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     
@@ -302,19 +302,19 @@ namespace {
     
     pl = pos.list<KNIGHT>(Us);
     while ((s = *pl++) != SQ_NONE)  
-       score += evaluate_outpost<KNIGHT, Us>(pos, ei, s);
+       score += evaluate_one_outpost<KNIGHT, Us>(pos, ei, s);
     
     pl = pos.list<BISHOP>(Us);
     while ((s = *pl++) != SQ_NONE)  
-       score += evaluate_outpost<BISHOP, Us>(pos, ei, s);
+       score += evaluate_one_outpost<BISHOP, Us>(pos, ei, s);
     
     pl = pos.list<ROOK>(Us);
     while ((s = *pl++) != SQ_NONE)  
-       score += evaluate_outpost<ROOK, Us>(pos, ei, s);
+       score += evaluate_one_outpost<ROOK, Us>(pos, ei, s);
     
     pl = pos.list<QUEEN>(Us);
     while ((s = *pl++) != SQ_NONE)  
-       score += evaluate_outpost<QUEEN, Us>(pos, ei, s);
+       score += evaluate_one_outpost<QUEEN, Us>(pos, ei, s);
     
     return score;
   }
