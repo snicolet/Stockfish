@@ -786,6 +786,27 @@ namespace {
             // a bit drawish, but not as drawish as with only the two bishops.
              sf = ScaleFactor(50 * sf / SCALE_FACTOR_NORMAL);
     }
+    
+    // Stalemate detection for two cases : single king, or single king + blocked pawns
+    const Color stm = pos.side_to_move();
+    // King can't move ?
+    if (!(ei.attackedBy[stm][KING] & ~ei.attackedBy[~stm][ALL_PIECES]))  
+    {  
+        // Single king ?
+        if (!more_than_one(pos.pieces(stm)))  
+             sf = SCALE_FACTOR_DRAW; 
+        
+        // Blocked pawns ?
+        else if (!pos.non_pawn_material(stm)) {
+             
+             const Bitboard pawns          = pos.pieces(stm, PAWN);
+             const Bitboard emptySquares   = ~pos.pieces();
+             const Bitboard forwardSquares = (stm == WHITE ? shift_bb<DELTA_N>(pawns)  : shift_bb<DELTA_S>(pawns)) ;
+             
+             if ((!(forwardSquares & emptySquares)) && !MoveList<LEGAL>(pos).size())
+             	sf = SCALE_FACTOR_DRAW;
+        }
+    }
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     Value v =  mg_value(score) * int(ei.mi->game_phase())
