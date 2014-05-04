@@ -405,6 +405,11 @@ namespace {
   Score evaluate_pieces<KING, WHITE,  true>(const Position&, EvalInfo&, Score*, Bitboard*) { return SCORE_ZERO; }
 
 
+// zero_one_many(b) returns : 0 if b is empty, 1 if b has one bit set, and 2 otherwise
+inline int zero_one_many(Bitboard b) {
+  return (!!b) * (1 + more_than_one(b));
+}
+
   // evaluate_king() assigns bonuses and penalties to a king of a given color
 
   template<Color Us, bool Trace>
@@ -438,8 +443,8 @@ namespace {
         attackUnits =  std::min(20, (ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]) / 2)
                      + 3 * (ei.kingAdjacentZoneAttacksCount[Them] + popcount<Max15>(undefended))
                      + 2 * (ei.pinnedPieces[Us] != 0)
-                     + 3 * ((ei.pinnedPieces[Us] & pos.pieces(Us, PAWN)) != 0);
-                     - mg_value(score) / 32;
+                     + 2 * zero_one_many(ei.pinnedPieces[Us] & pos.pieces(Us, PAWN))
+                     - mg_value(score) / 64;
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
         // undefended squares around the king that are attacked by the enemy's
