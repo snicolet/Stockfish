@@ -405,11 +405,6 @@ namespace {
   Score evaluate_pieces<KING, WHITE,  true>(const Position&, EvalInfo&, Score*, Bitboard*) { return SCORE_ZERO; }
 
 
-// zero_one_many(b) returns : 0 if b is empty, 1 if b has one bit set, and 2 otherwise
-inline int zero_one_many(Bitboard b) {
-  return (!!b) * (1 + more_than_one(b));
-}
-
   // evaluate_king() assigns bonuses and penalties to a king of a given color
 
   template<Color Us, bool Trace>

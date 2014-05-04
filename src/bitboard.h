@@ -113,6 +113,11 @@ inline bool more_than_one(Bitboard b) {
   return b & (b - 1);
 }
 
+// zero_one_many(b) returns 0 if b is empty, 1 if b has one bit set, and 2 otherwise
+inline int zero_one_many(Bitboard b) {
+  return (!!b) * (1 + more_than_one(b));
+}
+
 inline int square_distance(Square s1, Square s2) {
   return SquareDistance[s1][s2];
 }
