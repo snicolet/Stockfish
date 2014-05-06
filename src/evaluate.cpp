@@ -517,6 +517,9 @@ namespace {
   Score evaluate_coordination(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
+    
+    if (pos.count<ROOK>(Them) == 0) 
+		return SCORE_ZERO;
 
     // Coordination bonus depends on material advantage and side to move
     Score material = (Us == WHITE ? pos.psq_score() : -pos.psq_score());
@@ -524,10 +527,10 @@ namespace {
     Score Coordination = (eg_value(material) >= 0) ?  4 * (1 + (Them ^ pos.side_to_move())) * material
                                                    : -2 * (1 + (Them ^ pos.side_to_move())) * material;
 
-	// Uncoordinated minors get penalized
-    Bitboard b = pos.pieces(Them, BISHOP, KNIGHT) & ~ei.attackedBy[Them][ALL_PIECES];
-    
-	return Coordination * zero_one_many(b) / 128;
+	// Uncoordinated rooks get penalized
+	Bitboard b = pos.pieces(Them, ROOK, QUEEN) & ~(ei.attackedBy[Them][ROOK] | ei.attackedBy[Them][QUEEN]);
+	return Coordination * zero_one_many(b) / 256;
+	
   }
 
 
