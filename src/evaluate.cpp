@@ -707,6 +707,10 @@ namespace {
     // in the position object (material + piece square tables) and adding a
     // Tempo bonus. Score is computed from the point of view of white.
     score = pos.psq_score() + (pos.side_to_move() == WHITE ? Tempo : -Tempo);
+    
+    // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
+    int random_eval = (uint64_t(pos.key()) & 15) - 8;
+    score += make_score(random_eval, random_eval);
 
     // Probe the material hash table
     ei.mi = Material::probe(pos, thisThread->materialTable, thisThread->endgames);
