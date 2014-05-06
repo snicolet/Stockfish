@@ -513,44 +513,21 @@ namespace {
 
   // evaluate_coordination() assigns bonuses to a color if the opponent is uncoordinated
 
-  template<Color Us, bool Trace>
+  template<Color Us>
   Score evaluate_coordination(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b;
-    Score score = SCORE_ZERO;
-    Score Coordination;
-
     // Coordination bonus depends on material advantage and side to move
     Score material = (Us == WHITE ? pos.psq_score() : -pos.psq_score());
 
-    if (eg_value(material) >= 0) 
-        Coordination =  4 * (1 + (Them ^ pos.side_to_move())) * material;
-    else 
-        Coordination = -2 * (1 + (Them ^ pos.side_to_move())) * material;
+    Score Coordination = (eg_value(material) >= 0) ?  4 * (1 + (Them ^ pos.side_to_move())) * material
+                                                   : -2 * (1 + (Them ^ pos.side_to_move())) * material;
 
 	// Uncoordinated minors get penalized
-    b = pos.pieces(Them, BISHOP, KNIGHT) & ~ei.attackedBy[Them][ALL_PIECES];
-	score += Coordination * zero_one_many(b) / 128;
-
-	// Uncoordinated rooks get penalized
-	if (pos.count<ROOK>(Them) > 0) 
-	{
-		b = pos.pieces(Them, ROOK, QUEEN) & ~(ei.attackedBy[Them][ROOK] | ei.attackedBy[Them][QUEEN]);
-		score += Coordination * zero_one_many(b) / 256;
-	}
-
-    // Pawns get penalized when they are not helped by pieces (for endgame)
-	b = pos.pieces(Them, PAWN) & ~(  ei.attackedBy[Them][KING] 
-								   | ei.attackedBy[Them][KNIGHT]
-								   | ei.attackedBy[Them][BISHOP]
-								   | ei.attackedBy[Them][ROOK]
-								   | ei.attackedBy[Them][QUEEN]);
-	Score PawnHelp = make_score(-mg_value(Coordination) + 10, eg_value(Coordination) + 10);
-	score += zero_one_many(b) * PawnHelp / 128;
-
-    return score;
+    Bitboard b = pos.pieces(Them, BISHOP, KNIGHT) & ~ei.attackedBy[Them][ALL_PIECES];
+    
+	return Coordination * zero_one_many(b) / 128;
   }
 
 
@@ -781,8 +758,8 @@ namespace {
             - evaluate_threats<BLACK, Trace>(pos, ei);
     
     // Evaluate coordination, we need full attack information including king
-    score +=  evaluate_coordination<WHITE, Trace>(pos, ei)
-            - evaluate_coordination<BLACK, Trace>(pos, ei);
+    score +=  evaluate_coordination<WHITE>(pos, ei)
+            - evaluate_coordination<BLACK>(pos, ei);
 
     // Evaluate passed pawns, we need full attack information including king
     score +=  evaluate_passed_pawns<WHITE, Trace>(pos, ei)
