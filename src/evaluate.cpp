@@ -708,7 +708,7 @@ namespace {
     // Tempo bonus. Score is computed from the point of view of white.
     score = pos.psq_score() + (pos.side_to_move() == WHITE ? Tempo : -Tempo);
     
-    int random_eval = (uint64_t(pos.key()) & 31) - 16;
+    int random_eval = (uint64_t(pos.key()) & 15) - 8;
     score += make_score(random_eval, random_eval);
 
     // Probe the material hash table
