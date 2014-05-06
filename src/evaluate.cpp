@@ -169,7 +169,6 @@ namespace {
   const Score RookSemiopenFile = make_score(19, 10);
   const Score BishopPawns      = make_score( 8, 12);
   const Score MinorBehindPawn  = make_score(16,  0);
-  const Score UndefendedMinor  = make_score(25, 10);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
 
@@ -512,6 +511,49 @@ namespace {
   }
 
 
+  // evaluate_coordination() assigns bonuses to a color if the opponent is uncoordinated
+
+  template<Color Us, bool Trace>
+  Score evaluate_coordination(const Position& pos, const EvalInfo& ei) {
+
+    const Color Them = (Us == WHITE ? BLACK : WHITE);
+
+    Bitboard b;
+    Score score = SCORE_ZERO;
+    Score Coordination;
+
+    // Coordination bonus depends on material advantage and side to move
+    Score material = (Us == WHITE ? pos.psq_score() : -pos.psq_score());
+
+    if (eg_value(material) >= 0) 
+        Coordination =  4 * (1 + (Them ^ pos.side_to_move())) * material;
+    else 
+        Coordination = -2 * (1 + (Them ^ pos.side_to_move())) * material;
+
+	// Uncoordinated minors get penalized
+    b = pos.pieces(Them, BISHOP, KNIGHT) & ~ei.attackedBy[Them][ALL_PIECES];
+	score += Coordination * zero_one_many(b) / 128;
+
+	// Uncoordinated rooks get penalized
+	if (pos.count<ROOK>(Them) > 0) 
+	{
+		b = pos.pieces(Them, ROOK, QUEEN) & ~(ei.attackedBy[Them][ROOK] | ei.attackedBy[Them][QUEEN]);
+		score += Coordination * zero_one_many(b) / 256;
+	}
+
+    // Pawns get penalized when they are not helped by pieces (for endgame)
+	b = pos.pieces(Them, PAWN) & ~(  ei.attackedBy[Them][KING] 
+								   | ei.attackedBy[Them][KNIGHT]
+								   | ei.attackedBy[Them][BISHOP]
+								   | ei.attackedBy[Them][ROOK]
+								   | ei.attackedBy[Them][QUEEN]);
+	Score PawnHelp = make_score(-mg_value(Coordination) + 10, eg_value(Coordination) + 10);
+	score += zero_one_many(b) * PawnHelp / 128;
+
+    return score;
+  }
+
+
   // evaluate_threats() assigns bonuses according to the type of attacking piece
   // and the type of attacked one.
 
@@ -520,15 +562,8 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b, undefendedMinors, weakEnemies;
+    Bitboard b, weakEnemies;
     Score score = SCORE_ZERO;
-
-    // Undefended minors get penalized even if they are not under attack
-    undefendedMinors =  pos.pieces(Them, BISHOP, KNIGHT)
-                      & ~ei.attackedBy[Them][ALL_PIECES];
-
-    if (undefendedMinors)
-        score += UndefendedMinor;
 
     // Enemies not defended by a pawn and under our attack
     weakEnemies =  pos.pieces(Them)
@@ -548,8 +583,8 @@ namespace {
 
         b = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
         if (b)
-            score += more_than_one(b) ? Hanging[Us != pos.side_to_move()] * popcount<Max15>(b)
-                                      : Hanging[Us == pos.side_to_move()];
+            score += more_than_one(b) ? Hanging[Us   ^ pos.side_to_move()] * popcount<Max15>(b)
+                                      : Hanging[Them ^ pos.side_to_move()];
     }
 
     if (Trace)
@@ -744,6 +779,10 @@ namespace {
     // Evaluate tactical threats, we need full attack information including king
     score +=  evaluate_threats<WHITE, Trace>(pos, ei)
             - evaluate_threats<BLACK, Trace>(pos, ei);
+    
+    // Evaluate coordination, we need full attack information including king
+    score +=  evaluate_coordination<WHITE, Trace>(pos, ei)
+            - evaluate_coordination<BLACK, Trace>(pos, ei);
 
     // Evaluate passed pawns, we need full attack information including king
     score +=  evaluate_passed_pawns<WHITE, Trace>(pos, ei)
