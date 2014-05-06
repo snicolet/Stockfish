@@ -548,8 +548,8 @@ namespace {
 
         b = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
         if (b)
-            score += more_than_one(b) ? Hanging[Us != pos.side_to_move()] * popcount<Max15>(b)
-                                      : Hanging[Us == pos.side_to_move()];
+            score += more_than_one(b) ? Hanging[Us   ^ pos.side_to_move()] * popcount<Max15>(b)
+                                      : Hanging[Them ^ pos.side_to_move()];
     }
 
     if (Trace)
