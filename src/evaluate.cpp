@@ -76,7 +76,7 @@ namespace {
   namespace Tracing {
 
     enum Terms { // First 8 entries are for PieceType
-      PST = 8, IMBALANCE, MOBILITY, THREAT, PASSED, SPACE, TOTAL, TERMS_NB
+      PST = 8, IMBALANCE, MOBILITY, THREAT, PASSED, TOTAL, TERMS_NB
     };
 
     Score terms[COLOR_NB][TERMS_NB];
@@ -90,8 +90,8 @@ namespace {
   }
 
   // Evaluation weights, initialized from UCI options
-  enum { Mobility, PawnStructure, PassedPawns, Space, KingDangerUs, KingDangerThem };
-  struct Weight { int mg, eg; } Weights[6];
+  enum { Mobility, PawnStructure, PassedPawns, KingDangerUs, KingDangerThem };
+  struct Weight { int mg, eg; } Weights[5];
 
   typedef Value V;
   #define S(mg, eg) make_score(mg, eg)
@@ -103,7 +103,7 @@ namespace {
   //
   // Values modified by Joona Kiiski
   const Score WeightsInternal[] = {
-    S(289, 344), S(233, 201), S(221, 273), S(46, 0), S(271, 0), S(307, 0)
+    S(289, 344), S(233, 201), S(221, 273), S(271, 0), S(307, 0)
   };
 
   // MobilityBonus[PieceType][attacked] contains bonuses for middle and end
@@ -177,15 +177,6 @@ namespace {
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
   // happen in Chess960 games.
   const Score TrappedBishopA1H1 = make_score(50, 50);
-
-  // SpaceMask[Color] contains the area of the board which is considered
-  // by the space evaluation. In the middlegame, each side is given a bonus
-  // based on how many squares inside this area are safe and available for
-  // friendly minor pieces.
-  const Bitboard SpaceMask[] = {
-    (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank2BB | Rank3BB | Rank4BB),
-    (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB)
-  };
 
   // King danger constants and variables. The king danger scores are taken
   // from KingDanger[]. Various little "meta-bonuses" measuring the strength
@@ -660,38 +651,6 @@ namespace {
   }
 
 
-  // evaluate_space() computes the space evaluation for a given side. The
-  // space evaluation is a simple bonus based on the number of safe squares
-  // available for minor pieces on the central four files on ranks 2--4. Safe
-  // squares one, two or three squares behind a friendly pawn are counted
-  // twice. Finally, the space bonus is scaled by a weight taken from the
-  // material hash table. The aim is to improve play on game opening.
-  template<Color Us>
-  int evaluate_space(const Position& pos, const EvalInfo& ei) {
-
-    const Color Them = (Us == WHITE ? BLACK : WHITE);
-
-    // Find the safe squares for our pieces inside the area defined by
-    // SpaceMask[]. A square is unsafe if it is attacked by an enemy
-    // pawn, or if it is undefended and attacked by an enemy piece.
-    Bitboard safe =   SpaceMask[Us]
-                   & ~pos.pieces(Us, PAWN)
-                   & ~ei.attackedBy[Them][PAWN]
-                   & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
-
-    // Find all squares which are at most three squares behind some friendly pawn
-    Bitboard behind = pos.pieces(Us, PAWN);
-    behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
-    behind |= (Us == WHITE ? behind >> 16 : behind << 16);
-
-    // Since SpaceMask[Us] is fully on our half of the board
-    assert(unsigned(safe >> (Us == WHITE ? 32 : 0)) == 0);
-
-    // Count safe + (behind & safe) with a single popcount
-    return popcount<Full>((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
-  }
-
-
   // do_evaluate() is the evaluation entry point, called directly from evaluate()
 
   template<bool Trace>
@@ -709,7 +668,7 @@ namespace {
     score = pos.psq_score() + (pos.side_to_move() == WHITE ? Tempo : -Tempo);
     
     // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
-    int random_eval = (uint64_t(pos.key()) & 31) - 16;
+    int random_eval = eg_value(score) & 15;
     score += make_score(random_eval, random_eval);
 
     // Probe the material hash table
@@ -758,13 +717,6 @@ namespace {
         score +=  evaluate_unstoppable_pawns(pos, WHITE, ei)
                 - evaluate_unstoppable_pawns(pos, BLACK, ei);
 
-    // Evaluate space for both sides, only in middlegame
-    if (ei.mi->space_weight())
-    {
-        int s = evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei);
-        score += apply_weight(s * ei.mi->space_weight(), Weights[Space]);
-    }
-
     // Scale winning side if position is more drawish than it appears
     ScaleFactor sf = eg_value(score) > VALUE_DRAW ? ei.mi->scale_factor(pos, WHITE)
                                                   : ei.mi->scale_factor(pos, BLACK);
@@ -805,9 +757,6 @@ namespace {
         Tracing::add_term(PAWN, ei.pi->pawns_value());
         Tracing::add_term(Tracing::MOBILITY, apply_weight(mobility[WHITE], Weights[Mobility])
                                            , apply_weight(mobility[BLACK], Weights[Mobility]));
-        Score w = ei.mi->space_weight() * evaluate_space<WHITE>(pos, ei);
-        Score b = ei.mi->space_weight() * evaluate_space<BLACK>(pos, ei);
-        Tracing::add_term(Tracing::SPACE, apply_weight(w, Weights[Space]), apply_weight(b, Weights[Space]));
         Tracing::add_term(Tracing::TOTAL, score);
         Tracing::ei = ei;
         Tracing::sf = sf;
@@ -873,7 +822,6 @@ namespace {
     format_row(ss, "King safety", KING);
     format_row(ss, "Threats", THREAT);
     format_row(ss, "Passed pawns", PASSED);
-    format_row(ss, "Space", SPACE);
 
     ss << "---------------------+-------------+-------------+-------------\n";
     format_row(ss, "Total", TOTAL);
@@ -913,7 +861,6 @@ namespace Eval {
     Weights[Mobility]       = weight_option("Mobility (Midgame)", "Mobility (Endgame)", WeightsInternal[Mobility]);
     Weights[PawnStructure]  = weight_option("Pawn Structure (Midgame)", "Pawn Structure (Endgame)", WeightsInternal[PawnStructure]);
     Weights[PassedPawns]    = weight_option("Passed Pawns (Midgame)", "Passed Pawns (Endgame)", WeightsInternal[PassedPawns]);
-    Weights[Space]          = weight_option("Space", "Space", WeightsInternal[Space]);
     Weights[KingDangerUs]   = weight_option("Cowardice", "Cowardice", WeightsInternal[KingDangerUs]);
     Weights[KingDangerThem] = weight_option("Aggressiveness", "Aggressiveness", WeightsInternal[KingDangerThem]);
 
