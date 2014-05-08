@@ -159,7 +159,7 @@ namespace {
   };
 
   // Hanging[side to move] contains a bonus for each enemy hanging piece
-  const Score Hanging[2] = { S(23, 20) , S(35, 45) };
+  const Score Hanging[2] = { S(23, 20) , S(45, 55) };
 
   #undef S
 
@@ -548,8 +548,8 @@ namespace {
 
         b = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
         if (b)
-            score += more_than_one(b) ? Hanging[Us != pos.side_to_move()] * popcount<Max15>(b)
-                                      : Hanging[Us == pos.side_to_move()];
+            score += more_than_one(b) ? Hanging[Them ^ pos.side_to_move()] * popcount<Max15>(b)
+                                      : Hanging[Them ^ pos.side_to_move()];
     }
 
     if (Trace)
