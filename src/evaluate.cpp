@@ -668,7 +668,7 @@ namespace {
     score = pos.psq_score() + (pos.side_to_move() == WHITE ? Tempo : -Tempo);
     
     // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
-    int random_eval = eg_value(score) & 15;
+    int random_eval = eg_value(score) & 31;
     score += make_score(random_eval, random_eval);
 
     // Probe the material hash table
