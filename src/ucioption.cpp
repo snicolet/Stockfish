@@ -70,10 +70,14 @@ void init(OptionsMap& o) {
   o["Aggressiveness"]           << Option(100, 0, 200, on_eval);
   o["Cowardice"]                << Option(100, 0, 200, on_eval);
   
-  o["ca"]                << Option(100, -1000, 1000, on_eval);
-  o["cu"]                << Option(100, -1000, 1000, on_eval);
-  o["cs"]                << Option(100, -1000, 1000, on_eval);
-  o["cn"]                << Option(100, -1000, 1000, on_eval);
+  o["clopmidgame"]                << Option(100, -100000, 100000, on_eval);
+  o["clopendgame"]                << Option(100, -100000, 100000, on_eval);
+  o["clopa"]                << Option(100, -100000, 100000, on_eval);
+  o["clopb"]                << Option(100, -100000, 100000, on_eval);
+  o["ca"]                << Option(100, -100000, 100000, on_eval);
+  o["cu"]                << Option(100, -100000, 100000, on_eval);
+  o["cs"]                << Option(100, -100000, 100000, on_eval);
+  o["cn"]                << Option(100, -100000, 100000, on_eval);
 
 
   o["Min Split Depth"]          << Option(0, 0, 12, on_threads);

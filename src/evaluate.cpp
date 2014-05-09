@@ -177,7 +177,7 @@ namespace {
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
   
-  int ca, cu, cs, cn;  // CLOP
+  //int clopa, clopb, clopmidgame, clopendgame, ca, cu, cs, cn;  // CLOP
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -262,68 +262,49 @@ namespace {
 
   template<PieceType Pt, Color Us>
   Score evaluate_one_outpost(const Position& pos, EvalInfo& ei, Square s) {
-  
-    if (SQ_NONE == s)
-        return SCORE_ZERO;
     
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     
     // Outpost piece bonus based on square and file of opponent king.
-    Value bonus = Outpost[file_of(pos.king_square(Them))][Pt == BISHOP][relative_square(Us, s)];
-    
+    int bonus = Outpost[file_of(pos.king_square(Them))][Pt == BISHOP][relative_square(Us, s)];
     if (!bonus)
-        return SCORE_ZERO;
+       return SCORE_ZERO;
+       
+    if (ei.attackedBy[Them][ALL_PIECES] & s) 
+       return SCORE_ZERO; 
 
-    bool supported = (ei.attackedBy[Us][PAWN] | 
-                      ei.attackedBy[Us][QUEEN] | 
-                      ei.attackedBy[Us][ROOK]) & s;
-    bool attacked  = (ei.attackedBy[Them][BISHOP] | 
-                      ei.attackedBy[Them][KNIGHT] | 
-                      ei.attackedBy[Them][ROOK]   |
-                      ei.attackedBy[Them][QUEEN]  |
-                      ei.attackedBy[Them][PAWN]) & s;      
     bool unstable  =   (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s))
                      | (squares_of_color(s) & pos.pieces(Them, BISHOP)); 
 
-    // Decrease the bonus when the outpost is attacked or unstable,  
-    // and increase it when the outpost is supported by our other pieces.
-    /*
-    bonus *=  attacked  ? 6   :
-              unstable  ? 54  :
-              supported ? 237 :
-                          202 ;
-    */
+    bonus *= (180 - 80 * (pos.side_to_move() ^ Us)); // 166 - 80 * (...) est bien
+    bonus *= (2 - unstable);
     
-    bonus *=  attacked  ? ca   :
-              unstable  ? cu  :
-              supported ? cs :
-                          cn ;
-    
-    return make_score(bonus / 64, bonus / 64);
+    return make_score(bonus / 128, bonus / 64);
   }
 
 
 // evaluate_outposts() assigns outpost bonuses for all pieces for a given color
 
+/*
   template<Color Us>
   Score evaluate_outposts(const Position& pos, EvalInfo& ei) {
 
     Score score = SCORE_ZERO;
     
-    score += evaluate_one_outpost<KNIGHT, Us>(pos, ei, pos.list<KNIGHT>(Us)[0])
-          +  evaluate_one_outpost<KNIGHT, Us>(pos, ei, pos.list<KNIGHT>(Us)[1])
+    score += evaluate_one_outpost< KNIGHT, Us>(pos, ei, pos.list<KNIGHT>(Us)[0])
+          +  evaluate_one_outpost< KNIGHT, Us>(pos, ei, pos.list<KNIGHT>(Us)[1])
     
-          +  evaluate_one_outpost<BISHOP, Us>(pos, ei, pos.list<BISHOP>(Us)[0])
-          +  evaluate_one_outpost<BISHOP, Us>(pos, ei, pos.list<BISHOP>(Us)[1])
+          +  evaluate_one_outpost< BISHOP, Us>(pos, ei, pos.list<BISHOP>(Us)[0])
+          +  evaluate_one_outpost< BISHOP, Us>(pos, ei, pos.list<BISHOP>(Us)[1])
     
-          +  evaluate_one_outpost<ROOK,   Us>(pos, ei, pos.list<ROOK  >(Us)[0])
-          +  evaluate_one_outpost<ROOK,   Us>(pos, ei, pos.list<ROOK  >(Us)[1])
+          +  evaluate_one_outpost< ROOK,   Us>(pos, ei, pos.list<ROOK  >(Us)[0])
+          +  evaluate_one_outpost< ROOK,   Us>(pos, ei, pos.list<ROOK  >(Us)[1])
     
-          +  evaluate_one_outpost<QUEEN,  Us>(pos, ei, pos.list<QUEEN >(Us)[0]);
+          +  evaluate_one_outpost< QUEEN,  Us>(pos, ei, pos.list<QUEEN >(Us)[0]);
     
     return score;
   }
-        
+*/    
 
   // evaluate_pieces() assigns bonuses and penalties to the pieces of a given color
 
@@ -375,6 +356,9 @@ namespace {
         // of threat evaluation must be done later when we have full attack info.
         if (ei.attackedBy[Them][PAWN] & s)
             score -= ThreatenedByPawn[Pt];
+        
+        // Evaluate the quality of the piece as an outpost
+        score += evaluate_one_outpost<Pt, Us>(pos, ei, s);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -442,6 +426,11 @@ namespace {
   Score evaluate_pieces<KING, WHITE,  true>(const Position&, EvalInfo&, Score*, Bitboard*) { return SCORE_ZERO; }
 
 
+// zero_one_many(b) returns : 0 if b is empty, 1 if b has one bit set, and 2 otherwise
+inline int zero_one_many(Bitboard b) {
+  return (!!b) * (1 + more_than_one(b));
+}
+
   // evaluate_king() assigns bonuses and penalties to a king of a given color
 
   template<Color Us, bool Trace>
@@ -475,7 +464,8 @@ namespace {
         attackUnits =  std::min(20, (ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]) / 2)
                      + 3 * (ei.kingAdjacentZoneAttacksCount[Them] + popcount<Max15>(undefended))
                      + 2 * (ei.pinnedPieces[Us] != 0)
-                     - mg_value(score) / 32;
+                     + 2 * zero_one_many(ei.pinnedPieces[Us] & pos.pieces(Us, PAWN))
+                     - mg_value(score) / 64;
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
         // undefended squares around the king that are attacked by the enemy's
@@ -782,10 +772,6 @@ namespace {
     // information when computing the king safety evaluation.
     score +=  evaluate_king<WHITE, Trace>(pos, ei)
             - evaluate_king<BLACK, Trace>(pos, ei);
-    
-    // Evaluate outposts, we need full attack information including king
-    score +=  evaluate_outposts<WHITE>(pos, ei)
-            - evaluate_outposts<BLACK>(pos, ei);
 
     // Evaluate tactical threats, we need full attack information including king
     score +=  evaluate_threats<WHITE, Trace>(pos, ei)
@@ -833,12 +819,14 @@ namespace {
              sf = ScaleFactor(50 * sf / SCALE_FACTOR_NORMAL);
     }
 
+/*
     // Stealmate detection
     Color stm = pos.side_to_move();
     if (   (ei.attackedBy[stm][ALL_PIECES] == ei.attackedBy[stm][KING])
         && (!(ei.attackedBy[stm][KING] & ~ei.attackedBy[~stm][ALL_PIECES]))
         && !MoveList<LEGAL>(pos).size())
         sf = SCALE_FACTOR_DRAW;
+*/
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     Value v =  mg_value(score) * int(ei.mi->game_phase())
@@ -991,14 +979,21 @@ namespace Eval {
             File f = File( file_of(s) - delta[opponentKing] );
             if (f < FILE_A) f = FILE_A; else if (f > FILE_H) f = FILE_H;
 
-            Outpost[opponentKing][0][s] = CenteredOutpost[0][make_square(f, rank_of(s))] / 2;
-            Outpost[opponentKing][1][s] = CenteredOutpost[1][make_square(f, rank_of(s))] / 2;
+            Outpost[opponentKing][0][s] = CenteredOutpost[0][make_square(f, rank_of(s))] ;
+            Outpost[opponentKing][1][s] = CenteredOutpost[1][make_square(f, rank_of(s))] ;
     	}
 
-   ca   = int(Options["ca"]);    // CLOP !
-   cu   = int(Options["cu"]);   // CLOP !
-   cs   = int(Options["cs"]);   // CLOP !
-   cn   = int(Options["cn"]); // CLOP !
+/*
+   clopa       = int(Options["clopa"]);    // CLOP !
+   clopb       = int(Options["clopb"]);    // CLOP !
+   clopmidgame = int(Options["clopmidgame"]);    // CLOP !
+   clopendgame = int(Options["clopendgame"]);    // CLOP !
+   ca          = int(Options["ca"]);    // CLOP !
+   cu          = int(Options["cu"]);   // CLOP !
+   cs          = int(Options["cs"]);   // CLOP !
+   cn          = int(Options["cn"]); // CLOP !
+*/
+
   }
 
 } // namespace Eval
