@@ -259,22 +259,20 @@ namespace {
   // evaluate_outpost() evaluates the outpost square for one piece near the ennemy king.
 
   template<PieceType Pt, Color Us>
-  Score evaluate_outpost(const Position& pos, EvalInfo& ei, Square s) {
+  Score evaluate_outpost(const Position& pos, Square s) {
     
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     
     // Outpost piece bonus based on square and file of opponent king.
     int bonus = Outpost[file_of(pos.king_square(Them))][Pt == BISHOP][relative_square(Us, s)];
+    
     if (!bonus)
-       return SCORE_ZERO;
-       
-    if (ei.attackedBy[Them][ALL_PIECES] & s) 
-       return SCORE_ZERO; 
+        return SCORE_ZERO;
 
-    bool unstable  =   (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s))
-                     | (squares_of_color(s) & pos.pieces(Them, BISHOP)); 
+    bool unstable  =    (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s))
+                     || (squares_of_color(s) & pos.pieces(Them, BISHOP));
 
-    bonus *= (180 - 80 * (pos.side_to_move() ^ Us)); // 166 - 80 * (...) est bien
+    bonus *= (100 - 50 * (pos.side_to_move() ^ Us));
     bonus *= (2 - unstable);
     
     return make_score(bonus / 128, bonus / 64);
@@ -333,7 +331,8 @@ namespace {
             score -= ThreatenedByPawn[Pt];
         
         // Evaluate the quality of the piece as an outpost
-        score += evaluate_outpost<Pt, Us>(pos, ei, s);
+        if (!(ei.attackedBy[Them][PAWN] & s))
+            score += evaluate_outpost<Pt, Us>(pos, s);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
