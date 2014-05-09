@@ -159,7 +159,7 @@ namespace {
   };
 
   // Hanging[side to move] contains a bonus for each enemy hanging piece
-  const Score Hanging[2] = { S(23, 20) , S(45, 55) };
+  const Score Hanging[2] = { S(23, 20) , S(35, 45) };
 
   #undef S
 
@@ -520,15 +520,8 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b, undefendedMinors, weakEnemies;
+    Bitboard b, weakEnemies;
     Score score = SCORE_ZERO;
-
-    // Undefended minors get penalized even if they are not under attack
-    undefendedMinors =  pos.pieces(Them, BISHOP, KNIGHT)
-                      & ~ei.attackedBy[Them][ALL_PIECES];
-
-    if (undefendedMinors)
-        score += UndefendedMinor;
 
     // Enemies not defended by a pawn and under our attack
     weakEnemies =  pos.pieces(Them)
@@ -538,7 +531,11 @@ namespace {
     // Add a bonus according if the attacking pieces are minor or major
     if (weakEnemies)
     {
-        b = weakEnemies & (ei.attackedBy[Us][PAWN] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
+        b = weakEnemies & (ei.attackedBy[Us][PAWN]);
+        if (b)
+            score += 2 * Threat[0][type_of(pos.piece_on(lsb(b)))];
+            
+        b = weakEnemies & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         if (b)
             score += Threat[0][type_of(pos.piece_on(lsb(b)))];
 
@@ -548,7 +545,7 @@ namespace {
 
         b = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
         if (b)
-            score += more_than_one(b) ? Hanging[Them ^ pos.side_to_move()] * popcount<Max15>(b)
+            score += more_than_one(b) ? Hanging[Us   ^ pos.side_to_move()] * popcount<Max15>(b)
                                       : Hanging[Them ^ pos.side_to_move()];
     }
 
