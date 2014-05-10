@@ -62,6 +62,9 @@ namespace {
 
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
+  
+  // Bonus for each square controlled by our pawns and not the opponent's pawns
+  const Score ControlledSquare = S(8, 15);
 
   // Weakness of our pawn shelter in front of the king indexed by [rank]
   const Value ShelterWeakness[RANK_NB] =
@@ -231,6 +234,7 @@ void init() {
 
 Entry* probe(const Position& pos, Table& entries) {
 
+  Bitboard b1, b2;
   Key key = pos.pawn_key();
   Entry* e = entries[key];
 
@@ -239,6 +243,12 @@ Entry* probe(const Position& pos, Table& entries) {
 
   e->key = key;
   e->value = evaluate<WHITE>(pos, e) - evaluate<BLACK>(pos, e);
+  
+  b1 = (e->pawnAttacks[WHITE] & ~e->pawnAttacks[BLACK] & ~pos.pieces(WHITE, PAWN));
+  b2 = (e->pawnAttacks[BLACK] & ~e->pawnAttacks[WHITE] & ~pos.pieces(BLACK, PAWN));
+  
+  e->value = ControlledSquare * (popcount<Full>(b1) - popcount<Full>(b2));
+  
   return e;
 }
 
