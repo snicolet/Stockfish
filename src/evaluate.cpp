@@ -126,28 +126,21 @@ namespace {
       S( 25, 41), S( 25, 41), S(25, 41), S(25, 41) }
   };
 
-  // CenteredOutpost[PieceType][Square] contains bonuses for piece outposts, indexed by 
-  // piece and square from white's point of view, and supposing black king in the middle.
-  const Value CenteredOutpost[][SQUARE_NB] = {
-  {// A     B     C     D     E     F     G     H
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0), // Knights or Rooks or Queen
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),
-    V(0), V(0), V(4), V(8), V(8), V(4), V(0), V(0),
-    V(0), V(4),V(17),V(26),V(26),V(17), V(4), V(0),
-    V(0), V(8),V(26),V(35),V(35),V(26), V(8), V(0),
-    V(0), V(4),V(17),V(17),V(17),V(17), V(4), V(0) },
-  {
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0), // Bishops
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),
-    V(0), V(0), V(5), V(5), V(5), V(5), V(0), V(0),
-    V(0), V(5),V(10),V(10),V(10),V(10), V(5), V(0),
-    V(0),V(10),V(21),V(21),V(21),V(21),V(10), V(0),
-    V(0), V(5), V(8), V(8), V(8), V(8), V(5), V(0) }
+  // CenteredOutpost[Square] contains bonuses for piece outposts, indexed by 
+  // square from white's point of view, and supposing black king in the middle.
+  const Value CenteredOutpost[SQUARE_NB] = {
+   // A     B     C     D     E     F     G     H
+    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),  // rank 1
+    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),  // rank 2
+    V(0), V(0), V(4), V(8), V(8), V(4), V(0), V(0),  // rank 3
+    V(0), V(4),V(17),V(26),V(26),V(17), V(4), V(0),  // rank 4
+    V(0), V(8),V(26),V(35),V(35),V(26), V(8), V(0),  // rank 5
+    V(0), V(4),V(17),V(17),V(17),V(17), V(4), V(0)   // rank 6
   };
   
   // Outpost[File][PieceType][Square] stores shifted versions of the
-  // original CenteredOutpost array, depending on the opponent's king file.
-  Value Outpost[FILE_NB][2][SQUARE_NB];
+  // CenteredOutpost array, depending on the opponent's king file.
+  Value Outpost[FILE_NB][SQUARE_NB];
 
   // Threat[attacking][attacked] contains bonuses according to which piece
   // type attacks which one.
@@ -258,24 +251,29 @@ namespace {
 
   // evaluate_outpost() evaluates the outpost square for one piece near the ennemy king.
 
-  template<PieceType Pt, Color Us>
+  template<Color Us>
   Score evaluate_outpost(const Position& pos, Square s) {
     
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     
+   // if (StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
+     //   return SCORE_ZERO;
+
     // Outpost piece bonus based on square and file of opponent king.
-    int bonus = Outpost[file_of(pos.king_square(Them))][Pt == BISHOP][relative_square(Us, s)];
-    
+    int bonus = Outpost[file_of(pos.king_square(Them))][relative_square(Us, s)];
+
     if (!bonus)
         return SCORE_ZERO;
 
     bool unstable  =    (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s))
-                     || (squares_of_color(s) & pos.pieces(Them, BISHOP));
-
-    bonus *= (83 - 40 * (pos.side_to_move() ^ Us));
-    bonus *= (2 - unstable);
+                      || (squares_of_color(s) & pos.pieces(Them, BISHOP));
     
-    return make_score(bonus / 64, bonus / 64);
+    // bool unstable  =  (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s));
+
+    bonus *= (80 - 40 * (pos.side_to_move() ^ Us));
+    bonus *= (2 - unstable);
+
+    return make_score(bonus / 64, bonus / 128);
   }
 
 
@@ -332,7 +330,7 @@ namespace {
         
         // Evaluate the quality of the piece as an outpost
         if (!(ei.attackedBy[Them][PAWN] & s))
-            score += evaluate_outpost<Pt, Us>(pos, s);
+            score += evaluate_outpost<Us>(pos, s);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -938,8 +936,7 @@ namespace Eval {
             File f = File( file_of(s) - delta[opponentKing] );
             if (f < FILE_A) f = FILE_A; else if (f > FILE_H) f = FILE_H;
 
-            Outpost[opponentKing][0][s] = CenteredOutpost[0][make_square(f, rank_of(s))] ;
-            Outpost[opponentKing][1][s] = CenteredOutpost[1][make_square(f, rank_of(s))] ;
+            Outpost[opponentKing][s] = CenteredOutpost[make_square(f, rank_of(s))] ;
     	}
   }
 
