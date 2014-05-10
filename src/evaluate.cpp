@@ -407,7 +407,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard undefended, b, b1, b2, safe;
+    Bitboard undefended, b, b1, b2, safe, pinnedPawns;
     int attackUnits;
     const Square ksq = pos.king_square(Us);
 
@@ -424,6 +424,8 @@ namespace {
                     & ~(  ei.attackedBy[Us][PAWN]   | ei.attackedBy[Us][KNIGHT]
                         | ei.attackedBy[Us][BISHOP] | ei.attackedBy[Us][ROOK]
                         | ei.attackedBy[Us][QUEEN]);
+        
+        pinnedPawns = ei.pinnedPieces[Us] & pos.pieces(Us, PAWN);
 
         // Initialize the 'attackUnits' variable, which is used later on as an
         // index to the KingDanger[] array. The initial value is based on the
@@ -433,6 +435,7 @@ namespace {
         attackUnits =  std::min(20, (ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]) / 2)
                      + 3 * (ei.kingAdjacentZoneAttacksCount[Them] + popcount<Max15>(undefended))
                      + 2 * (ei.pinnedPieces[Us] != 0)
+                     + 2 * (!!pinnedPawns) * (1 + zero_one_many(pinnedPawns))
                      - mg_value(score) / 32;
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
