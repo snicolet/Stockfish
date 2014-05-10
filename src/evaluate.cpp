@@ -253,11 +253,8 @@ namespace {
 
   template<Color Us>
   Score evaluate_outpost(const Position& pos, Square s) {
-    
+
     const Color Them = (Us == WHITE ? BLACK : WHITE);
-    
-   // if (StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
-     //   return SCORE_ZERO;
 
     // Outpost piece bonus based on square and file of opponent king.
     int bonus = Outpost[file_of(pos.king_square(Them))][relative_square(Us, s)];
@@ -265,13 +262,11 @@ namespace {
     if (!bonus)
         return SCORE_ZERO;
 
-    bool unstable  =    (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s))
-                      || (squares_of_color(s) & pos.pieces(Them, BISHOP));
-    
-    // bool unstable  =  (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s));
+    bool unstable =    (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s))
+                    || (squares_of_color(s) & pos.pieces(Them, BISHOP));
 
     bonus *= (80 - 40 * (pos.side_to_move() ^ Us));
-    bonus *= (2 - unstable);
+    bonus *= (3 - unstable);
 
     return make_score(bonus / 64, bonus / 128);
   }
