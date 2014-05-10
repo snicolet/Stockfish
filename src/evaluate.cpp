@@ -272,10 +272,10 @@ namespace {
     bool unstable  =    (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s))
                      || (squares_of_color(s) & pos.pieces(Them, BISHOP));
 
-    bonus *= (100 - 50 * (pos.side_to_move() ^ Us));
+    bonus *= (83 - 40 * (pos.side_to_move() ^ Us));
     bonus *= (2 - unstable);
     
-    return make_score(bonus / 128, bonus / 64);
+    return make_score(bonus / 64, bonus / 64);
   }
 
 
