@@ -126,24 +126,28 @@ namespace {
       S( 25, 41), S( 25, 41), S(25, 41), S(25, 41) }
   };
 
-  // Outpost[PieceType][Square] contains bonuses for knights and bishops outposts,
-  // indexed by piece type and square (from white's point of view).
-  const Value Outpost[][SQUARE_NB] = {
+  // CenteredOutpost[PieceType][Square] contains bonuses for piece outposts, indexed by
+  // type and square from white's point of view, and supposing black king in the middle.
+  const Value CenteredOutpost[2][SQUARE_NB] = {
   {// A     B     C     D     E     F     G     H
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0), // Knights
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),
-    V(0), V(0), V(4), V(8), V(8), V(4), V(0), V(0),
-    V(0), V(4),V(17),V(26),V(26),V(17), V(4), V(0),
-    V(0), V(8),V(26),V(35),V(35),V(26), V(8), V(0),
-    V(0), V(4),V(17),V(17),V(17),V(17), V(4), V(0) },
+    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),   // rank 1    // Knights
+    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),   // rank 2
+    V(0), V(0), V(4), V(8), V(8), V(4), V(0), V(0),   // rank 3
+    V(0), V(4),V(17),V(26),V(26),V(17), V(4), V(0),   // rank 4
+    V(0), V(8),V(26),V(35),V(35),V(26), V(8), V(0),   // rank 1
+    V(0), V(4),V(17),V(17),V(17),V(17), V(4), V(0) }, // rank 6
   {
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0), // Bishops
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),
-    V(0), V(0), V(5), V(5), V(5), V(5), V(0), V(0),
-    V(0), V(5),V(10),V(10),V(10),V(10), V(5), V(0),
-    V(0),V(10),V(21),V(21),V(21),V(21),V(10), V(0),
-    V(0), V(5), V(8), V(8), V(8), V(8), V(5), V(0) }
+    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),   // rank 1    // Bishops
+    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),   // rank 2
+    V(0), V(0), V(5), V(5), V(5), V(5), V(0), V(0),   // rank 3
+    V(0), V(5),V(10),V(10),V(10),V(10), V(5), V(0),   // rank 4
+    V(0),V(10),V(21),V(21),V(21),V(21),V(10), V(0),   // rank 5
+    V(0), V(5), V(8), V(8), V(8), V(8), V(5), V(0) }  // rank 6
   };
+  
+  // Outpost[File][PieceType][Square] stores shifted versions of the
+  // CenteredOutpost array, depending on the opponent's king file.
+  Value Outpost[FILE_NB][2][SQUARE_NB];
 
   // Threat[attacking][attacked] contains bonuses according to which piece
   // type attacks which one.
@@ -262,7 +266,7 @@ namespace {
     assert (Pt == BISHOP || Pt == KNIGHT);
 
     // Initial bonus based on square
-    Value bonus = Outpost[Pt == BISHOP][relative_square(Us, s)];
+    Value bonus = Outpost[file_of(pos.king_square(Them))][Pt == BISHOP][relative_square(Us, s)];
 
     // Increase bonus if supported by pawn, especially if the opponent has
     // no minor piece which can trade with the outpost piece.
@@ -330,15 +334,15 @@ namespace {
         if (ei.attackedBy[Them][PAWN] & s)
             score -= ThreatenedByPawn[Pt];
 
+        // Evaluate the quality of the piece as an outpost
+        if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
+            score += evaluate_outposts<Pt, Us>(pos, ei, s);
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Penalty for bishop with same colored pawns
             if (Pt == BISHOP)
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
-
-            // Bishop and knight outposts squares
-            if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
-                score += evaluate_outposts<Pt, Us>(pos, ei, s);
 
             // Bishop or knight behind a pawn
             if (    relative_rank(Us, s) < RANK_5
@@ -923,6 +927,24 @@ namespace Eval {
         KingDanger[1][i] = apply_weight(make_score(t, 0), Weights[KingDangerUs]);
         KingDanger[0][i] = apply_weight(make_score(t, 0), Weights[KingDangerThem]);
     }
+
+    // Outpost bonus based on square. To put pressure on the opponent king, we would
+    // like to move the CenteredOutpost array the West or to the East, depending on
+    // which side the opponent king is : queenside or kingside. Since moving the array
+    // is difficult, instead we move s in the opposite direction, read the original 
+    // CenteredOutpost array and cache the shifted results in the Outpost array.
+
+    const int delta[] = { -2, -1, -1, 0, 0, 1, 1, 2};
+
+    for (File opponentKing = FILE_A ; opponentKing <= FILE_H ; ++opponentKing)
+      for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
+        {
+            File f = File( file_of(s) - delta[opponentKing] );
+            if (f < FILE_A) f = FILE_A; else if (f > FILE_H) f = FILE_H;
+
+            Outpost[opponentKing][0][s] = CenteredOutpost[0][make_square(f, rank_of(s))] ;
+            Outpost[opponentKing][1][s] = CenteredOutpost[1][make_square(f, rank_of(s))] ;
+    	}
   }
 
 } // namespace Eval
