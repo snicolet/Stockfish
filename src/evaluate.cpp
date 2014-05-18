@@ -326,8 +326,23 @@ namespace {
 
         // Decrease score if we are attacked by an enemy pawn. The remaining part
         // of threat evaluation must be done later when we have full attack info.
-        if (ei.attackedBy[Them][PAWN] & s)
-            score -= ThreatenedByPawn[Pt];
+        if (ei.attackedBy[Them][PAWN] & s) 
+        {
+            if (!(ei.pinnedPieces[Them] & pawn_attack_span(Us, s)))
+            {
+                score -= ThreatenedByPawn[Pt];
+            }
+            else 
+            {
+                // The attacking pawn may be pinned. We calculate accurate pawns attacks
+                // for free pawns (attacks1) and pinned pawns (attacks2)
+                b = ~ei.pinnedPieces[Them] & pos.pieces(Them, PAWN);
+                Bitboard attacks1 = (Them == WHITE ? white_pawn_attacks(b) : black_pawn_attacks(b));
+                Bitboard attacks2 = (ei.pi->pawn_attacks(Them) ^ attacks1) & DiagonalPinningMask[pos.king_square(Them)];
+                if ((attacks1 | attacks2) & s)
+                    score -= ThreatenedByPawn[Pt];
+            }
+        }
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
