@@ -341,6 +341,8 @@ namespace {
                 Bitboard attacks2 = (ei.pi->pawn_attacks(Them) ^ attacks1) & DiagonalPinningMask[pos.king_square(Them)];
                 if ((attacks1 | attacks2) & s)
                     score -= ThreatenedByPawn[Pt];
+                else
+                    score += ThreatenedByPawn[Pt];
             }
         }
 
