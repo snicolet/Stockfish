@@ -546,10 +546,10 @@ namespace {
             score += more_than_one(b) ? Hanging[Us != pos.side_to_move()] * popcount<Max15>(b)
                                       : Hanging[Us == pos.side_to_move()];
 
-        // Loop over all other targets to compare attack and defense
-        // on each target. The variable s is the bitboard containing
-        // each single target in turn, and we compare approximations
-        // of defenders and attackers on that square.
+        // Loop over all opponent pawns defended by pieces, but not by pawns.
+        // The variable targets contains these weak pawns, and s is another
+        // 1-bit bitboard variable containing each single target in turn. We 
+        // compare defenders and attackers on each such squares.
         if (Us == pos.side_to_move()) 
         {
 			targets =    weakEnemies 
