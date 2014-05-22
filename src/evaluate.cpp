@@ -623,6 +623,11 @@ namespace {
             }
         } // rr != 0
 
+        // Rook passers are strong when the defensive side does not have a double rook.
+        if (file_of(s) == FILE_A || file_of(s) == FILE_H)
+            if (pos.count<ROOK>(Them) < 2)
+        		ebonus += ebonus / 4;
+
         if (pos.count<PAWN>(Us) < pos.count<PAWN>(Them))
             ebonus += ebonus / 4;
 
