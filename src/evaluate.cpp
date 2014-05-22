@@ -171,7 +171,8 @@ namespace {
   const Score MinorBehindPawn  = make_score(16,  0);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
-
+  const Score WinningTrade     = make_score(38, 28);
+  
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
   // happen in Chess960 games.
@@ -519,7 +520,9 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b, weakEnemies;
+    Bitboard b, s, weakEnemies, targets;
+    uint64_t attack, defense;
+    
     Score score = SCORE_ZERO;
 
     // Enemies not defended by a pawn and under our attack
@@ -542,6 +545,39 @@ namespace {
         if (b)
             score += more_than_one(b) ? Hanging[Us != pos.side_to_move()] * popcount<Max15>(b)
                                       : Hanging[Us == pos.side_to_move()];
+        
+        // Compare attacks and defenses on weak pawns. We loop over all 
+        // opponent pawns defended by pieces, but not by pawns. The variable 
+        // targets contains these weak pawns, and s is another 1-bit bitboard 
+        // variable containing each single target in turn.
+        if (Us == pos.side_to_move()) 
+        {
+			targets =    weakEnemies 
+					  & ei.attackedBy[Them][ALL_PIECES]
+					  & pos.pieces(Them, PAWN) ;
+			while (targets)
+			{
+				s = targets & (targets ^ (targets - 1));
+				targets ^= s;
+
+				defense =    (s & ei.attackedBy[Them][KNIGHT])
+						   + (s & ei.attackedBy[Them][BISHOP])
+						   + (s & ei.attackedBy[Them][ROOK])
+						   + (s & ei.attackedBy[Them][QUEEN])
+						   + (s & ei.attackedBy[Them][KING]);
+
+				attack  =    (s & ei.attackedBy[Us][PAWN])
+						   + (s & ei.attackedBy[Us][KNIGHT]) 
+						   + (s & ei.attackedBy[Us][BISHOP])
+						   + (s & ei.attackedBy[Us][ROOK])
+						   + (s & ei.attackedBy[Us][QUEEN])
+						   + (s & ei.attackedBy[Us][KING]);
+
+				if (attack > defense)
+					score += WinningTrade;
+
+			}  // while (targets)
+		}
     }
 
     if (Trace)
