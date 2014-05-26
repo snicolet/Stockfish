@@ -145,6 +145,10 @@ namespace {
     V(0), V(5), V(8), V(8), V(8), V(8), V(5), V(0) }
   };
 
+  // Outpost_[File][Square] stores shifted versions of the
+  // Outpost array, depending on the opponent's king file.
+  Value Outpost_[FILE_NB][SQUARE_NB];
+
   // Threat[attacking][attacked] contains bonuses according to which piece
   // type attacks which one.
   const Score Threat[][PIECE_TYPE_NB] = {
@@ -171,7 +175,7 @@ namespace {
   const Score MinorBehindPawn  = make_score(16,  0);
   const Score TrappedRook      = make_score(90,  0);
   const Score Unstoppable      = make_score( 0, 20);
-  const Score WinningTrade     = make_score(43, 28);
+  const Score WinningTrade     = make_score(38, 28);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -259,10 +263,9 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    assert (Pt == BISHOP || Pt == KNIGHT);
-
     // Initial bonus based on square
-    Value bonus = Outpost[Pt == BISHOP][relative_square(Us, s)];
+    //Value bonus = Outpost[Pt == BISHOP][relative_square(Us, s)];
+    Value bonus = Outpost_[file_of(pos.king_square(Them))][relative_square(Us, s)];
 
     // Increase bonus if supported by pawn, especially if the opponent has
     // no minor piece which can trade with the outpost piece.
@@ -329,6 +332,10 @@ namespace {
         // of threat evaluation must be done later when we have full attack info.
         if (ei.attackedBy[Them][PAWN] & s)
             score -= ThreatenedByPawn[Pt];
+        
+        // Evaluate the quality of the piece as an outpost
+        if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
+            score += evaluate_outposts<Pt, Us>(pos, ei, s);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -337,8 +344,8 @@ namespace {
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
 
             // Bishop and knight outposts squares
-            if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
-                score += evaluate_outposts<Pt, Us>(pos, ei, s);
+          //  if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
+          //      score += evaluate_outposts<Pt, Us>(pos, ei, s);
 
             // Bishop or knight behind a pawn
             if (    relative_rank(Us, s) < RANK_5
@@ -400,6 +407,13 @@ namespace {
   Score evaluate_pieces<KING, WHITE,  true>(const Position&, EvalInfo&, Score*, Bitboard*) { return SCORE_ZERO; }
 
 
+// zero_one_many(b) returns : 0 if b is empty, 1 if b has one bit set, and 2 otherwise
+/*
+inline int zero_one_many(Bitboard b) {
+ return (!!b) * (1 + more_than_one(b));
+}
+*/
+
   // evaluate_king() assigns bonuses and penalties to a king of a given color
 
   template<Color Us, bool Trace>
@@ -433,6 +447,7 @@ namespace {
         attackUnits =  std::min(20, (ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]) / 2)
                      + 3 * (ei.kingAdjacentZoneAttacksCount[Them] + popcount<Max15>(undefended))
                      + 2 * (ei.pinnedPieces[Us] != 0)
+                    // + 3 * zero_one_many(ei.pinnedPieces[Us] & pos.pieces(Us, PAWN))
                      - mg_value(score) / 32;
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
@@ -520,8 +535,10 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard b, s, weakEnemies, targets;
-    uint64_t attack, defense;
+    //Bitboard b, s, weakEnemies, targets;
+    //uint64_t attack, defense;
+    
+    Bitboard b, weakEnemies;
     
     Score score = SCORE_ZERO;
 
@@ -550,6 +567,7 @@ namespace {
         // opponent pawns defended by pieces, but not by pawns. The variable 
         // targets contains these weak pawns, and s is another 1-bit bitboard 
         // variable containing each single target in turn.
+        /*
         targets =   (weakEnemies & ei.attackedBy[Them][ALL_PIECES] & pos.pieces(Them, PAWN))
                   * (Them ^ pos.side_to_move());
         while (targets)
@@ -574,6 +592,8 @@ namespace {
                 score += WinningTrade;
 
         }  // while (targets)
+        */
+        
     }
 
     if (Trace)
@@ -925,6 +945,9 @@ namespace Eval {
   }
 
 
+ // int ouw;
+  int lambda;
+
   /// init() computes evaluation weights from the corresponding UCI parameters
   /// and setup king tables.
 
@@ -944,6 +967,35 @@ namespace Eval {
         t = int(std::min(Peak, std::min(0.4 * i * i, t + MaxSlope)));
         KingDanger[i] = apply_weight(make_score(t, 0), Weights[KingSafety]);
     }
+    
+    
+  //  ouw = int(Options["ouw"]);
+  
+   // lambda = int(Options["lambda"]);
+
+    // Outpost bonus based on square. To put pressure on the opponent king, we would
+    // like to move the CenteredOutpost array the West or to the East, depending on
+    // which side the opponent king is : queenside or kingside. Since moving the array
+    // is difficult, instead we move s in the opposite direction, read the original 
+    // CenteredOutpost array and cache the shifted results in the Outpost array.
+    const int delta[] = { -2, -1, -1, 0, 0, 1, 1, 2};
+    for (File opponentKing = FILE_A ; opponentKing <= FILE_H ; ++opponentKing)
+      for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
+        {
+            File f = File( file_of(s) - delta[opponentKing] );
+            if (f < FILE_A) f = FILE_A; else if (f > FILE_H) f = FILE_H;
+            
+            int a, b, c;
+            
+            a = (Outpost[0][make_square(f, rank_of(s))] * 15 ) / 16;
+            b = (Outpost[1][make_square(f, rank_of(s))] * 29 ) / 16;   // * 30 est bien (+3 Elo)
+ 
+            //c = ((100 - lambda) * a + lambda * b) / 100;
+            
+            c = ((100 - 49) * a + 49 * b) / 100;
+             
+            Outpost_[opponentKing][s] = Value(c);
+    	}
   }
 
 } // namespace Eval
