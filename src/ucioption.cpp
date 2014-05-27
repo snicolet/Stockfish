@@ -69,8 +69,7 @@ void init(OptionsMap& o) {
   o["Space"]                    << Option(100, 0, 200, on_eval);
   o["King Safety"]              << Option(100, 0, 200, on_eval);
   
- // o["ouw"]              << Option(30, 0, 400, on_eval);
-//  o["lambda"]              << Option(100, -400, 400, on_eval);
+ // o["ouw"]              << Option(32, 0, 400, on_eval);
   
   o["Min Split Depth"]          << Option(0, 0, 12, on_threads);
   o["Threads"]                  << Option(1, 1, MAX_THREADS, on_threads);

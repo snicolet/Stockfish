@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <iomanip>
 #include <sstream>
 
@@ -126,27 +127,19 @@ namespace {
       S( 25, 41), S( 25, 41), S(25, 41), S(25, 41) }
   };
 
-  // Outpost[PieceType][Square] contains bonuses for knights and bishops outposts,
-  // indexed by piece type and square (from white's point of view).
-  const Value Outpost[][SQUARE_NB] = {
-  {// A     B     C     D     E     F     G     H
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0), // Knights
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),
-    V(0), V(0), V(4), V(8), V(8), V(4), V(0), V(0),
-    V(0), V(4),V(17),V(26),V(26),V(17), V(4), V(0),
-    V(0), V(8),V(26),V(35),V(35),V(26), V(8), V(0),
-    V(0), V(4),V(17),V(17),V(17),V(17), V(4), V(0) },
-  {
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0), // Bishops
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),
-    V(0), V(0), V(5), V(5), V(5), V(5), V(0), V(0),
-    V(0), V(5),V(10),V(10),V(10),V(10), V(5), V(0),
-    V(0),V(10),V(21),V(21),V(21),V(21),V(10), V(0),
-    V(0), V(5), V(8), V(8), V(8), V(8), V(5), V(0) }
+  // Outpost[Square] contains bonuses for piece outposts indexed by square
+  // (from white's point of view), supposing a opponent king in the center.
+  const Value Outpost[SQUARE_NB] = {
+   // A     B     C     D     E     F     G     H
+    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),   // rank 1
+    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),   // rank 2
+    V(0), V(0), V(5), V(7), V(7), V(5), V(0), V(0),   // rank 3
+    V(0), V(5),V(16),V(21),V(21),V(16), V(5), V(0),   // rank 4
+    V(0),V(12),V(30),V(34),V(34),V(30),V(12), V(0),   // rank 5
+    V(0), V(5),V(14),V(14),V(14),V(14), V(5), V(0),   // rank 6
   };
 
-  // Outpost_[File][Square] stores shifted versions of the
-  // Outpost array, depending on the opponent's king file.
+  // Outpost_[King File][Square] stores shifted versions of the Outpost array
   Value Outpost_[FILE_NB][SQUARE_NB];
 
   // Threat[attacking][attacked] contains bonuses according to which piece
@@ -263,8 +256,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    // Initial bonus based on square
-    //Value bonus = Outpost[Pt == BISHOP][relative_square(Us, s)];
+    // Initial bonus based on square and opponent king position
     Value bonus = Outpost_[file_of(pos.king_square(Them))][relative_square(Us, s)];
 
     // Increase bonus if supported by pawn, especially if the opponent has
@@ -945,8 +937,7 @@ namespace Eval {
   }
 
 
- // int ouw;
-  int lambda;
+   int ouw;
 
   /// init() computes evaluation weights from the corresponding UCI parameters
   /// and setup king tables.
@@ -968,34 +959,22 @@ namespace Eval {
         KingDanger[i] = apply_weight(make_score(t, 0), Weights[KingSafety]);
     }
     
-    
-  //  ouw = int(Options["ouw"]);
-  
-   // lambda = int(Options["lambda"]);
+    ouw = int(Options["ouw"]);
 
-    // Outpost bonus based on square. To put pressure on the opponent king, we would
-    // like to move the CenteredOutpost array the West or to the East, depending on
-    // which side the opponent king is : queenside or kingside. Since moving the array
-    // is difficult, instead we move s in the opposite direction, read the original 
-    // CenteredOutpost array and cache the shifted results in the Outpost array.
+    // King tropism : shifted versions of Outpost array, depending on the opponent king side.
     const int delta[] = { -2, -1, -1, 0, 0, 1, 1, 2};
     for (File opponentKing = FILE_A ; opponentKing <= FILE_H ; ++opponentKing)
       for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
-        {
-            File f = File( file_of(s) - delta[opponentKing] );
-            if (f < FILE_A) f = FILE_A; else if (f > FILE_H) f = FILE_H;
+         {
+            File f = std::max(FILE_A, std::min(FILE_H, File(file_of(s) - delta[opponentKing])));
+            Outpost_[opponentKing][s] = (Outpost[make_square(f, rank_of(s))] * 20) / 32;
             
-            int a, b, c;
-            
-            a = (Outpost[0][make_square(f, rank_of(s))] * 15 ) / 16;
-            b = (Outpost[1][make_square(f, rank_of(s))] * 29 ) / 16;   // * 30 est bien (+3 Elo)
- 
-            //c = ((100 - lambda) * a + lambda * b) / 100;
-            
-            c = ((100 - 49) * a + 49 * b) / 100;
-             
-            Outpost_[opponentKing][s] = Value(c);
-    	}
+            if (opponentKing == FILE_D) {
+                std::cerr << Outpost_[opponentKing][s] << "  ";
+                if (file_of(s) == FILE_H)
+                  std::cerr << "  " << std::endl;
+            }
+         }
   }
 
 } // namespace Eval
