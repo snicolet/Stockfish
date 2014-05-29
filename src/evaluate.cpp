@@ -967,7 +967,7 @@ namespace Eval {
       for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
          {
             File f = std::max(FILE_A, std::min(FILE_H, File(file_of(s) - delta[opponentKing])));
-            Outpost_[opponentKing][s] = (Outpost[make_square(f, rank_of(s))] * 20) / 32;
+            Outpost_[opponentKing][s] = Value(5) + (Outpost[make_square(f, rank_of(s))] * 20) / 32;
             
             if (opponentKing == FILE_D) {
                 std::cerr << Outpost_[opponentKing][s] << "  ";
