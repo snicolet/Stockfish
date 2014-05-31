@@ -141,6 +141,9 @@ namespace {
 
   // Outpost_[King File][Square] stores shifted versions of the Outpost array
   Value Outpost_[FILE_NB][SQUARE_NB];
+  
+ // int ouw;
+ // int oua;
 
   // Threat[attacking][attacked] contains bonuses according to which piece
   // type attacks which one.
@@ -270,7 +273,7 @@ namespace {
             bonus += bonus / 2;
     }
 
-    return make_score(bonus, bonus - 10);
+    return make_score(bonus + 5 , bonus - 5 );
   }
 
 
@@ -937,7 +940,6 @@ namespace Eval {
   }
 
 
-   int ouw;
 
   /// init() computes evaluation weights from the corresponding UCI parameters
   /// and setup king tables.
@@ -959,7 +961,8 @@ namespace Eval {
         KingDanger[i] = apply_weight(make_score(t, 0), Weights[KingSafety]);
     }
     
-    ouw = int(Options["ouw"]);
+ //   ouw = int(Options["ouw"]);
+ //   oua = int(Options["oua"]);
 
     // King tropism : shifted versions of Outpost array, depending on the opponent king side.
     const int delta[] = { -2, -1, -1, 0, 0, 1, 1, 2};
@@ -967,7 +970,7 @@ namespace Eval {
       for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
          {
             File f = std::max(FILE_A, std::min(FILE_H, File(file_of(s) - delta[opponentKing])));
-            Outpost_[opponentKing][s] = (Outpost[make_square(f, rank_of(s))] * 20) / 32;
+            Outpost_[opponentKing][s] = Value(5) + (Outpost[make_square(f, rank_of(s))] * 22) / 32;
             
             if (opponentKing == FILE_D) {
                 std::cerr << Outpost_[opponentKing][s] << "  ";
