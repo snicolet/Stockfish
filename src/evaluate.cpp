@@ -238,18 +238,25 @@ namespace {
     // Initial bonus based on square
     Value bonus = Outpost_[file_of(pos.king_square(Them))][relative_square(Us, s)];
 
-    // Increase bonus if supported by pawn, especially if the opponent has
-    // no minor piece which can trade with the outpost piece.
-    if (bonus && (ei.attackedBy[Us][PAWN] & s))
+    // Decrease bonus if unstable.
+    // Increase bonus if supported by pawn.
+    // Increase bonus if the opponent has no minor piece which can trade with the outpost piece.
+    if (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)) 
     {
-        if (   !pos.pieces(Them, KNIGHT)
-            && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
-            bonus += bonus + bonus / 2;
+        if (bonus == 5)
+           return SCORE_ZERO;
         else
-            bonus += bonus / 2;
+           bonus -= bonus / 2;
+    }
+    else 
+    {
+    	if (!pos.pieces(Them, KNIGHT) && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
+    		bonus += bonus;
+    	if (ei.attackedBy[Us][PAWN] & s)
+    	    bonus += bonus / 2;
     }
 
-    return make_score(bonus + 5 , bonus - 5);
+    return make_score(bonus , bonus - 10 );
   }
 
 
@@ -305,7 +312,8 @@ namespace {
             score -= ThreatenedByPawn[Pt];
 
         // Evaluate the quality of the piece as an outpost
-        if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
+        //if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
+        if (!(ei.attackedBy[Them][PAWN] & s))
             score += evaluate_outposts<Pt, Us>(pos, ei, s);
 
         if (Pt == BISHOP || Pt == KNIGHT)
