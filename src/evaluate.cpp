@@ -243,20 +243,17 @@ namespace {
     // Increase bonus if the opponent has no minor piece which can trade with the outpost piece.
     if (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)) 
     {
-        if (bonus == 5)
-           return SCORE_ZERO;
-        else
-           bonus -= bonus / 2;
+        bonus -= bonus / 4;
     }
     else 
     {
     	if (!pos.pieces(Them, KNIGHT) && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
-    		bonus += bonus;
+    		bonus += bonus + bonus / 2;
     	if (ei.attackedBy[Us][PAWN] & s)
     	    bonus += bonus / 2;
     }
 
-    return make_score(bonus , bonus - 10 );
+    return make_score(bonus + 5, bonus - 5);
   }
 
 
@@ -898,7 +895,7 @@ namespace Eval {
       for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
          {
             File f = std::max(FILE_A, std::min(FILE_H, File(file_of(s) - delta[opponentKing])));
-            Outpost_[opponentKing][s] = Outpost[make_square(f, rank_of(s))] + Value(5);
+            Outpost_[opponentKing][s] = Outpost[make_square(f, rank_of(s))];
          }
   }
 
