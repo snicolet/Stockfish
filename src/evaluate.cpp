@@ -239,10 +239,15 @@ namespace {
 
     // Decrease bonus depending on the quality of the outpost square
     if (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)) 
-        bonus -= bonus / 4;
+        bonus -= bonus / 2;
     else 
     {
-        if (!pos.pieces(Them, KNIGHT) && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
+        if (    !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
+            &&  !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
+        
+        // if (!pos.pieces(Them, KNIGHT) && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
+        
+        
             bonus += bonus + bonus / 2;
         if (ei.attackedBy[Us][PAWN] & s)
             bonus += bonus / 2;
@@ -883,7 +888,7 @@ namespace Eval {
       for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
          {
             File f = std::max(FILE_A, std::min(FILE_H, File(file_of(s) - delta[opponentKing])));
-            Outpost_[opponentKing][s] = Outpost[make_square(f, rank_of(s))];
+            Outpost_[opponentKing][s] = (Outpost[make_square(f, rank_of(s))] * 25 ) / 16;
          }
   }
 
