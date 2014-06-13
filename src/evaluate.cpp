@@ -888,7 +888,7 @@ namespace Eval {
       for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
          {
             File f = std::max(FILE_A, std::min(FILE_H, File(file_of(s) - delta[opponentKing])));
-            Outpost_[opponentKing][s] = (Outpost[make_square(f, rank_of(s))] * 25 ) / 16;
+            Outpost_[opponentKing][s] = (Outpost[make_square(f, rank_of(s))] * 25 ) / 16 + Value(5);
          }
   }
 
