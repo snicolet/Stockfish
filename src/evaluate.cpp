@@ -239,7 +239,7 @@ namespace {
 
     // Decrease bonus depending on the quality of the outpost square
     if (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)) 
-        bonus -= 15;
+        bonus -= bonus / 2;
     else 
     {
         if (    !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
