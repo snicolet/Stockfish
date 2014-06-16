@@ -147,7 +147,7 @@ namespace {
   };
 
   // Hanging contains a bonus for each enemy hanging piece
-  const Score Hanging = S(23, 20);
+  const Score Hanging = S(20, 30);
 
   #undef S
 
@@ -239,21 +239,17 @@ namespace {
 
     // Decrease bonus depending on the quality of the outpost square
     if (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)) 
-        bonus -= bonus / 2;
-    else 
+        bonus -= bonus / 4;
+    else
     {
         if (    !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
             &&  !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
-        
-        // if (!pos.pieces(Them, KNIGHT) && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
-        
-        
-            bonus += bonus + bonus / 2;
+            bonus += bonus + bonus / 2 ;
         if (ei.attackedBy[Us][PAWN] & s)
             bonus += bonus / 2;
     }
 
-    return make_score(bonus , bonus - 5);
+    return make_score(bonus, bonus - 5);
   }
 
 
@@ -888,7 +884,7 @@ namespace Eval {
       for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
          {
             File f = std::max(FILE_A, std::min(FILE_H, File(file_of(s) - delta[opponentKing])));
-            Outpost_[opponentKing][s] = (Outpost[make_square(f, rank_of(s))] * 25 ) / 16 + Value(5);
+            Outpost_[opponentKing][s] = Outpost[make_square(f, rank_of(s))] + Value(5);
          }
   }
 
