@@ -122,7 +122,8 @@ namespace {
   // (from white's point of view), supposing a opponent king in the center.
   const Value Outpost[SQUARE_NB] = {
   //  A       B       C       D       E       F       G       H
-    V(-30), V(-10), V(-10), V(-10), V(-10), V(-10), V(-10), V(-30), // rank 1
+ //   V(-30), V(-10), V(-10), V(-10), V(-10), V(-10), V(-10), V(-30), // rank 1
+    V(0)  , V(0)  , V(0)  , V(0)  , V(0)  , V(0)  , V(0)  , V(0),   // rank 1
     V(0)  , V(0)  , V(0)  , V(0)  , V(0)  , V(0)  , V(0)  , V(0),   // rank 2
     V(0)  , V(0)  , V(3)  , V(4)  , V(4)  , V(3)  , V(0)  , V(0),   // rank 3
     V(0)  , V(3)  , V(10) , V(13) , V(13) , V(10) , V(3)  , V(0),   // rank 4
@@ -249,7 +250,7 @@ namespace {
             bonus += bonus / 2;
     }
 
-    return make_score(bonus, bonus - 5);
+    return make_score(bonus, bonus + 10);
   }
 
 
