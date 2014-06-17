@@ -121,13 +121,13 @@ namespace {
   // Outpost[Square] contains bonuses for piece outposts indexed by square
   // (from white's point of view), supposing a opponent king in the center.
   const Value Outpost[SQUARE_NB] = {
-   // A     B     C     D     E     F     G     H
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),   // rank 1
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),   // rank 2
-    V(0), V(0), V(3), V(4), V(4), V(3), V(0), V(0),   // rank 3
-    V(0), V(3),V(10),V(13),V(13),V(10), V(3), V(0),   // rank 4
-    V(0), V(7),V(18),V(21),V(21),V(18), V(7), V(0),   // rank 5
-    V(0), V(3), V(8), V(8), V(8), V(8), V(3), V(0),   // rank 6
+  //  A       B       C       D       E       F       G       H
+    V(-30), V(-10), V(-10), V(-10), V(-10), V(-10), V(-10), V(-30), // rank 1
+    V(0)  , V(0)  , V(0)  , V(0)  , V(0)  , V(0)  , V(0)  , V(0),   // rank 2
+    V(0)  , V(0)  , V(3)  , V(4)  , V(4)  , V(3)  , V(0)  , V(0),   // rank 3
+    V(0)  , V(3)  , V(10) , V(13) , V(13) , V(10) , V(3)  , V(0),   // rank 4
+    V(0)  , V(7)  , V(18) , V(21) , V(21) , V(18) , V(7)  , V(0),   // rank 5
+    V(0)  , V(3)  , V(8)  , V(8)  , V(8)  , V(8)  , V(3)  , V(0),   // rank 6
   };
   
   // Outpost_[King File][Square] stores shifted versions of the Outpost array
@@ -237,7 +237,7 @@ namespace {
     // Initial bonus based on square and opponent king's position
     Value bonus = Outpost_[file_of(pos.king_square(Them))][relative_square(Us, s)];
 
-    // Decrease bonus depending on the quality of the outpost square
+    // Adjust bonus depending on the quality of the outpost square
     if (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)) 
         bonus -= bonus / 4;
     else
@@ -249,7 +249,7 @@ namespace {
             bonus += bonus / 2;
     }
 
-    return make_score(bonus , bonus - 10);
+    return make_score(bonus, bonus - 5);
   }
 
 
