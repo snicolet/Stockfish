@@ -236,7 +236,7 @@ namespace {
             bonus += bonus / 2;
     }
 
-    return make_score(bonus , bonus - 5);
+    return make_score(bonus + 5, bonus - 5);
   }
 
 
