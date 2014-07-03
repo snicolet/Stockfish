@@ -236,11 +236,15 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
     // Initial bonus based on square and opponent king's position
-    Value bonus = Outpost_[file_of(pos.king_square(Them))][relative_square(Us, s)];
+    // Value bonus = Outpost_[file_of(pos.king_square(Them))][relative_square(Us, s)];
+    
+    int d = square_distance(pos.king_square(Them), s);
+    
+    Value bonus = Value( 3 +  100 / (4 + d*d));
 
     // Adjust bonus depending on the quality of the outpost square
     if (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)) 
-        bonus -= bonus / 4;
+        bonus -= 10;
     else
     {
         if (    !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
@@ -250,7 +254,7 @@ namespace {
             bonus += bonus / 2;
     }
 
-    return make_score(bonus + 5, bonus - 5);
+    return make_score(bonus , bonus );
   }
 
 
