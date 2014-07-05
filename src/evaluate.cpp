@@ -150,11 +150,17 @@ namespace {
     S(0, 0), S(0, 0), S(80, 119), S(80, 119), S(117, 199), S(127, 218)
   };
 
-  // Hanging contains a bonus for each enemy hanging piece
-  const Score Hanging = S(23, 20);
+  // Threat bonuses, with values depending on types of attacking and attacked pieces
+  const Score AnyThreateningPawn    = S( 4, 10);
+  const Score AnyThreateningQueen   = S(10, 10);
+  const Score MinorThreateningMinor = S(24, 49);
+  const Score MinorThreateningMajor = S(41, 100);
+  const Score MajorThreateningAny   = S(15, 45);
+  const Score Hanging               = S(23, 20);
 
   #undef S
 
+  
   const Score RookOnPawn       = make_score(10, 28);
   const Score RookOpenFile     = make_score(43, 21);
   const Score RookSemiopenFile = make_score(19, 10);
@@ -504,7 +510,7 @@ namespace {
                       & ei.attackedBy[Them][PAWN]
                       & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
 
-    if(protectedEnemies)
+    if (protectedEnemies)
         score += Threat[0][type_of(pos.piece_on(lsb(protectedEnemies)))];
 
     // Enemies not defended by a pawn and under our attack
@@ -512,17 +518,39 @@ namespace {
                  & ~ei.attackedBy[Them][PAWN]
                  & ei.attackedBy[Us][ALL_PIECES];
 
-    // Add a bonus according if the attacking pieces are minor or major
     if (weakEnemies)
     {
-        b = weakEnemies & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
+        // Threat on pawns
+        b = weakEnemies & pos.pieces(Them, PAWN);
         if (b)
-            score += Threat[0][type_of(pos.piece_on(lsb(b)))];
-
-        b = weakEnemies & (ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][QUEEN]);
+            score += more_than_one(b) ? AnyThreateningPawn * popcount<Max15>(b) : AnyThreateningPawn;
+        
+        // Threat on queens
+        b = weakEnemies & pos.pieces(Them, QUEEN);
         if (b)
-            score += Threat[1][type_of(pos.piece_on(lsb(b)))];
+            score += more_than_one(b) ? AnyThreateningQueen * popcount<Max15>(b) : AnyThreateningQueen;
+       
+        // Threat of minors on minors
+        b =    weakEnemies 
+            & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP])
+            & pos.pieces(Them, KNIGHT, BISHOP);
+        if (b)
+            score += more_than_one(b) ? MinorThreateningMinor * popcount<Max15>(b) : MinorThreateningMinor;
+        
+        // Threat of minors on majors
+        b =    weakEnemies 
+            & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP])
+            & pos.pieces(Them, QUEEN, ROOK);
+        if (b)
+            score += more_than_one(b) ? MinorThreateningMajor * popcount<Max15>(b) : MinorThreateningMajor;
+        
+        // Threat of majors on anything
+        b =    weakEnemies 
+            & (ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][QUEEN]);
+        if (b)
+            score += more_than_one(b) ? MajorThreateningAny * popcount<Max15>(b) : MajorThreateningAny;
 
+        // Hanging enemy pieces
         b = weakEnemies & ~ei.attackedBy[Them][ALL_PIECES];
         if (b)
             score += more_than_one(b) ? Hanging * popcount<Max15>(b) : Hanging;
