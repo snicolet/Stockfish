@@ -215,14 +215,14 @@ namespace {
 
   // evaluate_outpost() evaluates outpost squares
 
-  template<PieceType Pt, Color Us>
+  template<Color Us>
   Score evaluate_outpost(const Position& pos, const EvalInfo& ei, Square s) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
     // Initial bonus based on the opponent's king distance
     int d = square_distance(pos.king_square(Them), s);
-    Value bonus = Value( 4 +  45 / (4 + d*d) + (8 - relative_rank(Us, s)) );
+    Value bonus = Value( 4 +  45 / (4 + d*d) + relative_rank(Us, s) );
 
     // Adjust bonus depending on the security of the outpost square
     if (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)) 
@@ -292,7 +292,7 @@ namespace {
         if (ei.attackedBy[Them][PAWN] & s)
             score -= ThreatenedByPawn[Pt];
         else
-            score += evaluate_outpost<Pt, Us>(pos, ei, s);
+            score += evaluate_outpost<Us>(pos, ei, s);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
