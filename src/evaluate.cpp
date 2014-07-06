@@ -118,25 +118,6 @@ namespace {
       S( 25, 41), S( 25, 41), S(25, 41), S(25, 41) }
   };
 
-  // Outpost[PieceType][Square] contains bonuses for knights and bishops outposts,
-  // indexed by piece type and square (from white's point of view).
-  const Value Outpost[][SQUARE_NB] = {
-  {// A     B     C     D     E     F     G     H
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0), // Knights
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),
-    V(0), V(0), V(4), V(8), V(8), V(4), V(0), V(0),
-    V(0), V(4),V(17),V(26),V(26),V(17), V(4), V(0),
-    V(0), V(8),V(26),V(35),V(35),V(26), V(8), V(0),
-    V(0), V(4),V(17),V(17),V(17),V(17), V(4), V(0) },
-  {
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0), // Bishops
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),
-    V(0), V(0), V(5), V(5), V(5), V(5), V(0), V(0),
-    V(0), V(5),V(10),V(10),V(10),V(10), V(5), V(0),
-    V(0),V(10),V(21),V(21),V(21),V(21),V(10), V(0),
-    V(0), V(5), V(8), V(8), V(8), V(8), V(5), V(0) }
-  };
-
   // Threat[attacking][attacked] contains bonuses according to which piece
   // type attacks which one.
   const Score Threat[][PIECE_TYPE_NB] = {
@@ -232,30 +213,30 @@ namespace {
   }
 
 
-  // evaluate_outpost() evaluates bishop and knight outpost squares
+  // evaluate_outpost() evaluates outpost squares
 
   template<PieceType Pt, Color Us>
   Score evaluate_outpost(const Position& pos, const EvalInfo& ei, Square s) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    assert (Pt == BISHOP || Pt == KNIGHT);
+    // Initial bonus based on the opponent's king distance
+    int d = square_distance(pos.king_square(Them), s);
+    Value bonus = Value( 2 +  300 / (10 + d*d) );
 
-    // Initial bonus based on square
-    Value bonus = Outpost[Pt == BISHOP][relative_square(Us, s)];
-
-    // Increase bonus if supported by pawn, especially if the opponent has
-    // no minor piece which can trade with the outpost piece.
-    if (bonus && (ei.attackedBy[Us][PAWN] & s))
+    // Adjust bonus depending on the security of the outpost square
+    if (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)) 
+        bonus -= 10;
+    else
     {
-        if (   !pos.pieces(Them, KNIGHT)
+        if (   !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
             && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
             bonus += bonus + bonus / 2;
-        else
+        if (ei.attackedBy[Us][PAWN] & s)
             bonus += bonus / 2;
     }
 
-    return make_score(bonus, bonus);
+    return make_score(bonus , bonus - 4);
   }
 
 
@@ -305,20 +286,19 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
-        // Decrease score if we are attacked by an enemy pawn. The remaining part
+        // Decrease the score if we are attacked by an enemy pawn, otherwise 
+        // score the quality of the square as an outpost. The remaining part
         // of threat evaluation must be done later when we have full attack info.
         if (ei.attackedBy[Them][PAWN] & s)
             score -= ThreatenedByPawn[Pt];
+        else
+            score += evaluate_outpost<Pt, Us>(pos, ei, s);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Penalty for bishop with same colored pawns
             if (Pt == BISHOP)
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
-
-            // Bishop and knight outpost square
-            if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
-                score += evaluate_outpost<Pt, Us>(pos, ei, s);
 
             // Bishop or knight behind a pawn
             if (    relative_rank(Us, s) < RANK_5
