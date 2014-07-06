@@ -222,7 +222,7 @@ namespace {
 
     // Initial bonus based on the opponent's king distance
     int d = square_distance(pos.king_square(Them), s);
-    Value bonus = Value( 2 +  300 / (10 + d*d) );
+    Value bonus = Value( 4 +  45 / (4 + d*d) + (8 - relative_rank(Us, s)) );
 
     // Adjust bonus depending on the security of the outpost square
     if (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)) 
@@ -236,7 +236,7 @@ namespace {
             bonus += bonus / 2;
     }
 
-    return make_score(bonus , bonus - 4);
+    return make_score(bonus - 5, bonus + 5 );
   }
 
 
