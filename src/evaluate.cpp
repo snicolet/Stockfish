@@ -220,11 +220,11 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    // Initial bonus
+    // Initial bonus depends on the opponent's king distance
     int d = square_distance(pos.king_square(Them), s);
-    Value bonus = Value( 2 +  101 / (16 + d*d) );
+    Value bonus = Value( 2 +  300 / (10 + d*d) );
 
-    // Adjust bonus depending on the quality of the outpost square
+    // Adjust bonus depending on the security of the outpost square
     if (pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)) 
         bonus -= 10;
     else
@@ -286,13 +286,12 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
-        // Decrease score if we are attacked by an enemy pawn. The remaining part
+        // Decrease the score if we are attacked by an enemy pawn, otherwise 
+        // score the quality of the square as an outpost. The remaining part
         // of threat evaluation must be done later when we have full attack info.
         if (ei.attackedBy[Them][PAWN] & s)
             score -= ThreatenedByPawn[Pt];
-
-        // Evaluate the quality of the piece as an outpost
-        if (!(ei.attackedBy[Them][PAWN] & s))
+        else
             score += evaluate_outpost<Pt, Us>(pos, ei, s);
 
         if (Pt == BISHOP || Pt == KNIGHT)
