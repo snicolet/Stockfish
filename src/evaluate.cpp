@@ -239,23 +239,22 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    assert (Pt == BISHOP || Pt == KNIGHT);
-
     // Initial bonus based on square
     Value bonus = Outpost[Pt == BISHOP][relative_square(Us, s)];
+    bonus += relative_rank(Us, s) - 1;
 
     // Increase bonus if supported by pawn, especially if the opponent has
     // no minor piece which can trade with the outpost piece.
     if (bonus && (ei.attackedBy[Us][PAWN] & s))
     {
-        if (   !pos.pieces(Them, KNIGHT)
+        if (   !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
             && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
             bonus += bonus + bonus / 2;
         else
             bonus += bonus / 2;
     }
 
-    return make_score(bonus, bonus);
+    return make_score(bonus , bonus + 10);
   }
 
 
@@ -310,15 +309,16 @@ namespace {
         if (ei.attackedBy[Them][PAWN] & s)
             score -= ThreatenedByPawn[Pt];
 
+        // Outpost square for piece
+        if (    Pt != QUEEN
+            && !(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
+            score += evaluate_outpost<Pt, Us>(pos, ei, s);
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Penalty for bishop with same colored pawns
             if (Pt == BISHOP)
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
-
-            // Bishop and knight outpost square
-            if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
-                score += evaluate_outpost<Pt, Us>(pos, ei, s);
 
             // Bishop or knight behind a pawn
             if (    relative_rank(Us, s) < RANK_5
