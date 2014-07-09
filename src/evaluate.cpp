@@ -248,16 +248,8 @@ namespace {
         else
             bonus += bonus / 2;
     }
-
-    // return make_score(bonus + 5 , bonus - 5); // 8306058, sans relative_rank() : qu'en est-il ? (a tester serieusement)
     
-    // return make_score(bonus - 5 , bonus - 5); // 8807715, avec relative_rank() : pas mal (0.513, 77 parties) ?
-    
-    // return make_score(bonus + 5 , bonus - 5);  // 7846220, avec relative_rank() : bof ?
-    
-    // return make_score(bonus, bonus);  // 8572291, avec relative_rank() : Excellent (+3 Elo, 851 parties)
-    
-    return make_score(bonus - 5 , bonus + 5 );   // 7689892, avec relative_rank() : prometteur (0.521, 119 parties)
+    return make_score(bonus - 5 , bonus + 5 );
   }
 
 
