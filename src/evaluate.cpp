@@ -118,24 +118,20 @@ namespace {
       S( 25, 41), S( 25, 41), S(25, 41), S(25, 41) }
   };
 
-  // Outpost[PieceType][Square] contains bonuses for knights and bishops outposts,
-  // indexed by piece type and square (from white's point of view).
-  const Value Outpost[][SQUARE_NB] = {
-  {// A     B     C     D     E     F     G     H
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0), // Knights
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),
-    V(0), V(0), V(4), V(8), V(8), V(4), V(0), V(0),
-    V(0), V(4),V(17),V(26),V(26),V(17), V(4), V(0),
-    V(0), V(8),V(26),V(35),V(35),V(26), V(8), V(0),
-    V(0), V(4),V(17),V(17),V(17),V(17), V(4), V(0) },
-  {
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0), // Bishops
-    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),
-    V(0), V(0), V(5), V(5), V(5), V(5), V(0), V(0),
-    V(0), V(5),V(10),V(10),V(10),V(10), V(5), V(0),
-    V(0),V(10),V(21),V(21),V(21),V(21),V(10), V(0),
-    V(0), V(5), V(8), V(8), V(8), V(8), V(5), V(0) }
+  // Outpost[Square] contains bonuses for piece outposts indexed by square
+  // (from white's point of view), supposing a opponent king in the center.
+  const Value Outpost[SQUARE_NB] = {
+   // A     B     C     D     E     F     G     H
+    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),   // rank 1
+    V(0), V(0), V(0), V(0), V(0), V(0), V(0), V(0),   // rank 2
+    V(0), V(0), V(3), V(4), V(4), V(3), V(0), V(0),   // rank 3
+    V(0), V(3),V(10),V(13),V(13),V(10), V(3), V(0),   // rank 4
+    V(0), V(7),V(18),V(21),V(21),V(18), V(7), V(0),   // rank 5
+    V(0), V(3), V(8), V(8), V(8), V(8), V(3), V(0),   // rank 6
   };
+  
+  // Outpost_[King File][Square] stores shifted versions of the Outpost array
+  Value Outpost_[FILE_NB][SQUARE_NB];
 
   // Threat[attacking][attacked] contains bonuses according to which piece
   // type attacks which one.
@@ -240,8 +236,7 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
     // Initial bonus based on square
-    Value bonus = Outpost[Pt == BISHOP][relative_square(Us, s)];
-    bonus += relative_rank(Us, s) - 1;
+    Value bonus = Outpost_[file_of(pos.king_square(Them))][relative_square(Us, s)];
 
     // Increase bonus if supported by pawn, especially if the opponent has
     // no minor piece which can trade with the outpost piece.
@@ -254,7 +249,15 @@ namespace {
             bonus += bonus / 2;
     }
 
-    return make_score(bonus , bonus + 10);
+    // return make_score(bonus + 5 , bonus - 5); // 8306058, sans relative_rank() : qu'en est-il ? (a tester serieusement)
+    
+    // return make_score(bonus - 5 , bonus - 5); // 8807715, avec relative_rank() : pas mal (0.513, 77 parties) ?
+    
+    // return make_score(bonus + 5 , bonus - 5);  // 7846220, avec relative_rank() : bof ?
+    
+    // return make_score(bonus, bonus);  // 8572291, avec relative_rank() : Excellent (+3 Elo, 851 parties)
+    
+    return make_score(bonus - 5 , bonus + 5 );   // 7689892, avec relative_rank() : prometteur (0.521, 119 parties)
   }
 
 
@@ -309,7 +312,7 @@ namespace {
         if (ei.attackedBy[Them][PAWN] & s)
             score -= ThreatenedByPawn[Pt];
 
-        // Outpost square for piece
+        // Evaluate the quality of the piece as an outpost
         if (    Pt != QUEEN
             && !(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
             score += evaluate_outpost<Pt, Us>(pos, ei, s);
@@ -893,6 +896,15 @@ namespace Eval {
         t = int(std::min(Peak, std::min(0.4 * i * i, t + MaxSlope)));
         KingDanger[i] = apply_weight(make_score(t, 0), Weights[KingSafety]);
     }
+    
+    // King tropism : calculate shifted versions of the Outpost array.
+    const int delta[] = { -2, -1, -1, 0, 0, 1, 1, 2};
+    for (File opponentKing = FILE_A ; opponentKing <= FILE_H ; ++opponentKing)
+      for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
+         {
+            File f = std::max(FILE_A, std::min(FILE_H, File(file_of(s) - delta[opponentKing])));
+            Outpost_[opponentKing][s] = Outpost[make_square(f, rank_of(s))] + rank_of(s) + 4;
+         }
   }
 
 } // namespace Eval
