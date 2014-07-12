@@ -209,7 +209,10 @@ namespace {
 
     // In endgame it's better to have pawns on both wings. So give a bonus according
     // to file distance between left and right outermost pawns.
-    value += PawnsFileSpan * e->pawnSpan[Us];
+    if (e->passedPawns[Us])
+       value += PawnsFileSpan * e->pawnSpan[Us];
+    else
+       value += PawnsFileSpan * (e->pawnSpan[Us] + 3);
 
     return value;
   }
