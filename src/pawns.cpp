@@ -63,7 +63,7 @@ namespace {
     S(20,20), S(40,40), S(0, 0), S(0, 0) };
 
   // Bonus for file distance of the two outermost pawns
-  const Score PawnsFileSpan = S(0, 20);
+  const Score PawnsFileSpan = S(0, 12);
 
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
@@ -211,7 +211,7 @@ namespace {
     // to file distance between left and right outermost pawns.
     value += PawnsFileSpan * e->pawnSpan[Us];
     if (!e->passedPawns[Us])
-       value += 2 * PawnsFileSpan;
+       value += 3 * PawnsFileSpan;
 
     return value;
   }
