@@ -239,22 +239,19 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    // Initial bonus based on square
-    //Value bonus = Outpost[Pt == BISHOP][relative_square(Us, s)];
+    int d = square_distance(pos.king_square(Them), s);
+    Value bonus = Value(2 + 100 / (16 + d*d) + relative_rank(Us, s));
 
-    int d = square_distance(pos.king_square(Them), s) ;
-    Value bonus = Value(300 / (16 + d*d*d) + relative_rank(Us,s));
-
-    // Increase bonus if supported by pawn, especially if the opponent has
-    // no minor piece which can trade with the outpost piece.
-    if (bonus && (ei.attackedBy[Us][PAWN] & s))
-        bonus += bonus / 2;
-
+    // Change bonus according to the quality of the outpost square
+    if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
+        bonus += bonus;
     if (   !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
         && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
-        bonus += bonus + bonus / 2;
+        bonus += bonus;
+    if (ei.attackedBy[Us][PAWN] & s)
+        bonus += bonus / 2;
 
-    return make_score(bonus * 2, bonus);
+    return make_score(bonus, bonus);
   }
 
 
@@ -309,8 +306,9 @@ namespace {
         if (ei.attackedBy[Them][PAWN] & s)
             score -= ThreatenedByPawn[Pt];
         
-        // bonus for outpost square
-        if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
+        // Bonus for outpost square
+        if (Pt != QUEEN)
+        if (!(ei.attackedBy[Them][PAWN] & s))
             score += evaluate_outpost<Pt, Us>(pos, ei, s);
 
         if (Pt == BISHOP || Pt == KNIGHT)
