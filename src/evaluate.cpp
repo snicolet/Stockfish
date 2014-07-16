@@ -244,12 +244,14 @@ namespace {
 
     // Change bonus according to the quality of the outpost square
     if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
+    {
         bonus += bonus;
-    if (   !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
-        && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
-        bonus += bonus;
-    if (ei.attackedBy[Us][PAWN] & s)
-        bonus += bonus / 2;
+    	if (   !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
+        	&& !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
+        	bonus += bonus;
+    	if (ei.attackedBy[Us][PAWN] & s)
+        	bonus += bonus / 2;
+    }
 
     return make_score(bonus, bonus);
   }
