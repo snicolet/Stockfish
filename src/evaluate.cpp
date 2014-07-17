@@ -220,6 +220,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
+    // Initial bonus based on square
     int d = square_distance(pos.king_square(Them), s);
     Value bonus = Value(2 + 100 / (16 + d*d) + relative_rank(Us, s));
 
@@ -227,11 +228,16 @@ namespace {
     if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
     {
         bonus += bonus;
-    	if (   !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
-        	&& !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
-        	bonus += bonus;
-    	if (ei.attackedBy[Us][PAWN] & s)
-        	bonus += bonus / 2;
+
+        if (ei.attackedBy[Us][PAWN] & s)
+        {
+    		if (   !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
+        		&& !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
+        		bonus += bonus;
+    		else
+        		bonus += bonus / 2;
+        }
+        
     }
 
     return make_score(bonus, bonus);
