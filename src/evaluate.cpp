@@ -118,6 +118,10 @@ namespace {
       S( 25, 41), S( 25, 41), S(25, 41), S(25, 41) }
   };
 
+  // Outpost[kingSquare][square] contains bonuses for a piece outpost,
+  // indexed by opponent king square and our piece square.
+  Value Outpost[SQUARE_NB][SQUARE_NB];
+
   // Threat[attacking][attacked] contains bonuses according to which piece
   // type attacks which one.
   const Score Threat[][PIECE_TYPE_NB] = {
@@ -221,23 +225,18 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
     // Initial bonus based on square
-    int d = square_distance(pos.king_square(Them), s);
-    Value bonus = Value(2 + 100 / (16 + d*d) + relative_rank(Us, s));
+    Value bonus = Outpost[relative_square(Us, pos.king_square(Them))][relative_square(Us, s)];
 
-    // Change bonus according to the quality of the outpost square
+    // Increase bonus according to the quality of the outpost square
     if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
     {
         bonus += bonus;
-
+        if (   !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
+            && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
+            bonus += bonus;
+        else
         if (ei.attackedBy[Us][PAWN] & s)
-        {
-    		if (   !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
-        		&& !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
-        		bonus += bonus;
-    		else
-        		bonus += bonus / 2;
-        }
-        
+            bonus += bonus / 2;
     }
 
     return make_score(bonus, bonus);
@@ -290,14 +289,12 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
-        // Decrease score if we are attacked by an enemy pawn. The remaining part
+        // Decrease the score if we are attacked by an enemy pawn, otherwise 
+        // score the quality of the square as an outpost. The remaining part
         // of threat evaluation must be done later when we have full attack info.
         if (ei.attackedBy[Them][PAWN] & s)
             score -= ThreatenedByPawn[Pt];
-        
-        // Bonus for outpost square
-        if (Pt != QUEEN)
-        if (!(ei.attackedBy[Them][PAWN] & s))
+        else
             score += evaluate_outpost<Pt, Us>(pos, ei, s);
 
         if (Pt == BISHOP || Pt == KNIGHT)
@@ -881,6 +878,13 @@ namespace Eval {
         t = int(std::min(Peak, std::min(0.4 * i * i, t + MaxSlope)));
         KingDanger[i] = apply_weight(make_score(t, 0), Weights[KingSafety]);
     }
+    
+    for (Square opponentKing = SQ_A1 ; opponentKing <= SQ_H8 ; ++opponentKing)
+      for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
+        {
+            int d = abs(file_of(opponentKing) - file_of(s));
+            Outpost[opponentKing][s] = Value(5 + 100 / (16 + d*d) + 2*rank_of(s) - 2*d);
+    	}
   }
 
 } // namespace Eval
