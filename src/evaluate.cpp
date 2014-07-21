@@ -230,8 +230,8 @@ namespace {
     // Increase bonus according to the quality of the outpost square
     if (!(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
     {
-        bonus += bonus;
-        if (   !(StepAttacksBB[W_KNIGHT][s] & pos.pieces(Them, KNIGHT))
+        bonus += bonus + bonus;
+        if (   !pos.pieces(Them, KNIGHT)
             && !(squares_of_color(s) & pos.pieces(Them, BISHOP)))
             bonus += bonus;
         else
@@ -239,7 +239,7 @@ namespace {
             bonus += bonus / 2;
     }
 
-    return make_score(bonus, bonus);
+    return make_score(bonus, bonus / 4);
   }
 
 
@@ -879,7 +879,7 @@ namespace Eval {
       for (Square s = SQ_A1 ; s <= SQ_H8 ; ++s)
         {
             int d = abs(file_of(opponentKing) - file_of(s));
-            Outpost[opponentKing][s] = Value(5 + 100 / (16 + d*d) + 2*rank_of(s) - 2*d);
+            Outpost[opponentKing][s] = Value(10 + 100 / (16 + d*d) + rank_of(s) - d);
     	}
   }
 
