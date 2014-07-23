@@ -35,7 +35,7 @@ namespace {
     S(13, 43), S(20, 48), S(23, 48), S(23, 48),
     S(23, 48), S(23, 48), S(20, 48), S(13, 43) };
 
-  // Isolated pawn penalty by opposed flag and file
+  // Isolated pawn penalty by passed flag and file
   const Score Isolated[2][FILE_NB] = {
   { S(37, 45), S(54, 52), S(60, 52), S(60, 52),
     S(60, 52), S(60, 52), S(54, 52), S(37, 45) },
@@ -178,7 +178,7 @@ namespace {
 
         // Score this pawn
         if (isolated)
-            value -= Isolated[opposed][f];
+            value -= Isolated[!passed][f];
 
         if (unsupported && !isolated)
             value -= UnsupportedPawnPenalty;
