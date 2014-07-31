@@ -664,6 +664,33 @@ namespace {
   }
 
 
+  // Stalemate detection for two cases : single king, or single king + blocked pawns
+  bool pawn_stalemate_found(const Position& pos, const EvalInfo& ei) {
+  
+    const Color stm = pos.side_to_move();
+    
+    // King can't move ?
+    if (!(ei.attackedBy[stm][KING] & ~ei.attackedBy[~stm][ALL_PIECES]))  
+    {  
+        // Single king ?
+        if (!more_than_one(pos.pieces(stm)))  
+             return true; 
+        
+        // Blocked pawns ?
+        else if (!pos.non_pawn_material(stm)) {
+             
+             const Bitboard pawns          = pos.pieces(stm, PAWN);
+             const Bitboard emptySquares   = ~pos.pieces();
+             const Bitboard forwardSquares = (stm == WHITE ? shift_bb<DELTA_N>(pawns)  : shift_bb<DELTA_S>(pawns)) ;
+             
+             if (   !(forwardSquares & emptySquares)
+                 && !(ei.attackedBy[stm][PAWN] & pos.pieces(~stm)))
+             	return true;
+        }
+    }
+    return false;
+  }
+
   // do_evaluate() is the evaluation entry point, called directly from evaluate()
 
   template<bool Trace>
