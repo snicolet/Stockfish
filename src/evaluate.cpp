@@ -691,6 +691,7 @@ namespace {
     return false;
   }
 
+
   // do_evaluate() is the evaluation entry point, called directly from evaluate()
 
   template<bool Trace>
@@ -734,6 +735,11 @@ namespace {
     // Evaluate pieces and mobility
     score += evaluate_pieces<KNIGHT, WHITE, Trace>(pos, ei, mobility, mobilityArea);
     score += apply_weight(mobility[WHITE] - mobility[BLACK], Weights[Mobility]);
+    
+    
+    // return immediately if we have found a stalemate
+    if (pawn_stalemate_found(pos, ei))
+        return VALUE_DRAW;
 
     // Evaluate kings after all other pieces because we need complete attack
     // information when computing the king safety evaluation.
