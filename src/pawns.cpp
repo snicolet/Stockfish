@@ -125,8 +125,8 @@ namespace {
         // Previous rank
         p = rank_bb(s - pawn_push(Us));
 
-        // Our rank plus previous one
-        b = rank_bb(s) | p;
+        // Previous rank, plus current rank, plus next rank
+        b = p | rank_bb(s) | rank_bb(s + pawn_push(Us));
 
         // Flag the pawn as passed, isolated, doubled,
         // unsupported or connected (but not the backward one).
@@ -228,6 +228,7 @@ void init() {
       for (File f = FILE_A; f <= FILE_H; ++f)
       {
           int bonus = r * (r - 1) * (r - 2) + bonusByFile[f] * (r / 2 + 1);
+          bonus = (2 * bonus) / 3;
           Connected[f][r] = make_score(bonus, bonus);
       }
 }
