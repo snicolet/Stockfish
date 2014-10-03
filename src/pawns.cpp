@@ -178,7 +178,7 @@ namespace {
 
         // Score this pawn
         if (isolated)
-            value -= Isolated[opposed && !doubled][f];
+            value -= Isolated[opposed && !doubled && !backward][f];
 
         if (unsupported && !isolated)
             value -= UnsupportedPawnPenalty;
@@ -187,7 +187,7 @@ namespace {
             value -= Doubled[f] / rank_distance(s, lsb(doubled));
 
         if (backward)
-            value -= Backward[opposed && !doubled][f];
+            value -= Backward[opposed && !doubled && !isolated][f];
 
         if (connected)
             value += Connected[f][relative_rank(Us, s)];
