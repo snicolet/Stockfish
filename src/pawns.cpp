@@ -187,7 +187,7 @@ namespace {
             value -= Doubled[f] / rank_distance(s, lsb(doubled));
 
         if (backward)
-            value -= Backward[opposed && !doubled && !isolated][f];
+            value -= Backward[opposed][f];
 
         if (connected)
             value += Connected[f][relative_rank(Us, s)];
