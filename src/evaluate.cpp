@@ -686,14 +686,6 @@ namespace {
     // Score is computed from the point of view of white.
     score = pos.psq_score();
 
-    // Keep material
-    Color root_stm  = Search::RootPos.side_to_move();
-    int   material  = 4 * popcount<Full>(pos.pieces(root_stm));
-    if (WHITE == root_stm)
-    	score += make_score(material, material);
-	else
-		score -= make_score(material, material);
-
     // Probe the material hash table
     ei.mi = Material::probe(pos, thisThread->materialTable, thisThread->endgames);
     score += ei.mi->material_value();
@@ -746,6 +738,15 @@ namespace {
         int s = evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei);
         score += apply_weight(s * ei.mi->space_weight(), Weights[Space]);
     }
+
+    // If ahead, keep more pawns on the board
+    int   pawns            = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    Score keep_pawns_bonus = make_score( 4 * pawns - 40 , 4 * pawns - 40);
+
+    if (mg_value(score) > VALUE_DRAW)
+        score += keep_pawns_bonus;
+    else if (mg_value(score) < VALUE_DRAW)
+        score -= keep_pawns_bonus;
 
     // Scale winning side if position is more drawish than it appears
     Color strongSide = eg_value(score) > VALUE_DRAW ? WHITE : BLACK;
