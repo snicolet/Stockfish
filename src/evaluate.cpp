@@ -739,6 +739,15 @@ namespace {
         score += apply_weight(s * ei.mi->space_weight(), Weights[Space]);
     }
 
+    // If ahead, keep more pawns on the board
+    int   pawns            = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    Score keep_pawns_bonus = make_score( 4 * pawns - 40 , 4 * pawns - 40);
+
+    if (mg_value(score) > VALUE_DRAW)
+        score += keep_pawns_bonus;
+    else if (mg_value(score) < VALUE_DRAW)
+        score -= keep_pawns_bonus;
+
     // Scale winning side if position is more drawish than it appears
     Color strongSide = eg_value(score) > VALUE_DRAW ? WHITE : BLACK;
     ScaleFactor sf = ei.mi->scale_factor(pos, strongSide);
