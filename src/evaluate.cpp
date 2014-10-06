@@ -740,13 +740,21 @@ namespace {
     }
 
     // If ahead, keep more pawns on the board
-    int   pawns            = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
-    Score keep_pawns_bonus = make_score( 4 * pawns - 40 , 4 * pawns - 40);
-
-    if (mg_value(score) > VALUE_DRAW)
-        score += keep_pawns_bonus;
+    // Value d = mg_value(score) - VALUE_DRAW;
+    // int bonus = ((d > 0) - (d < 0)) * 4 * ( pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK) ) ;
+    // score += make_score(bonus, bonus);
+    
+    if (mg_value(score) > VALUE_DRAW) 
+    { 
+    	int bonus = 6 * pos.count<PAWN>(WHITE) + 2 * pos.count<PAWN>(BLACK) - 20;
+    	score += make_score(bonus, bonus);
+    }
     else if (mg_value(score) < VALUE_DRAW)
-        score -= keep_pawns_bonus;
+    {
+    	int bonus = 2 * pos.count<PAWN>(WHITE) + 6 * pos.count<PAWN>(BLACK) - 20;
+    	score -= make_score(bonus, bonus);
+    }
+    
 
     // Scale winning side if position is more drawish than it appears
     Color strongSide = eg_value(score) > VALUE_DRAW ? WHITE : BLACK;
