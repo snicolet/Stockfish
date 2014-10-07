@@ -63,6 +63,12 @@ namespace {
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
 
+  // Bonus for a passed pawn connected to any other pawn
+  const Score PassedAndConnectedBonus = S(20,20);
+
+  // Bonus for a duo of passed pawns
+  const Score PassedDuoBonus = S(30,30);
+
   // Weakness of our pawn shelter in front of the king indexed by [rank]
   const Value ShelterWeakness[RANK_NB] =
   { V(100), V(0), V(27), V(73), V(92), V(101), V(101) };
@@ -89,9 +95,9 @@ namespace {
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
-    Bitboard b, p, doubled;
+    Bitboard b, p, c, adj, doubled;
     Square s;
-    bool passed, isolated, opposed, connected, backward, unsupported, lever;
+    bool passed, passed_duo, isolated, opposed, connected, backward, unsupported, lever;
     Score value = SCORE_ZERO;
     const Square* pl = pos.list<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
@@ -120,18 +126,25 @@ namespace {
         // Previous rank
         p = rank_bb(s - pawn_push(Us));
 
-        // Our rank plus previous one
-        b = rank_bb(s) | p;
+        // Previous rank, plus current rank
+        b = p | rank_bb(s);
+
+        // Previous rank, plus current rank, plus next rank
+        c = b | rank_bb(s + pawn_push(Us));
+
+        // Adjacent files
+        adj = adjacent_files_bb(f);
 
         // Flag the pawn as passed, isolated, doubled,
         // unsupported or connected (but not the backward one).
-        connected   =   ourPawns   & adjacent_files_bb(f) & b;
-        unsupported = !(ourPawns   & adjacent_files_bb(f) & p);
-        isolated    = !(ourPawns   & adjacent_files_bb(f));
+        connected   =   ourPawns   & adj & b;
+        unsupported = !(ourPawns   & adj & p);
+        isolated    = !(ourPawns   & adj);
         doubled     =   ourPawns   & forward_bb(Us, s);
         opposed     =   theirPawns & forward_bb(Us, s);
         passed      = !(theirPawns & passed_pawn_mask(Us, s));
         lever       =   theirPawns & pawnAttacksBB[s];
+        passed_duo  =   passed && (e->passed_pawns(Us) & adj) && (ourPawns & adj & c);
 
         // Test for backward pawn.
         // If the pawn is passed, isolated, or connected it cannot be
@@ -182,6 +195,12 @@ namespace {
                 bonus += (Connected[rr+1] - Connected[rr]) / 2;
             value += make_score(bonus / 2, bonus >> opposed);
         }
+
+        if (passed && connected)
+            value += PassedAndConnectedBonus;
+
+        if (passed_duo)
+            value += PassedDuoBonus;
 
         if (lever)
             value += Lever[rr];
