@@ -242,12 +242,13 @@ namespace {
   void id_loop(Position& pos) {
 
     Stack stack[MAX_PLY_PLUS_6], *ss = stack+2; // To allow referencing (ss-2)
-    int depth;
+    int depth, depth_increment;
     Value bestValue, alpha, beta, delta;
 
     std::memset(ss-2, 0, 5 * sizeof(Stack));
 
-    depth = 0;
+    depth = 2;
+    depth_increment = 2;
     BestMoveChanges = 0;
     bestValue = delta = alpha = -VALUE_INFINITE;
     beta = VALUE_INFINITE;
@@ -266,7 +267,7 @@ namespace {
     multiPV = std::max(multiPV, skill.candidates_size());
 
     // Iterative deepening loop until requested to stop or target depth reached
-    while (++depth <= MAX_PLY && !Signals.stop && (!Limits.depth || depth <= Limits.depth))
+    while (depth <= MAX_PLY && !Signals.stop && (!Limits.depth || depth <= Limits.depth))
     {
         // Age out PV variability metric
         BestMoveChanges *= 0.5;
@@ -376,6 +377,10 @@ namespace {
                     Signals.stop = true;
             }
         }
+        if (!Limits.depth && Limits.use_time_management() && (Time::now() - SearchTime <= 0.7 * TimeMgr.available_time()))
+           depth += depth_increment;
+        else
+           depth += 1;
     }
   }
 
