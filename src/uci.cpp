@@ -29,7 +29,6 @@
 #include "thread.h"
 #include "tt.h"
 #include "ucioption.h"
-#include "pawns.h"
 
 using namespace std;
 
@@ -198,7 +197,7 @@ void UCI::loop(int argc, char* argv[]) {
                     << "\n"       << Options
                     << "\nuciok"  << sync_endl;
 
-      else if (token == "ucinewgame") { TT.clear(); Pawns::init(); }
+      else if (token == "ucinewgame") TT.clear();
       else if (token == "go")         go(pos, is);
       else if (token == "position")   position(pos, is);
       else if (token == "setoption")  setoption(is);

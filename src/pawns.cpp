@@ -24,7 +24,6 @@
 #include "bitcount.h"
 #include "pawns.h"
 #include "position.h"
-#include "ucioption.h"
 
 namespace {
 
@@ -32,23 +31,11 @@ namespace {
   #define S(mg, eg) make_score(mg, eg)
 
   // Doubled pawn penalty by isolated flag and file
-/*
   const Score Doubled[2][FILE_NB] = {
   { S(13, 43), S(20, 48), S(23, 48), S(23, 48),
     S(23, 48), S(23, 48), S(20, 48), S(13, 43) },
-  { S(60, 60), S(60, 60), S(60, 60), S(60, 60),
-    S(60, 60), S(60, 60), S(60, 60), S(60, 60) } };
-*/
-  int isolated_doubled_mg = 60;
-  int isolated_doubled_eg = 60;
-  
-  Score iso_doubled = S(isolated_doubled_mg , isolated_doubled_eg);
-  
-  Score Doubled[2][FILE_NB] = {
-  { S(13, 43), S(20, 48), S(23, 48), S(23, 48),
-    S(23, 48), S(23, 48), S(20, 48), S(13, 43) },
-  { iso_doubled, iso_doubled, iso_doubled, iso_doubled, 
-    iso_doubled, iso_doubled, iso_doubled, iso_doubled } };
+  { S(60, 62), S(60, 62), S(60, 62), S(60, 62),
+    S(60, 62), S(60, 62), S(60, 62), S(60, 62) } };
 
   // Isolated pawn penalty by opposed flag and file
   const Score Isolated[2][FILE_NB] = {
@@ -215,24 +202,6 @@ namespace {
 } // namespace
 
 namespace Pawns {
-
-void init()
-{
-	int isolated_doubled_mg = Options["isolated_doubled_mg"];
-  	int isolated_doubled_eg = Options["isolated_doubled_eg"];
-  
-  	Score iso_doubled = make_score(isolated_doubled_mg , isolated_doubled_eg);
-  	
-  	Doubled[1][FILE_A] = iso_doubled;
-  	Doubled[1][FILE_B] = iso_doubled;
-  	Doubled[1][FILE_C] = iso_doubled;
-  	Doubled[1][FILE_D] = iso_doubled;
-  	Doubled[1][FILE_E] = iso_doubled;
-  	Doubled[1][FILE_F] = iso_doubled;
-  	Doubled[1][FILE_G] = iso_doubled;
-  	Doubled[1][FILE_H] = iso_doubled;
-  	
-}
 
 /// probe() takes a position as input, computes a Entry object, and returns a
 /// pointer to it. The result is also stored in a hash table, so we don't have

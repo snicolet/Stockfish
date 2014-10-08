@@ -42,8 +42,6 @@ void on_hash_size(const Option& o) { TT.resize(o); }
 void on_clear_hash(const Option&) { TT.clear(); }
 
 
-void on_pawn(const Option&)  {Pawns::init(); }
-
 /// Our case insensitive less() function as required by UCI protocol
 bool ci_less(char c1, char c2) { return tolower(c1) < tolower(c2); }
 
@@ -69,9 +67,6 @@ void init(OptionsMap& o) {
   o["Minimum Thinking Time"] << Option(20, 0, 5000);
   o["Slow Mover"]            << Option(80, 10, 1000);
   o["UCI_Chess960"]          << Option(false);
-  
-  o["isolated_doubled_mg"]   << Option(60, 0, 200, on_pawn);
-  o["isolated_doubled_eg"]   << Option(60, 0, 200, on_pawn);
 }
 
 
