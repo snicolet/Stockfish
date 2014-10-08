@@ -24,16 +24,31 @@
 #include "bitcount.h"
 #include "pawns.h"
 #include "position.h"
+#include "ucioption.h"
 
 namespace {
 
   #define V Value
   #define S(mg, eg) make_score(mg, eg)
 
-  // Doubled pawn penalty by file
-  const Score Doubled[FILE_NB] = {
-    S(13, 43), S(20, 48), S(23, 48), S(23, 48),
-    S(23, 48), S(23, 48), S(20, 48), S(13, 43) };
+  // Doubled pawn penalty by isolated flag and file
+/*
+  const Score Doubled[2][FILE_NB] = {
+  { S(13, 43), S(20, 48), S(23, 48), S(23, 48),
+    S(23, 48), S(23, 48), S(20, 48), S(13, 43) },
+  { S(60, 60), S(60, 60), S(60, 60), S(60, 60),
+    S(60, 60), S(60, 60), S(60, 60), S(60, 60) } };
+*/
+  int isolated_doubled_mg = 60;
+  int isolated_doubled_eg = 60;
+  
+  Score iso_doubled = S(isolated_doubled_mg , isolated_doubled_eg);
+  
+  Score Doubled[2][FILE_NB] = {
+  { S(13, 43), S(20, 48), S(23, 48), S(23, 48),
+    S(23, 48), S(23, 48), S(20, 48), S(13, 43) },
+  { iso_doubled, iso_doubled, iso_doubled, iso_doubled, 
+    iso_doubled, iso_doubled, iso_doubled, iso_doubled } };
 
   // Isolated pawn penalty by opposed flag and file
   const Score Isolated[2][FILE_NB] = {
@@ -165,16 +180,16 @@ namespace {
 
         // Score this pawn
         if (isolated)
-            value -= Isolated[opposed][f];
+            value -= Isolated[opposed && !doubled][f];
 
         if (unsupported && !isolated)
             value -= UnsupportedPawnPenalty;
 
         if (doubled)
-            value -= (Doubled[f] * (1 + !!isolated )) / rank_distance(s, lsb(doubled));
+            value -= Doubled[isolated][f] / rank_distance(s, lsb(doubled));
 
         if (backward)
-            value -= Backward[opposed][f];
+            value -= Backward[opposed && !doubled][f];
 
         if (connected) {
             int bonus = Connected[rr];
@@ -200,6 +215,24 @@ namespace {
 } // namespace
 
 namespace Pawns {
+
+void init()
+{
+	int isolated_doubled_mg = Options["isolated_doubled_mg"];
+  	int isolated_doubled_eg = Options["isolated_doubled_eg"];
+  
+  	Score iso_doubled = make_score(isolated_doubled_mg , isolated_doubled_eg);
+  	
+  	Doubled[1][FILE_A] = iso_doubled;
+  	Doubled[1][FILE_B] = iso_doubled;
+  	Doubled[1][FILE_C] = iso_doubled;
+  	Doubled[1][FILE_D] = iso_doubled;
+  	Doubled[1][FILE_E] = iso_doubled;
+  	Doubled[1][FILE_F] = iso_doubled;
+  	Doubled[1][FILE_G] = iso_doubled;
+  	Doubled[1][FILE_H] = iso_doubled;
+  	
+}
 
 /// probe() takes a position as input, computes a Entry object, and returns a
 /// pointer to it. The result is also stored in a hash table, so we don't have
