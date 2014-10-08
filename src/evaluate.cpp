@@ -738,6 +738,25 @@ namespace {
         int s = evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei);
         score += apply_weight(s * ei.mi->space_weight(), Weights[Space]);
     }
+    
+    // If ahead, keep more pawns and exchange pieces
+    int w_pawns  = pos.count<PAWN>(WHITE);
+    int b_pawns  = pos.count<PAWN>(BLACK);
+    int w_pieces = popcount<Full>(pos.pieces(WHITE)) - w_pawns;
+    int b_pieces = popcount<Full>(pos.pieces(BLACK)) - b_pawns;
+    int score_mg = mg_value(score);
+    
+    if (score_mg > VALUE_DRAW)
+    {
+        int bonus = 8 * w_pawns + 4 * b_pawns - 3 * w_pieces - 3 * b_pieces - 20;
+        score += make_score(bonus , bonus);
+    }
+    else if (score_mg < VALUE_DRAW)
+    {
+        int bonus = 4 * w_pawns + 8 * b_pawns - 3 * w_pieces - 3 * b_pieces - 20;
+        score -= make_score(bonus , bonus);
+    }
+    
 
     // Scale winning side if position is more drawish than it appears
     Color strongSide = eg_value(score) > VALUE_DRAW ? WHITE : BLACK;
