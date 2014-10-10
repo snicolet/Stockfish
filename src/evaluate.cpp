@@ -740,26 +740,28 @@ namespace {
     }
     
     // If ahead, keep more pawns and exchange pieces
-    int w_pawns  = pos.count<PAWN>(WHITE);
-    int b_pawns  = pos.count<PAWN>(BLACK);
-    int w_pieces = popcount<Full>(pos.pieces(WHITE)) - w_pawns;
-    int b_pieces = popcount<Full>(pos.pieces(BLACK)) - b_pawns;
-    int score_mg = mg_value(score);
     
-    if (score_mg > VALUE_DRAW)
-    {
-        int bonus = 8 * w_pawns + 4 * b_pawns - 3 * w_pieces - 3 * b_pieces - 20;
-        score += make_score(bonus , bonus);
-    }
-    else if (score_mg < VALUE_DRAW)
-    {
-        int bonus = 4 * w_pawns + 8 * b_pawns - 3 * w_pieces - 3 * b_pieces - 20;
-        score -= make_score(bonus , bonus);
-    }
+    int   score_mg   = mg_value(score) - VALUE_DRAW;
+    Color strongSide = (score_mg > 0) ? WHITE : BLACK;
+    int   d          = (score_mg > 0) - (score_mg < 0);  // +1 , 0 or -1
     
+    int pawns_strong_side  = pos.count<PAWN>( strongSide);
+    int pawns_weak_side    = pos.count<PAWN>(~strongSide);
+    int pieces_strong_side = popcount<Full>(pos.pieces( strongSide)) - pawns_strong_side;
+    int pieces_weak_side   = popcount<Full>(pos.pieces(~strongSide)) - pawns_weak_side;
+    
+    int bonus = -10 +  6 * pawns_strong_side + 4 * pawns_weak_side - 0 * pieces_strong_side - 10 * pieces_weak_side;
+    
+    // dbg_mean_of(bonus);
+    
+    // bonus = d * std::min( 100 , std::max( 0 , bonus ));
+    
+    bonus = d * bonus;
+    
+    score += make_score( bonus , bonus );
 
     // Scale winning side if position is more drawish than it appears
-    Color strongSide = eg_value(score) > VALUE_DRAW ? WHITE : BLACK;
+    strongSide = eg_value(score) > VALUE_DRAW ? WHITE : BLACK;
     ScaleFactor sf = ei.mi->scale_factor(pos, strongSide);
 
     // If we don't already have an unusual scale factor, check for certain
