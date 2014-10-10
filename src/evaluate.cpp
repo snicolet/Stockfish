@@ -750,13 +750,7 @@ namespace {
     int pieces_strong_side = popcount<Full>(pos.pieces( strongSide)) - pawns_strong_side;
     int pieces_weak_side   = popcount<Full>(pos.pieces(~strongSide)) - pawns_weak_side;
     
-    int bonus = -10 +  6 * pawns_strong_side + 4 * pawns_weak_side - 0 * pieces_strong_side - 10 * pieces_weak_side;
-    
-    // dbg_mean_of(bonus);
-    
-    // bonus = d * std::min( 100 , std::max( 0 , bonus ));
-    
-    bonus = d * bonus;
+    int bonus = d * ( 15 +  6 * pawns_strong_side + 4 * pawns_weak_side - 0 * pieces_strong_side - 15 * pieces_weak_side );
     
     score += make_score( bonus , bonus );
 
