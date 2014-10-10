@@ -177,6 +177,9 @@ namespace {
     (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank2BB | Rank3BB | Rank4BB),
     (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB)
   };
+  
+  // FOR SPSA TUNING OF KEEP_MATERIAL
+  int km_A, km_B, km_C, km_D, km_E;
 
   // King danger constants and variables. The king danger scores are taken
   // from KingDanger[]. Various little "meta-bonuses" measuring the strength
@@ -740,18 +743,21 @@ namespace {
     }
     
     // If ahead, keep more pawns and exchange pieces
-    
+
     int   score_mg   = mg_value(score) - VALUE_DRAW;
     Color strongSide = (score_mg > 0) ? WHITE : BLACK;
     int   d          = (score_mg > 0) - (score_mg < 0);  // +1 , 0 or -1
-    
+
     int pawns_strong_side  = pos.count<PAWN>( strongSide);
     int pawns_weak_side    = pos.count<PAWN>(~strongSide);
     int pieces_strong_side = popcount<Full>(pos.pieces( strongSide)) - pawns_strong_side;
     int pieces_weak_side   = popcount<Full>(pos.pieces(~strongSide)) - pawns_weak_side;
-    
-    int bonus = d * ( 15 +  6 * pawns_strong_side + 4 * pawns_weak_side - 0 * pieces_strong_side - 15 * pieces_weak_side );
-    
+    int bonus = d * ( km_A +
+                      km_B * pawns_strong_side  +
+                      km_C * pawns_weak_side    + 
+                      km_D * pieces_strong_side +
+                      km_E * pieces_weak_side    );
+
     score += make_score( bonus , bonus );
 
     // Scale winning side if position is more drawish than it appears
@@ -913,6 +919,13 @@ namespace Eval {
         t = int(std::min(Peak, std::min(0.4 * i * i, t + MaxSlope)));
         KingDanger[i] = apply_weight(make_score(t, 0), Weights[KingSafety]);
     }
+    
+    // FOR SPSA TUNING OF KEEP_MATERIAL
+    km_A = Options["km_A"];   // 15
+    km_B = Options["km_B"];   // 6
+    km_C = Options["km_C"];   // 4
+    km_D = Options["km_D"];   // 0
+    km_E = Options["km_E"];   // -15
   }
 
 } // namespace Eval

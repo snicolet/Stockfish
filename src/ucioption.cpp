@@ -67,6 +67,13 @@ void init(OptionsMap& o) {
   o["Minimum Thinking Time"] << Option(20, 0, 5000);
   o["Slow Mover"]            << Option(80, 10, 1000);
   o["UCI_Chess960"]          << Option(false);
+  
+  // FOR SPSA TUNING OF KEEP_MATERIAL
+  o["km_A"]                  << Option( 15, -200, 200, on_eval);
+  o["km_B"]                  << Option( 6 , -50, 50  , on_eval);
+  o["km_C"]                  << Option( 4 , -50, 50  , on_eval);
+  o["km_D"]                  << Option( 0 , -50, 50  , on_eval);
+  o["km_E"]                  << Option(-15, -50, 50  , on_eval);
 }
 
 
