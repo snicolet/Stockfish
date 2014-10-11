@@ -645,7 +645,7 @@ namespace {
     int dist3 = square_distance(pos.king_square(Them), s2);
     
     int r     = int(relative_rank(Us, s));
-    int bonus =  r * ( (dist2 - dist1) + 2 * (dist3 - (1 + RANK_8 - r )) );
+    int bonus =  (r * r * ( (dist2 - dist1) + 2 * (dist3 - (1 + RANK_8 - r )) )) / 4;
     
     return make_score(bonus , bonus);
   }
