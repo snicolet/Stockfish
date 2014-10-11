@@ -159,7 +159,6 @@ namespace {
   const Score BishopPawns      = S( 8, 12);
   const Score MinorBehindPawn  = S(16,  0);
   const Score TrappedRook      = S(92,  0);
-  const Score Unstoppable      = S( 0, 20);
   const Score Hanging          = S(23, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -626,15 +625,29 @@ namespace {
   }
 
 
-  // evaluate_unstoppable_pawns() scores the most advanced passed pawn. In case
-  // both players have no pieces but pawns, this is somewhat related to the
-  // possibility that pawns are unstoppable.
+  // evaluate_king_support_for_passed_pawns() scores the most advanced passed pawn. 
+  // It gives a bonus to the side whose king is closest to the pawn,
+  // and also implements the square rule for unstoppable passed pawns.
+  template<Color Us>
+  Score evaluate_king_support_for_passed_pawns(const Position& pos, const EvalInfo& ei) {
+  
+    Bitboard b = ei.pi->passed_pawns(Us);
 
-  Score evaluate_unstoppable_pawns(Color us, const EvalInfo& ei) {
-
-    Bitboard b = ei.pi->passed_pawns(us);
-
-    return b ? Unstoppable * int(relative_rank(us, frontmost_sq(us, b))) : SCORE_ZERO;
+    if (!b) return SCORE_ZERO;
+    
+    const Color Them = (Us == WHITE ? BLACK : WHITE);
+    
+    Square  s = frontmost_sq(Us, b);                   // frontmost passed pawn
+    int dist1 = square_distance(pos.king_square(Us), s);
+    int dist2 = square_distance(pos.king_square(Them), s);
+    
+    Square s2 = frontmost_sq(Us, forward_bb(Us, s));   // queening square of this pawn
+    int dist3 = square_distance(pos.king_square(Them), s2);
+    
+    int r     = int(relative_rank(Us, s));
+    int bonus =  r * ( (dist2 - dist1) + 2 * (dist3 - (1 + RANK_8 - r )) );
+    
+    return make_score(bonus , bonus);
   }
 
 
@@ -727,10 +740,9 @@ namespace {
     score +=  evaluate_passed_pawns<WHITE, Trace>(pos, ei)
             - evaluate_passed_pawns<BLACK, Trace>(pos, ei);
 
-    // If both sides have only pawns, score for potential unstoppable pawns
-    if (!pos.non_pawn_material(WHITE) && !pos.non_pawn_material(BLACK))
-        score +=  evaluate_unstoppable_pawns(WHITE, ei)
-                - evaluate_unstoppable_pawns(BLACK, ei);
+    // Evaluate the support that kings can give to passed pawns
+    score +=  evaluate_king_support_for_passed_pawns<WHITE>(pos, ei)
+            - evaluate_king_support_for_passed_pawns<BLACK>(pos, ei);
 
     // Evaluate space for both sides, only in middlegame
     if (ei.mi->space_weight())
