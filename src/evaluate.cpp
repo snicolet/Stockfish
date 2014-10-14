@@ -625,29 +625,37 @@ namespace {
   }
 
 
-  // evaluate_king_support_for_passed_pawns() scores the most advanced passed pawn. 
-  // It gives a bonus to the side whose king is closest to the pawn,
-  // and also implements the square rule for unstoppable passed pawns.
+  // evaluate_king_support_for_passed_pawns() scores the most advanced passed
+  // pawn in endgame. It gives a bonus to the side whose king is closest to the
+  // pawn, and also implements the square rule for an unstoppable passed pawn.
   template<Color Us>
   Score evaluate_king_support_for_passed_pawns(const Position& pos, const EvalInfo& ei) {
-  
+
+    const Color Them = (Us == WHITE ? BLACK : WHITE);
     Bitboard b = ei.pi->passed_pawns(Us);
 
-    if (!b) return SCORE_ZERO;
-    
-    const Color Them = (Us == WHITE ? BLACK : WHITE);
-    
-    Square  s = frontmost_sq(Us, b);                   // frontmost passed pawn
+    // Only evaluate king support for passed pawns in simple endgames.
+    if (!b || (pos.non_pawn_material(Them) > RookValueMg)) 
+        return SCORE_ZERO;
+
+    // Get a fixed bonus for our frontmost passed pawn.
+    Square s = frontmost_sq(Us, b);
+    int    r = int(relative_rank(Us, s));
+    int bonus = 20 * r;
+
+    // Increase bonus if our king, compared to the opponent king, 
+    // is closest from our frontmost passed pawn.
     int dist1 = square_distance(pos.king_square(Us), s);
     int dist2 = square_distance(pos.king_square(Them), s);
-    
-    Square s2 = frontmost_sq(Us, forward_bb(Us, s));   // queening square of this pawn
-    int dist3 = square_distance(pos.king_square(Them), s2);
-    
-    int r     = int(relative_rank(Us, s));
-    int bonus =  (r * r * ( (dist2 - dist1) + 2 * (dist3 - (1 + RANK_8 - r )) )) / 4;
-    
-    return make_score(bonus , bonus);
+    bonus += 20 * r * (dist2 > dist1);
+
+    // Increase bonus if the opponent king alone cannot prevent 
+    // our frontmost passed pawn from queening (rule of square).
+    Square quenning_sq = frontmost_sq(Us, forward_bb(Us, s));
+    int dist3 = square_distance(pos.king_square(Them), quenning_sq);
+    bonus += 20 * r * (dist3 > (1 + RANK_8 - r ));
+
+    return make_score( 0 , bonus);
   }
 
 
