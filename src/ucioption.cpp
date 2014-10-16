@@ -67,11 +67,6 @@ void init(OptionsMap& o) {
   o["Minimum Thinking Time"] << Option(20, 0, 5000);
   o["Slow Mover"]            << Option(80, 10, 1000);
   o["UCI_Chess960"]          << Option(false);
-  
-  // SPSA
-  o["ks_A"]                  << Option(10, -100, 100, on_eval);
-  o["ks_B"]                  << Option(10, 0, 100, on_eval);
-  o["ks_C"]                  << Option(10, 0, 100, on_eval);
 }
 
 
