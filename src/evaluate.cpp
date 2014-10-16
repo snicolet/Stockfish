@@ -502,9 +502,9 @@ namespace {
     Bitboard b, weakEnemies, protectedEnemies;
     Score score = SCORE_ZERO;
     enum { Minor, Major };
-
-    // Protected enemies
-    protectedEnemies = (pos.pieces(Them) ^ pos.pieces(Them,PAWN))
+        
+    // Protected major enemies : threat of winning at least an exchange
+    protectedEnemies = (pos.pieces(Them, ROOK) | pos.pieces(Them, QUEEN))
                       & ei.attackedBy[Them][PAWN]
                       & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
 
