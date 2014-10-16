@@ -502,7 +502,7 @@ namespace {
     Bitboard b, weakEnemies, protectedEnemies;
     Score score = SCORE_ZERO;
     enum { Minor, Major };
-        
+
     // Protected major enemies : threat of winning at least an exchange
     protectedEnemies = (pos.pieces(Them, ROOK) | pos.pieces(Them, QUEEN))
                       & ei.attackedBy[Them][PAWN]
@@ -510,6 +510,15 @@ namespace {
 
     if (protectedEnemies)
         score += Threat[Minor][type_of(pos.piece_on(lsb(protectedEnemies)))];
+
+    // Protected minor enemies : threat of doing a good trade of minors
+    protectedEnemies = (pos.pieces(Them, KNIGHT) | pos.pieces(Them, BISHOP))
+                      & ei.attackedBy[Them][PAWN]
+                      & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
+
+    if (protectedEnemies)
+        score += Threat[Minor][type_of(pos.piece_on(lsb(protectedEnemies)))];
+
 
     // Enemies not defended by a pawn and under our attack
     weakEnemies =  pos.pieces(Them)
