@@ -141,8 +141,8 @@ namespace {
   // Threat[attacking][attacked] contains bonuses according to which piece
   // type attacks which one.
   const Score Threat[][PIECE_TYPE_NB] = {
-    { S(0, 0), S(0, 38), S(32, 45), S(32, 45), S(41,100), S(35,104) }, // Minor
-    { S(0, 0), S(7, 28), S(20, 49), S(20, 49), S(8 , 42), S(23, 44) }  // Major
+    { S(0, 0), S(0, 38), S(27, 40), S(37, 50), S(41,100), S(35,104) }, // Minor
+    { S(0, 0), S(7, 28), S(20, 44), S(20, 54), S(8 , 42), S(23, 44) }  // Major
   };
 
   // ThreatenedByPawn[PieceType] contains a penalty according to which piece
