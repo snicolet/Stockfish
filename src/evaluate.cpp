@@ -141,14 +141,9 @@ namespace {
   // Threat[attacking][attacked] contains bonuses according to which piece
   // type attacks which one.
   const Score Threat[][PIECE_TYPE_NB] = {
-    { S(0, 0), S(0, 38), S(27, 40), S(37, 50), S(41,100), S(35,104) }, // Minor
-    { S(0, 0), S(7, 28), S(20, 44), S(20, 54), S(8 , 42), S(23, 44) }  // Major
-  };
-
-  // ThreatenedByPawn[PieceType] contains a penalty according to which piece
-  // type is attacked by an enemy pawn.
-  const Score ThreatenedByPawn[] = {
-    S(0, 0), S(0, 0), S(80, 119), S(80, 119), S(117, 199), S(127, 218)
+    { S(0, 0), S(10,10), S(80, 119), S(80, 119), S(117, 199), S(127, 218) }, // attacks by Pawn
+    { S(0, 0), S(0, 38), S(32,  45), S(32,  45), S( 41, 100), S( 35, 104) }, // attacks by Minor
+    { S(0, 0), S(7, 28), S(20,  49), S(20,  49), S(  8,  42), S( 23,  44) }  // attacks by Major
   };
 
   // Assorted bonuses and penalties used by evaluation
@@ -306,11 +301,6 @@ namespace {
                               : popcount<Full >(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt][mob];
-
-        // Decrease score if we are attacked by an enemy pawn. The remaining part
-        // of threat evaluation must be done later when we have full attack info.
-        if (ei.attackedBy[Them][PAWN] & s)
-            score -= ThreatenedByPawn[Pt];
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -518,7 +508,12 @@ namespace {
 
     Bitboard b, weakEnemies, protectedEnemies;
     Score score = SCORE_ZERO;
-    enum { Minor, Major };
+    enum { Pawn, Minor, Major };
+
+    // Enemies attacked by our pawns
+    b =  pos.pieces(Them) & ei.attackedBy[Us][PAWN];
+    if (b)
+    	score += max_threat<Us>(b, pos, Threat[Pawn]);
 
     // Protected enemies
     protectedEnemies = (pos.pieces(Them) ^ pos.pieces(Them,PAWN))
