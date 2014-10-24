@@ -213,8 +213,18 @@ namespace {
 
     ei.pinnedPieces[Us] = pos.pinned_pieces(Us);
 
-    Bitboard b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.king_square(Them));
-    ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
+    // Calculate attacks from not-pinned pawns
+    Bitboard b = ~ei.pinnedPieces[Us] & pos.pieces(Us, PAWN);
+    Bitboard attacks1 = (Us == WHITE ? white_pawn_attacks(b) : black_pawn_attacks(b));
+    
+    // Calculate attacks from pinned pawns
+    Bitboard attacks2 = (ei.pi->pawn_attacks(Us) ^ attacks1) & DiagonalPinningMask[pos.king_square(Us)];
+    
+    // Init the attackedBy[] array with pawn attacks
+    ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = attacks1 | attacks2;
+
+
+    b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.king_square(Them));
 
     // Init king safety tables only if we are going to use them
     if (pos.non_pawn_material(Us) > QueenValueMg + PawnValueMg)

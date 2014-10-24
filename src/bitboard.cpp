@@ -49,6 +49,7 @@ Bitboard ForwardBB[COLOR_NB][SQUARE_NB];
 Bitboard PassedPawnMask[COLOR_NB][SQUARE_NB];
 Bitboard PawnAttackSpan[COLOR_NB][SQUARE_NB];
 Bitboard PseudoAttacks[PIECE_TYPE_NB][SQUARE_NB];
+Bitboard DiagonalPinningMask[SQUARE_NB];
 
 int SquareDistance[SQUARE_NB][SQUARE_NB];
 
@@ -221,6 +222,8 @@ void Bitboards::init() {
           LineBB[s1][s2] = (attacks_bb(pc, s1, 0) & attacks_bb(pc, s2, 0)) | s1 | s2;
           BetweenBB[s1][s2] = attacks_bb(pc, s1, SquareBB[s2]) & attacks_bb(pc, s2, SquareBB[s1]);
       }
+      
+      DiagonalPinningMask[s1] = PseudoAttacks[BISHOP][s1] & ~StepAttacksBB[KING][s1];
   }
 }
 
