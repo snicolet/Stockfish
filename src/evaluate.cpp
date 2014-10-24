@@ -141,7 +141,7 @@ namespace {
   // Threat[attacking][attacked] contains bonuses according to which piece
   // type attacks which one.
   const Score Threat[][PIECE_TYPE_NB] = {
-    { S(0, 0), S(10,10), S(80, 119), S(80, 119), S(117, 199), S(127, 218) }, // attacks by Pawn
+    { S(0, 0), S(0,  0), S(80, 119), S(80, 119), S(117, 199), S(127, 218) }, // attacks by Pawn
     { S(0, 0), S(0, 38), S(32,  45), S(32,  45), S( 41, 100), S( 35, 104) }, // attacks by Minor
     { S(0, 0), S(7, 28), S(20,  49), S(20,  49), S(  8,  42), S( 23,  44) }  // attacks by Major
   };
@@ -521,7 +521,7 @@ namespace {
     enum { Pawn, Minor, Major };
 
     // Enemies attacked by our pawns
-    b =  pos.pieces(Them) & ei.attackedBy[Us][PAWN];
+    b =  (pos.pieces(Them) ^ pos.pieces(Them,PAWN)) & ei.attackedBy[Us][PAWN];
     if (b)
     	score += max_threat<Us>(b, pos, Threat[Pawn]);
 
