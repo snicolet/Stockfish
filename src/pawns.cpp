@@ -24,6 +24,7 @@
 #include "bitcount.h"
 #include "pawns.h"
 #include "position.h"
+#include "ucioption.h"  // for SPSA
 
 namespace {
 
@@ -57,8 +58,9 @@ namespace {
     S( 0, 0), S( 0, 0), S(0, 0), S(0, 0),
     S(20,20), S(40,40), S(0, 0), S(0, 0) };
 
-  // Bonus for file distance of the two outermost pawns
-  const Score PawnsFileSpan = S(0, 15);
+  // Bonus for file distance of the two outermost pawns, indexed by absence of passed pawns
+  //const Score PawnsFileSpan[2] = { S(0, 0) , S(0, 15) };
+  Score PawnsFileSpan[2] = { S(0, 0) , S(0, 15) };
 
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
@@ -183,9 +185,10 @@ namespace {
     b = e->semiopenFiles[Us] ^ 0xFF;
     e->pawnSpan[Us] = b ? int(msb(b) - lsb(b)) : 0;
 
-    // In endgame it's better to have pawns on both wings. So give a bonus according
-    // to file distance between left and right outermost pawns.
-    value += PawnsFileSpan * e->pawnSpan[Us];
+    // In endgame it's better to have pawns on both wings, so give a bonus according
+    // to file distance between left and right outermost pawns. The bonus is reduced
+    // if we have passed pawns, as we try to simplify the pawn structure in this case.
+    value += e->pawnSpan[Us] * PawnsFileSpan[!e->passedPawns[Us]];
 
     return value;
   }
@@ -209,6 +212,9 @@ void init()
               int bonus = Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0);
               Connected[opposed][phalanx][r] = make_score(bonus / 2, bonus >> opposed);
           }
+  // SPSA
+  PawnsFileSpan[0] = make_score( int(Options["pfs_with_passed_mg"])   , int(Options["pfs_with_passed_eg"]));
+  PawnsFileSpan[1] = make_score( int(Options["pfs_without_passed_mg"]), int(Options["pfs_without_passed_eg"]));
 }
 
 
