@@ -216,10 +216,10 @@ namespace {
     // Calculate attacks from not-pinned pawns
     Bitboard b = ~ei.pinnedPieces[Us] & pos.pieces(Us, PAWN);
     Bitboard attacks1 = (Us == WHITE ? white_pawn_attacks(b) : black_pawn_attacks(b));
-    
+
     // Calculate attacks from pinned pawns
     Bitboard attacks2 = (ei.pi->pawn_attacks(Us) ^ attacks1) & DiagonalPinningMask[pos.king_square(Us)];
-    
+
     // Init the attackedBy[] array with pawn attacks
     ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = attacks1 | attacks2;
 
@@ -415,6 +415,7 @@ namespace {
         attackUnits =  std::min(20, (ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]) / 2)
                      + 3 * (ei.kingAdjacentZoneAttacksCount[Them] + popcount<Max15>(undefended))
                      + 2 * (ei.pinnedPieces[Us] != 0)
+                     + 3 * zero_one_many(ei.pinnedPieces[Us] & pos.pieces(Us, PAWN))
                      - mg_value(score) / 32
                      - !pos.count<QUEEN>(Them) * 15;
 
