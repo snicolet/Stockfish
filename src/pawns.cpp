@@ -24,7 +24,6 @@
 #include "bitcount.h"
 #include "pawns.h"
 #include "position.h"
-#include "ucioption.h"  // for SPSA
 
 namespace {
 
@@ -59,8 +58,7 @@ namespace {
     S(20,20), S(40,40), S(0, 0), S(0, 0) };
 
   // Bonus for file distance of the two outermost pawns, indexed by absence of passed pawns
-  //const Score PawnsFileSpan[2] = { S(0, 0) , S(0, 15) };
-  Score PawnsFileSpan[2] = { S(0, 0) , S(0, 15) };
+  const Score PawnsFileSpan[2] = { S(0, 5) , S(0, 10) };
 
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
@@ -212,9 +210,6 @@ void init()
               int bonus = Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0);
               Connected[opposed][phalanx][r] = make_score(bonus / 2, bonus >> opposed);
           }
-  // SPSA
-  PawnsFileSpan[0] = make_score( int(Options["pfs_with_passed_mg"])   , int(Options["pfs_with_passed_eg"]));
-  PawnsFileSpan[1] = make_score( int(Options["pfs_without_passed_mg"]), int(Options["pfs_without_passed_eg"]));
 }
 
 
