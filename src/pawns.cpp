@@ -57,8 +57,8 @@ namespace {
     S( 0, 0), S( 0, 0), S(0, 0), S(0, 0),
     S(20,20), S(40,40), S(0, 0), S(0, 0) };
 
-  // Bonus for file distance of the two outermost pawns, indexed by absence of passed pawns
-  const Score PawnsFileSpan[2] = { S(0, 5) , S(0, 10) };
+  // Bonus for file distance of the two outermost pawns
+  const Score PawnsFileSpan = S(0, 8);
 
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
@@ -184,9 +184,8 @@ namespace {
     e->pawnSpan[Us] = b ? int(msb(b) - lsb(b)) : 0;
 
     // In endgame it's better to have pawns on both wings, so give a bonus according
-    // to file distance between left and right outermost pawns. The bonus is reduced
-    // if we have passed pawns, as we try to simplify the pawn structure in this case.
-    value += e->pawnSpan[Us] * PawnsFileSpan[!e->passedPawns[Us]];
+    // to file distance between left and right outermost pawns.
+    value += e->pawnSpan[Us] * PawnsFileSpan;
 
     return value;
   }
