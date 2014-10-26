@@ -183,9 +183,9 @@ namespace {
     b = e->semiopenFiles[Us] ^ 0xFF;
     e->pawnSpan[Us] = b ? int(msb(b) - lsb(b)) : 0;
 
-    // In endgame it's better to have pawns on both wings, so give a bonus according
+    // In endgame it's better to have pawns on both wings. So give a bonus according
     // to file distance between left and right outermost pawns.
-    value += e->pawnSpan[Us] * PawnsFileSpan;
+    value += PawnsFileSpan * e->pawnSpan[Us];
 
     return value;
   }
