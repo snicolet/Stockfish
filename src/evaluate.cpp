@@ -161,7 +161,11 @@ namespace {
   const Score MinorBehindPawn  = S(16,  0);
   const Score TrappedRook      = S(92,  0);
   const Score Unstoppable      = S( 0, 20);
-  const Score Hanging          = S(23, 20);
+  //const Score Hanging          = S(23, 20);
+  //const Score MultiAttack      = S(90, 90);
+  // SPSA
+  Score Hanging          = S(23, 20);
+  Score MultiAttack      = S(90, 90);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -518,7 +522,8 @@ namespace {
 
     enum { Minor, Major };
 
-    Bitboard b, weakEnemies, protectedEnemies;
+    Bitboard b, s, weakEnemies, protectedEnemies, targets;
+    uint64_t attack, defense;
     Score score = SCORE_ZERO;
 
     // Enemies defended by a pawn and under our attack by a minor piece
@@ -552,6 +557,38 @@ namespace {
         b = weakEnemies & ei.attackedBy[Us][KING];
         if (b)
             score += more_than_one(b) ? KingOnMany : KingOnOne;
+        
+                
+        // Compare attacks and defenses on weak pawns. We loop over all 
+        // opponent pawns defended by pieces, but not by pawns. The variable 
+        // targets contains these weak pawns, and s is another 1-bit bitboard 
+        // variable containing each single target in turn.
+		targets =    weakEnemies 
+				   & ei.attackedBy[Them][ALL_PIECES]
+				   & pos.pieces(Them, PAWN) ;
+		while (targets)
+		{
+			s = targets & (targets ^ (targets - 1));
+			targets ^= s;
+
+			defense =    (s & ei.attackedBy[Them][KNIGHT])
+					   + (s & ei.attackedBy[Them][BISHOP])
+					   + (s & ei.attackedBy[Them][ROOK])
+					   + (s & ei.attackedBy[Them][QUEEN])
+					   + (s & ei.attackedBy[Them][KING]);
+
+			attack  =    (s & ei.attackedBy[Us][PAWN])
+					   + (s & ei.attackedBy[Us][KNIGHT]) 
+					   + (s & ei.attackedBy[Us][BISHOP])
+					   + (s & ei.attackedBy[Us][ROOK])
+					   + (s & ei.attackedBy[Us][QUEEN])
+					   + (s & ei.attackedBy[Us][KING]);
+
+			if (attack > defense)
+				score += MultiAttack;
+
+		}  // while (targets)
+
     }
 
     if (Trace)
@@ -919,6 +956,10 @@ namespace Eval {
         t = int(std::min(Peak, std::min(0.4 * i * i, t + MaxSlope)));
         KingDanger[i] = apply_weight(make_score(t, 0), Weights[KingSafety]);
     }
+    
+    // SPSA
+    MultiAttack      = make_score(int(Options["MultiAttack_mg"])  , int(Options["MultiAttack_eg"]));
+    Hanging          = make_score(int(Options["Hanging_mg"])      , int(Options["Hanging_eg"]));
   }
 
 } // namespace Eval
