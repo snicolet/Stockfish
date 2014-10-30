@@ -157,6 +157,7 @@ namespace {
   const Score RookOnPawn       = S(10, 28);
   const Score RookOpenFile     = S(43, 21);
   const Score RookSemiOpenFile = S(19, 10);
+  const Score RookCoordination = S(40, 40);
   const Score BishopPawns      = S( 8, 12);
   const Score MinorBehindPawn  = S(16,  0);
   const Score TrappedRook      = S(92,  0);
@@ -561,6 +562,19 @@ namespace {
   }
 
 
+  // evaluate_coordination() assigns bonus/malus for coordination
+
+  template<Color Us> inline
+  Score evaluate_coordination(const Position& pos, const EvalInfo& ei) {
+  
+    // Rook coordination
+    Bitboard b = pos.pieces(Us, ROOK, QUEEN) & ~(ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][QUEEN]);
+    
+    return (b ? (more_than_one(b) ? -RookCoordination - RookCoordination : -RookCoordination) :
+                SCORE_ZERO);
+  }
+
+
   // evaluate_passed_pawns() evaluates the passed pawns of the given color
 
   template<Color Us, bool Trace>
@@ -741,6 +755,12 @@ namespace {
     // Evaluate tactical threats, we need full attack information including king
     score +=  evaluate_threats<WHITE, Trace>(pos, ei)
             - evaluate_threats<BLACK, Trace>(pos, ei);
+    
+    // Evaluate coordination, we need full attack information
+    if (pos.count<ROOK>(WHITE) > 0)
+        score += evaluate_coordination<WHITE>(pos, ei);
+    if (pos.count<ROOK>(BLACK) > 0)
+        score -= evaluate_coordination<BLACK>(pos, ei);
 
     // Evaluate passed pawns, we need full attack information including king
     score +=  evaluate_passed_pawns<WHITE, Trace>(pos, ei)
@@ -906,6 +926,8 @@ namespace Eval {
   }
 
 
+
+
   /// init() computes evaluation weights from the corresponding UCI parameters
   /// and setup king tables.
 
@@ -919,6 +941,23 @@ namespace Eval {
         t = int(std::min(Peak, std::min(0.4 * i * i, t + MaxSlope)));
         KingDanger[i] = apply_weight(make_score(t, 0), Weights[KingSafety]);
     }
+    
+ //  RookValueMg = Value(1270);
+   
+//   Position::init();
+    
+    /*
+   RookValueMg = Value(1270);
+   RookValueEg = Value(1278);
+   
+   PieceValue[MG][ROOK] = RookValueMg;
+   PieceValue[EG][ROOK] = RookValueEg;
+   
+   Position::init();
+   */
+   
+  // std::cerr << "RookValueMg is " << RookValueMg << sync_endl;
+   
   }
 
 } // namespace Eval
