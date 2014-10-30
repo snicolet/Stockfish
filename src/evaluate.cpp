@@ -161,11 +161,8 @@ namespace {
   const Score MinorBehindPawn  = S(16,  0);
   const Score TrappedRook      = S(92,  0);
   const Score Unstoppable      = S( 0, 20);
-  //const Score Hanging          = S(23, 20);
-  //const Score MultiAttack      = S(90, 90);
-  // SPSA
-  Score Hanging          = S(23, 20);
-  Score MultiAttack      = S(90, 90);
+  const Score Hanging          = S(26, 20);
+  const Score UnderProtected   = S(90, 90);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -585,7 +582,7 @@ namespace {
 					   + (s & ei.attackedBy[Us][KING]);
 
 			if (attack > defense)
-				score += MultiAttack;
+				score += UnderProtected;
 
 		}  // while (targets)
 
@@ -956,10 +953,6 @@ namespace Eval {
         t = int(std::min(Peak, std::min(0.4 * i * i, t + MaxSlope)));
         KingDanger[i] = apply_weight(make_score(t, 0), Weights[KingSafety]);
     }
-    
-    // SPSA
-    MultiAttack      = make_score(int(Options["MultiAttack_mg"])  , int(Options["MultiAttack_eg"]));
-    Hanging          = make_score(int(Options["Hanging_mg"])      , int(Options["Hanging_eg"]));
   }
 
 } // namespace Eval
