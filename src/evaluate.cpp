@@ -926,8 +926,6 @@ namespace Eval {
   }
 
 
-
-
   /// init() computes evaluation weights from the corresponding UCI parameters
   /// and setup king tables.
 
@@ -941,23 +939,6 @@ namespace Eval {
         t = int(std::min(Peak, std::min(0.4 * i * i, t + MaxSlope)));
         KingDanger[i] = apply_weight(make_score(t, 0), Weights[KingSafety]);
     }
-    
- //  RookValueMg = Value(1270);
-   
-//   Position::init();
-    
-    /*
-   RookValueMg = Value(1270);
-   RookValueEg = Value(1278);
-   
-   PieceValue[MG][ROOK] = RookValueMg;
-   PieceValue[EG][ROOK] = RookValueEg;
-   
-   Position::init();
-   */
-   
-  // std::cerr << "RookValueMg is " << RookValueMg << sync_endl;
-   
   }
 
 } // namespace Eval
