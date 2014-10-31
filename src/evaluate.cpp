@@ -556,13 +556,12 @@ namespace {
             score += more_than_one(b) ? KingOnMany : KingOnOne;
         
                 
-        // Compare attacks and defenses on weak pawns. We loop over all 
-        // opponent pawns defended by pieces, but not by pawns. The variable 
-        // targets contains these weak pawns, and s is another 1-bit bitboard 
+        // Compare attacks and defenses on weak pieces. We loop over all 
+        // opponent pieces defended by pieces, but not by pawns. The variable 
+        // targets contains these weak pieces, and s is another 1-bit bitboard 
         // variable containing each single target in turn.
-		targets =    weakEnemies 
-				   & ei.attackedBy[Them][ALL_PIECES]
-				   & pos.pieces(Them, PAWN) ;
+		targets = weakEnemies & ei.attackedBy[Them][ALL_PIECES];
+				   
 		while (targets)
 		{
 			s = targets & (targets ^ (targets - 1));
