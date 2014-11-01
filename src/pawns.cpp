@@ -24,6 +24,7 @@
 #include "bitcount.h"
 #include "pawns.h"
 #include "position.h"
+#include "uci.h"
 
 namespace {
 
@@ -31,16 +32,30 @@ namespace {
   #define S(mg, eg) make_score(mg, eg)
 
   // Doubled pawn penalty by file
+  /*
   const Score Doubled[FILE_NB] = {
     S(23, 53), S(10, 38), S(23, 48), S(23, 48),
     S(23, 48), S(23, 48), S(10, 38), S(23, 53) };
+  */
+  // SPSA
+  Score Doubled[FILE_NB] = {
+    S(0, 0), S(0, 0), S(23, 48), S(23, 48),
+    S(23, 48), S(23, 48), S(0, 0), S(0, 0) };
 
   // Isolated pawn penalty by opposed flag and file
+  /*
   const Score Isolated[2][FILE_NB] = {
   { S(37, 45), S(65, 57), S(60, 52), S(60, 52),
     S(60, 52), S(60, 52), S(65, 57), S(37, 45) },
   { S(25, 30), S(45, 40), S(40, 35), S(40, 35),
     S(40, 35), S(40, 35), S(45, 40), S(25, 30) } };
+  */
+  // SPSA
+  Score Isolated[2][FILE_NB] = {
+  { S(37, 45), S(0, 0), S(60, 52), S(60, 52),
+    S(60, 52), S(60, 52), S(0, 0), S(37, 45) },
+  { S(25, 30), S(0, 0), S(40, 35), S(40, 35),
+    S(40, 35), S(40, 35), S(0, 0), S(25, 30) } };
 
   // Backward pawn penalty by opposed flag and file
   const Score Backward[2][FILE_NB] = {
@@ -209,6 +224,28 @@ void init()
               int bonus = Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0);
               Connected[opposed][phalanx][r] = make_score(bonus / 2, bonus >> opposed);
           }
+          
+  // SPSA
+  int doubled_a_m = Options["doubled_a_m"];
+  int doubled_a_e = Options["doubled_a_e"];
+  int doubled_b_m = Options["doubled_b_m"];
+  int doubled_b_e = Options["doubled_b_e"];
+  int isolated_semiopen_b_m = Options["isolated_semiopen_b_m"];
+  int isolated_semiopen_b_e = Options["isolated_semiopen_b_e"];
+  int isolated_opposed_b_m  = Options["isolated_opposed_b_m"];
+  int isolated_opposed_b_e  = Options["isolated_opposed_b_e"];
+  
+  Doubled[FILE_A] = make_score(doubled_a_m, doubled_a_e);
+  Doubled[FILE_B] = make_score(doubled_b_m, doubled_b_e);
+  
+  Doubled[FILE_H] = Doubled[FILE_A];
+  Doubled[FILE_G] = Doubled[FILE_B];
+  
+  Isolated[0][FILE_B] = make_score(isolated_semiopen_b_m, isolated_semiopen_b_e);
+  Isolated[1][FILE_B] = make_score(isolated_opposed_b_m,  isolated_opposed_b_e );
+  
+  Isolated[0][FILE_G] = Isolated[0][FILE_B];
+  Isolated[1][FILE_G] = Isolated[1][FILE_B];
 }
 
 

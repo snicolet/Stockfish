@@ -37,6 +37,7 @@ namespace UCI {
 /// 'On change' actions, triggered by an option's value change
 void on_logger(const Option& o) { start_logger(o); }
 void on_eval(const Option&) { Eval::init(); }
+void on_pawns(const Option&) { Pawns::init(); }
 void on_threads(const Option&) { Threads.read_uci_options(); }
 void on_hash_size(const Option& o) { TT.resize(o); }
 void on_clear_hash(const Option&) { TT.clear(); }
@@ -67,6 +68,15 @@ void init(OptionsMap& o) {
   o["Minimum Thinking Time"] << Option(20, 0, 5000);
   o["Slow Mover"]            << Option(80, 10, 1000);
   o["UCI_Chess960"]          << Option(false);
+  // SPSA
+  o["doubled_a_m"]           << Option(23, 0, 200, on_pawns);
+  o["doubled_a_e"]           << Option(53, 0, 200, on_pawns);
+  o["doubled_b_m"]           << Option(10, 0, 200, on_pawns);
+  o["doubled_b_e"]           << Option(38, 0, 200, on_pawns);
+  o["isolated_semiopen_b_m"] << Option(65, 0, 200, on_pawns);
+  o["isolated_semiopen_b_e"] << Option(57, 0, 200, on_pawns);
+  o["isolated_opposed_b_m"]  << Option(45, 0, 200, on_pawns);
+  o["isolated_opposed_b_e"]  << Option(40, 0, 200, on_pawns);
 }
 
 
