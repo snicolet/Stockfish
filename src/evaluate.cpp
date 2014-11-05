@@ -163,6 +163,7 @@ namespace {
   const Score TrappedRook      = S(92,  0);
   const Score Unstoppable      = S( 0, 20);
   const Score Hanging          = S(31, 26);
+  const Score UnderProtected   = S(36, 31);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -490,8 +491,6 @@ namespace {
   }
 
 
-
-
   // evaluate_threats() assigns bonuses according to the type of attacking piece
   // and the type of attacked one.
 
@@ -501,7 +500,8 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
     enum { Protected_Minor, Protected_Major, Minor, Major };
-    Bitboard b, weakEnemies, protectedEnemies;
+    Bitboard b, s, weakEnemies, protectedEnemies, targets;
+    uint64_t attack, defense;
     Score score = SCORE_ZERO;
 
     // Enemies defended by a pawn and under our attack
@@ -545,6 +545,34 @@ namespace {
         b = weakEnemies & ei.attackedBy[Us][KING];
         if (b)
             score += more_than_one(b) ? KingOnMany : KingOnOne;
+        
+        // Compare attacks and defenses on weak pieces. We loop over all 
+        // opponent pieces defended by pieces, but not by pawns. The variable 
+        // targets contains these weak pieces, and s is another 1-bit bitboard 
+        // variable containing each single target in turn.
+        targets = weakEnemies & ei.attackedBy[Them][ALL_PIECES];
+
+        while (targets)
+        {
+            s = targets & (targets ^ (targets - 1));
+            targets ^= s;
+
+            defense =    (s & ei.attackedBy[Them][KNIGHT])
+                       + (s & ei.attackedBy[Them][BISHOP])
+                       + (s & ei.attackedBy[Them][ROOK])
+                       + (s & ei.attackedBy[Them][QUEEN])
+                       + (s & ei.attackedBy[Them][KING]);
+
+            attack  =    (s & ei.attackedBy[Us][KNIGHT])
+                       + (s & ei.attackedBy[Us][BISHOP])
+                       + (s & ei.attackedBy[Us][ROOK])
+                       + (s & ei.attackedBy[Us][QUEEN])
+                       + (s & ei.attackedBy[Us][KING]);
+
+            if (attack > defense)
+                score += UnderProtected;
+
+        }  // while (targets)
     }
 
     if (Trace)
