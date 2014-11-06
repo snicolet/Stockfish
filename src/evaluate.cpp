@@ -149,7 +149,9 @@ namespace {
   // ThreatenedByPawn[PieceType] contains a penalty according to which piece
   // type is attacked by an enemy pawn.
   const Score ThreatenedByPawn[] = {
-    S(0, 0), S(0, 0), S(87, 118), S(84, 122), S(114, 203), S(121, 217)
+    //S(0, 0), S(0, 0), S(87, 118), S(84, 122), S(114, 203), S(121, 217)
+    //S(0, 0), S(0, 0), S(57, 88), S(54, 92), S(84, 173), S(91, 187)
+    S(0, 0), S(0, 0), S(47, 78), S(44, 82), S(74, 163), S(81, 177)
   };
 
   // Assorted bonuses and penalties used by evaluation
@@ -563,7 +565,8 @@ namespace {
                        + (s & ei.attackedBy[Them][QUEEN])
                        + (s & ei.attackedBy[Them][KING]);
 
-            attack  =    (s & ei.attackedBy[Us][KNIGHT])
+            attack  =    (s & ei.attackedBy[Us][PAWN])
+                       + (s & ei.attackedBy[Us][KNIGHT])
                        + (s & ei.attackedBy[Us][BISHOP])
                        + (s & ei.attackedBy[Us][ROOK])
                        + (s & ei.attackedBy[Us][QUEEN])
