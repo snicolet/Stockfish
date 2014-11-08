@@ -601,10 +601,11 @@ namespace {
     if (   !PvNode
         &&  depth >= 5 * ONE_PLY
         && !ss->skipNullMove
+        &&  eval >= beta + 100
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
         Value rbeta = std::min(beta + 200, VALUE_INFINITE);
-        Depth rdepth = depth - 4 * ONE_PLY;
+        Depth rdepth = depth - 3 * ONE_PLY;
 
         assert(rdepth >= ONE_PLY);
         assert((ss-1)->currentMove != MOVE_NONE);
