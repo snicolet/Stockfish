@@ -163,6 +163,7 @@ namespace {
   const Score TrappedRook      = S(92,  0);
   const Score Unstoppable      = S( 0, 20);
   const Score Hanging          = S(31, 26);
+  const Score ThreatTempo      = S(15 , 0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -503,6 +504,7 @@ namespace {
 
     Bitboard b, weak, defended;
     Score score = SCORE_ZERO;
+    Score threat_tempo = pos.side_to_move() == Us ? ThreatTempo : SCORE_ZERO;
 
     // Non-pawn enemies defended by a pawn and under our attack
     defended =  (pos.pieces(Them) ^ pos.pieces(Them, PAWN))
@@ -514,11 +516,11 @@ namespace {
     {
         b = defended & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         while (b)
-            score += Threat[Defended][Minor][type_of(pos.piece_on(pop_lsb(&b)))];
+            score += threat_tempo + Threat[Defended][Minor][type_of(pos.piece_on(pop_lsb(&b)))];
 
         b = defended & (ei.attackedBy[Us][ROOK]);
         while (b)
-            score += Threat[Defended][Major][type_of(pos.piece_on(pop_lsb(&b)))];
+            score += threat_tempo + Threat[Defended][Major][type_of(pos.piece_on(pop_lsb(&b)))];
     }
 
     // Enemies not defended by a pawn and under our attack
@@ -531,15 +533,16 @@ namespace {
     {
         b = weak & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         while (b)
-            score += Threat[Weak][Minor][type_of(pos.piece_on(pop_lsb(&b)))];
+            score += threat_tempo + Threat[Weak][Minor][type_of(pos.piece_on(pop_lsb(&b)))];
 
         b = weak & (ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][QUEEN]);
         while (b)
-            score += Threat[Weak][Major][type_of(pos.piece_on(pop_lsb(&b)))];
+            score += threat_tempo + Threat[Weak][Major][type_of(pos.piece_on(pop_lsb(&b)))];
 
         b = weak & ~ei.attackedBy[Them][ALL_PIECES];
         if (b)
-            score += more_than_one(b) ? Hanging * popcount<Max15>(b) : Hanging;
+            score += more_than_one(b) ? threat_tempo + Hanging * popcount<Max15>(b) 
+                                      : threat_tempo + Hanging;
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
