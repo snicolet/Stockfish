@@ -855,29 +855,14 @@ moves_loop: // When in check and at SpNode search starts from here
       {
           if (SpNode)
               alpha = splitPoint->alpha;
-          
-          
-          bool translation = false;
-      
-      if (alpha > VALUE_DRAW + 12 && st.rule50 > 19)
-      {
-         	alpha += 2;
-         	beta  += 2;
-         	translation = true;
-      }
 
           value = newDepth <   ONE_PLY ?
                             givesCheck ? -qsearch<NonPV,  true>(pos, ss+1, -(alpha+1), -alpha, DEPTH_ZERO)
                                        : -qsearch<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, DEPTH_ZERO)
                                        : - search<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
-          if (translation) 
-      {
-          alpha -= 2;
-          beta  -= 2;
-          value -= 2;
-      }
-      
+          if (value > VALUE_DRAW + 12 && st.rule50 > 19)
+              value -= 2;
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
@@ -886,30 +871,13 @@ moves_loop: // When in check and at SpNode search starts from here
       if (PvNode && (moveCount == 1 || (value > alpha && (RootNode || value < beta)))) {
           pv.pv[0] = MOVE_NONE;
           (ss+1)->pv = &pv;
-          
-          bool translation = false;
-      
-      if (alpha > VALUE_DRAW + 12 && st.rule50 > 19)
-      {
-         	alpha += 2;
-         	beta  += 2;
-         	translation = true;
-      }
-          
-          
-          
           value = newDepth <   ONE_PLY ?
                             givesCheck ? -qsearch<PV,  true>(pos, ss+1, -beta, -alpha, DEPTH_ZERO)
                                        : -qsearch<PV, false>(pos, ss+1, -beta, -alpha, DEPTH_ZERO)
                                        : - search<PV, false>(pos, ss+1, -beta, -alpha, newDepth, false);
 
-         if (translation) 
-      {
-          alpha -= 2;
-          beta  -= 2;
-          value -= 2;
-      }
-      
+         if (value > VALUE_DRAW + 12 && st.rule50 > 19)
+              value -= 2;
       }
       // Step 17. Undo move
       pos.undo_move(move);
@@ -1205,30 +1173,12 @@ moves_loop: // When in check and at SpNode search starts from here
 
       // Make and search the move
       pos.do_move(move, st, ci, givesCheck);
-      
-      bool translation = false;
-      
-      if (alpha > VALUE_DRAW + 12 && st.rule50 > 19)
-      {
-         	alpha += 2;
-         	beta  += 2;
-         	translation = true;
-      }
-      
-      
       value = givesCheck ? -qsearch<NT,  true>(pos, ss+1, -beta, -alpha, depth - ONE_PLY)
                          : -qsearch<NT, false>(pos, ss+1, -beta, -alpha, depth - ONE_PLY);
-                         
-      if (translation) 
-      {
-          alpha -= 2;
-          beta  -= 2;
-          value -= 2;
-      }
-                         
       pos.undo_move(move);
       
-      
+      if (value > VALUE_DRAW + 12 && st.rule50 > 19)
+              value -= 2;
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
 
