@@ -696,6 +696,10 @@ namespace {
     // in the position object (material + piece square tables).
     // Score is computed from the point of view of white.
     score = pos.psq_score();
+    
+    // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
+    int random_eval = (eg_value(score) & 15) - 15;
+    score += make_score(random_eval + random_eval, random_eval);
 
     // Probe the material hash table
     ei.mi = Material::probe(pos, thisThread->materialTable, thisThread->endgames);
