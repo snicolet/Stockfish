@@ -70,6 +70,12 @@ namespace {
     return (Depth) Reductions[PvNode][i][std::min(int(d), 63)][std::min(mn, 63)];
   }
 
+  // Soft 50 moves rule : instead of returning VALUE_DRAW abruptly after 50 moves,
+  // decrease eval slowly after 10 moves or more of piece shuffling.
+  inline Value soft_50_moves_rule(Value value, const StateInfo& st) {
+    return (value > VALUE_DRAW + 12  &&  st.rule50 > 19)  ?  value-2  :  value;
+  }
+
   size_t PVIdx;
   TimeManager TimeMgr;
   double BestMoveChanges;
@@ -861,8 +867,7 @@ moves_loop: // When in check and at SpNode search starts from here
                                        : -qsearch<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, DEPTH_ZERO)
                                        : - search<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
-          if (value > VALUE_DRAW + 12 && st.rule50 > 19)
-              value -= 2;
+          value = soft_50_moves_rule(value, st);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
@@ -876,9 +881,9 @@ moves_loop: // When in check and at SpNode search starts from here
                                        : -qsearch<PV, false>(pos, ss+1, -beta, -alpha, DEPTH_ZERO)
                                        : - search<PV, false>(pos, ss+1, -beta, -alpha, newDepth, false);
 
-         if (value > VALUE_DRAW + 12 && st.rule50 > 19)
-              value -= 2;
+          value = soft_50_moves_rule(value, st);
       }
+
       // Step 17. Undo move
       pos.undo_move(move);
 
@@ -1176,9 +1181,8 @@ moves_loop: // When in check and at SpNode search starts from here
       value = givesCheck ? -qsearch<NT,  true>(pos, ss+1, -beta, -alpha, depth - ONE_PLY)
                          : -qsearch<NT, false>(pos, ss+1, -beta, -alpha, depth - ONE_PLY);
       pos.undo_move(move);
-      
-      if (value > VALUE_DRAW + 12 && st.rule50 > 19)
-              value -= 2;
+
+      value = soft_50_moves_rule(value, st);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
 
