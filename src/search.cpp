@@ -72,8 +72,11 @@ namespace {
 
   // Soft 50 moves rule : instead of returning VALUE_DRAW abruptly after 50 moves,
   // translate alpha-beta window slowly after 10 moves or more of piece shuffling.
-  inline Value soft_50_moves_translation(Value alpha, const StateInfo& st) {
-    return (alpha > VALUE_DRAW + 30  &&  st.rule50 > 19)  ?  Value(20)  :  Value(0);
+  inline Value soft_50_moves_translation(Value alpha, const Position& pos, const StateInfo& st) {
+    if (alpha > VALUE_DRAW + 30  &&  st.rule50 > 19  &&  pos.side_to_move() != RootPos.side_to_move()) 
+      return Value(30);
+    else
+      return Value(0);
   }
 
   size_t PVIdx;
@@ -862,7 +865,7 @@ moves_loop: // When in check and at SpNode search starts from here
           if (SpNode)
               alpha = splitPoint->alpha;
 
-          Value t = soft_50_moves_translation(alpha, st);
+          Value t = soft_50_moves_translation(alpha, pos, st);
 
           value = newDepth <   ONE_PLY ?
                             givesCheck ? -qsearch<NonPV,  true>(pos, ss+1, -(alpha+t+1), -(alpha+t), DEPTH_ZERO)
@@ -879,7 +882,7 @@ moves_loop: // When in check and at SpNode search starts from here
           pv.pv[0] = MOVE_NONE;
           (ss+1)->pv = &pv;
 
-          Value t = soft_50_moves_translation(alpha, st);
+          Value t = soft_50_moves_translation(alpha, pos, st);
 
           value = newDepth <   ONE_PLY ?
                             givesCheck ? -qsearch<PV,  true>(pos, ss+1, -(beta+t), -(alpha+t), DEPTH_ZERO)
@@ -1184,7 +1187,7 @@ moves_loop: // When in check and at SpNode search starts from here
       // Make and search the move
       pos.do_move(move, st, ci, givesCheck);
 
-      Value t = soft_50_moves_translation(alpha, st);
+      Value t = soft_50_moves_translation(alpha, pos, st);
 
       value = givesCheck ? -qsearch<NT,  true>(pos, ss+1, -(beta+t), -(alpha+t), depth - ONE_PLY)
                          : -qsearch<NT, false>(pos, ss+1, -(beta+t), -(alpha+t), depth - ONE_PLY);
