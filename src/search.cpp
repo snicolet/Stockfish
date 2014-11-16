@@ -71,9 +71,9 @@ namespace {
   }
 
   // Soft 50 moves rule : instead of returning VALUE_DRAW abruptly after 50 moves,
-  // decrease eval slowly after 10 moves or more of piece shuffling.
+  // translate alpha-beta window slowly after 10 moves or more of piece shuffling.
   inline Value soft_50_moves_translation(Value alpha, const StateInfo& st) {
-    return (alpha > VALUE_DRAW + 12  &&  st.rule50 > 19)  ?  Value(2)  :  Value(0);
+    return (alpha > VALUE_DRAW + 30  &&  st.rule50 > 19)  ?  Value(5)  :  Value(0);
   }
 
   size_t PVIdx;
