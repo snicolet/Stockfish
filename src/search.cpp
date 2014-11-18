@@ -72,8 +72,10 @@ namespace {
 
   // Soft 50 moves rule : instead of returning VALUE_DRAW abruptly after 50 moves,
   // translate alpha-beta window slowly after 10 moves or more of piece shuffling.
-  inline Value soft_50_moves_translation(Value alpha, const StateInfo& st) {
-    return (alpha > VALUE_DRAW + 30  &&  st.rule50 > 19)  ?  Value(2)  :  Value(0);
+  inline Value soft_50_moves_translation(Value alpha, const StateInfo& st, const Position& pos) {
+    return (    alpha > VALUE_DRAW + 30  
+            &&  st.rule50 > 19 
+            &&  pos.side_to_move() != RootPos.side_to_move())  ?  Value(2)  :  Value(0);
   }
 
   size_t PVIdx;
@@ -862,14 +864,14 @@ moves_loop: // When in check and at SpNode search starts from here
           if (SpNode)
               alpha = splitPoint->alpha;
 
-          Value t = soft_50_moves_translation(alpha, st);
+          Value t = soft_50_moves_translation(alpha, st, pos);
 
           value = newDepth <   ONE_PLY ?
                             givesCheck ? -qsearch<NonPV,  true>(pos, ss+1, -(alpha+t+1), -(alpha+t), DEPTH_ZERO)
                                        : -qsearch<NonPV, false>(pos, ss+1, -(alpha+t+1), -(alpha+t), DEPTH_ZERO)
                                        : - search<NonPV, false>(pos, ss+1, -(alpha+t+1), -(alpha+t), newDepth, !cutNode);
 
-          if (value <= alpha + t)  value -= 2*t;
+          if (t > 0 && value <= alpha + t)  value -= (t + 5);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
@@ -879,14 +881,14 @@ moves_loop: // When in check and at SpNode search starts from here
           pv.pv[0] = MOVE_NONE;
           (ss+1)->pv = &pv;
 
-          Value t = soft_50_moves_translation(alpha, st);
+          Value t = soft_50_moves_translation(alpha, st, pos);
 
           value = newDepth <   ONE_PLY ?
                             givesCheck ? -qsearch<PV,  true>(pos, ss+1, -(beta+t), -(alpha+t), DEPTH_ZERO)
                                        : -qsearch<PV, false>(pos, ss+1, -(beta+t), -(alpha+t), DEPTH_ZERO)
                                        : - search<PV, false>(pos, ss+1, -(beta+t), -(alpha+t), newDepth, false);
 
-          if (value <= alpha + t)  value -= 2*t;
+          if (t > 0 && value <= alpha + t)  value -= (t + 5);
       }
 
       // Step 17. Undo move
@@ -1184,12 +1186,12 @@ moves_loop: // When in check and at SpNode search starts from here
       // Make and search the move
       pos.do_move(move, st, ci, givesCheck);
 
-      Value t = soft_50_moves_translation(alpha, st);
+      Value t = soft_50_moves_translation(alpha, st, pos);
 
       value = givesCheck ? -qsearch<NT,  true>(pos, ss+1, -(beta+t), -(alpha+t), depth - ONE_PLY)
                          : -qsearch<NT, false>(pos, ss+1, -(beta+t), -(alpha+t), depth - ONE_PLY);
 
-      if (value <= alpha + t)  value -= 2*t;
+      if (t > 0 && value <= alpha + t)  value -= (t + 5);
 
       pos.undo_move(move);
 
