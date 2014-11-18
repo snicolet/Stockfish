@@ -871,7 +871,7 @@ moves_loop: // When in check and at SpNode search starts from here
                                        : -qsearch<NonPV, false>(pos, ss+1, -(alpha+t+1), -(alpha+t), DEPTH_ZERO)
                                        : - search<NonPV, false>(pos, ss+1, -(alpha+t+1), -(alpha+t), newDepth, !cutNode);
 
-          if (t > 0 && value <= alpha + t)  value -= (t + 5);
+          if (t > 0 && value <= alpha + t)  value -= (t + 0);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
@@ -888,7 +888,7 @@ moves_loop: // When in check and at SpNode search starts from here
                                        : -qsearch<PV, false>(pos, ss+1, -(beta+t), -(alpha+t), DEPTH_ZERO)
                                        : - search<PV, false>(pos, ss+1, -(beta+t), -(alpha+t), newDepth, false);
 
-          if (t > 0 && value <= alpha + t)  value -= (t + 5);
+          if (t > 0 && value <= alpha + t)  value -= (t + 0);
       }
 
       // Step 17. Undo move
@@ -1191,7 +1191,7 @@ moves_loop: // When in check and at SpNode search starts from here
       value = givesCheck ? -qsearch<NT,  true>(pos, ss+1, -(beta+t), -(alpha+t), depth - ONE_PLY)
                          : -qsearch<NT, false>(pos, ss+1, -(beta+t), -(alpha+t), depth - ONE_PLY);
 
-      if (t > 0 && value <= alpha + t)  value -= (t + 5);
+      if (t > 0 && value <= alpha + t)  value -= (t + 0);
 
       pos.undo_move(move);
 
