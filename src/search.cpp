@@ -74,11 +74,13 @@ namespace {
   // Soft 50 moves rule : instead of returning VALUE_DRAW abruptly after 50 moves,
   // we shift the alpha-beta window slowly after 10 moves or more of piece shuffling.
   inline Value soft_50_moves_shift(Value alpha, const StateInfo& st, const Position& pos) {
-    //return (alpha > VALUE_DRAW + 30  &&  st.rule50 > 19 && pos.side_to_move() == RootColor) ?
-    
-    return (alpha > VALUE_DRAW + 30  &&  st.rule50 > 19 && pos.side_to_move() == RootColor) ?
-    
+    return (alpha > VALUE_DRAW + 30  &&  st.rule50 > 19 && pos.side_to_move() != RootColor) ?
              Value(2)  :  Value(0);
+  }
+
+  // Soft 50 moves rule : shift back the returned value
+  inline Value soft_50_moves_unshift(Value alpha, Value value, Value t) {
+    return std::max(alpha - 10 , value - t - 5);
   }
 
   size_t PVIdx;
@@ -876,7 +878,8 @@ moves_loop: // When in check and at SpNode search starts from here
                                        : -qsearch<NonPV, false>(pos, ss+1, -(alpha+t+1), -(alpha+t), DEPTH_ZERO)
                                        : - search<NonPV, false>(pos, ss+1, -(alpha+t+1), -(alpha+t), newDepth, !cutNode);
 
-          if (t > 0 && value <= alpha + t)  value -= (t + 1);
+          if (t > 0 && value <= alpha + t)  
+             value = soft_50_moves_unshift(alpha, value, t);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
@@ -893,7 +896,8 @@ moves_loop: // When in check and at SpNode search starts from here
                                        : -qsearch<PV, false>(pos, ss+1, -(beta+t), -(alpha+t), DEPTH_ZERO)
                                        : - search<PV, false>(pos, ss+1, -(beta+t), -(alpha+t), newDepth, false);
 
-          if (t > 0 && value <= alpha + t)  value -= (t + 1);
+          if (t > 0 && value <= alpha + t)  
+             value = soft_50_moves_unshift(alpha, value, t);
       }
 
       // Step 17. Undo move
@@ -1196,7 +1200,8 @@ moves_loop: // When in check and at SpNode search starts from here
       value = givesCheck ? -qsearch<NT,  true>(pos, ss+1, -(beta+t), -(alpha+t), depth - ONE_PLY)
                          : -qsearch<NT, false>(pos, ss+1, -(beta+t), -(alpha+t), depth - ONE_PLY);
 
-      if (t > 0 && value <= alpha + t)  value -= (t + 1);
+      if (t > 0 && value <= alpha + t)  
+         value = soft_50_moves_unshift(alpha, value, t);
 
       pos.undo_move(move);
 
