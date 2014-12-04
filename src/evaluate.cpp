@@ -220,7 +220,7 @@ namespace {
     ei.attackedBy[Us][ALL_PIECES] = ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
 
     // Init king safety tables only if we are going to use them
-    if (pos.non_pawn_material(Us) >= QueenValueMg)
+    if (pos.non_pawn_material(Us) >= QueenValue)
     {
         ei.kingRing[Them] = b | shift_bb<Down>(b);
         b &= ei.attackedBy[Us][PAWN];
@@ -761,8 +761,8 @@ namespace {
         {
             // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
             // is almost a draw, in case of KBP vs KB is even more a draw.
-            if (   pos.non_pawn_material(WHITE) == BishopValueMg
-                && pos.non_pawn_material(BLACK) == BishopValueMg)
+            if (   pos.non_pawn_material(WHITE) == BishopValue
+                && pos.non_pawn_material(BLACK) == BishopValue)
                 sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(32) : ScaleFactor(8);
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
@@ -772,7 +772,7 @@ namespace {
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
-        else if (    abs(eg_value(score)) <= BishopValueEg
+        else if (    abs(eg_value(score)) <= BishopValue
                  &&  ei.pi->pawn_span(strongSide) <= 1
                  && !pos.pawn_passed(~strongSide, pos.king_square(~strongSide)))
                  sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(56) : ScaleFactor(38);
@@ -806,7 +806,7 @@ namespace {
 
   // Tracing function definitions
 
-  double Tracing::to_cp(Value v) { return double(v) / PawnValueEg; }
+  double Tracing::to_cp(Value v) { return double(v) / PawnValue; }
 
   void Tracing::write(int idx, Color c, Score s) { scores[c][idx] = s; }
 

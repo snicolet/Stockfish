@@ -125,7 +125,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, const HistoryStats& h, Piece
 
   // In ProbCut we generate only captures that are better than the parent's
   // captured piece.
-  captureThreshold = PieceValue[MG][pt];
+  captureThreshold = PieceValue[pt];
   ttMove = (ttm && pos.pseudo_legal(ttm) ? ttm : MOVE_NONE);
 
   if (ttMove && (!pos.capture(ttMove) || pos.see(ttMove) <= captureThreshold))
@@ -157,14 +157,14 @@ void MovePicker::score<CAPTURES>() {
   for (ExtMove* it = moves; it != end; ++it)
   {
       m = it->move;
-      it->value =  PieceValue[MG][pos.piece_on(to_sq(m))]
+      it->value =  PieceValue[pos.piece_on(to_sq(m))]
                  - Value(type_of(pos.moved_piece(m)));
 
       if (type_of(m) == ENPASSANT)
-          it->value += PieceValue[MG][PAWN];
+          it->value += PieceValue[PAWN];
 
       else if (type_of(m) == PROMOTION)
-          it->value += PieceValue[MG][promotion_type(m)] - PieceValue[MG][PAWN];
+          it->value += PieceValue[promotion_type(m)] - PieceValue[PAWN];
   }
 }
 
@@ -195,7 +195,7 @@ void MovePicker::score<EVASIONS>() {
           it->value = see - HistoryStats::Max; // At the bottom
 
       else if (pos.capture(m))
-          it->value =  PieceValue[MG][pos.piece_on(to_sq(m))]
+          it->value =  PieceValue[pos.piece_on(to_sq(m))]
                      - Value(type_of(pos.moved_piece(m))) + HistoryStats::Max;
       else
           it->value = history[pos.moved_piece(m)][to_sq(m)];

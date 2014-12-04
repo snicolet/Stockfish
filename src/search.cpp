@@ -191,7 +191,7 @@ void Search::think() {
   TBHits = TBCardinality = 0;
   RootInTB = false;
 
-  int cf = Options["Contempt"] * PawnValueEg / 100; // From centipawns
+  int cf = Options["Contempt"] * PawnValue / 100; // From centipawns
   DrawValue[ RootPos.side_to_move()] = VALUE_DRAW - Value(cf);
   DrawValue[~RootPos.side_to_move()] = VALUE_DRAW + Value(cf);
 
@@ -656,7 +656,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (3 + depth / 4 + std::min((eval - beta) / PawnValueMg, 3)) * ONE_PLY;
+        Depth R = (3 + depth / 4 + std::min((eval - beta) / PawnValue, 3)) * ONE_PLY;
 
         pos.do_null_move(st);
         (ss+1)->skipNullMove = true;
@@ -1225,7 +1225,7 @@ moves_loop: // When in check and at SpNode search starts from here
       {
           assert(type_of(move) != ENPASSANT); // Due to !pos.advanced_pawn_push
 
-          futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
+          futilityValue = futilityBase + PieceValue[pos.piece_on(to_sq(move))];
 
           if (futilityValue < beta)
           {
@@ -1392,7 +1392,7 @@ moves_loop: // When in check and at SpNode search starts from here
         rk.rand<unsigned>();
 
     // RootMoves are already sorted by score in descending order
-    int variance = std::min(RootMoves[0].score - RootMoves[candidates - 1].score, PawnValueMg);
+    int variance = std::min(RootMoves[0].score - RootMoves[candidates - 1].score, PawnValue);
     int weakness = 120 - 2 * level;
     int max_s = -VALUE_INFINITE;
     best = MOVE_NONE;
@@ -1405,7 +1405,7 @@ moves_loop: // When in check and at SpNode search starts from here
         int s = RootMoves[i].score;
 
         // Don't allow crazy blunders even at very low skills
-        if (i > 0 && RootMoves[i - 1].score > s + 2 * PawnValueMg)
+        if (i > 0 && RootMoves[i - 1].score > s + 2 * PawnValue)
             break;
 
         // This is our magic formula

@@ -181,11 +181,11 @@ enum Value {
   VALUE_ENSURE_INTEGER_SIZE_P = INT_MAX,
   VALUE_ENSURE_INTEGER_SIZE_N = INT_MIN,
 
-  PawnValueMg   = 198,   PawnValueEg   = 258,
-  KnightValueMg = 817,   KnightValueEg = 846,
-  BishopValueMg = 836,   BishopValueEg = 857,
-  RookValueMg   = 1270,  RookValueEg   = 1278,
-  QueenValueMg  = 2521,  QueenValueEg  = 2558,
+  PawnValue   = 228,
+  KnightValue = 831,
+  BishopValue = 847,
+  RookValue   = 1274,
+  QueenValue  = 2540,
 
   MidgameLimit  = 15581, EndgameLimit  = 3998
 };
@@ -322,7 +322,7 @@ inline Score operator/(Score s, int i) {
   return make_score(mg_value(s) / i, eg_value(s) / i);
 }
 
-extern Value PieceValue[PHASE_NB][PIECE_NB];
+extern Value PieceValue[PIECE_NB];
 
 struct ExtMove {
   Move move;

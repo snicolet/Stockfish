@@ -67,11 +67,11 @@ namespace {
   template<Color Us> bool is_KXK(const Position& pos) {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     return  !more_than_one(pos.pieces(Them))
-          && pos.non_pawn_material(Us) >= RookValueMg;
+          && pos.non_pawn_material(Us) >= RookValue;
   }
 
   template<Color Us> bool is_KBPsKs(const Position& pos) {
-    return   pos.non_pawn_material(Us) == BishopValueMg
+    return   pos.non_pawn_material(Us) == BishopValue
           && pos.count<BISHOP>(Us) == 1
           && pos.count<PAWN  >(Us) >= 1;
   }
@@ -79,7 +79,7 @@ namespace {
   template<Color Us> bool is_KQKRPs(const Position& pos) {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     return  !pos.count<PAWN>(Us)
-          && pos.non_pawn_material(Us) == QueenValueMg
+          && pos.non_pawn_material(Us) == QueenValue
           && pos.count<QUEEN>(Us)  == 1
           && pos.count<ROOK>(Them) == 1
           && pos.count<PAWN>(Them) >= 1;
@@ -211,20 +211,20 @@ Entry* probe(const Position& pos, Table& entries, Endgames& endgames) {
   // No pawns makes it difficult to win, even with a material advantage. This
   // catches some trivial draws like KK, KBK and KNK and gives a very drawish
   // scale factor for cases such as KRKBP and KmmKm (except for KBBKN).
-  if (!pos.count<PAWN>(WHITE) && npm_w - npm_b <= BishopValueMg)
-      e->factor[WHITE] = uint8_t(npm_w < RookValueMg ? SCALE_FACTOR_DRAW : npm_b <= BishopValueMg ? 4 : 12);
+  if (!pos.count<PAWN>(WHITE) && npm_w - npm_b <= BishopValue)
+      e->factor[WHITE] = uint8_t(npm_w < RookValue ? SCALE_FACTOR_DRAW : npm_b <= BishopValue ? 4 : 12);
 
-  if (!pos.count<PAWN>(BLACK) && npm_b - npm_w <= BishopValueMg)
-      e->factor[BLACK] = uint8_t(npm_b < RookValueMg ? SCALE_FACTOR_DRAW : npm_w <= BishopValueMg ? 4 : 12);
+  if (!pos.count<PAWN>(BLACK) && npm_b - npm_w <= BishopValue)
+      e->factor[BLACK] = uint8_t(npm_b < RookValue ? SCALE_FACTOR_DRAW : npm_w <= BishopValue ? 4 : 12);
 
-  if (pos.count<PAWN>(WHITE) == 1 && npm_w - npm_b <= BishopValueMg)
+  if (pos.count<PAWN>(WHITE) == 1 && npm_w - npm_b <= BishopValue)
       e->factor[WHITE] = (uint8_t) SCALE_FACTOR_ONEPAWN;
 
-  if (pos.count<PAWN>(BLACK) == 1 && npm_b - npm_w <= BishopValueMg)
+  if (pos.count<PAWN>(BLACK) == 1 && npm_b - npm_w <= BishopValue)
       e->factor[BLACK] = (uint8_t) SCALE_FACTOR_ONEPAWN;
 
   // Compute the space weight
-  if (npm_w + npm_b >= 2 * QueenValueMg + 4 * RookValueMg + 2 * KnightValueMg)
+  if (npm_w + npm_b >= 2 * QueenValue + 4 * RookValue + 2 * KnightValue)
   {
       int minorPieceCount =  pos.count<KNIGHT>(WHITE) + pos.count<BISHOP>(WHITE)
                            + pos.count<KNIGHT>(BLACK) + pos.count<BISHOP>(BLACK);

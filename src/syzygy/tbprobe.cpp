@@ -732,11 +732,11 @@ bool Tablebases::root_probe(Position& pos, Value& TBScore)
   TBScore = wdl_to_Value[wdl + 2];
   // If the position is winning or losing, but too few moves left, adjust the
   // score to show how close it is to winning or losing.
-  // NOTE: int(PawnValueEg) is used as scaling factor in score_to_uci().
+  // NOTE: int(PawnValue) is used as scaling factor in score_to_uci().
   if (wdl == 1 && dtz <= 100)
-    TBScore = (Value)(((200 - dtz - cnt50) * int(PawnValueEg)) / 200);
+    TBScore = (Value)(((200 - dtz - cnt50) * int(PawnValue)) / 200);
   else if (wdl == -1 && dtz >= -100)
-    TBScore = -(Value)(((200 + dtz - cnt50) * int(PawnValueEg)) / 200);
+    TBScore = -(Value)(((200 + dtz - cnt50) * int(PawnValue)) / 200);
 
   // Now be a bit smart about filtering out moves.
   size_t j = 0;
