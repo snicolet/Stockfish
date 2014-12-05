@@ -32,7 +32,29 @@ using std::string;
 
 UCI::OptionsMap Options; // Global object
 
+Value PawnValue;
+Value KnightValue;
+Value BishopValue;
+Value RookValue;    
+Value QueenValue;
+
 namespace UCI {
+
+void on_eval(const Option&) {
+
+    PawnValue   = Value(int(Options["pawnvalue"]));
+    KnightValue = Value(int(Options["knightvalue"]));
+    BishopValue = Value(int(Options["bishopvalue"]));
+    RookValue   = Value(int(Options["rookvalue"]));
+    QueenValue  = Value(2540);
+    
+    PieceValue[PAWN]   = PawnValue;
+    PieceValue[KNIGHT] = KnightValue;
+    PieceValue[BISHOP] = BishopValue;
+    PieceValue[ROOK]   = RookValue;
+    PieceValue[QUEEN]  = QueenValue;
+    
+}
 
 /// 'On change' actions, triggered by an option's value change
 void on_clear_hash(const Option&) { TT.clear(); }
@@ -71,6 +93,14 @@ void init(OptionsMap& o) {
   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(6, 0, 6);
+  
+  o["pawnvalue"]      << Option(228, 100, 400, on_eval);
+  o["knightvalue"]    << Option(831, 600, 1000, on_eval);
+  o["bishopvalue"]    << Option(847, 600, 1000, on_eval);
+  o["rookvalue"]      << Option(1274, 1000, 1500, on_eval);
+  
+  on_eval(o["rookvalue"]);
+  
 }
 
 
