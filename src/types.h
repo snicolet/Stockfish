@@ -181,14 +181,14 @@ enum Value {
   VALUE_ENSURE_INTEGER_SIZE_P = INT_MAX,
   VALUE_ENSURE_INTEGER_SIZE_N = INT_MIN,
 
+  PawnValue   = 215,
+  KnightValue = 820,
+  BishopValue = 849,
+  RookValue   = 1264,
+  QueenValue  = 2540,
+
   MidgameLimit  = 15581, EndgameLimit  = 3998
 };
-
-extern Value PawnValue;
-extern Value KnightValue;
-extern Value BishopValue;
-extern Value RookValue;
-extern Value QueenValue;
 
 enum PieceType {
   NO_PIECE_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING,
