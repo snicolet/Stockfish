@@ -41,6 +41,7 @@ namespace Search {
   LimitsType Limits;
   std::vector<RootMove> RootMoves;
   Position RootPos;
+  Color RootColor;
   Time::point SearchTime;
   StateStackPtr SetupStates;
   int TBCardinality;
@@ -76,6 +77,35 @@ namespace {
   template <bool PvNode> inline Depth reduction(bool i, Depth d, int mn) {
     return (Depth) Reductions[PvNode][i][std::min(int(d), 63)][std::min(mn, 63)];
   }
+
+  // Soft 50 moves rule : instead of returning VALUE_DRAW abruptly after 50 moves,
+  // we shift the alpha-beta window slowly after 10 moves or more of piece shuffling.
+  inline Value soft_50_moves_shift(const Position& pos, Value alpha, const StateInfo& st) {
+    //return (alpha > VALUE_DRAW + 30  &&  st.rule50 > 19 && pos.side_to_move() == RootColor) ? 
+   return (alpha > VALUE_DRAW + 40  &&  st.rule50 > 19) ? 
+               Value(2) : Value(0);
+  }
+
+/*
+  // Soft 50 moves rule : shift back the returned value
+  inline Value soft_50_moves_unshift(const Position& pos, Value alpha, Value value, Value t) {
+    return  value - t - 2;
+  }
+*/
+  
+  inline Value soft_50_moves_unshift(const Position& pos, Value alpha, Value value, Value t) {
+   // return std::max( value - t - 2, alpha - 12 );
+   // return alpha - 10;
+      return value - t;
+   // return  std::max( value - t - 2 , alpha - 12 );
+   /* if (pos.side_to_move() == RootColor)
+       return  std::max( value - t - 5 , alpha - 10 );
+       // return  std::max( value - t - 5 , alpha - 10 );
+    else
+        return  std::max( value - t - 5 , alpha - 10 );
+    */
+  }
+  
 
   size_t PVIdx;
   TimeManager TimeMgr;
@@ -194,6 +224,8 @@ void Search::think() {
   int cf = Options["Contempt"] * PawnValueEg / 100; // From centipawns
   DrawValue[ RootPos.side_to_move()] = VALUE_DRAW - Value(cf);
   DrawValue[~RootPos.side_to_move()] = VALUE_DRAW + Value(cf);
+  
+  RootColor = RootPos.side_to_move();
 
   if (RootMoves.empty())
   {
@@ -951,10 +983,15 @@ moves_loop: // When in check and at SpNode search starts from here
           if (SpNode)
               alpha = splitPoint->alpha;
 
+          Value t = soft_50_moves_shift(pos, alpha, st);
+
           value = newDepth <   ONE_PLY ?
-                            givesCheck ? -qsearch<NonPV,  true>(pos, ss+1, -(alpha+1), -alpha, DEPTH_ZERO)
-                                       : -qsearch<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, DEPTH_ZERO)
-                                       : - search<NonPV, false>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+                            givesCheck ? -qsearch<NonPV,  true>(pos, ss+1, -(alpha+t+1), -(alpha+t), DEPTH_ZERO)
+                                       : -qsearch<NonPV, false>(pos, ss+1, -(alpha+t+1), -(alpha+t), DEPTH_ZERO)
+                                       : - search<NonPV, false>(pos, ss+1, -(alpha+t+1), -(alpha+t), newDepth, !cutNode);
+
+          if (t > 0 && value <= alpha + t)  
+             value = soft_50_moves_unshift(pos, alpha, value, t);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
@@ -965,10 +1002,15 @@ moves_loop: // When in check and at SpNode search starts from here
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
+          Value t = soft_50_moves_shift(pos, alpha, st);
+
           value = newDepth <   ONE_PLY ?
-                            givesCheck ? -qsearch<PV,  true>(pos, ss+1, -beta, -alpha, DEPTH_ZERO)
-                                       : -qsearch<PV, false>(pos, ss+1, -beta, -alpha, DEPTH_ZERO)
-                                       : - search<PV, false>(pos, ss+1, -beta, -alpha, newDepth, false);
+                            givesCheck ? -qsearch<PV,  true>(pos, ss+1, -(beta+t), -(alpha+t), DEPTH_ZERO)
+                                       : -qsearch<PV, false>(pos, ss+1, -(beta+t), -(alpha+t), DEPTH_ZERO)
+                                       : - search<PV, false>(pos, ss+1, -(beta+t), -(alpha+t), newDepth, false);
+
+          if (t > 0 && value <= alpha + t)  
+             value = soft_50_moves_unshift(pos, alpha, value, t);
       }
 
       // Step 17. Undo move
@@ -1264,8 +1306,17 @@ moves_loop: // When in check and at SpNode search starts from here
 
       // Make and search the move
       pos.do_move(move, st, ci, givesCheck);
-      value = givesCheck ? -qsearch<NT,  true>(pos, ss+1, -beta, -alpha, depth - ONE_PLY)
-                         : -qsearch<NT, false>(pos, ss+1, -beta, -alpha, depth - ONE_PLY);
+
+      //Value t = soft_50_moves_shift(pos, alpha, st);
+      
+      Value t = Value(0);
+
+      value = givesCheck ? -qsearch<NT,  true>(pos, ss+1, -(beta+t), -(alpha+t), depth - ONE_PLY)
+                         : -qsearch<NT, false>(pos, ss+1, -(beta+t), -(alpha+t), depth - ONE_PLY);
+
+      //if (t > 0 && value <= alpha + t)  
+      //   value = soft_50_moves_unshift(pos, alpha, value, t);
+
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
