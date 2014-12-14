@@ -145,7 +145,7 @@ void Search::init() {
 
           // Increase reduction when eval is not improving
           if (Reductions[0][0][d][mc] >= 2)
-              Reductions[0][0][d][mc] += 1;
+              Reductions[0][0][d][mc] += 2;
       }
 
   // Init futility move count array
@@ -737,7 +737,7 @@ moves_loop: // When in check and at SpNode search starts from here
     MovePicker mp(pos, ttMove, depth, History, countermoves, followupmoves, ss);
     CheckInfo ci(pos);
     value = bestValue; // Workaround a bogus 'uninitialized' warning under gcc
-    improving =   ss->staticEval >= (ss-2)->staticEval
+    improving =   ss->staticEval >= (ss-2)->staticEval + 2
                || ss->staticEval == VALUE_NONE
                ||(ss-2)->staticEval == VALUE_NONE;
 
