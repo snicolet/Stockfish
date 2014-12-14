@@ -134,8 +134,8 @@ void Search::init() {
   for (int d = 1; d < 64; ++d)
       for (int mc = 1; mc < 64; ++mc)
       {
-          double    pvRed = 0.00 + log(double(d)) * log(double(mc)) / 3.00;
-          double nonPVRed = 0.33 + log(double(d)) * log(double(mc)) / 2.25;
+          double    pvRed = 0.00 + log(double(d)) * log(double(mc)) / 3.25;
+          double nonPVRed = 0.33 + log(double(d)) * log(double(mc)) / 2.50;
 
           Reductions[1][1][d][mc] = int8_t(   pvRed >= 1.0 ?    pvRed + 0.5: 0);
           Reductions[0][1][d][mc] = int8_t(nonPVRed >= 1.0 ? nonPVRed + 0.5: 0);
