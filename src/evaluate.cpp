@@ -163,6 +163,7 @@ namespace {
   const Score Unstoppable        = S( 0, 20);
   const Score Hanging            = S(31, 26);
   const Score PawnAttackThreat   = S(20, 20);
+  const Score PieceSupportThreat = S(20, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -503,7 +504,7 @@ namespace {
     enum { Defended, Weak };
     enum { Minor, Major };
 
-    Bitboard b, weak, defended;
+    Bitboard b, c, weak, defended;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies defended by a pawn
@@ -547,7 +548,7 @@ namespace {
             score += more_than_one(b) ? KingOnMany : KingOnOne;
     }
 
-    // Add bonus for safe pawn pushes which attacks an enemy piece
+    // Add bonus for safe pawn pushes...
     b = pos.pieces(Us, PAWN) & ~TRank7BB;
     b = shift_bb<Up>(b | (shift_bb<Up>(b & TRank2BB) & ~pos.pieces()));
 
@@ -556,11 +557,20 @@ namespace {
         & (ei.attackedBy[Us][PAWN] | ~ei.attackedBy[Them][ALL_PIECES]);
 
     b =  (shift_bb<Left>(b) | shift_bb<Right>(b))
-       &  pos.pieces(Them)
        & ~ei.attackedBy[Us][PAWN];
 
-    if(b)
-        score += popcount<Max15>(b) * PawnAttackThreat;
+    // ...attacking an enemy piece?
+    c = b & pos.pieces(Them);
+    if (c)
+        score += popcount<Max15>(c) * PawnAttackThreat;
+
+    // ...protecting one of our (centralized) pieces?
+    c = b & (pos.pieces(Us));
+    while (c)
+    {
+        Value v = Value(15) + Outpost[1][relative_square(Us, pop_lsb(&c))] / 2;
+        score += make_score(v , v);
+    }
 
     if (Trace)
         Tracing::write(Tracing::THREAT, Us, score);
