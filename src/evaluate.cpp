@@ -163,7 +163,6 @@ namespace {
   const Score Unstoppable        = S( 0, 20);
   const Score Hanging            = S(31, 26);
   const Score PawnAttackThreat   = S(20, 20);
-  const Score PieceSupportThreat = S(20, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -568,7 +567,7 @@ namespace {
     c = b & (pos.pieces(Us));
     while (c)
     {
-        Value v = Value(15) + Outpost[1][relative_square(Us, pop_lsb(&c))] / 2;
+        Value v = Value(5) + Outpost[1][relative_square(Us, pop_lsb(&c))] / 2;
         score += make_score(v , v);
     }
 
