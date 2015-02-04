@@ -564,7 +564,7 @@ namespace {
         score += popcount<Max15>(c) * PawnAttackThreat;
 
     // ...protecting one of our (centralized) pieces?
-    c = b & (pos.pieces(Us));
+    c = b & (pos.pieces(Us) & ~pos.pieces(Us, PAWN));
     while (c)
     {
         Value v = Value(5) + Outpost[1][relative_square(Us, pop_lsb(&c))] / 2;
