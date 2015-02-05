@@ -60,6 +60,9 @@ namespace {
 
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
+  
+  // Connected passed pawn bonus
+  const Score ConnectedPassedPawnBonus = S(20, 20);
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
@@ -170,7 +173,11 @@ namespace {
         // full attack info to evaluate passed pawns. Only the frontmost passed
         // pawn on each file is considered a true passed pawn.
         if (passed && !doubled)
-            e->passedPawns[Us] |= s;
+        {
+        	e->passedPawns[Us] |= s;
+        	if (connected)
+        		score += ConnectedPassedPawnBonus;
+        }
 
         // Score this pawn
         if (isolated)
