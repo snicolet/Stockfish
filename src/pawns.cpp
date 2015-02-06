@@ -169,12 +169,8 @@ namespace {
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate passed pawns. Only the frontmost passed
         // pawn on each file is considered a true passed pawn.
-        if (passed && !doubled)
-        {
-        	e->passedPawns[Us] |= s;
-        	if (connected)
-        		score += ConnectedPassedPawnBonus;
-        }
+        if (passed && !doubled) 
+            e->passedPawns[Us] |= s; 
 
         // Score this pawn
         if (isolated)
@@ -219,7 +215,7 @@ void init()
           for (Rank r = RANK_2; r < RANK_8; ++r)
           {
               int bonus = Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0);
-              Connected[opposed][phalanx][r] = make_score(bonus / 2, bonus >> opposed);
+              Connected[opposed][phalanx][r] = make_score( bonus , (bonus >> opposed) / 2 );
           }
 }
 
