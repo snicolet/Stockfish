@@ -25,6 +25,7 @@
 #include "pawns.h"
 #include "position.h"
 #include "thread.h"
+#include "uci.h"  // for SPSA
 
 namespace {
 
@@ -209,13 +210,16 @@ namespace Pawns {
 void init()
 {
   static const int Seed[RANK_NB] = { 0, 6, 15, 10, 57, 75, 135, 258 };
+  
+  int a = int(Options["connected_pawns_weight_mg"]);  // for SPSA
+  int b = int(Options["connected_pawns_weight_eg"]);  // for SPSA
 
   for (int opposed = 0; opposed <= 1; ++opposed)
       for (int phalanx = 0; phalanx <= 1; ++phalanx)
           for (Rank r = RANK_2; r < RANK_8; ++r)
           {
               int bonus = Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0);
-              Connected[opposed][phalanx][r] = make_score(bonus / 2, bonus >> opposed);
+              Connected[opposed][phalanx][r] = make_score( (a * bonus) / 120 , (b * (bonus >> opposed)) / 120 );
           }
 }
 
