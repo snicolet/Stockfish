@@ -220,14 +220,14 @@ namespace Pawns {
 
 void init()
 {
-  static const int Seed[RANK_NB] = { 0, 6, 15, 10, 57, 75, 135, 258 };
+  static const int Seed[RANK_NB] = { 0, 3, 8, 5, 29, 38, 68, 129 };
 
   for (int opposed = 0; opposed <= 1; ++opposed)
       for (int phalanx = 0; phalanx <= 1; ++phalanx)
           for (Rank r = RANK_2; r < RANK_8; ++r)
           {
               int bonus = Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0);
-              Connected[opposed][phalanx][r] = make_score(bonus / 2, bonus >> opposed);
+              Connected[opposed][phalanx][r] = make_score(bonus , bonus >> opposed);
           }
 }
 
