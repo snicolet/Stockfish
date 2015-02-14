@@ -565,10 +565,10 @@ namespace {
     if (b)
         score += popcount<Max15>(b) * PawnAttackThreat;
 
-    // Add bonus for threatening piece domination
-    b =   ~pos.pieces() & ei.attackedBy[Them][ALL_PIECES];
-    b &=   ei.attackedBy[Us][PAWN]
-        | (ei.attackedBy[Us][ALL_PIECES] & ~ei.attackedBy[Them][PAWN]);
+    // Add bonus for piece domination
+    b =  ~pos.pieces() 
+        & ei.attackedBy[Them][ALL_PIECES]
+        & ei.attackedBy[Us][PAWN];
     if (b)
         score += popcount<Full>(b) * SquareControl;
 
