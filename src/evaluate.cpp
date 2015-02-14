@@ -566,7 +566,7 @@ namespace {
         score += popcount<Max15>(b) * PawnAttackThreat;
 
     // Add bonus for piece domination
-    b =  ~pos.pieces() 
+    b =  (~pos.pieces() | pos.pieces(Them))
         & ei.attackedBy[Them][ALL_PIECES]
         & ei.attackedBy[Us][PAWN];
     if (b)
