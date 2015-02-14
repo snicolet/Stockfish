@@ -164,7 +164,7 @@ namespace {
   const Score Hanging            = S(31, 26);
   const Score PawnAttackThreat   = S(20, 20);
   const Score PawnSafePush       = S( 5,  5);
-  const Score SquareControl      = S( 5,  5);
+  const Score SquareControl      = S( 5, 10);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -566,10 +566,9 @@ namespace {
         score += popcount<Max15>(b) * PawnAttackThreat;
 
     // Add bonus for threatening piece domination
-    b =   ~pos.pieces()
-        &  ei.attackedBy[Them][ALL_PIECES]
-        & ~ei.attackedBy[Them][PAWN] 
-        & (ei.attackedBy[Us][PAWN] | ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
+    b =   ~pos.pieces() & ei.attackedBy[Them][ALL_PIECES];
+    b &=   ei.attackedBy[Us][PAWN]
+        | (ei.attackedBy[Us][ALL_PIECES] & ~ei.attackedBy[Them][PAWN]);
     if (b)
         score += popcount<Full>(b) * SquareControl;
 
