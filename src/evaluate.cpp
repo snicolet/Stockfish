@@ -163,6 +163,7 @@ namespace {
   const Score Unstoppable        = S( 0, 20);
   const Score Hanging            = S(31, 26);
   const Score PawnAttackThreat   = S(20, 20);
+  const Score PawnSupportThreat  = S(10, 10);
   const Score PawnSafePush       = S( 5 , 5);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -180,6 +181,13 @@ namespace {
   const Bitboard SpaceMask[] = {
     (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank2BB | Rank3BB | Rank4BB),
     (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB)
+  };
+  
+  // PawnSupportMask[Color] contains the area where we get a bonus when one
+  // of our pieces gets pawn support.
+  const Bitboard PawnSupportMask[COLOR_NB] = {
+    (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank5BB | Rank6BB | Rank7BB | Rank8BB),
+    (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank4BB | Rank3BB | Rank2BB | Rank1BB)
   };
 
   // King danger constants and variables. The king danger scores are looked-up
@@ -504,7 +512,7 @@ namespace {
     enum { Defended, Weak };
     enum { Minor, Major };
 
-    Bitboard b, weak, defended;
+    Bitboard b, c, weak, defended;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies defended by a pawn
@@ -559,13 +567,17 @@ namespace {
     if (b)
         score += popcount<Full>(b) * PawnSafePush;
 
-    // Add another bonus if the pawn push attacks an enemy piece
+    // Add another bonus if the pawn push attacks an enemy piece or protects a friend piece
     b =  (shift_bb<Left>(b) | shift_bb<Right>(b))
-       &  pos.pieces(Them)
        & ~ei.attackedBy[Us][PAWN];
 
-    if (b)
-        score += popcount<Max15>(b) * PawnAttackThreat;
+	c = b & pos.pieces(Them);
+    if (c)
+        score += popcount<Max15>(c) * PawnAttackThreat;
+    
+    c = b & pos.pieces(Us) & PawnSupportMask[Us];
+    if (c)
+        score += popcount<Max15>(c) * PawnSupportThreat;
 
     if (Trace)
         Tracing::write(Tracing::THREAT, Us, score);
