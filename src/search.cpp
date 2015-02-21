@@ -467,6 +467,7 @@ namespace {
     bool ttHit, inCheck, givesCheck, singularExtensionNode, improving;
     bool captureOrPromotion, dangerous, doFullDepthSearch;
     int moveCount, quietCount;
+    double cutProbability = 0.5;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -600,6 +601,13 @@ namespace {
 
         tte->save(posKey, VALUE_NONE, BOUND_NONE, DEPTH_NONE, MOVE_NONE, ss->staticEval, TT.generation());
     }
+
+    // Estimate heuristically the CUT/ALL status of the node
+    if (   abs(beta) < VALUE_MATE_IN_MAX_PLY
+       &&  abs(eval) < VALUE_MATE_IN_MAX_PLY )
+        cutProbability = (eval >= beta + 150) ? 0.95 :
+                         (eval <= beta - 150) ? 0.05 :
+                                                0.50 ;
 
     if (ss->skipEarlyPruning)
         goto moves_loop;
@@ -1045,7 +1053,9 @@ moves_loop: // When in check and at SpNode search starts from here
                || !thisThread->activeSplitPoint->allSlavesSearching
                || (   Threads.size() > MAX_SLAVES_PER_SPLITPOINT
                    && thisThread->activeSplitPoint->slavesMask.count() == MAX_SLAVES_PER_SPLITPOINT))
-          &&  thisThread->splitPointsSize < MAX_SPLITPOINTS_PER_THREAD)
+          &&  thisThread->splitPointsSize < MAX_SPLITPOINTS_PER_THREAD
+          &&  (cutProbability <= 0.75 || moveCount >= 4)
+          )
       {
           assert(bestValue > -VALUE_INFINITE && bestValue < beta);
 

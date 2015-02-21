@@ -319,7 +319,7 @@ void ThreadPool::read_uci_options() {
 
   // If zero (default) then set best minimum split depth automatically
   if (!minimumSplitDepth)
-      minimumSplitDepth = requested < 8 ? 4 * ONE_PLY : 7 * ONE_PLY;
+      minimumSplitDepth = requested < 8 ? 6 * ONE_PLY : 9 * ONE_PLY;
 
   while (size() < requested)
       push_back(new_thread<Thread>());
