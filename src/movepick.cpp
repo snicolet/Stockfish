@@ -186,7 +186,7 @@ void MovePicker::score<QUIETS>() {
 
           p.do_move(m, st, p.gives_check(m, ci));
           Value v = -Eval::evaluate(p);
-          it->value =  4 * history[pos.moved_piece(m)][to_sq(m)] + v ;
+          it->value =  8 * history[pos.moved_piece(m)][to_sq(m)] + v ;
           p.undo_move(m);
       }
   }
