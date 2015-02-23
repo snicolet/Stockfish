@@ -84,17 +84,18 @@ class MovePicker {
   MovePicker& operator=(const MovePicker&); // Silence a warning under MSVC
 
 public:
-  MovePicker(const Position&, Move, Depth, const HistoryStats&, Square);
-  MovePicker(const Position&, Move, const HistoryStats&, PieceType);
-  MovePicker(const Position&, Move, Depth, const HistoryStats&, Move*, Move*, Search::Stack*);
+  MovePicker(Position&, Move, Depth, const HistoryStats&, Square);
+  MovePicker(Position&, Move, Depth, const HistoryStats&, PieceType);
+  MovePicker(Position&, Move, Depth, const HistoryStats&, Move*, Move*, Search::Stack*);
 
   template<bool SpNode> Move next_move();
 
 private:
   template<GenType> void score();
   void generate_next_stage();
+  void wait();
 
-  const Position& pos;
+  Position& pos;
   const HistoryStats& history;
   Search::Stack* ss;
   Move* countermoves;

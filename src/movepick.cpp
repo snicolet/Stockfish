@@ -22,10 +22,21 @@
 
 #include "movepick.h"
 #include "thread.h"
+#include "evaluate.h"
+
+#include <iostream>
+#include <limits>
+
+void MovePicker::wait()
+  {
+  std::cerr << "Press ENTER to continue...";
+  std::cin.ignore( std::numeric_limits <std::streamsize> ::max(), '\n' );
+  }
 
 namespace {
 
   enum Stages {
+    SORT_BY_EVAL,EVALUATE_S0, 
     MAIN_SEARCH, CAPTURES_S1, KILLERS_S1, QUIETS_1_S1, QUIETS_2_S1, BAD_CAPTURES_S1,
     EVASION,     EVASIONS_S2,
     QSEARCH_0,   CAPTURES_S3, QUIET_CHECKS_S3,
@@ -70,7 +81,7 @@ namespace {
 /// search captures, promotions and some checks) and how important good move
 /// ordering is at the current node.
 
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats& h,
+MovePicker::MovePicker(Position& p, Move ttm, Depth d, const HistoryStats& h,
                        Move* cm, Move* fm, Search::Stack* s) : pos(p), history(h), depth(d) {
 
   assert(d > DEPTH_ZERO);
@@ -84,6 +95,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats&
   if (pos.checkers())
       stage = EVASION;
 
+  else if (depth >= 8 * ONE_PLY)
+      stage = SORT_BY_EVAL;
+
   else
       stage = MAIN_SEARCH;
 
@@ -91,8 +105,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats&
   end += (ttMove != MOVE_NONE);
 }
 
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats& h,
-                       Square s) : pos(p), history(h), cur(moves), end(moves) {
+MovePicker::MovePicker(Position& p, Move ttm, Depth d, const HistoryStats& h,
+                       Square s) : pos(p), history(h), depth(d), cur(moves), end(moves) {
 
   assert(d <= DEPTH_ZERO);
 
@@ -116,8 +130,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats&
   end += (ttMove != MOVE_NONE);
 }
 
-MovePicker::MovePicker(const Position& p, Move ttm, const HistoryStats& h, PieceType pt)
-                       : pos(p), history(h), cur(moves), end(moves) {
+MovePicker::MovePicker(Position& p, Move ttm, Depth d, const HistoryStats& h, PieceType pt)
+                       : pos(p), history(h), depth(d), cur(moves), end(moves) {
 
   assert(!pos.checkers());
 
@@ -181,6 +195,36 @@ void MovePicker::score<QUIETS>() {
 }
 
 template<>
+void MovePicker::score<LEGAL>() {
+
+  Move m;
+  Position p;
+  StateInfo st;
+  
+  p = pos;
+  CheckInfo ci(p);
+
+  for (ExtMove* it = moves; it != end; ++it)
+  {
+      m = it->move;
+      
+      p.do_move(m, st, p.gives_check(m, ci));
+      Value v = -Eval::evaluate(p);
+      it->value = v;
+      
+      /*
+      std::cerr << pos << std::endl ;
+      std::cerr << "eval = " << v << std::endl ;
+      std::cerr << "depth = " << depth << std::endl ;
+      wait();
+      */
+      
+      p.undo_move(m);
+      
+  }
+}
+
+template<>
 void MovePicker::score<EVASIONS>() {
   // Try good captures ordered by MVV/LVA, then non-captures if destination square
   // is not under attack, ordered by history value, then bad-captures and quiet
@@ -202,7 +246,6 @@ void MovePicker::score<EVASIONS>() {
   }
 }
 
-
 /// generate_next_stage() generates, scores and sorts the next bunch of moves,
 /// when there are no more moves to try for the current stage.
 
@@ -211,6 +254,12 @@ void MovePicker::generate_next_stage() {
   cur = moves;
 
   switch (++stage) {
+  
+  case EVALUATE_S0:
+      end = generate<LEGAL>(pos, moves);
+      score<LEGAL>();
+      insertion_sort(cur, end);
+      return;
 
   case CAPTURES_S1: case CAPTURES_S3: case CAPTURES_S4: case CAPTURES_S5: case CAPTURES_S6:
       end = generate<CAPTURES>(pos, moves);
@@ -274,7 +323,7 @@ void MovePicker::generate_next_stage() {
       end = generate<QUIET_CHECKS>(pos, moves);
       return;
 
-  case EVASION: case QSEARCH_0: case QSEARCH_1: case PROBCUT: case RECAPTURE:
+  case MAIN_SEARCH: case EVASION: case QSEARCH_0: case QSEARCH_1: case PROBCUT: case RECAPTURE:
       stage = STOP;
       /* Fall through */
 
@@ -296,6 +345,8 @@ template<>
 Move MovePicker::next_move<false>() {
 
   Move move;
+  Value value;
+  StateInfo st;
 
   while (true)
   {
@@ -304,9 +355,26 @@ Move MovePicker::next_move<false>() {
 
       switch (stage) {
 
-      case MAIN_SEARCH: case EVASION: case QSEARCH_0: case QSEARCH_1: case PROBCUT:
+      case SORT_BY_EVAL: case MAIN_SEARCH: case EVASION: case QSEARCH_0: case QSEARCH_1: case PROBCUT:
           ++cur;
           return ttMove;
+
+      case EVALUATE_S0:
+          move = (cur++)->move;
+          
+          /*
+          value = (cur)->value;
+          pos.do_move(move, st);
+          std::cerr << pos << std::endl ;
+          std::cerr << "apres tri, v = " << value << std::endl ;
+          std::cerr << "depth = " << depth << std::endl ;
+          wait();
+          pos.undo_move(move);
+          */
+          
+          if (move != ttMove)
+              return move;
+          break;
 
       case CAPTURES_S1:
           move = pick_best(cur++, end)->move;
