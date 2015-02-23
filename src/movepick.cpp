@@ -22,6 +22,7 @@
 
 #include "movepick.h"
 #include "thread.h"
+#include "evaluate.h"
 
 namespace {
 
@@ -173,10 +174,29 @@ void MovePicker::score<QUIETS>() {
 
   Move m;
 
-  for (ExtMove* it = moves; it != end; ++it)
+  if (depth >= 8 * ONE_PLY)
   {
-      m = it->move;
-      it->value = history[pos.moved_piece(m)][to_sq(m)];
+      Position p;
+      StateInfo st;
+      p = pos;
+      CheckInfo ci(p);
+      for (ExtMove* it = moves; it != end; ++it)
+      {
+          m = it->move;
+
+          p.do_move(m, st, p.gives_check(m, ci));
+          Value v = -Eval::evaluate(p);
+          it->value =  2 * history[pos.moved_piece(m)][to_sq(m)] + v;
+          p.undo_move(m);
+      }
+  }
+  else
+  {
+      for (ExtMove* it = moves; it != end; ++it)
+      {
+          m = it->move;
+          it->value = history[pos.moved_piece(m)][to_sq(m)];
+      }
   }
 }
 
