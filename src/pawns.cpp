@@ -38,10 +38,10 @@ namespace {
 
   // Isolated pawn penalty by opposed flag and file
   const Score Isolated[2][FILE_NB] = {
-  { S(37, 45), S(54, 52), S(60, 52), S(60, 52),
-    S(60, 52), S(60, 52), S(54, 52), S(37, 45) },
-  { S(25, 30), S(36, 35), S(40, 35), S(40, 35),
-    S(40, 35), S(40, 35), S(36, 35), S(25, 30) } };
+  { S(18, 22), S(27, 26), S(30, 26), S(30, 26),
+    S(30, 26), S(30, 26), S(27, 26), S(18, 22) },
+  { S(12, 15), S(18, 17), S(20, 17), S(20, 17),
+    S(20, 17), S(20, 17), S(18, 17), S(12, 15) } };
 
   // Backward pawn penalty by opposed flag and file
   const Score Backward[2][FILE_NB] = {
@@ -110,7 +110,7 @@ namespace {
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
-    Bitboard b, neighbours, doubled, connected, supported, phalanx;
+    Bitboard b, neighbours, doubled, connected, supported, supporting, phalanx;
     Square s;
     bool passed, isolated, opposed, backward, lever;
     Score score = SCORE_ZERO;
@@ -143,10 +143,11 @@ namespace {
         opposed     =   theirPawns & forward_bb(Us, s);
         passed      = !(theirPawns & passed_pawn_mask(Us, s));
         lever       =   theirPawns & pawnAttacksBB[s];
-        phalanx     =   neighbours & rank_bb(s);
         supported   =   neighbours & rank_bb(s - Up);
+        phalanx     =   neighbours & rank_bb(s);
+        supporting  =   neighbours & rank_bb(s + Up);
         connected   =   supported | phalanx;
-        isolated    =  !neighbours;
+        isolated    = !(connected | supporting);
 
         // Test for backward pawn.
         // If the pawn is passed, isolated, connected or a lever it cannot be
