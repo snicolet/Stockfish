@@ -157,8 +157,10 @@ void MovePicker::score<CAPTURES>() {
   for (ExtMove* it = moves; it != end; ++it)
   {
       m = it->move;
-      it->value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-                 - Value(type_of(pos.moved_piece(m)));
+      it->value = - history[pos.moved_piece(m)][to_sq(m)];
+      
+      it->value +=  PieceValue[MG][pos.piece_on(to_sq(m))]
+                  - Value(type_of(pos.moved_piece(m)));
 
       if (type_of(m) == ENPASSANT)
           it->value += PieceValue[MG][PAWN];
