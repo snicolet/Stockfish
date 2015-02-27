@@ -100,7 +100,7 @@ namespace {
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
-    Bitboard b, neighbours, doubled, connected, supported, supporting, phalanx;
+    Bitboard b, neighbours, doubled, connected, supported, phalanx;
     Square s;
     bool passed, opposed, backward, lever;
     Score score = SCORE_ZERO;
@@ -133,10 +133,10 @@ namespace {
         opposed     =   theirPawns & forward_bb(Us, s);
         passed      = !(theirPawns & passed_pawn_mask(Us, s));
         lever       =   theirPawns & pawnAttacksBB[s];
-        supporting  =   neighbours & pawnAttacksBB[s];
+        //supporting  =   neighbours & pawnAttacksBB[s];
         supported   =   neighbours & rank_bb(s - Up);
         phalanx     =   neighbours & rank_bb(s);
-        connected   =   supported | phalanx | supporting ;
+        connected   =   supported | phalanx ;
 
         // Test for backward pawn.
         // If the pawn is passed, supported, a lever or in a phalanx, it cannot 
@@ -210,6 +210,9 @@ void init()
   {
       int v = (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
       v += (apex ? v / 2 : 0);
+      
+      v = 3 * v / 4;
+      
       Connected[opposed][phalanx][apex][r] = make_score(3 * v / 2, v);
   }
 }
