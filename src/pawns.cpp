@@ -133,7 +133,6 @@ namespace {
         opposed     =   theirPawns & forward_bb(Us, s);
         passed      = !(theirPawns & passed_pawn_mask(Us, s));
         lever       =   theirPawns & pawnAttacksBB[s];
-        //supporting  =   neighbours & pawnAttacksBB[s];
         supported   =   neighbours & rank_bb(s - Up);
         phalanx     =   neighbours & rank_bb(s);
         connected   =   supported | phalanx ;
@@ -211,9 +210,7 @@ void init()
       int v = (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
       v += (apex ? v / 2 : 0);
       
-      v = 3 * v / 4;
-      
-      Connected[opposed][phalanx][apex][r] = make_score(3 * v / 2, v);
+      Connected[opposed][phalanx][apex][r] = make_score( v , 3 * v / 2);
   }
 }
 
