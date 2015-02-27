@@ -100,7 +100,7 @@ namespace {
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
-    Bitboard b, neighbours, doubled, connected, supported, phalanx;
+    Bitboard b, neighbours, doubled, connected, supported, supporting, phalanx;
     Square s;
     bool passed, opposed, backward, lever;
     Score score = SCORE_ZERO;
@@ -133,10 +133,10 @@ namespace {
         opposed     =   theirPawns & forward_bb(Us, s);
         passed      = !(theirPawns & passed_pawn_mask(Us, s));
         lever       =   theirPawns & pawnAttacksBB[s];
-        //supporting  =   neighbours & pawnAttacksBB[s];
+        supporting  =   neighbours & pawnAttacksBB[s];
         supported   =   neighbours & rank_bb(s - Up);
         phalanx     =   neighbours & rank_bb(s);
-        connected   =   supported | phalanx ;
+        connected   =   supported | phalanx | supporting;
 
         // Test for backward pawn.
         // If the pawn is passed, supported, a lever or in a phalanx, it cannot 
@@ -201,19 +201,18 @@ namespace Pawns {
 
 void init()
 {
-  static const int Seed[RANK_NB] = { 0, 10, 25, 35, 65, 85, 145, 265 };
+//static const int Seed[RANK_NB] = { 0, 10, 25, 35, 65, 85, 145, 265 };
+  static const int Seed[RANK_NB] = { 0, 6, 15, 27, 57, 75, 135, 258 };
 
   for (int opposed = 0; opposed <= 1; ++opposed)
       for (int phalanx = 0; phalanx <= 1; ++phalanx)
           for (int apex = 0; apex <= 1; ++apex)
               for (Rank r = RANK_2; r < RANK_8; ++r)
   {
-      int v = (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
+      int v = (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 4 - 20 : 0)) >> opposed;
       v += (apex ? v / 2 : 0);
       
-      v = 3 * v / 4;
-      
-      Connected[opposed][phalanx][apex][r] = make_score(3 * v / 2, v);
+      Connected[opposed][phalanx][apex][r] = make_score( 2 * v , v);
   }
 }
 
