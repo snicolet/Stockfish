@@ -36,6 +36,13 @@ namespace {
     S(13, 43), S(20, 48), S(23, 48), S(23, 48),
     S(23, 48), S(23, 48), S(20, 48), S(13, 43) };
 
+  // Isolated pawn penalty by opposed flag and file
+  const Score Isolated[2][FILE_NB] = {
+  { S(18, 22), S(27, 26), S(30, 26), S(30, 26),
+    S(30, 26), S(30, 26), S(27, 26), S(18, 22) },
+  { S(12, 15), S(18, 17), S(20, 17), S(20, 17),
+    S(20, 17), S(20, 17), S(18, 17), S(12, 15) } };
+
   // Backward pawn penalty by opposed flag and file
   const Score Backward[2][FILE_NB] = {
   { S(30, 42), S(43, 46), S(49, 46), S(49, 46),
@@ -50,6 +57,9 @@ namespace {
   const Score Lever[RANK_NB] = {
     S( 0, 0), S( 0, 0), S(0, 0), S(0, 0),
     S(20,20), S(40,40), S(0, 0), S(0, 0) };
+
+  // Unsupported pawn penalty
+  const Score UnsupportedPawnPenalty = S(20, 10);
 
   // Center bind bonus: Two pawns controlling the same central square
   const Bitboard CenterBindMask[COLOR_NB] = {
@@ -102,7 +112,7 @@ namespace {
 
     Bitboard b, neighbours, doubled, connected, supported, supporting, phalanx;
     Square s;
-    bool passed, opposed, backward, lever;
+    bool passed, isolated, opposed, backward, lever;
     Score score = SCORE_ZERO;
     const Square* pl = pos.list<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
@@ -133,16 +143,17 @@ namespace {
         opposed     =   theirPawns & forward_bb(Us, s);
         passed      = !(theirPawns & passed_pawn_mask(Us, s));
         lever       =   theirPawns & pawnAttacksBB[s];
-        supporting  =   neighbours & pawnAttacksBB[s];
         supported   =   neighbours & rank_bb(s - Up);
         phalanx     =   neighbours & rank_bb(s);
-        connected   =   supported | phalanx | supporting ;
+        supporting  =   neighbours & rank_bb(s + Up);
+        connected   =   supported | phalanx;
+        isolated    = !(connected | supporting);
 
         // Test for backward pawn.
-        // If the pawn is passed, supported, a lever or in a phalanx, it cannot 
-        // be backward. If there are friendly pawns behind on adjacent files
+        // If the pawn is passed, isolated, connected or a lever it cannot be
+        // backward. If there are friendly pawns behind on adjacent files
         // it cannot be backward either.
-        if (   (passed | supported | phalanx | lever)
+        if (   (passed | isolated | lever | connected)
             || (ourPawns & pawn_attack_span(Them, s)))
             backward = false;
         else
@@ -168,6 +179,12 @@ namespace {
             e->passedPawns[Us] |= s;
 
         // Score this pawn
+        if (isolated)
+            score -= Isolated[opposed][f];
+
+        if (!supported && !isolated)
+            score -= UnsupportedPawnPenalty;
+
         if (doubled)
             score -= Doubled[f] / distance<Rank>(s, frontmost_sq(Us, doubled));
 
@@ -201,7 +218,7 @@ namespace Pawns {
 
 void init()
 {
-  static const int Seed[RANK_NB] = { 0, 10, 25, 35, 65, 85, 145, 265 };
+  static const int Seed[RANK_NB] = { 0, 6, 15, 10, 57, 75, 135, 258 };
 
   for (int opposed = 0; opposed <= 1; ++opposed)
       for (int phalanx = 0; phalanx <= 1; ++phalanx)
