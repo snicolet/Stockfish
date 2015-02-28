@@ -165,6 +165,8 @@ void MovePicker::score<CAPTURES>() {
 
       else if (type_of(m) == PROMOTION)
           it->value += PieceValue[MG][promotion_type(m)] - PieceValue[MG][PAWN];
+    
+      it->value = it->value*16 - history[pos.moved_piece(m)][to_sq(m)];
   }
 }
 
