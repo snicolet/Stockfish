@@ -139,7 +139,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, const HistoryStats& h, Piece
 /// highest values will be picked first.
 template<>
 void MovePicker::score<CAPTURES>() {
-  // Winning and equal captures in the main search are ordered by MVV/LVA.
+  // Winning and equal captures in the main search are ordered by MVV/MVA.
   // Suprisingly, this appears to perform slightly better than SEE based
   // move ordering. The reason is probably that in a position with a winning
   // capture, capturing a more valuable (but sufficiently defended) piece
@@ -158,7 +158,7 @@ void MovePicker::score<CAPTURES>() {
   {
       m = it->move;
       it->value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-                 - Value(type_of(pos.moved_piece(m)));
+                 + Value(type_of(pos.moved_piece(m)));
 
       if (type_of(m) == ENPASSANT)
           it->value += PieceValue[MG][PAWN];
