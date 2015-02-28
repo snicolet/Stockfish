@@ -157,6 +157,8 @@ void MovePicker::score<CAPTURES>() {
   for (ExtMove* it = moves; it != end; ++it)
   {
       m = it->move;
+      
+      // MVV/LVA will be our primary key for sorting captures
       it->value =  PieceValue[MG][pos.piece_on(to_sq(m))]
                  - Value(type_of(pos.moved_piece(m)));
 
@@ -165,6 +167,9 @@ void MovePicker::score<CAPTURES>() {
 
       else if (type_of(m) == PROMOTION)
           it->value += PieceValue[MG][promotion_type(m)] - PieceValue[MG][PAWN];
+
+      // we use history as a secondary key
+      it->value = it->value*16 - history[pos.moved_piece(m)][to_sq(m)];
   }
 }
 
