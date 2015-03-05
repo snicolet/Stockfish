@@ -714,9 +714,12 @@ namespace {
     if (ei.mi->specialized_eval_exists())
         return ei.mi->evaluate(pos);
 
+    // Kings separation
+    int d = distance<File>(pos.king_square(WHITE) , pos.king_square(BLACK));
+
     // Probe the pawn hash table
     ei.pi = Pawns::probe(pos);
-    score += ei.pi->pawns_score() * Weights[PawnStructure];
+    score += (64 - d*(d-1)) * ei.pi->pawns_score() * Weights[PawnStructure] / 64;
 
     // Initialize attack and king safety bitboards
     init_eval_info<WHITE>(pos, ei);
