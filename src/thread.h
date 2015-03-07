@@ -39,7 +39,7 @@ const size_t MAX_THREADS = 128;
 const size_t MAX_SPLITPOINTS_PER_THREAD = 8;
 const size_t MAX_SLAVES_PER_SPLITPOINT = 4;
 
-#if 0
+#if 1
 /// Spinlock class wraps low level atomic operations to provide a spin lock
 
 class Spinlock {
@@ -67,6 +67,83 @@ public:
 };
 
 #endif
+
+
+class AdaptiveMutex {
+
+  const int MAX_ADAPTIVE_COUNT = 10000;
+  std::mutex mutex;
+  int spin_history;
+  
+
+public:
+
+  AdaptiveMutex()
+  {
+      spin_history = 0;   // Init in the constructor to workaround a bug with MSVC 2013 ?
+  }
+
+  void acquire() 
+  { 
+      if (!mutex.try_lock())
+      {
+          int cnt = 0;
+          int max_cnt = std::min(MAX_ADAPTIVE_COUNT, spin_history + 2000);
+          
+          do
+          {
+              if (cnt++ >= max_cnt)
+              {
+                  mutex.lock();
+                  break;
+              }
+              
+              std::this_thread::yield();
+          }
+          while (!mutex.try_lock());
+          
+          spin_history += (cnt - spin_history) / 8;
+      }
+  }
+  
+  void release() { mutex.unlock(); }
+};
+
+
+class YieldingSpinlock {
+
+  std::atomic_int lock;
+
+public:
+  
+  YieldingSpinlock() 
+  { 
+      lock = 1;   // Init in the constructor to workaround a bug with MSVC 2013 ?
+  } 
+  
+  void acquire() 
+  {
+      while (lock.fetch_sub(1, std::memory_order_acquire) != 1)
+      {
+          int cnt = 0;
+          while (lock.load(std::memory_order_relaxed) <= 0) 
+          {
+              cnt++;
+        	  if (cnt >= 10000)
+        	     std::this_thread::yield();
+          }
+      }
+  }
+  
+  
+  void release() 
+  { 
+      lock.store(1, std::memory_order_release); 
+  }
+  
+};  
+ 
+
 
 /// SplitPoint struct stores information shared by the threads searching in
 /// parallel below the same split point. It is populated at splitting time.

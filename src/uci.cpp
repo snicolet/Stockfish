@@ -32,6 +32,7 @@
 using namespace std;
 
 extern void benchmark(const Position& pos, istream& is);
+extern void synchro_benchmark(istream& is);
 
 namespace {
 
@@ -187,6 +188,7 @@ void UCI::loop(int argc, char* argv[]) {
       // Additional custom non-UCI commands, useful for debugging
       else if (token == "flip")       pos.flip();
       else if (token == "bench")      benchmark(pos, is);
+      else if (token == "synchro-bench") synchro_benchmark(is);
       else if (token == "d")          sync_cout << pos << sync_endl;
       else if (token == "eval")       sync_cout << Eval::trace(pos) << sync_endl;
       else if (token == "perft")

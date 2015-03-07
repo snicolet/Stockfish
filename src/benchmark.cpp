@@ -172,3 +172,152 @@ void benchmark(const Position& current, istream& is) {
        << "\nNodes searched  : " << nodes
        << "\nNodes/second    : " << 1000 * nodes / elapsed << endl;
 }
+
+
+
+////////////////    LOCKING TECHNIQUES BENCHMARK   /////////////////
+
+
+#include <future>
+
+
+
+std::mutex        bench_mutex;
+Spinlock          bench_spinlock;
+YieldingSpinlock  bench_yielding;
+AdaptiveMutex     bench_adaptive_mutex;
+
+
+enum SynchroTypes {
+  SYNCHRO_NONE,
+  MUTEX,
+  SPINLOCK,
+  YIELDING_SPINLOCK,
+  ADAPTIVE_MUTEX,
+  SYNCHRO_TYPE_NB 
+};
+
+string SynchroNames[SYNCHRO_TYPE_NB] = {
+   "SYNCHRO_NONE",
+   "MUTEX",
+   "SPINLOCK",
+   "YIELDING_SPINLOCK",
+   "ADAPTIVE_MUTEX",
+};
+
+TimePoint times[SYNCHRO_TYPE_NB][256] = {};
+
+int  SYNCHRO_THREADS  ;  
+long LOOPS            ;
+long WORKSLICE        ;
+
+volatile long value = 0;
+
+
+// loop() : change the volatile global value a given number of times
+void loop( bool inc, long limit, SynchroTypes type) 
+{
+  
+  for (long i = 0; i < limit; ++i) 
+  {
+      // acquire the synchronisation object
+  	  switch (type)
+  	  {
+  	      case MUTEX              : bench_mutex.lock();                  break;
+  	      case SPINLOCK           : bench_spinlock.acquire();            break;
+  	      case YIELDING_SPINLOCK  : bench_yielding.acquire();            break;
+  	      case ADAPTIVE_MUTEX     : bench_adaptive_mutex.acquire();      break;
+  	      case SYNCHRO_NONE       : /* no synchronisation */             break;
+  	      default                 : /* no synchronisation */             break;
+  	  }
+  	  
+  	  // change the global volatile value
+      if (inc) 
+      { 
+          for (long x = 0; x < WORKSLICE; ++x)
+            ++value;
+      } 
+      else 
+      {
+          for (long x = 0; x < WORKSLICE; ++x)
+          --value;
+      }
+      
+      // release the synchronisation object
+      switch (type)
+  	  {
+  	      case MUTEX              : bench_mutex.unlock();                break;
+  	      case SPINLOCK           : bench_spinlock.release();            break;
+  	      case YIELDING_SPINLOCK  : bench_yielding.release();            break;
+  	      case ADAPTIVE_MUTEX     : bench_adaptive_mutex.release();      break;
+  	      case SYNCHRO_NONE       : /* no synchronisation */             break;
+  	      default                 : /* no synchronisation */             break;
+  	  }
+  	  
+  }
+  return;
+}
+
+// start_loops() : return the number of milliseconds used 
+// for a given synchronization type and a given number of threads
+TimePoint start_loops(SynchroTypes type, int threads)
+{
+  future<void> f[256];
+  TimePoint elapsed = now();
+  
+  
+  // init the gobal volatile value
+  value = 0;
+  
+  // start the synchronized threats : odd numbered threads will
+  // increase 'value', but even numbered threads will decrease it
+  for (int k = 1; k < threads ; ++k)
+      f[k] = std::async(std::launch::async, std::bind(loop, (k % 2) , LOOPS, type));
+      
+  // start the main threat, decreasing 'value'
+  loop( false, LOOPS, type);
+  
+  // wait for synchronized threats
+  for (int k = 1; k < threads ; ++k)
+      f[k].wait();
+      
+  // measure time taken
+  elapsed = now() - elapsed;
+  times[type][threads] = elapsed;
+
+  cerr << threads << " threads: ";
+  cerr << elapsed << " ms" ;
+  cerr << ",  synchro time = " << times[type][threads] - times[SYNCHRO_NONE][threads] << " ms" << endl;
+
+  return elapsed;
+}
+
+
+void synchro_benchmark(istream& is)
+{
+  string token;
+  
+  SYNCHRO_THREADS = (is >> token) ? stoi(token) : 20;     
+  LOOPS           = (is >> token) ? stoi(token) : 10000;
+  WORKSLICE       = (is >> token) ? stoi(token) : 10000;
+  
+  
+  cerr << "\nStarting benchmark of lock types..." << endl;
+  cerr << "Max threads = " << MAX_THREADS << endl;
+  
+  
+  for (int t = 0 ; t < SYNCHRO_TYPE_NB ; ++t)
+  {
+      cerr << "\n" << SynchroNames[t] << endl;
+      
+      for (int threads = 2; threads <= SYNCHRO_THREADS ; threads = threads + 2)
+          start_loops(SynchroTypes(t), threads);
+      
+      cerr << "value = " << value;
+      cerr << "     (should be zero)" << std::endl;
+  }
+  
+  
+  cerr << endl;
+  
+}
