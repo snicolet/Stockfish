@@ -41,11 +41,39 @@ const size_t MAX_SPLITPOINTS_PER_THREAD = 8;
 const size_t MAX_SLAVES_PER_SPLITPOINT = 4;
 
 
+// The AdaptiveMutex is a wrapper around Mutex. We spin little bit, then lock.
+// This may be more efficient than Mutex, while staying nice for hyperthreading.
+// Idea by Xavier Leroy and Kaz Kylheku, in LinuxThread and NPTL libraries. Implementation
+// adapted from http://code.metager.de/source/xref/gnu/glibc/nptl/pthread_mutex_lock.c 
+class AdaptiveMutex {
+
+  Mutex mutex;
+  int spin_history;
+  const int MAX_ADAPTIVE_COUNT = 10000;
+  
+public:
+  AdaptiveMutex() { spin_history = 0; }   // Init here to workaround a bug in MSVC 2013
+  void lock() {
+      if (!mutex.try_lock()) {
+          int cnt = 0;
+          int max_cnt = std::min(MAX_ADAPTIVE_COUNT, spin_history + 2000);
+          do {
+              if (cnt++ >= max_cnt) { mutex.lock(); break; }
+              std::this_thread::yield();  // Be nice to hyperthreading
+          }
+          while (!mutex.try_lock());
+          spin_history += (cnt - spin_history) / 8;
+      }
+  }
+  void unlock() { mutex.unlock(); }
+};
+
+
 /// Spinlock class wraps low level atomic operations to provide a spin lock
 
 class Spinlock {
 
-  Mutex m; // WARNING: Diasabled spinlocks to test on fishtest
+  AdaptiveMutex m;
 
 public:
   void acquire() { m.lock(); }

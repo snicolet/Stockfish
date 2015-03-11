@@ -50,6 +50,7 @@
 struct Mutex {
   Mutex() { InitializeCriticalSection(&cs); }
  ~Mutex() { DeleteCriticalSection(&cs); }
+  bool try_lock() { return TryEnterCriticalSection(&cs); }
   void lock() { EnterCriticalSection(&cs); }
   void unlock() { LeaveCriticalSection(&cs); }
 
