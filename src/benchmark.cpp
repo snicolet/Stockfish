@@ -182,10 +182,11 @@ void benchmark(const Position& current, istream& is) {
 
 
 
-std::mutex        bench_mutex;
-Spinlock          bench_spinlock;
-YieldingSpinlock  bench_yielding;
-AdaptiveMutex     bench_adaptive_mutex;
+std::mutex            bench_mutex;
+Spinlock              bench_spinlock;
+YieldingSpinlock      bench_yielding;
+YieldingSpinlock2     bench_yielding2;
+AdaptiveMutex         bench_adaptive_mutex;
 
 
 enum SynchroTypes {
@@ -193,6 +194,7 @@ enum SynchroTypes {
   MUTEX,
   SPINLOCK,
   YIELDING_SPINLOCK,
+  YIELDING_SPINLOCK2,
   ADAPTIVE_MUTEX,
   SYNCHRO_TYPE_NB 
 };
@@ -202,6 +204,7 @@ string SynchroNames[SYNCHRO_TYPE_NB] = {
    "MUTEX",
    "SPINLOCK",
    "YIELDING_SPINLOCK",
+   "YIELDING_SPINLOCK2",
    "ADAPTIVE_MUTEX",
 };
 
@@ -226,6 +229,7 @@ void loop( bool inc, long limit, SynchroTypes type)
   	      case MUTEX              : bench_mutex.lock();                  break;
   	      case SPINLOCK           : bench_spinlock.acquire();            break;
   	      case YIELDING_SPINLOCK  : bench_yielding.acquire();            break;
+  	      case YIELDING_SPINLOCK2 : bench_yielding2.acquire();           break;
   	      case ADAPTIVE_MUTEX     : bench_adaptive_mutex.acquire();      break;
   	      case SYNCHRO_NONE       : /* no synchronisation */             break;
   	      default                 : /* no synchronisation */             break;
@@ -249,6 +253,7 @@ void loop( bool inc, long limit, SynchroTypes type)
   	      case MUTEX              : bench_mutex.unlock();                break;
   	      case SPINLOCK           : bench_spinlock.release();            break;
   	      case YIELDING_SPINLOCK  : bench_yielding.release();            break;
+  	      case YIELDING_SPINLOCK2 : bench_yielding2.release();           break;
   	      case ADAPTIVE_MUTEX     : bench_adaptive_mutex.release();      break;
   	      case SYNCHRO_NONE       : /* no synchronisation */             break;
   	      default                 : /* no synchronisation */             break;

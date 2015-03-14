@@ -128,7 +128,7 @@ public:
           int cnt = 0;
           while (lock.load(std::memory_order_relaxed) <= 0) 
           {
-              cnt++;
+              ++cnt;
         	  if (cnt >= 10000)
         	     std::this_thread::yield();
           }
@@ -139,6 +139,31 @@ public:
   void release() 
   { 
       lock.store(1, std::memory_order_release); 
+  }
+  
+};  
+
+class YieldingSpinlock2 {
+
+  std::atomic_flag lock = ATOMIC_FLAG_INIT;
+
+public:
+
+  void acquire() 
+  {
+      int cnt = 0;
+      while (lock.test_and_set(std::memory_order_acquire))
+      {
+          ++cnt;
+          if (cnt >= 10000)
+              std::this_thread::yield();
+      }
+  }
+  
+  
+  void release() 
+  { 
+      lock.clear(std::memory_order_release); 
   }
   
 };  
