@@ -1617,12 +1617,12 @@ void Thread::idle_loop() {
       // If this thread has been assigned work, launch a search
       while (searching)
       {
-          mutex.lock();
+          spinlock.acquire();
 
           assert(activeSplitPoint);
           SplitPoint* sp = activeSplitPoint;
 
-          mutex.unlock();
+          spinlock.release();
 
           Stack stack[MAX_PLY+4], *ss = stack+2; // To allow referencing (ss-2) and (ss+2)
           Position pos(*sp->pos, this);
