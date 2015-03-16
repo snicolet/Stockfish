@@ -32,7 +32,6 @@
 #include "pawns.h"
 #include "position.h"
 #include "search.h"
-#include "thread_win32.h"
 
 struct Thread;
 
@@ -53,6 +52,37 @@ public:
   }
   void release() { lock.store(1, std::memory_order_release); }
 };
+
+
+// Mutex is an wrapper around std::mutex. It spins a little bit, then locks. This adaptive
+// strategy be more efficient than std::mutex, while staying nice for hyperthreading.
+// Idea by Xavier Leroy and Kaz Kylheku, in LinuxThread and NPTL libraries. Implementation
+// adapted from http://code.metager.de/source/xref/gnu/glibc/nptl/pthread_mutex_lock.c 
+class Mutex {
+
+  std::mutex mutex;
+  int spin_history;
+  const int MAX_ADAPTIVE_COUNT = 10000;
+  
+public:
+  Mutex() { spin_history = 0; }   // Init here to workaround a bug in MSVC 2013
+  void lock() {
+      if (!mutex.try_lock()) {
+          int cnt = 0;
+          int max_cnt = std::min(MAX_ADAPTIVE_COUNT, spin_history + 2000);
+          do {
+              if (cnt++ >= max_cnt) { mutex.lock(); break; }
+              std::this_thread::yield();  // Be nice to hyperthreading
+          }
+          while (!mutex.try_lock());
+          spin_history += (cnt - spin_history) / 8;
+      }
+  }
+  void unlock() { mutex.unlock(); }
+};
+
+
+typedef std::condition_variable_any ConditionVariable;
 
 
 /// SplitPoint struct stores information shared by the threads searching in
