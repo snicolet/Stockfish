@@ -58,6 +58,11 @@ public:
 // strategy be more efficient than std::mutex, while staying nice for hyperthreading.
 // Idea by Xavier Leroy and Kaz Kylheku, in LinuxThread and NPTL libraries. Implementation
 // adapted from http://code.metager.de/source/xref/gnu/glibc/nptl/pthread_mutex_lock.c 
+
+
+extern std::atomic_long  mutexLocksCnt;     // Instrumental counter, defined in benchmark.cpp
+extern std::atomic_long  mutexUnlocksCnt;   // Instrumental counter, defined in benchmark.cpp
+
 class Mutex {
 
   std::mutex mutex;
@@ -67,6 +72,9 @@ class Mutex {
 public:
   Mutex() { spin_history = 0; }   // Init here to workaround a bug in MSVC 2013
   void lock() {
+  
+      mutexLocksCnt.fetch_add(1, std::memory_order_relaxed);   // Instrument
+  
       if (!mutex.try_lock()) {
           int cnt = 0;
           int max_cnt = std::min(MAX_ADAPTIVE_COUNT, spin_history + 2000);
@@ -76,9 +84,14 @@ public:
           }
           while (!mutex.try_lock());
           spin_history += (cnt - spin_history) / 8;
+          
       }
   }
-  void unlock() { mutex.unlock(); }
+  
+  void unlock() { 
+      mutexUnlocksCnt.fetch_add(1, std::memory_order_relaxed);   // Instrument
+      mutex.unlock(); 
+  }
 };
 
 

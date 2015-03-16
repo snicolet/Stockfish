@@ -89,6 +89,9 @@ const vector<string> Defaults = {
 /// format (defaults are the positions defined above) and the type of the
 /// limit value: depth (default), time in millisecs or number of nodes.
 
+ std::atomic_long  mutexLocksCnt(0);
+ std::atomic_long  mutexUnlocksCnt(0);
+
 void benchmark(const Position& current, istream& is) {
 
   string token;
@@ -170,5 +173,6 @@ void benchmark(const Position& current, istream& is) {
   cerr << "\n==========================="
        << "\nTotal time (ms) : " << elapsed
        << "\nNodes searched  : " << nodes
+       << "\nLocks\\Unlocks   : " << mutexLocksCnt << "\\" << mutexUnlocksCnt
        << "\nNodes/second    : " << 1000 * nodes / elapsed << endl;
 }
