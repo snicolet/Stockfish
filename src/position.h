@@ -131,6 +131,7 @@ public:
   bool advanced_pawn_push(Move m) const;
   Piece moved_piece(Move m) const;
   PieceType captured_piece_type() const;
+ // Move reversed_capture(Move m) const;
 
   // Piece specific
   bool pawn_passed(Color c, Square s) const;
@@ -383,6 +384,19 @@ inline bool Position::capture(Move m) const {
 inline PieceType Position::captured_piece_type() const {
   return st->capturedType;
 }
+
+/*
+static int reversed_capture_exists[PIECE_TYPE_NB][PIECE_TYPE_NB];
+
+inline Move Position::reversed_capture(Move m) const {
+
+  Square from  = from_sq(m);
+  Square to    = to_sq(m);
+  
+  return reversed_capture_exists[type_of(piece_on(from))][type_of(piece_on(to))] ? 
+            make_move(to , from) : MOVE_NONE ;
+}
+*/
 
 inline Thread* Position::this_thread() const {
   return thisThread;

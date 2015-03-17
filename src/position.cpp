@@ -38,6 +38,8 @@ Value PieceValue[PHASE_NB][PIECE_NB] = {
 { VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg, QueenValueMg },
 { VALUE_ZERO, PawnValueEg, KnightValueEg, BishopValueEg, RookValueEg, QueenValueEg } };
 
+int reversed_capture_exists[PIECE_TYPE_NB][PIECE_TYPE_NB];
+
 namespace Zobrist {
 
   Key psq[COLOR_NB][PIECE_TYPE_NB][SQUARE_NB];
@@ -173,6 +175,32 @@ void Position::init() {
          psq[BLACK][pt][~s] = -(v + PSQT[pt][s]);
       }
   }
+  
+  for (PieceType capturing = NO_PIECE_TYPE; capturing <= KING; ++capturing)
+      for (PieceType captured = NO_PIECE_TYPE; captured <= KING; ++captured)
+      {
+          reversed_capture_exists[capturing][captured] = 0;
+         
+          if ((capturing == QUEEN) && 
+              (captured  == QUEEN || captured == ROOK || captured == BISHOP))
+             reversed_capture_exists[capturing][captured] = 1;
+        
+          if ((capturing == ROOK) && 
+              (captured  == QUEEN || captured == ROOK))
+             reversed_capture_exists[capturing][captured] = 1;
+          
+          if ((capturing == BISHOP) && 
+              (captured  == QUEEN || captured == BISHOP))
+             reversed_capture_exists[capturing][captured] = 1;
+          
+          if ((capturing == KNIGHT) && 
+              (captured  == KNIGHT))
+             reversed_capture_exists[capturing][captured] = 1;
+        
+          if ((capturing == PAWN) && 
+              (captured  == QUEEN || captured == BISHOP || captured == PAWN))
+             reversed_capture_exists[capturing][captured] = 1;
+     }
 }
 
 

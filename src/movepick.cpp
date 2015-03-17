@@ -19,6 +19,7 @@
 */
 
 #include <cassert>
+#include <iostream>
 
 #include "movepick.h"
 #include "thread.h"
@@ -131,6 +132,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, const HistoryStats& h, const
 }
 
 
+extern int reversed_capture_exists[PIECE_TYPE_NB][PIECE_TYPE_NB];
+
 /// score() assign a numerical value to each move in a move list. The moves with
 /// highest values will be picked first.
 template<>
@@ -149,6 +152,7 @@ void MovePicker::score<CAPTURES>() {
   // has been picked up in pick_move_from_list(). This way we save some SEE
   // calls in case we get a cutoff.
   for (auto& m : *this)
+  {
       if (type_of(m) == ENPASSANT)
           m.value = PieceValue[MG][PAWN] - Value(PAWN);
 
@@ -156,8 +160,27 @@ void MovePicker::score<CAPTURES>() {
           m.value =  PieceValue[MG][pos.piece_on(to_sq(m))] - Value(PAWN)
                    + PieceValue[MG][promotion_type(m)] - PieceValue[MG][PAWN];
       else
-          m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-                   - Value(type_of(pos.moved_piece(m)));
+      {   
+          PieceType capturing = type_of(pos.piece_on(from_sq(m)));
+          PieceType captured  = type_of(pos.piece_on(to_sq(m)));
+          
+          m.value =  PieceValue[MG][captured] - Value(capturing);
+          
+         // m.value += 32 * reversed_capture_exists[capturing][captured];
+          
+          if (   reversed_capture_exists[capturing][captured]
+              && more_than_one(pos.pieces(~pos.side_to_move(), captured)))
+          {
+              //Value aux =  PieceValue[MG][capturing] - Value(captured);
+                         
+              //m.value += aux;
+              
+              m.value += 32;
+          }
+          
+          
+      }
+  }
 }
 
 template<>
