@@ -164,18 +164,21 @@ void MovePicker::score<CAPTURES>() {
           PieceType capturing = type_of(pos.piece_on(from_sq(m)));
           PieceType captured  = type_of(pos.piece_on(to_sq(m)));
           
-          m.value =  PieceValue[MG][captured] - Value(capturing);
+          m.value =  PieceValue[MG][captured] - 8 * Value(capturing);
           
          // m.value += 32 * reversed_capture_exists[capturing][captured];
           
           if (   reversed_capture_exists[capturing][captured]
-              && more_than_one(pos.pieces(~pos.side_to_move(), captured)))
-          {
-              //Value aux =  PieceValue[MG][capturing] - Value(captured);
-                         
-              //m.value += aux;
+             // && more_than_one(pos.pieces(~pos.side_to_move(), captured))
               
-              m.value += 32;
+              )
+          {
+              Value aux =  PieceValue[MG][capturing] - Value(captured);
+              m.value += aux;
+                         
+             // m.value += aux / 2;
+              
+              //m.value += 32;
           }
           
           
