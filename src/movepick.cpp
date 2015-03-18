@@ -151,6 +151,13 @@ void MovePicker::score<CAPTURES>() {
   // badCaptures[] array, but instead of doing it now we delay until the move
   // has been picked up in pick_move_from_list(). This way we save some SEE
   // calls in case we get a cutoff.
+
+  Color stm = pos.side_to_move();
+  Bitboard pawns = pos.pieces(stm, PAWN);
+  Bitboard pawnSupport =  stm == WHITE ?
+                          shift_bb<DELTA_NW>(pawns) | shift_bb<DELTA_NE>(pawns)  :
+                          shift_bb<DELTA_SW>(pawns) | shift_bb<DELTA_SE>(pawns)  ;
+
   for (auto& m : *this)
   {
       if (type_of(m) == ENPASSANT)
@@ -160,28 +167,18 @@ void MovePicker::score<CAPTURES>() {
           m.value =  PieceValue[MG][pos.piece_on(to_sq(m))] - Value(PAWN)
                    + PieceValue[MG][promotion_type(m)] - PieceValue[MG][PAWN];
       else
-      {   
-          PieceType capturing = type_of(pos.piece_on(from_sq(m)));
+      {
+          Square from  = from_sq(m);
+          Bitboard  defended  = pawnSupport & from;
+          PieceType capturing = type_of(pos.piece_on(from));
           PieceType captured  = type_of(pos.piece_on(to_sq(m)));
-          
-          m.value =  PieceValue[MG][captured] - 8 * Value(capturing);
-          
-         // m.value += 32 * reversed_capture_exists[capturing][captured];
-          
-          if (   reversed_capture_exists[capturing][captured]
-             // && more_than_one(pos.pieces(~pos.side_to_move(), captured))
-              
-              )
-          {
-              Value aux =  PieceValue[MG][capturing] - Value(captured);
-              m.value += aux;
-                         
-             // m.value += aux / 2;
-              
-              //m.value += 32;
-          }
-          
-          
+
+          m.value =  PieceValue[MG][captured] - Value(capturing);
+
+          if (  !defended 
+              && reversed_capture_exists[capturing][captured]
+              && more_than_one(pos.pieces(~stm, captured)))
+              m.value +=  (PieceValue[MG][capturing] - Value(captured)) / 2;
       }
   }
 }
