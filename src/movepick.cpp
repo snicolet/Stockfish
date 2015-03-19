@@ -176,8 +176,9 @@ void MovePicker::score<CAPTURES>() {
           m.value =  PieceValue[MG][captured] - Value(capturing);
 
           if (  !defended 
-              && reversed_capture_exists[capturing][captured]
-              && more_than_one(pos.pieces(~stm, captured)))
+              //&& reversed_capture_exists[capturing][captured]
+              //&& more_than_one(pos.pieces(~stm, captured))
+              )
               m.value +=  500;
       }
   }
