@@ -148,7 +148,15 @@ void MovePicker::score<CAPTURES>() {
   // badCaptures[] array, but instead of doing it now we delay until the move
   // has been picked up in pick_move_from_list(). This way we save some SEE
   // calls in case we get a cutoff.
+
+  Color stm = pos.side_to_move();
+  Bitboard opp_pawns = pos.pieces(~stm, PAWN);  // opponent's pawns
+  Bitboard pawnDefense =  ~stm == WHITE ?
+                          shift_bb<DELTA_NW>(opp_pawns) | shift_bb<DELTA_NE>(opp_pawns)  :
+                          shift_bb<DELTA_SW>(opp_pawns) | shift_bb<DELTA_SE>(opp_pawns)  ;
+
   for (auto& m : *this)
+  {
       if (type_of(m) == ENPASSANT)
           m.value = PieceValue[MG][PAWN] - Value(PAWN);
 
@@ -156,8 +164,18 @@ void MovePicker::score<CAPTURES>() {
           m.value =  PieceValue[MG][pos.piece_on(to_sq(m))] - Value(PAWN)
                    + PieceValue[MG][promotion_type(m)] - PieceValue[MG][PAWN];
       else
-          m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-                   - Value(type_of(pos.moved_piece(m)));
+      {
+          Square from  = from_sq(m);
+          Square to    = to_sq(m);
+          PieceType capturing = type_of(pos.piece_on(from));
+          PieceType captured  = type_of(pos.piece_on(to));
+
+          m.value =  PieceValue[MG][captured] - Value(capturing);
+          
+          if (!(pawnDefense & to))
+              m.value +=  32;
+      }
+  }
 }
 
 template<>
