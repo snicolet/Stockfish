@@ -171,9 +171,9 @@ void MovePicker::score<CAPTURES>() {
           PieceType captured  = type_of(pos.piece_on(to));
 
           m.value =  PieceValue[MG][captured] - Value(capturing);
-          
+
           if (!(pawnDefense & to))
-              m.value +=  32;
+              m.value += 800;
       }
   }
 }
