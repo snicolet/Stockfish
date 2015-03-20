@@ -173,7 +173,7 @@ void MovePicker::score<CAPTURES>() {
           m.value =  PieceValue[MG][captured] - Value(capturing);
 
           if (!(pawnDefense & to))
-              m.value += 10;
+              m.value += 800;
       }
   }
 }
