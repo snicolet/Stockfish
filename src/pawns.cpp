@@ -177,23 +177,23 @@ namespace {
         if (passed && !doubled)
             e->passedPawns[Us] |= s;
 
-        // Score this pawn
-        
+        // Score penalties for this pawn
         if (relative_rank(Us, s) <= RANK_4)
         {
-        	if (isolated)
-            	score -= Isolated[opposed][f];
+            if (isolated)
+                score -= Isolated[opposed][f];
 
-        	if (!supported && !isolated)
-            	score -= UnsupportedPawnPenalty;
+            if (!supported && !isolated)
+                score -= UnsupportedPawnPenalty;
 
-        	if (doubled)
-            	score -= Doubled[f] / distance<Rank>(s, frontmost_sq(Us, doubled));
+            if (doubled)
+                score -= Doubled[f] / distance<Rank>(s, frontmost_sq(Us, doubled));
 
-        	if (backward)
-            	score -= Backward[opposed][f];
+            if (backward)
+                score -= Backward[opposed][f];
         }
 
+        // Score bonuses for this pawn
         if (connected)
             score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
 
