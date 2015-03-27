@@ -163,12 +163,27 @@ void MovePicker::score<CAPTURES>() {
 template<>
 void MovePicker::score<QUIETS>() {
 
+  Color c = ~pos.side_to_move();  // opponent's color
+  Bitboard pawns = pos.pieces(c, PAWN);
+  Bitboard attacked =  WHITE==c ? shift_bb<DELTA_NW>(pawns) | shift_bb<DELTA_NE>(pawns) :
+                                  shift_bb<DELTA_SW>(pawns) | shift_bb<DELTA_SE>(pawns) ;
+
   Square prevSq = to_sq((ss-1)->currentMove);
   const HistoryStats& cmh = counterMovesHistory[pos.piece_on(prevSq)][prevSq];
 
   for (auto& m : *this)
-      m.value =  history[pos.moved_piece(m)][to_sq(m)]
-               + cmh[pos.moved_piece(m)][to_sq(m)];
+  {
+      Square from  = from_sq(m);
+      Square to    = to_sq(m);
+
+      m.value =  history[pos.moved_piece(m)][to] + cmh[pos.moved_piece(m)][to];
+      
+      if (attacked & from)
+           m.value += 500;
+
+      if (attacked & to)
+           m.value -= 500;
+  }
 }
 
 template<>
