@@ -45,10 +45,10 @@ namespace {
 
   // Backward pawn penalty by opposed flag and file
   const Score Backward[2][FILE_NB] = {
-  { S(30, 42), S(43, 46), S(49, 46), S(49, 46),
-    S(49, 46), S(49, 46), S(43, 46), S(30, 42) },
-  { S(20, 28), S(29, 31), S(33, 31), S(33, 31),
-    S(33, 31), S(33, 31), S(29, 31), S(20, 28) } };
+  { S(25, 37), S(38, 41), S(44, 41), S(44, 41),
+    S(44, 41), S(44, 41), S(38, 41), S(25, 37) },
+  { S(15, 23), S(24, 26), S(28, 26), S(28, 26),
+    S(28, 26), S(28, 26), S(24, 26), S(15, 23) } };
 
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
@@ -151,9 +151,10 @@ namespace {
         // Test for backward pawn.
         // If the pawn is passed, isolated, lever or connected it cannot be
         // backward. If there are friendly pawns behind on adjacent files
-        // it cannot be backward either.
+        // or if it is in the enemy camp it cannot be backward either.
         if (   (passed | isolated | lever | connected)
-            || (ourPawns & pawn_attack_span(Them, s)))
+            || (ourPawns & pawn_attack_span(Them, s))
+            || (relative_rank(Us, s) >= RANK_5))
             backward = false;
         else
         {
