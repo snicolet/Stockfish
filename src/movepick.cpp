@@ -162,13 +162,27 @@ void MovePicker::score<CAPTURES>() {
 
 template<>
 void MovePicker::score<QUIETS>() {
+  // We order quiet moves by history and countermove history values, with the added
+  // idea that moves putting a piece en prise should be pushed to the end of the list.
+
+  Color c = ~pos.side_to_move();  // opponent's color
+  Bitboard pawns = pos.pieces(c, PAWN);
+  Bitboard attacked =  WHITE==c ? shift_bb<DELTA_NW>(pawns) | shift_bb<DELTA_NE>(pawns) :
+                                  shift_bb<DELTA_SW>(pawns) | shift_bb<DELTA_SE>(pawns) ;
 
   Square prevSq = to_sq((ss-1)->currentMove);
   const HistoryStats& cmh = counterMovesHistory[pos.piece_on(prevSq)][prevSq];
 
   for (auto& m : *this)
-      m.value =  history[pos.moved_piece(m)][to_sq(m)]
-               + cmh[pos.moved_piece(m)][to_sq(m)];
+  {
+      Piece piece = pos.moved_piece(m);
+      Square to = to_sq(m);
+
+      m.value = history[piece][to] + cmh[piece][to];
+
+      if (type_of(piece) != PAWN)
+          m.value -= 1000 * Value(type_of(piece)) * ((attacked & to) != 0);
+  }
 }
 
 template<>
