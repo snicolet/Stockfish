@@ -175,14 +175,16 @@ void MovePicker::score<QUIETS>() {
   {
       Square from  = from_sq(m);
       Square to    = to_sq(m);
+      Piece  piece = pos.moved_piece(m);
 
-      m.value =  history[pos.moved_piece(m)][to] + cmh[pos.moved_piece(m)][to];
+      m.value = history[piece][to] + cmh[piece][to];
       
-      if (attacked & from)
-           m.value += 500;
-
-      if (attacked & to)
-           m.value -= 500;
+      if (type_of(piece) != PAWN)
+      {
+          m.value += 100 * ((attacked & from) != 0);
+          m.value -= 10000   * ((attacked & to) != 0);
+      }
+      
   }
 }
 
