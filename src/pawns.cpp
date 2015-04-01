@@ -61,6 +61,9 @@ namespace {
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
 
+  // Bonus for each square controlled by our pawns but not by the enemy pawns
+  const Score ControlledSquare = S(8, 15);
+
   // Center bind bonus: Two pawns controlling the same central square
   const Bitboard CenterBindMask[COLOR_NB] = {
     (FileDBB | FileEBB) & (Rank5BB | Rank6BB | Rank7BB),
@@ -246,6 +249,15 @@ Entry* probe(const Position& pos) {
 
   e->key = key;
   e->score = evaluate<WHITE>(pos, e) - evaluate<BLACK>(pos, e);
+
+  //Bitboard w = (e->pawnAttacks[WHITE] & ~e->pawnAttacks[BLACK] & ~pos.pieces(WHITE, PAWN));
+  //Bitboard b = (e->pawnAttacks[BLACK] & ~e->pawnAttacks[WHITE] & ~pos.pieces(BLACK, PAWN));
+  
+  Bitboard w = e->pawnAttacks[WHITE] & (~e->pawnAttacks[BLACK] | pos.pieces(WHITE, PAWN));
+  Bitboard b = e->pawnAttacks[BLACK] & (~e->pawnAttacks[WHITE] | pos.pieces(BLACK, PAWN));
+
+  e->score += ControlledSquare * (popcount<Full>(w) - popcount<Full>(b));
+
   return e;
 }
 
