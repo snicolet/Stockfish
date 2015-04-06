@@ -665,8 +665,8 @@ namespace {
     // Estimate heuristically the CUT/ALL status of the node
     if (   abs(beta) < VALUE_MATE_IN_MAX_PLY
        &&  abs(eval) < VALUE_MATE_IN_MAX_PLY )
-        cutProbability = (eval >= beta + 150) ? 0.95 :
-                         (eval <= beta - 150) ? 0.05 :
+        cutProbability = (eval >= beta + 200) ? 0.95 :
+                         (eval <= beta - 200) ? 0.05 :
                                                 0.50 ;
     
     if (ss->skipEarlyPruning)
