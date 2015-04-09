@@ -183,6 +183,7 @@ void UCI::loop(int argc, char* argv[]) {
       {
           TT.clear();
           Time.availableNodes = 0;
+          Pawns::init();     // for SPSA
       }
       else if (token == "isready")    sync_cout << "readyok" << sync_endl;
       else if (token == "go")         go(pos, is);

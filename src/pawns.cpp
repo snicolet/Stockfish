@@ -25,6 +25,7 @@
 #include "pawns.h"
 #include "position.h"
 #include "thread.h"
+#include "uci.h"
 
 namespace {
 
@@ -53,10 +54,14 @@ namespace {
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
 
-  // Levers bonus by rank
-  const Score Lever[RANK_NB] = {
-    S( 0, 0), S( 0, 0), S(0, 0), S(0, 0),
-    S(20,20), S(40,40), S(0, 0), S(0, 0) };
+  // Levers bonus by unsupported flag and rank
+  int lever_a, lever_b, lever_c, lever_d, lever_e, lever_f; // SPSA
+  //const Score Lever[2][RANK_NB] = {                       // SPSA
+  Score Lever[2][RANK_NB] = {                               // SPSA
+  { S( 0, 0), S( 0, 0), S(0, 0), S(10,10),
+    S(40,40), S(80,80), S(0, 0), S( 0, 0) },
+  { S( 0, 0), S( 0, 0), S(0, 0), S( 0, 0),
+    S(20,20), S(40,40), S(0, 0), S( 0, 0) } };
 
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
@@ -194,7 +199,7 @@ namespace {
             score -= Doubled[f] / distance<Rank>(s, frontmost_sq(Us, doubled));
 
         if (lever)
-            score += Lever[relative_rank(Us, s)];
+            score += Lever[!supported][relative_rank(Us, s)];
     }
 
     b = e->semiopenFiles[Us] ^ 0xFF;
@@ -228,6 +233,39 @@ void init()
       v += (apex ? v / 2 : 0);
       Connected[opposed][phalanx][apex][r] = make_score(3 * v / 2, v);
   }
+  
+  
+  
+  // SPSA
+  
+  UCI::OptionsMap& o = Options;
+  
+  /*
+  lever_a = 10;
+  lever_b = 30;
+  lever_c = 40;
+  lever_d = 0;
+  lever_e = 20;
+  lever_f = 20;
+  */
+  
+  lever_a = o["lever_a"];
+  lever_b = o["lever_b"];
+  lever_c = o["lever_c"];
+  lever_d = o["lever_d"];
+  lever_e = o["lever_e"];
+  lever_f = o["lever_f"];
+  
+  // SPSA : supported levers
+  Lever[0][RANK_4] = make_score(lever_a, lever_a);
+  Lever[0][RANK_5] = make_score(lever_a + lever_b, lever_a + lever_b);
+  Lever[0][RANK_6] = make_score(lever_a + lever_b + lever_c, lever_a + lever_b + lever_c);
+  
+  // SPSA : unsupported levers
+  Lever[1][RANK_4] = make_score(lever_d, lever_d);
+  Lever[1][RANK_5] = make_score(lever_d + lever_e, lever_d + lever_e);
+  Lever[1][RANK_6] = make_score(lever_d + lever_e + lever_f, lever_d + lever_e + lever_f);
+  
 }
 
 

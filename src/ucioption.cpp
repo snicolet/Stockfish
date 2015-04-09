@@ -39,6 +39,7 @@ void on_hash_size(const Option& o) { TT.resize(o); }
 void on_logger(const Option& o) { start_logger(o); }
 void on_threads(const Option&) { Threads.read_uci_options(); }
 void on_tb_path(const Option& o) { Tablebases::init(o); }
+void on_tune(const Option&) { Pawns::init(); }  // SPSA
 
 
 /// Our case insensitive less() function as required by UCI protocol
@@ -73,6 +74,14 @@ void init(OptionsMap& o) {
   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(6, 0, 6);
+  
+  // SPSA
+  o["lever_a"]               << Option(10, 0, 200, on_tune);
+  o["lever_b"]               << Option(30, 0, 200, on_tune);
+  o["lever_c"]               << Option(40, 0, 200, on_tune);
+  o["lever_d"]               << Option(0, -200, 200, on_tune);
+  o["lever_e"]               << Option(20, 0, 200, on_tune);
+  o["lever_f"]               << Option(20, 0, 200, on_tune);
 }
 
 
