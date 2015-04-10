@@ -53,10 +53,12 @@ namespace {
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
 
-  // Levers bonus by rank
-  const Score Lever[RANK_NB] = {
-    S( 0, 0), S( 0, 0), S(0, 0), S(0, 0),
-    S(20,20), S(40,40), S(0, 0), S(0, 0) };
+  // Levers bonus by unsupported flag and rank
+  const Score Lever[2][RANK_NB] = {
+  { S( 0, 0), S( 0, 0), S(0, 0), S(10,10),
+    S(37,37), S(78,78), S(0, 0), S( 0, 0) },
+  { S( 0, 0), S( 0, 0), S(0, 0), S( 6, 6),
+    S(27,27), S(50,50), S(0, 0), S( 0, 0) } };
 
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
@@ -194,7 +196,7 @@ namespace {
             score -= Doubled[f] / distance<Rank>(s, frontmost_sq(Us, doubled));
 
         if (lever)
-            score += Lever[relative_rank(Us, s)];
+            score += Lever[!supported][relative_rank(Us, s)];
     }
 
     b = e->semiopenFiles[Us] ^ 0xFF;
