@@ -57,8 +57,8 @@ namespace {
   const Score Lever[2][RANK_NB] = {
   { S( 0, 0), S( 0, 0), S(0, 0), S( 5,15),
     S(32,42), S(73,83), S(0, 0), S( 0, 0) },
-  { S( 0, 0), S( 0, 0), S(0, 0), S( 1,11),
-    S(22,32), S(45,55), S(0, 0), S( 0, 0) } };
+  { S( 0, 0), S( 0, 0), S(0, 0), S(11, 1),
+    S(32,22), S(55,45), S(0, 0), S( 0, 0) } };
 
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
