@@ -39,6 +39,9 @@ const size_t MAX_THREADS = 128;
 const size_t MAX_SPLITPOINTS_PER_THREAD = 8;
 const size_t MAX_SLAVES_PER_SPLITPOINT = 4;
 
+
+// Spinlock implements busy waiting on a lock. It should be used when the lock is taken
+// for a short period of time and contention is low.
 class Spinlock {
 
   std::atomic_int lock;
@@ -53,8 +56,9 @@ public:
   void release() { lock.store(1, std::memory_order_release); }
 };
 
-// Mutex is an wrapper around std::mutex. We spin a little bit, then lock. This adaptive
-// strategy be more efficient than std::mutex, while staying nice for hyperthreading.
+
+// Mutex is an wrapper around std::mutex. It spins a little bit, then locks. This adaptive
+// strategy may be more efficient than std::mutex, while staying nice for hyperthreading.
 // Idea by Xavier Leroy and Kaz Kylheku, in LinuxThread and NPTL libraries. Implementation
 // adapted from http://code.metager.de/source/xref/gnu/glibc/nptl/pthread_mutex_lock.c 
 class Mutex {
