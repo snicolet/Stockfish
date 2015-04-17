@@ -43,7 +43,7 @@ namespace {
   { S(25, 30), S(36, 35), S(40, 35), S(40, 35),
     S(40, 35), S(40, 35), S(36, 35), S(25, 30) } };
 
-  // Backward pawn penalty by opposed flag and rank
+  // Backward pawn penalty by rank
   const Score Backward[RANK_NB] = {
     S(0, 0), S(75, 65), S(65, 55), S(55, 45),
     S(45, 35), S(35, 25), S(25, 15), S(0, 0) };
