@@ -146,16 +146,16 @@ namespace {
   // Threat[defended/weak][minor/major attacking][attacked PieceType] contains
   // bonuses according to which piece type attacks which one.
   const Score Threat[][2][PIECE_TYPE_NB] = {
-  { { S(0, 0), S( 0, 0), S(19, 37), S(24, 37), S(44, 97), S(35,106) },   // Defended Minor
-    { S(0, 0), S( 0, 0), S( 9, 14), S( 9, 14), S( 7, 14), S(24, 48) } }, // Defended Major
-  { { S(0, 0), S( 0,32), S(33, 41), S(31, 50), S(41,100), S(35,104) },   // Weak Minor
-    { S(0, 0), S( 0,27), S(26, 57), S(26, 57), S(0 , 43), S(23, 51) } }  // Weak Major
+  { { S(0, 0), S( 0, 0), S(29, 47), S(34, 47), S(54,107), S(45,116) },   // Defended Minor
+    { S(0, 0), S( 0, 0), S(19, 24), S(19, 24), S(17, 24), S(34, 58) } }, // Defended Major
+  { { S(0, 0), S( 0,32), S(43, 51), S(41, 60), S(51,110), S(45,114) },   // Weak Minor
+    { S(0, 0), S( 0,27), S(36, 67), S(36, 67), S(10, 53), S(33, 61) } }  // Weak Major
   };
 
   // ThreatenedByPawn[PieceType] contains a penalty according to which piece
   // type is attacked by an enemy pawn.
   const Score ThreatenedByPawn[PIECE_TYPE_NB] = {
-    S(0, 0), S(0, 0), S(107, 138), S(84, 122), S(114, 203), S(121, 217)
+    S(0, 0), S(0, 0), S(117, 148), S(94, 132), S(124, 213), S(131, 227)
   };
 
   const Score ThreatenedByHangingPawn = S(40, 60);
@@ -482,6 +482,26 @@ namespace {
   }
 
 
+  // accumulate_threats() is a helper function to calculate the score of a set of threats.
+  // The set of threatened pieces is in the "targets" parameter, and they are scored with
+  // the threat_values[] array.
+
+  template<Color Us> inline
+  Score accumulate_threats(Bitboard targets, const Position& pos, const Score threat_values[]) {
+
+    const Color Them = (Us == WHITE ? BLACK : WHITE);
+    Score score = SCORE_ZERO;
+
+    if (targets & pos.pieces(Them, PAWN))    score = threat_values[PAWN];
+    if (targets & pos.pieces(Them, KNIGHT))  score = (score / 2) + threat_values[KNIGHT];
+    if (targets & pos.pieces(Them, BISHOP))  score = (score / 2) + threat_values[BISHOP];
+    if (targets & pos.pieces(Them, ROOK))    score = (score / 2) + threat_values[ROOK];
+    if (targets & pos.pieces(Them, QUEEN))   score = (score / 2) + threat_values[QUEEN];
+
+    return score;
+  }
+
+
   // evaluate_threats() assigns bonuses according to the type of attacking piece
   // and the type of attacked one.
 
@@ -514,8 +534,7 @@ namespace {
         if (weak ^ safeThreats)
             score += ThreatenedByHangingPawn;
 
-        while (safeThreats)
-            score += ThreatenedByPawn[type_of(pos.piece_on(pop_lsb(&safeThreats)))];
+        score += accumulate_threats<Us>(safeThreats, pos, ThreatenedByPawn);
     }
 
     // Non-pawn enemies defended by a pawn
@@ -525,12 +544,10 @@ namespace {
     if (defended)
     {
         b = defended & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
-        while (b)
-            score += Threat[Defended][Minor][type_of(pos.piece_on(pop_lsb(&b)))];
+        score += accumulate_threats<Us>(b, pos, Threat[Defended][Minor]);
 
         b = defended & (ei.attackedBy[Us][ROOK]);
-        while (b)
-            score += Threat[Defended][Major][type_of(pos.piece_on(pop_lsb(&b)))];
+        score += accumulate_threats<Us>(b, pos, Threat[Defended][Major]);
     }
 
     // Enemies not defended by a pawn and under our attack
@@ -542,12 +559,10 @@ namespace {
     if (weak)
     {
         b = weak & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
-        while (b)
-            score += Threat[Weak][Minor][type_of(pos.piece_on(pop_lsb(&b)))];
+        score += accumulate_threats<Us>(b, pos, Threat[Weak][Minor]);
 
         b = weak & (ei.attackedBy[Us][ROOK] | ei.attackedBy[Us][QUEEN]);
-        while (b)
-            score += Threat[Weak][Major][type_of(pos.piece_on(pop_lsb(&b)))];
+        score += accumulate_threats<Us>(b, pos, Threat[Weak][Major]);
 
         b = weak & ~ei.attackedBy[Them][ALL_PIECES];
         if (b)
