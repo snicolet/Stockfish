@@ -407,7 +407,7 @@ namespace {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and undefended squares around our king and the quality of
         // the pawn shelter (current 'score' value).
-        attackUnits =  std::min(74, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
+        attackUnits =  std::min(74, ei.kingAttackersCount[Them] * (ei.kingAttackersWeight[Them] - 2))
                      +  8 * ei.kingAdjacentZoneAttacksCount[Them]
                      + 25 * popcount<Max15>(undefended)
                      + 11 * (ei.pinnedPieces[Us] != 0)
