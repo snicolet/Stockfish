@@ -53,6 +53,9 @@ namespace {
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
 
+  // Long chain bonus
+  const Score LongChain = S(10, 40);
+
   // Levers bonus by rank
   const Score Lever[RANK_NB] = {
     S( 0, 0), S( 0, 0), S(0, 0), S(0, 0),
@@ -200,9 +203,16 @@ namespace {
     b = e->semiopenFiles[Us] ^ 0xFF;
     e->pawnSpan[Us] = b ? int(msb(b) - lsb(b)) : 0;
 
-    // Center binds: Two pawns controlling the same central square
+    // Center binds: two pawns controlling the same central square
     b = shift_bb<Right>(ourPawns) & shift_bb<Left>(ourPawns) & CenterBindMask[Us];
     score += popcount<Max15>(b) * CenterBind;
+
+    // Long chains: pawns which are both supported and supporting other pawns
+    b =   ourPawns
+        & (Rank4BB | Rank5BB)
+        & (shift_bb<DELTA_SW>(ourPawns) | shift_bb<DELTA_SE>(ourPawns))
+        & (shift_bb<DELTA_NW>(ourPawns) | shift_bb<DELTA_NE>(ourPawns));
+    score += popcount<Max15>(b) * LongChain;
 
     return score;
   }
