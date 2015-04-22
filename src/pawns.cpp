@@ -54,7 +54,7 @@ namespace {
   Score Connected[2][2][2][RANK_NB];
 
   // Long chain bonus
-  const Score LongChain = S(10, 40);
+  const Score LongChain = S(25, 25);
 
   // Levers bonus by rank
   const Score Lever[RANK_NB] = {
