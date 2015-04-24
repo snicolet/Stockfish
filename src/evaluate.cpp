@@ -498,7 +498,8 @@ namespace {
     enum { Defended, Weak };
     enum { Minor, Major };
 
-    Bitboard b, weak, defended, safeThreats;
+    Bitboard b, s, weak, defended, safeThreats;
+    uint64_t attack, defense;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies attacked by a pawn
@@ -549,13 +550,36 @@ namespace {
         while (b)
             score += Threat[Weak][Major][type_of(pos.piece_on(pop_lsb(&b)))];
 
+        b = weak & ei.attackedBy[Us][KING];
+        if (b)
+            score += more_than_one(b) ? KingOnMany : KingOnOne;
+
         b = weak & ~ei.attackedBy[Them][ALL_PIECES];
         if (b)
             score += Hanging * popcount<Max15>(b);
 
-        b = weak & ei.attackedBy[Us][KING];
-        if (b)
-            score += more_than_one(b) ? KingOnMany : KingOnOne;
+        b = weak & pos.pieces(Them, PAWN) & ei.attackedBy[Them][ALL_PIECES];
+        while (b)  // Loop over opponent pawns to compare attack and defense
+        {
+            s = b & -b;  // s is a bitboard with a single square
+            b ^= s;
+
+            defense =    (s & ei.attackedBy[Them][KNIGHT])
+                       + (s & ei.attackedBy[Them][BISHOP])
+                       + (s & ei.attackedBy[Them][ROOK])
+                       + (s & ei.attackedBy[Them][QUEEN])
+                       + (s & ei.attackedBy[Them][KING]);
+
+            attack  =    (s & ei.attackedBy[Us][PAWN])
+                       + (s & ei.attackedBy[Us][KNIGHT])
+                       + (s & ei.attackedBy[Us][BISHOP])
+                       + (s & ei.attackedBy[Us][ROOK])
+                       + (s & ei.attackedBy[Us][QUEEN])
+                       + (s & ei.attackedBy[Us][KING]);
+
+            if (attack > defense)
+                score += Hanging;
+        }
     }
 
     // Add a small bonus for safe pawn pushes
