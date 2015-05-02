@@ -498,7 +498,8 @@ namespace {
     enum { Defended, Weak };
     enum { Minor, Major };
 
-    Bitboard b, weak, defended, safeThreats;
+    Bitboard b, s, weak, defended, safeThreats;
+    uint64_t attack, defense;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies attacked by a pawn
@@ -531,6 +532,30 @@ namespace {
         b = defended & (ei.attackedBy[Us][ROOK]);
         while (b)
             score += Threat[Defended][Major][type_of(pos.piece_on(pop_lsb(&b)))];
+    }
+
+    // Pawn enemies under our attack
+    b =   pos.pieces(Them, PAWN) 
+        & ei.attackedBy[Us][ALL_PIECES]
+        & ei.attackedBy[Them][ALL_PIECES];
+    
+    while (b)  // Loop over opponent pawns to compare attack and defense
+    {
+        s = b & -b;  // s is a bitboard with a single square
+        b ^= s;
+
+        defense =    (s & ei.attackedBy[Them][PAWN])
+                   + (s & ei.attackedBy[Them][KNIGHT])
+                   + (s & ei.attackedBy[Them][BISHOP])
+                   + (s & ei.attackedBy[Them][ROOK]);
+
+        attack  =    (s & ei.attackedBy[Us][PAWN])
+                   + (s & ei.attackedBy[Us][KNIGHT])
+                   + (s & ei.attackedBy[Us][BISHOP])
+                   + (s & ei.attackedBy[Us][ROOK]);
+
+        if (attack > defense)
+            score += Hanging;
     }
 
     // Enemies not defended by a pawn and under our attack
