@@ -148,8 +148,12 @@ void MovePicker::score<CAPTURES>() {
   // has been picked up in pick_move_from_list(). This way we save some SEE
   // calls in case we get a cutoff.
   for (auto& m : *this)
+  {
+      Color stm = pos.side_to_move();
       m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-               - 200 * relative_rank(pos.side_to_move(), to_sq(m));
+               - 200 * relative_rank(stm, to_sq(m))
+               - distance(relative_square(stm,to_sq(m)), relative_square(stm,SQ_E1));
+  }
 }
 
 template<>
