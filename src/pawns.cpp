@@ -107,6 +107,7 @@ namespace {
 
     const Color  Them  = (Us == WHITE ? BLACK    : WHITE);
     const Square Up    = (Us == WHITE ? DELTA_N  : DELTA_S);
+    const Square Down  = (Us == WHITE ? DELTA_S  : DELTA_N);
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
@@ -120,12 +121,13 @@ namespace {
     Bitboard ourPawns   = pos.pieces(Us  , PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
-    e->passedPawns[Us] = 0;
-    e->kingSquares[Us] = SQ_NONE;
-    e->semiopenFiles[Us] = 0xFF;
-    e->pawnAttacks[Us] = shift_bb<Right>(ourPawns) | shift_bb<Left>(ourPawns);
-    e->pawnsOnSquares[Us][BLACK] = popcount<Max15>(ourPawns & DarkSquares);
-    e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
+    e->passedPawns[Us]           = 0;
+    e->kingSquares[Us]           = SQ_NONE;
+    e->semiopenFiles[Us]         = 0xFF;
+    e->blockedPawns[Us]          = ourPawns & shift_bb<Down>(theirPawns);
+    e->pawnAttacks[Us]           = shift_bb<Right>(ourPawns) | shift_bb<Left>(ourPawns);
+    e->pawnsOnSquares[Us][BLACK] = ourPawns &  DarkSquares;
+    e->pawnsOnSquares[Us][WHITE] = ourPawns & ~DarkSquares;
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
