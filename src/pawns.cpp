@@ -105,11 +105,13 @@ namespace {
   template<Color Us>
   Score evaluate(const Position& pos, Pawns::Entry* e) {
 
-    const Color  Them  = (Us == WHITE ? BLACK    : WHITE);
-    const Square Up    = (Us == WHITE ? DELTA_N  : DELTA_S);
-    const Square Down  = (Us == WHITE ? DELTA_S  : DELTA_N);
-    const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
-    const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
+    const Color  Them      = (Us == WHITE ? BLACK    : WHITE);
+    const Square Up        = (Us == WHITE ? DELTA_N  : DELTA_S);
+    const Square Down      = (Us == WHITE ? DELTA_S  : DELTA_N);
+    const Square UpRight   = (Us == WHITE ? DELTA_NE : DELTA_SW);
+    const Square UpLeft    = (Us == WHITE ? DELTA_NW : DELTA_SE);
+    const Square DownRight = (Us == WHITE ? DELTA_SE : DELTA_NW);
+    const Square DownLeft  = (Us == WHITE ? DELTA_SW : DELTA_NE);
 
     Bitboard b, neighbours, doubled, supported, phalanx;
     Square s;
@@ -124,8 +126,9 @@ namespace {
     e->passedPawns[Us]           = 0;
     e->kingSquares[Us]           = SQ_NONE;
     e->semiopenFiles[Us]         = 0xFF;
-    e->blockedPawns[Us]          = ourPawns & shift_bb<Down>(theirPawns);
-    e->pawnAttacks[Us]           = shift_bb<Right>(ourPawns) | shift_bb<Left>(ourPawns);
+    e->blockedPawns[Us]          =    (ourPawns & shift_bb<Down>(theirPawns)) 
+                                   & ~(shift_bb<DownRight>(theirPawns) | shift_bb<DownLeft>(theirPawns));
+    e->pawnAttacks[Us]           = shift_bb<UpRight>(ourPawns) | shift_bb<UpLeft>(ourPawns);
     e->pawnsOnSquares[Us][BLACK] = ourPawns &  DarkSquares;
     e->pawnsOnSquares[Us][WHITE] = ourPawns & ~DarkSquares;
 
@@ -203,7 +206,7 @@ namespace {
     e->pawnSpan[Us] = b ? int(msb(b) - lsb(b)) : 0;
 
     // Center binds: Two pawns controlling the same central square
-    b = shift_bb<Right>(ourPawns) & shift_bb<Left>(ourPawns) & CenterBindMask[Us];
+    b = shift_bb<UpRight>(ourPawns) & shift_bb<UpLeft>(ourPawns) & CenterBindMask[Us];
     score += popcount<Max15>(b) * CenterBind;
 
     return score;

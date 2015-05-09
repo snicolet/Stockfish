@@ -167,7 +167,8 @@ namespace {
   const Score RookOnOpenFile     = S(43, 21);
   const Score RookOnSemiOpenFile = S(19, 10);
   const Score BishopPawns        = S( 8, 12);
-  const Score BadBishop          = S(24, 36);
+  const Score BadBishop          = S( 0, 10);
+  const Score GoodKnight         = S( 0, 10);
   const Score MinorBehindPawn    = S(16,  0);
   const Score TrappedRook        = S(92,  0);
   const Score Unstoppable        = S( 0, 20);
@@ -328,6 +329,15 @@ namespace {
                 b &= ei.pi->blocked_pawns(Us);
                 if (b)
                     score -= BadBishop * popcount<Max15>(b);
+            }
+
+            // Bonus for knight with blocked pawns
+            if (Pt == KNIGHT && relative_rank(Us, s) >= RANK_4)
+            {
+                b =   ei.pi->blocked_pawns(Us)
+                    & ei.pi->pawns_on_same_color_squares(Us, s);
+                if (b)
+                    score += GoodKnight * popcount<Max15>(b);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
