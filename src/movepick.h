@@ -25,6 +25,7 @@
 
 #include "movegen.h"
 #include "position.h"
+#include "evaluate.h"
 #include "search.h"
 #include "types.h"
 
@@ -78,9 +79,9 @@ public:
   MovePicker(const MovePicker&) = delete;
   MovePicker& operator=(const MovePicker&) = delete;
 
-  MovePicker(const Position&, Move, Depth, const HistoryStats&, const CounterMovesHistoryStats&, Square);
-  MovePicker(const Position&, Move, const HistoryStats&, const CounterMovesHistoryStats&, PieceType);
-  MovePicker(const Position&, Move, Depth, const HistoryStats&, const CounterMovesHistoryStats&, Move, Search::Stack*);
+  MovePicker(const Position&, const Eval::AttackInfo&, Move, Depth, const HistoryStats&, const CounterMovesHistoryStats&, Square);
+  MovePicker(const Position&, const Eval::AttackInfo&, Move, const HistoryStats&, const CounterMovesHistoryStats&, PieceType);
+  MovePicker(const Position&, const Eval::AttackInfo&, Move, Depth, const HistoryStats&, const CounterMovesHistoryStats&, Move, Search::Stack*);
 
   template<bool SpNode> Move next_move();
 
@@ -93,6 +94,7 @@ private:
   const Position& pos;
   const HistoryStats& history;
   const CounterMovesHistoryStats& counterMovesHistory;
+  Eval::AttackInfo ai;
   Search::Stack* ss;
   Move countermove;
   Depth depth;

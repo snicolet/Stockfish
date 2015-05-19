@@ -751,7 +751,7 @@ namespace {
         assert((ss-1)->currentMove != MOVE_NONE);
         assert((ss-1)->currentMove != MOVE_NULL);
 
-        MovePicker mp(pos, ttMove, History, CounterMovesHistory, pos.captured_piece_type());
+        MovePicker mp(pos, ai, ttMove, History, CounterMovesHistory, pos.captured_piece_type());
         CheckInfo ci(pos);
 
         while ((move = mp.next_move<false>()) != MOVE_NONE)
@@ -785,7 +785,7 @@ moves_loop: // When in check and at SpNode search starts from here
     Square prevMoveSq = to_sq((ss-1)->currentMove);
     Move countermove = Countermoves[pos.piece_on(prevMoveSq)][prevMoveSq];
 
-    MovePicker mp(pos, ttMove, depth, History, CounterMovesHistory, countermove, ss);
+    MovePicker mp(pos, ai, ttMove, depth, History, CounterMovesHistory, countermove, ss);
     CheckInfo ci(pos);
     value = bestValue; // Workaround a bogus 'uninitialized' warning under gcc
     improving =   ss->staticEval >= (ss-2)->staticEval
@@ -1260,7 +1260,7 @@ moves_loop: // When in check and at SpNode search starts from here
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions and checks (only if depth >= DEPTH_QS_CHECKS) will
     // be generated.
-    MovePicker mp(pos, ttMove, depth, History, CounterMovesHistory, to_sq((ss-1)->currentMove));
+    MovePicker mp(pos, ai, ttMove, depth, History, CounterMovesHistory, to_sq((ss-1)->currentMove));
     CheckInfo ci(pos);
 
     // Loop through the moves until no moves remain or a beta cutoff occurs

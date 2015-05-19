@@ -67,8 +67,9 @@ namespace {
 /// search captures, promotions and some checks) and how important good move
 /// ordering is at the current node.
 
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats& h, const CounterMovesHistoryStats& cmh,
-                       Move cm, Search::Stack* s) : pos(p), history(h), counterMovesHistory(cmh), depth(d) {
+MovePicker::MovePicker(const Position& p, const Eval::AttackInfo& a, Move ttm, Depth d, 
+                       const HistoryStats& h, const CounterMovesHistoryStats& cmh, Move cm, 
+                       Search::Stack* s) : pos(p), history(h), counterMovesHistory(cmh), ai(a), depth(d) {
 
   assert(d > DEPTH_ZERO);
 
@@ -86,8 +87,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats&
   endMoves += (ttMove != MOVE_NONE);
 }
 
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats& h, const CounterMovesHistoryStats& cmh,
-                       Square s) : pos(p), history(h), counterMovesHistory(cmh) {
+MovePicker::MovePicker(const Position& p, const Eval::AttackInfo& a, Move ttm, Depth d, 
+                       const HistoryStats& h, const CounterMovesHistoryStats& cmh,
+                       Square s) : pos(p), history(h), counterMovesHistory(cmh), ai(a) {
 
   assert(d <= DEPTH_ZERO);
 
@@ -111,8 +113,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats&
   endMoves += (ttMove != MOVE_NONE);
 }
 
-MovePicker::MovePicker(const Position& p, Move ttm, const HistoryStats& h, const CounterMovesHistoryStats& cmh, PieceType pt)
-                       : pos(p), history(h), counterMovesHistory(cmh) {
+MovePicker::MovePicker(const Position& p, const Eval::AttackInfo& a, Move ttm, 
+                       const HistoryStats& h, const CounterMovesHistoryStats& cmh, 
+                       PieceType pt) : pos(p), history(h), counterMovesHistory(cmh), ai(a) {
 
   assert(!pos.checkers());
 
