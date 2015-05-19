@@ -79,9 +79,9 @@ public:
   MovePicker(const MovePicker&) = delete;
   MovePicker& operator=(const MovePicker&) = delete;
 
-  MovePicker(const Position&, const Eval::AttackInfo&, Move, Depth, const HistoryStats&, const CounterMovesHistoryStats&, Square);
-  MovePicker(const Position&, const Eval::AttackInfo&, Move, const HistoryStats&, const CounterMovesHistoryStats&, PieceType);
-  MovePicker(const Position&, const Eval::AttackInfo&, Move, Depth, const HistoryStats&, const CounterMovesHistoryStats&, Move, Search::Stack*);
+  MovePicker(const Position&, Eval::AttackInfo*, Move, Depth, const HistoryStats&, const CounterMovesHistoryStats&, Square);
+  MovePicker(const Position&, Eval::AttackInfo*, Move, const HistoryStats&, const CounterMovesHistoryStats&, PieceType);
+  MovePicker(const Position&, Eval::AttackInfo*, Move, Depth, const HistoryStats&, const CounterMovesHistoryStats&, Move, Search::Stack*);
 
   template<bool SpNode> Move next_move();
 
@@ -94,7 +94,7 @@ private:
   const Position& pos;
   const HistoryStats& history;
   const CounterMovesHistoryStats& counterMovesHistory;
-  Eval::AttackInfo ai;
+  Eval::AttackInfo* ai;
   Search::Stack* ss;
   Move countermove;
   Depth depth;

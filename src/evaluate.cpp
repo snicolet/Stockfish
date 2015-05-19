@@ -901,13 +901,13 @@ namespace Eval {
     return do_evaluate<false>(pos, ei);
   }
 
-  Value evaluate(const Position& pos, AttackInfo& ai) {
+  Value evaluate(const Position& pos, AttackInfo* ai) {
     EvalInfo ei;
 
     Value v = do_evaluate<false>(pos, ei);
 
-    ai.attackedBy[WHITE] = ei.attackedBy[WHITE][ALL_PIECES];
-    ai.attackedBy[BLACK] = ei.attackedBy[BLACK][ALL_PIECES];
+    ai->attackedBy[WHITE] = ei.attackedBy[WHITE][ALL_PIECES];
+    ai->attackedBy[BLACK] = ei.attackedBy[BLACK][ALL_PIECES];
 
     return v;
   }

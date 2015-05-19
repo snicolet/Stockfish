@@ -36,7 +36,7 @@ const Value Tempo = Value(17);
 
 void init();
 Value evaluate(const Position& pos);
-Value evaluate(const Position& pos, AttackInfo& ai);
+Value evaluate(const Position& pos, AttackInfo* ai);
 std::string trace(const Position& pos);
 
 }
