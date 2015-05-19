@@ -645,7 +645,7 @@ namespace {
     // Step 5. Evaluate the position statically
     if (inCheck)
     {
-        eval = ss->staticEval = evaluate(pos, ai);
+        ss->staticEval = eval = VALUE_NONE;
         goto moves_loop;
     }
 
