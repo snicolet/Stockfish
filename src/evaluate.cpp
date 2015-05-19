@@ -169,7 +169,7 @@ namespace {
   const Score BishopPawns        = S( 8, 12);
   const Score MinorBehindPawn    = S(16,  0);
   const Score TrappedRook        = S(92,  0);
-  const Score NoRetreat          = S(0, 100);
+  const Score NoRetreat          = S(25, 25);
   const Score Unstoppable        = S( 0, 20);
   const Score Hanging            = S(31, 26);
   const Score PawnAttackThreat   = S(20, 20);
