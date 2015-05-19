@@ -169,6 +169,7 @@ namespace {
   const Score BishopPawns        = S( 8, 12);
   const Score MinorBehindPawn    = S(16,  0);
   const Score TrappedRook        = S(92,  0);
+  const Score NoRetreat          = S(0, 100);
   const Score Unstoppable        = S( 0, 20);
   const Score Hanging            = S(31, 26);
   const Score PawnAttackThreat   = S(20, 20);
@@ -306,6 +307,14 @@ namespace {
         int mob = popcount<Pt == QUEEN ? Full : Max15>(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt][mob];
+
+        // Malus for pieces which cannot retreat nor move sideway
+        if (relative_rank(Us, s) >= RANK_3)
+        {
+            Bitboard bb = b & mobilityArea[Us] & ~pos.pieces(Us) & ~in_front_bb(Us, rank_of(s));
+            if (!bb)
+                score -= NoRetreat;
+        }
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
