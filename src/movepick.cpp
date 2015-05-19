@@ -150,9 +150,21 @@ void MovePicker::score<CAPTURES>() {
   // badCaptures[] array, but instead of doing it now we delay until the move
   // has been picked up in pick_move_from_list(). This way we save some SEE
   // calls in case we get a cutoff.
+  
+  Color stm = pos.side_to_move();
+  Bitboard support = ai.attackedBy[ stm];
+  Bitboard defense = ai.attackedBy[~stm];
+                          
   for (auto& m : *this)
+  {
       m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-               - 200 * relative_rank(pos.side_to_move(), to_sq(m));
+               - 200 * relative_rank(stm, to_sq(m));
+    
+      // If we have attack info, give bonus for urgent captures
+      if (  !(defense & to_sq(m))
+         && !(support & from_sq(m)))
+          m.value += 500;
+  }
 }
 
 template<>
