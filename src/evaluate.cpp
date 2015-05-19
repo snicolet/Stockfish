@@ -309,12 +309,9 @@ namespace {
         mobility[Us] += MobilityBonus[Pt][mob];
 
         // Malus for pieces which cannot retreat nor move sideway
-        if (relative_rank(Us, s) >= RANK_3)
-        {
-            Bitboard bb = b & mobilityArea[Us] & ~pos.pieces(Us) & ~in_front_bb(Us, rank_of(s));
-            if (!bb)
-                score -= NoRetreat;
-        }
+        if (    relative_rank(Us, s) >= RANK_3
+            && !(b & mobilityArea[Us] & ~in_front_bb(Us, rank_of(s)) & ~pos.pieces(Us)))
+          score -= NoRetreat;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
