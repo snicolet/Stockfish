@@ -67,7 +67,7 @@ namespace {
 /// search captures, promotions and some checks) and how important good move
 /// ordering is at the current node.
 
-MovePicker::MovePicker(const Position& p, Eval::AttackInfo* a, Move ttm, Depth d, 
+MovePicker::MovePicker(const Position& p, AttackInfo* a, Move ttm, Depth d, 
                        const HistoryStats& h, const CounterMovesHistoryStats& cmh, Move cm, 
                        Search::Stack* s) : pos(p), history(h), counterMovesHistory(cmh), ai(a), depth(d) {
 
@@ -87,7 +87,7 @@ MovePicker::MovePicker(const Position& p, Eval::AttackInfo* a, Move ttm, Depth d
   endMoves += (ttMove != MOVE_NONE);
 }
 
-MovePicker::MovePicker(const Position& p, Eval::AttackInfo* a, Move ttm, Depth d, 
+MovePicker::MovePicker(const Position& p, AttackInfo* a, Move ttm, Depth d, 
                        const HistoryStats& h, const CounterMovesHistoryStats& cmh,
                        Square s) : pos(p), history(h), counterMovesHistory(cmh), ai(a) {
 
@@ -113,7 +113,7 @@ MovePicker::MovePicker(const Position& p, Eval::AttackInfo* a, Move ttm, Depth d
   endMoves += (ttMove != MOVE_NONE);
 }
 
-MovePicker::MovePicker(const Position& p, Eval::AttackInfo* a, Move ttm, 
+MovePicker::MovePicker(const Position& p, AttackInfo* a, Move ttm, 
                        const HistoryStats& h, const CounterMovesHistoryStats& cmh, 
                        PieceType pt) : pos(p), history(h), counterMovesHistory(cmh), ai(a) {
 
@@ -152,8 +152,8 @@ void MovePicker::score<CAPTURES>() {
   // calls in case we get a cutoff.
 
   Color stm = pos.side_to_move();
-  Bitboard defense = ai->attackedBy[~stm];
   Bitboard support = ai->attackedBy[ stm];
+  Bitboard defense = ai->attackedBy[~stm];
 
   for (auto& m : *this)
   {
@@ -161,7 +161,8 @@ void MovePicker::score<CAPTURES>() {
                - 200 * relative_rank(stm, to_sq(m));
 
       // If we have attack info, use it to tell apart urgent captures
-      if (   !(defense & to_sq(m))
+      if (    (support | defense)
+          && !(defense & to_sq(m))
           && !(support & from_sq(m)))
          m.value += 500;
   }

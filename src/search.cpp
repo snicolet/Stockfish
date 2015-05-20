@@ -58,6 +58,7 @@ namespace TB = Tablebases;
 
 using std::string;
 using Eval::evaluate;
+using Eval::AttackInfo;
 using namespace Search;
 
 namespace {
@@ -526,7 +527,7 @@ namespace {
     StateInfo st;
     TTEntry* tte;
     SplitPoint* splitPoint;
-    Eval::AttackInfo ai;
+    AttackInfo ai = {{0,0}};
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth, predictedDepth;
@@ -538,7 +539,6 @@ namespace {
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     inCheck = pos.checkers();
-    ai.attackedBy[WHITE] = ai.attackedBy[BLACK] = 0;
 
     if (SpNode)
     {
@@ -1172,7 +1172,7 @@ moves_loop: // When in check and at SpNode search starts from here
     Move pv[MAX_PLY+1];
     StateInfo st;
     TTEntry* tte;
-    Eval::AttackInfo ai;
+    AttackInfo ai = {{0,0}};
     Key posKey;
     Move ttMove, move, bestMove;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
