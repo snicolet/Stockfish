@@ -28,10 +28,15 @@ class Position;
 
 namespace Eval {
 
-const Value Tempo = Value(17); // Must be visible to search
+// Struct AttackInfo contains information about squares attacked by a given color
+struct AttackInfo { Bitboard attackedBy[COLOR_NB]; };
+
+// Must be visible to search
+const Value Tempo = Value(17); 
 
 void init();
 Value evaluate(const Position& pos);
+Value evaluate(const Position& pos, AttackInfo* ai);
 std::string trace(const Position& pos);
 
 }

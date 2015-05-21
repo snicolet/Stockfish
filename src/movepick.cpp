@@ -67,8 +67,9 @@ namespace {
 /// search captures, promotions and some checks) and how important good move
 /// ordering is at the current node.
 
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats& h, const CounterMovesHistoryStats& cmh,
-                       Move cm, Search::Stack* s) : pos(p), history(h), counterMovesHistory(cmh), depth(d) {
+MovePicker::MovePicker(const Position& p, AttackInfo* a, Move ttm, Depth d, 
+                       const HistoryStats& h, const CounterMovesHistoryStats& cmh, Move cm, 
+                       Search::Stack* s) : pos(p), history(h), counterMovesHistory(cmh), ai(a), depth(d) {
 
   assert(d > DEPTH_ZERO);
 
@@ -86,8 +87,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats&
   endMoves += (ttMove != MOVE_NONE);
 }
 
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats& h, const CounterMovesHistoryStats& cmh,
-                       Square s) : pos(p), history(h), counterMovesHistory(cmh) {
+MovePicker::MovePicker(const Position& p, AttackInfo* a, Move ttm, Depth d, 
+                       const HistoryStats& h, const CounterMovesHistoryStats& cmh,
+                       Square s) : pos(p), history(h), counterMovesHistory(cmh), ai(a) {
 
   assert(d <= DEPTH_ZERO);
 
@@ -111,8 +113,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const HistoryStats&
   endMoves += (ttMove != MOVE_NONE);
 }
 
-MovePicker::MovePicker(const Position& p, Move ttm, const HistoryStats& h, const CounterMovesHistoryStats& cmh, PieceType pt)
-                       : pos(p), history(h), counterMovesHistory(cmh) {
+MovePicker::MovePicker(const Position& p, AttackInfo* a, Move ttm, 
+                       const HistoryStats& h, const CounterMovesHistoryStats& cmh, 
+                       PieceType pt) : pos(p), history(h), counterMovesHistory(cmh), ai(a) {
 
   assert(!pos.checkers());
 
@@ -147,9 +150,22 @@ void MovePicker::score<CAPTURES>() {
   // badCaptures[] array, but instead of doing it now we delay until the move
   // has been picked up in pick_move_from_list(). This way we save some SEE
   // calls in case we get a cutoff.
+
+  Color stm = pos.side_to_move();
+  Bitboard ourAttacks   = ai->attackedBy[ stm];
+  Bitboard theirAttacks = ai->attackedBy[~stm];
+
   for (auto& m : *this)
+  {
       m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-               - 200 * relative_rank(pos.side_to_move(), to_sq(m));
+               - 200 * relative_rank(stm, to_sq(m));
+
+      // If we have attack info, use it to tell apart urgent captures
+      if (    (ourAttacks | theirAttacks)
+          && !(theirAttacks & to_sq(m))
+          && !(ourAttacks & from_sq(m)))
+         m.value += 500;
+  }
 }
 
 template<>

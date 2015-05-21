@@ -25,6 +25,7 @@
 
 #include "movegen.h"
 #include "position.h"
+#include "evaluate.h"
 #include "search.h"
 #include "types.h"
 
@@ -65,6 +66,7 @@ typedef Stats<Value> HistoryStats;
 typedef Stats<Move> MovesStats;
 typedef Stats<HistoryStats> CounterMovesHistoryStats;
 
+using Eval::AttackInfo;
 
 /// MovePicker class is used to pick one pseudo legal move at a time from the
 /// current position. The most important method is next_move(), which returns a
@@ -78,9 +80,9 @@ public:
   MovePicker(const MovePicker&) = delete;
   MovePicker& operator=(const MovePicker&) = delete;
 
-  MovePicker(const Position&, Move, Depth, const HistoryStats&, const CounterMovesHistoryStats&, Square);
-  MovePicker(const Position&, Move, const HistoryStats&, const CounterMovesHistoryStats&, PieceType);
-  MovePicker(const Position&, Move, Depth, const HistoryStats&, const CounterMovesHistoryStats&, Move, Search::Stack*);
+  MovePicker(const Position&, AttackInfo*, Move, Depth, const HistoryStats&, const CounterMovesHistoryStats&, Square);
+  MovePicker(const Position&, AttackInfo*, Move, const HistoryStats&, const CounterMovesHistoryStats&, PieceType);
+  MovePicker(const Position&, AttackInfo*, Move, Depth, const HistoryStats&, const CounterMovesHistoryStats&, Move, Search::Stack*);
 
   template<bool SpNode> Move next_move();
 
@@ -93,6 +95,7 @@ private:
   const Position& pos;
   const HistoryStats& history;
   const CounterMovesHistoryStats& counterMovesHistory;
+  AttackInfo* ai;
   Search::Stack* ss;
   Move countermove;
   Depth depth;

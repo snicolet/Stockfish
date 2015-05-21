@@ -707,11 +707,10 @@ namespace {
   // do_evaluate() is the evaluation entry point, called directly from evaluate()
 
   template<bool Trace>
-  Value do_evaluate(const Position& pos) {
+  Value do_evaluate(const Position& pos, EvalInfo& ei) {
 
     assert(!pos.checkers());
 
-    EvalInfo ei;
     Score score, mobility[2] = { SCORE_ZERO, SCORE_ZERO };
 
     // Initialize score by reading the incrementally updated scores included
@@ -856,10 +855,11 @@ namespace {
   }
 
   std::string Tracing::do_trace(const Position& pos) {
+    EvalInfo ei;
 
     std::memset(scores, 0, sizeof(scores));
 
-    Value v = do_evaluate<true>(pos);
+    Value v = do_evaluate<true>(pos, ei);
     v = pos.side_to_move() == WHITE ? v : -v; // White's point of view
 
     std::stringstream ss;
@@ -896,9 +896,21 @@ namespace Eval {
   /// of the position always from the point of view of the side to move.
 
   Value evaluate(const Position& pos) {
-    return do_evaluate<false>(pos);
+    EvalInfo ei;
+
+    return do_evaluate<false>(pos, ei);
   }
 
+  Value evaluate(const Position& pos, AttackInfo* ai) {
+    EvalInfo ei;
+
+    Value v = do_evaluate<false>(pos, ei);
+
+    ai->attackedBy[WHITE] = ei.attackedBy[WHITE][ALL_PIECES];
+    ai->attackedBy[BLACK] = ei.attackedBy[BLACK][ALL_PIECES];
+
+    return v;
+  }
 
   /// trace() is like evaluate(), but instead of returning a value, it returns
   /// a string (suitable for outputting to stdout) that contains the detailed
