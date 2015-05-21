@@ -152,8 +152,8 @@ void MovePicker::score<CAPTURES>() {
   // calls in case we get a cutoff.
 
   Color stm = pos.side_to_move();
-  Bitboard support = ai->attackedBy[ stm];
-  Bitboard defense = ai->attackedBy[~stm];
+  Bitboard ourAttacks   = ai->attackedBy[ stm];
+  Bitboard theirAttacks = ai->attackedBy[~stm];
 
   for (auto& m : *this)
   {
@@ -161,10 +161,25 @@ void MovePicker::score<CAPTURES>() {
                - 200 * relative_rank(stm, to_sq(m));
 
       // If we have attack info, use it to tell apart urgent captures
-      if (    (support | defense)
-          && !(defense & to_sq(m))
-          && !(support & from_sq(m)))
-         m.value += 500;
+      if (ourAttacks | theirAttacks)
+      {
+        
+          if (   !(theirAttacks & to_sq(m))
+              && !(ourAttacks & from_sq(m)))
+             m.value += 500;                  // + 500 est bien pour tout seul :  423 - 388 - 677  [0.512] 1488
+        
+         
+         /*
+         if (!(ourAttacks & from_sq(m)))        // + 200 est bien pour tout seul :  5018 - 4824 - 8619  [0.505] 18461
+             m.value += 200;
+         */
+        
+        /*
+        if (!(ourAttacks & from_sq(m)))
+             m.value += (theirAttacks & to_sq(m)) ? 200 : 500;
+        */
+                 
+      }
   }
 }
 
@@ -174,9 +189,24 @@ void MovePicker::score<QUIETS>() {
   Square prevSq = to_sq((ss-1)->currentMove);
   const HistoryStats& cmh = counterMovesHistory[pos.piece_on(prevSq)][prevSq];
 
+  Color stm = pos.side_to_move();
+  Bitboard ourAttacks  = ai->attackedBy[ stm];
+  Bitboard theirAttacks = ai->attackedBy[~stm];
+
   for (auto& m : *this)
+  {
       m.value =  history[pos.moved_piece(m)][to_sq(m)]
                + cmh[pos.moved_piece(m)][to_sq(m)] * 3;
+
+      if (ourAttacks | theirAttacks)
+      {
+          
+          if (  !(ourAttacks & to_sq(m))
+              && (theirAttacks & to_sq(m)))
+             m.value = VALUE_ZERO;          // bien ? 84 - 78 - 115  [0.511] 277
+          
+      }
+  }
 }
 
 template<>
