@@ -171,7 +171,8 @@ void MovePicker::score<QUIETS>() {
                + cmh[pos.moved_piece(m)][to_sq(m)] * 3;
 
       // Don't put our pieces en prise
-      if (    (ourAttacks | theirAttacks)
+      if (    m.value > VALUE_ZERO
+          &&  (ourAttacks | theirAttacks)
           &&  (theirAttacks & to_sq(m))
           && !(ourAttacks & to_sq(m)))
          m.value = VALUE_ZERO;
