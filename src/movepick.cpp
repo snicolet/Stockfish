@@ -150,22 +150,9 @@ void MovePicker::score<CAPTURES>() {
   // badCaptures[] array, but instead of doing it now we delay until the move
   // has been picked up in pick_move_from_list(). This way we save some SEE
   // calls in case we get a cutoff.
-
-  Color stm = pos.side_to_move();
-  Bitboard ourAttacks   = ai->attackedBy[ stm];
-  Bitboard theirAttacks = ai->attackedBy[~stm];
-
   for (auto& m : *this)
-  {
       m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-               - 200 * relative_rank(stm, to_sq(m));
-
-      // If we have attack info, use it to tell apart urgent captures
-      if (    (ourAttacks | theirAttacks)
-          && !(theirAttacks & to_sq(m))
-          && !(ourAttacks & from_sq(m)))
-         m.value += 500;
-  }
+               - 200 * relative_rank(pos.side_to_move(), to_sq(m));
 }
 
 template<>
@@ -174,9 +161,21 @@ void MovePicker::score<QUIETS>() {
   Square prevSq = to_sq((ss-1)->currentMove);
   const HistoryStats& cmh = counterMovesHistory[pos.piece_on(prevSq)][prevSq];
 
+  Color stm = pos.side_to_move();
+  Bitboard ourAttacks   = ai->attackedBy[ stm];
+  Bitboard theirAttacks = ai->attackedBy[~stm];
+
   for (auto& m : *this)
+  {
       m.value =  history[pos.moved_piece(m)][to_sq(m)]
                + cmh[pos.moved_piece(m)][to_sq(m)] * 3;
+
+      // Don't put our pieces en prise
+      if (    (ourAttacks | theirAttacks)
+          &&  (theirAttacks & to_sq(m))
+          && !(ourAttacks & to_sq(m)))
+         m.value = VALUE_ZERO;
+  }
 }
 
 template<>
