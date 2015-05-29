@@ -44,7 +44,7 @@ namespace {
     S(40, 35), S(40, 35), S(36, 35), S(25, 30) } };
 
   // Backward pawn penalty by opposed flag
-  const Score Backward[2] = { S(72, 61), S(54, 45) };
+  const Score Backward[2] = { S(67, 47), S(49, 29) };
 
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
