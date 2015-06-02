@@ -36,12 +36,8 @@ namespace {
     S(13, 43), S(20, 48), S(23, 48), S(23, 48),
     S(23, 48), S(23, 48), S(20, 48), S(13, 43) };
 
-  // Isolated pawn penalty by opposed flag and file
-  const Score Isolated[2][FILE_NB] = {
-  { S(37, 45), S(54, 52), S(60, 52), S(60, 52),
-    S(60, 52), S(60, 52), S(54, 52), S(37, 45) },
-  { S(25, 30), S(36, 35), S(40, 35), S(40, 35),
-    S(40, 35), S(40, 35), S(36, 35), S(25, 30) } };
+  // Isolated pawn penalty by opposed flag
+  const Score Isolated[2] = { S(58, 52), S(36, 30) };
 
   // Backward pawn penalty by opposed flag
   const Score Backward[2] = { S(67, 42), S(49, 24) };
@@ -176,7 +172,7 @@ namespace {
 
         // Score this pawn
         if (isolated)
-            score -= Isolated[opposed][f];
+            score -= Isolated[opposed];
 
         else if (backward)
             score -= Backward[opposed];
