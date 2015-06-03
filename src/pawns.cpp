@@ -37,7 +37,7 @@ namespace {
     S(23, 48), S(23, 48), S(20, 48), S(13, 43) };
 
   // Isolated pawn penalty by opposed flag
-  const Score Isolated[2] = { S(58, 52), S(36, 30) };
+  const Score Isolated[2] = { S(58, 52), S(38, 32) };
 
   // Backward pawn penalty by opposed flag
   const Score Backward[2] = { S(67, 42), S(49, 24) };
