@@ -167,6 +167,7 @@ namespace {
   const Score RookOnOpenFile     = S(43, 21);
   const Score RookOnSemiOpenFile = S(19, 10);
   const Score BishopPawns        = S( 8, 12);
+  const Score BishopEscaping     = S( 5, 16);
   const Score MinorBehindPawn    = S(16,  0);
   const Score TrappedRook        = S(92,  0);
   const Score Unstoppable        = S( 0, 20);
@@ -306,6 +307,10 @@ namespace {
         int mob = popcount<Pt == QUEEN ? Full : Max15>(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt][mob];
+
+        // Bonus for being out of reach of opponent bishop
+        if (!(squares_of_color(s) & pos.pieces(Them, BISHOP)))
+            score += BishopEscaping;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
