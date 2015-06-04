@@ -167,7 +167,7 @@ namespace {
   const Score RookOnOpenFile     = S(43, 21);
   const Score RookOnSemiOpenFile = S(19, 10);
   const Score BishopPawns        = S( 8, 12);
-  const Score BishopEscaping     = S( 5, 16);
+  const Score BishopEscaping     = S( 3,  6);
   const Score MinorBehindPawn    = S(16,  0);
   const Score TrappedRook        = S(92,  0);
   const Score Unstoppable        = S( 0, 20);
@@ -309,8 +309,8 @@ namespace {
         mobility[Us] += MobilityBonus[Pt][mob];
 
         // Bonus for being out of reach of opponent bishop
-        if (!(squares_of_color(s) & pos.pieces(Them, BISHOP)))
-            score += BishopEscaping;
+       // if (!(squares_of_color(s) & pos.pieces(Them, BISHOP)))
+       //     score += BishopEscaping;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -326,6 +326,10 @@ namespace {
             // Penalty for pawns on same color square of bishop
             if (Pt == BISHOP)
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
+
+            // Bonus for opponent pieces on same color square of bishop
+            if (Pt == BISHOP)
+                score += BishopEscaping * popcount<Max15>(squares_of_color(s) & pos.pieces(Them));
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
