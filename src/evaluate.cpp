@@ -266,10 +266,15 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
-            // Bonus for outpost square
+            // Bonus for outpost square, especially near the opponent king
             if (   relative_rank(Us, s) >= RANK_4
                 && !(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
-                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+                {
+                    score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+                    int d = distance(pos.king_square(Them), s); 
+                    int bonus = d*d / 4 - 6;
+                    score -= make_score(bonus * 2, bonus);
+                }
 
             // Bonus when behind a pawn
             if (    relative_rank(Us, s) < RANK_5
