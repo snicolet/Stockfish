@@ -271,9 +271,8 @@ namespace {
                 && !(pos.pieces(Them, PAWN) & pawn_attack_span(Us, s)))
                 {
                     score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
-                    int d = distance(pos.king_square(Them), s); 
-                    int bonus = d*d / 4 - 6;
-                    score -= make_score(bonus * 2, bonus);
+                    int d = distance(pos.king_square(Them), s);
+                    score += make_score( 12 - 3 * d , 4 - d );
                 }
 
             // Bonus when behind a pawn
