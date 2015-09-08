@@ -766,6 +766,10 @@ Value Eval::evaluate(const Position& pos) {
   if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 11756)
       score += (evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei)) * Weights[Space];
 
+  // Keep more pawns when attacking
+  int x = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+  score -= score * Weight({ 128 - 8 * x , 128 - 8 * x });
+
   // Scale winning side if position is more drawish than it appears
   Color strongSide = eg_value(score) > VALUE_DRAW ? WHITE : BLACK;
   ScaleFactor sf = me->scale_factor(pos, strongSide);
@@ -801,9 +805,6 @@ Value Eval::evaluate(const Position& pos) {
            + eg_value(score) * int(PHASE_MIDGAME - me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
   v /= int(PHASE_MIDGAME);
-
-  // Keep more pawns when attacking
-  v -= v * (14 - (pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK))) / 28;
 
   // In case of tracing add all single evaluation terms
   if (DoTrace)
