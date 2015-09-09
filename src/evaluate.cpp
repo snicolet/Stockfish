@@ -815,12 +815,18 @@ Value Eval::evaluate(const Position& pos) {
       Trace::add(TOTAL, score);
   }
 
-  return (pos.side_to_move() == WHITE ? v : -v) + Eval::Tempo; // Side to move point of view
+  return (pos.side_to_move() == WHITE ? v : -v) + Eval::Tempo(pos); // Side to move point of view
 }
 
 // Explicit template instantiations
 template Value Eval::evaluate<true >(const Position&);
 template Value Eval::evaluate<false>(const Position&);
+
+
+// Tempo() returns the value of a tempo in the given position
+Value Eval::Tempo(const Position& pos) {
+  return Value(30 - pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)); 
+}
 
 
 /// trace() is like evaluate(), but instead of returning a value, it returns
