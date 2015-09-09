@@ -684,6 +684,22 @@ namespace {
     return make_score(bonus * weight * weight, 0);
   }
 
+
+  // evaluate initiative() computes initiative value. Currently we simply give a small malus
+  // to the attacking side for each pair of pawn exchange (to keep more pawns when attacking).
+  Score evaluate_initiative(const Position& pos, const Score positionnal_score) {
+  
+    int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    
+    int mg = mg_value(positionnal_score);
+    int mg_value = ((mg < 0) - (mg > 0)) * std::min( (75 * (12 - pawns)) / 16 , abs(mg) / 2);
+    
+    int eg = eg_value(positionnal_score);
+    int eg_value = ((eg < 0) - (eg > 0)) * std::min( (25 * (12 - pawns)) / 16 , abs(eg) / 2);
+
+    return make_score( mg_value , eg_value ) ; 
+  }
+
 } // namespace
 
 
@@ -765,10 +781,9 @@ Value Eval::evaluate(const Position& pos) {
   // Evaluate space for both sides, only during opening
   if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 11756)
       score += (evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei)) * Weights[Space];
-
-  // Keep more pawns when attacking
-  int x = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
-  score -= score * Weight({ 128 - 8 * x , 128 - 8 * x });
+  
+  // Evaluate initiative
+  //score += evaluate_initiative(pos, score);
 
   // Scale winning side if position is more drawish than it appears
   Color strongSide = eg_value(score) > VALUE_DRAW ? WHITE : BLACK;
@@ -806,6 +821,10 @@ Value Eval::evaluate(const Position& pos) {
 
   v /= int(PHASE_MIDGAME);
 
+  // Keep more pawns when attacking
+  //int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+  //v += ((v < VALUE_DRAW) - (v > VALUE_DRAW)) * std::min((50 * (14 - pawns) / 14 ) , abs(v) / 2);
+
   // In case of tracing add all single evaluation terms
   if (DoTrace)
   {
@@ -819,13 +838,18 @@ Value Eval::evaluate(const Position& pos) {
       Trace::add(TOTAL, score);
   }
 
-  return (pos.side_to_move() == WHITE ? v : -v) + Eval::Tempo; // Side to move point of view
+  return (pos.side_to_move() == WHITE ? v : -v) + Eval::Tempo(pos); // Side to move point of view
 }
 
 // Explicit template instantiations
 template Value Eval::evaluate<true >(const Position&);
 template Value Eval::evaluate<false>(const Position&);
 
+// Value of a tempo in the position
+Value Eval::Tempo(const Position& pos) {
+  //return Value(30 - pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK));
+  return Value(17); 
+}
 
 /// trace() is like evaluate(), but instead of returning a value, it returns
 /// a string (suitable for outputting to stdout) that contains the detailed
