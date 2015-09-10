@@ -797,7 +797,7 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Interpolate between a middlegame and a (scaled by 'sf') endgame score
-  Value v =  mg_value(score) * int(me->game_phase())
+  Value v =  mg_value(score) * int(me->game_phase()) * (sf + SCALE_FACTOR_NORMAL) / (2 * SCALE_FACTOR_NORMAL)
            + eg_value(score) * int(PHASE_MIDGAME - me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
   v /= int(PHASE_MIDGAME);
