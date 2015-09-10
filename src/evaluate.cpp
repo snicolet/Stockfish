@@ -825,7 +825,7 @@ template Value Eval::evaluate<false>(const Position&);
 
 // Tempo() returns the value of a tempo in the given position
 Value Eval::Tempo(const Position& pos) {
-  return Value(30 - pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)); 
+  return Value( 25 - (10 * pos.game_phase() / PHASE_MIDGAME) );
 }
 
 
