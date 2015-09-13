@@ -183,6 +183,7 @@ namespace {
   const Score TrappedRook        = S(92,  0);
   const Score Unstoppable        = S( 0, 20);
   const Score Hanging            = S(31, 26);
+  const Score PawnMobility       = S(-10, 10);
   const Score PawnAttackThreat   = S(20, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -551,6 +552,9 @@ namespace {
     b &=  ~pos.pieces()
         & ~ei.attackedBy[Them][PAWN]
         & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
+
+    if (b)
+       score += popcount<Full>(b) * PawnMobility;
 
     b =  (shift_bb<Left>(b) | shift_bb<Right>(b))
        &  pos.pieces(Them)
