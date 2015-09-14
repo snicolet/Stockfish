@@ -685,16 +685,15 @@ namespace {
   }
 
 
-  // evaluate_initiative() computes the initiative correction for the position, i.e. 
-  // second order bonus/malus based on the attacking/defending status of the players. 
-  // Currently we simply give a small malus to the attacking side for each exchange of 
-  // pawn (to keep more pawns when attacking).
+  // evaluate_initiative() computes the initiative correction values for the position, i.e. 
+  // second order bonus/malus based on the known attacking/defending status of the players. 
   Score evaluate_initiative(const Position& pos, const Score positionnal_score) {
 
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
-
     int eg = eg_value(positionnal_score);
-    int malus = ((eg > 0) - (eg < 0)) * ( 7 * pawns - 98 );
+
+    // Give a small endgame malus to the attacking side for each exchange of pawn
+    int malus = ((eg > 0) - (eg < 0)) * std::max( 7 * pawns - 98 , -abs( eg / 2 ) );
 
     return make_score( 0 , malus ) ; 
   }
