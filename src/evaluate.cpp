@@ -684,6 +684,20 @@ namespace {
     return make_score(bonus * weight * weight, 0);
   }
 
+
+  // evaluate_initiative() computes the initiative correction values for the position, i.e. 
+  // second order bonus/malus based on the known attacking/defending status of the players. 
+  Score evaluate_initiative(const Position& pos, const Score positionnal_score) {
+
+    int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    int eg = eg_value(positionnal_score);
+
+    // Give a small endgame malus to the attacking side for each exchange of pawn
+    int malus = ((eg > 0) - (eg < 0)) * std::max( 7 * pawns - 98 , -abs( eg / 2 ) );
+
+    return make_score( 0 , malus ) ; 
+  }
+
 } // namespace
 
 
@@ -765,6 +779,9 @@ Value Eval::evaluate(const Position& pos) {
   // Evaluate space for both sides, only during opening
   if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 11756)
       score += (evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei)) * Weights[Space];
+  
+  // Evaluate initiative
+  score += evaluate_initiative(pos, score);
 
   // Scale winning side if position is more drawish than it appears
   Color strongSide = eg_value(score) > VALUE_DRAW ? WHITE : BLACK;
