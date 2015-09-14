@@ -693,7 +693,7 @@ namespace {
     int eg = eg_value(positionnal_score);
 
     // Give a small endgame malus to the attacking side for each exchange of pawn
-    int malus = ((eg > 0) - (eg < 0)) * std::max( 7 * pawns - 98 , -abs( eg / 2 ) );
+    int malus = ((eg > 0) - (eg < 0)) * std::max( 7 * pawns - 98 , -abs( eg / 4 ) );
 
     return make_score( 0 , malus ) ; 
   }
