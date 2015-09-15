@@ -693,12 +693,13 @@ namespace {
     int pieces = pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK) - pawns;
 
     // Compute the initiative bonus for the attacking side
-    int attacker_bonus =   7 * pawns - 98
-                         + 3 * pieces - 48;
+    int attacker_bonus =   7 * pawns
+                         + 6 * pieces 
+                         - 150;
 
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
-    // of the endgame value of "positionnal_score", and that we carefully cap the correction 
-    // to be at most half that value (in other words, the endgame score after the correction
+    // of the endgame value of "positionnal_score", and that we carefully cap the bonus 
+    // to be at most half that value (in other words, the endgame score with the correction
     // will never be divided by more than two).
     int eg = eg_value(positionnal_score);
     int value = ((eg > 0) - (eg < 0)) * std::max( attacker_bonus , -abs( eg / 2 ) );
