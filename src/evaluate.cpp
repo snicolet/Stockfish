@@ -690,12 +690,12 @@ namespace {
   Score evaluate_initiative(const Position& pos, const Score positionnal_score) {
 
     int pawns =  pos.count<PAWN>(WHITE)  + pos.count<PAWN>(BLACK);
-    int heavy =  pos.count<ROOK>(WHITE)  + pos.count<ROOK>(BLACK) 
-               + pos.count<QUEEN>(WHITE) + pos.count<QUEEN>(BLACK);
+    int knights = pos.count<KNIGHT>(WHITE) + pos.count<KNIGHT>(BLACK);
+    int bishops = pos.count<BISHOP>(WHITE) + pos.count<BISHOP>(BLACK);
 
     // Compute the initiative bonus for the attacking side
     int attacker_bonus =    7 * pawns - 98
-                          + 50 * (heavy >= 4) ;
+                         + 20 * ((bishops & 1) && (knights & 1));
 
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
     // of the endgame value of "positionnal_score", and that we carefully cap the bonus 
