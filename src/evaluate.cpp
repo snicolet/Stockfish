@@ -696,7 +696,7 @@ namespace {
     
     // Compute the initiative bonus for the attacking side
     int attacker_bonus =   7 * pawns - 98
-                         + pieces_A * pieces / 4 + pieces_B ;
+                         + pieces_A * pieces + pieces_B ;
                          
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
     // of the endgame value of "positionnal_score", and that we carefully cap the correction 
