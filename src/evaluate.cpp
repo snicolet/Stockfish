@@ -689,13 +689,10 @@ namespace {
   // second order bonus/malus based on the known attacking/defending status of the players. 
   Score evaluate_initiative(const Position& pos, const Score positionnal_score) {
 
-    int pawns  = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
-    int pieces = pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK) - pawns;
+    int pieces = pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK);
 
     // Compute the initiative bonus for the attacking side
-    int attacker_bonus =   7 * pawns
-                         + 6 * pieces 
-                         - 150;
+    int attacker_bonus =  7 * pieces - 150 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
     // of the endgame value of "positionnal_score", and that we carefully cap the bonus 
