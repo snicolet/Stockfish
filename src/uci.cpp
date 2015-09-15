@@ -180,6 +180,7 @@ void UCI::loop(int argc, char* argv[]) {
 
       else if (token == "ucinewgame")
       {
+          Eval::init();
           Search::reset();
           Time.availableNodes = 0;
       }
