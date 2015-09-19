@@ -290,7 +290,7 @@ namespace {
 
         int mob = popcount<Pt == QUEEN ? Full : Max15>(b & mobilityArea[Us]);
 
-        mobility[Us] += MobilityBonus[Pt][mob];
+        mobility[Us] += (ei.pinnedPieces[Us] & s) ? MobilityBonus[Pt][mob+1] : MobilityBonus[Pt][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
