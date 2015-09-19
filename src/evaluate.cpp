@@ -693,8 +693,8 @@ namespace {
     int asymmetry =  ei.pi->pawn_asymmetry();
   
     // Compute the initiative bonus for the attacking side
-    int attacker_bonus =    7 * pawns - 98 
-                         + 20 * asymmetry ;
+    int attacker_bonus =    5 * pawns - 98 
+                         +  4 * asymmetry ;
 
 
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
