@@ -628,7 +628,7 @@ namespace {
                     k += 6;
 
                 else if (defendedSquares & blockSq)
-                    k += (unsafeSquares & defendedSquares) == unsafeSquares ? 4 : 2;
+                    k += 4;
 
                 mbonus += k * rr, ebonus += k * rr;
             }
