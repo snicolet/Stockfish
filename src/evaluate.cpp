@@ -685,6 +685,32 @@ namespace {
     return make_score(bonus * weight * weight, 0);
   }
 
+  // simple_stalemate() detects two simple stalemates when the side to move has
+  // no pieces except king or pawns: stalemated king, or stalemated king + blocked pawns.
+  bool simple_stalemate(const Position& pos, const EvalInfo& ei) {
+
+    const Color stm = pos.side_to_move();
+
+    assert(!pos.non_pawn_material(stm));
+
+    // Check if the king can't move...
+    if (!(ei.attackedBy[stm][KING] & ~ei.attackedBy[~stm][ALL_PIECES]))  
+    {
+        const Bitboard pawns = pos.pieces(stm, PAWN);
+
+        if (!pawns)
+            return true;          // Isolated stalemated king
+
+        const Bitboard pushes = (stm == WHITE ? shift_bb<DELTA_N>(pawns)  : shift_bb<DELTA_S>(pawns)) ;
+
+        if (   !(pushes & ~pos.pieces())
+            && !(ei.attackedBy[stm][PAWN] & pos.pieces(~stm)))
+            return true;          // Stalemated king and blocked pawns
+    }
+
+    return false;
+  }
+
 } // namespace
 
 
@@ -738,6 +764,10 @@ Value Eval::evaluate(const Position& pos) {
   // Evaluate pieces and mobility
   score += evaluate_pieces<KNIGHT, WHITE, DoTrace>(pos, ei, mobility, mobilityArea);
   score += (mobility[WHITE] - mobility[BLACK]) * Weights[Mobility];
+
+  // Return immediately if we have found a stalemate
+  if (!pos.non_pawn_material(pos.side_to_move()) && simple_stalemate(pos, ei))
+    return VALUE_DRAW + Eval::Tempo;
 
   // Evaluate kings after all other pieces because we need complete attack
   // information when computing the king safety evaluation.
