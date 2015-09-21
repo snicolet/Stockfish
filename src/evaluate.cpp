@@ -690,14 +690,14 @@ namespace {
   bool simple_stalemate(const Position& pos, const EvalInfo& ei) {
 
     const Color stm = pos.side_to_move();
+    const Bitboard pawns = pos.pieces(stm, PAWN);
 
     assert(!pos.non_pawn_material(stm));
+    assert(!pos.checkers());
 
     // Check if the king can't move...
-    if (!(ei.attackedBy[stm][KING] & ~ei.attackedBy[~stm][ALL_PIECES]))  
+    if (!(ei.attackedBy[stm][KING] & ~(ei.attackedBy[~stm][ALL_PIECES] | pawns)))  
     {
-        const Bitboard pawns = pos.pieces(stm, PAWN);
-
         if (!pawns)
             return true;          // Isolated stalemated king
 
