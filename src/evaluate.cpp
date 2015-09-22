@@ -767,7 +767,7 @@ Value Eval::evaluate(const Position& pos) {
 
   // Return immediately if we have found a stalemate
   if (!pos.non_pawn_material(pos.side_to_move()) && simple_stalemate(pos, ei))
-    return VALUE_DRAW + Eval::Tempo;
+    return pos.side_to_move() == WHITE ? VALUE_STALEMATED : -VALUE_STALEMATED;
 
   // Evaluate kings after all other pieces because we need complete attack
   // information when computing the king safety evaluation.
