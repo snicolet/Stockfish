@@ -23,6 +23,7 @@ namespace PSQT {
 
 #define S(mg, eg) make_score(mg, eg)
 
+#define CENTER 5
 // Bonus[PieceType][Square / 2] contains Piece-Square scores. For each piece
 // type on a given square a (middlegame, endgame) score pair is assigned. Table
 // is defined for files A..D and white side: it is symmetric for black side and
@@ -79,6 +80,7 @@ const Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
    { S(-2,-54), S( 7,-30), S( 7,-21), S( 6, -7) },
    { S(-1,-75), S(-4,-54), S(-1,-44), S( 0,-30) }
   },
+ /*
   { // King
    { S(291, 28), S(344, 76), S(294,103), S(219,112) },
    { S(289, 70), S(329,119), S(263,170), S(205,159) },
@@ -89,8 +91,20 @@ const Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
    { S(116, 72), S(158,121), S( 93,142), S( 48,161) },
    { S( 94, 30), S(120, 76), S( 78,101), S( 31,111) }
   }
+  */
+  { // King
+   { S(291, 28), S(344, 76), S(294,103), S(219,112) },
+   { S(289, 70), S(329,119), S(263,170), S(205,159) },
+   { S(226,109), S(271,164), S(202,195+   CENTER), S(136,191+   CENTER) },
+   { S(204,131), S(212,194), S(175,194+ 2*CENTER), S(137,204+ 2*CENTER) },
+   { S(177,132), S(205,187), S(143,224+ 3*CENTER), S( 94,227+ 3*CENTER) },
+   { S(147,118), S(188,178), S(113,199+ 4*CENTER), S( 70,197+ 4*CENTER) },
+   { S(116, 72), S(158,121), S( 93,142), S( 48,161) },
+   { S( 94, 30), S(120, 76), S( 78,101), S( 31,111) }
+  }
 };
 
+#undef CENTER
 #undef S
 
 Score psq[COLOR_NB][PIECE_TYPE_NB][SQUARE_NB];
