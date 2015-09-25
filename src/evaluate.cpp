@@ -596,11 +596,7 @@ namespace {
 
             // Adjust bonus based on the king's proximity
             ebonus +=  distance(pos.square<KING>(Them), blockSq) * 5 * rr
-                     - distance(pos.square<KING>(Us  ), blockSq) * 2 * rr;
-
-            // If blockSq is not the queening square then consider also a second push
-            if (relative_rank(Us, blockSq) != RANK_8)
-                ebonus -= 3 * distance(pos.square<KING>(Us), blockSq + pawn_push(Us)) * rr / 2;
+                     - (distance(pos.square<KING>(Us  ), blockSq) * 7 + 3) * rr / 2;
 
             // If the pawn is free to advance, then increase the bonus
             if (pos.empty(blockSq))
