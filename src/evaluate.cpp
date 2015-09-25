@@ -771,36 +771,20 @@ Value Eval::evaluate(const Position& pos) {
   Color strongSide = eg_value(score) > VALUE_DRAW ? WHITE : BLACK;
   ScaleFactor sf = me->scale_factor(pos, strongSide);
 
-  // If we don't already have an unusual scale factor, check for certain
-  // types of endgames, and use a lower scale for those.
+  // Endings where weaker side can place his king in front of the opponent's pawns are drawish.
   if (    me->game_phase() < PHASE_MIDGAME
-      && (sf == SCALE_FACTOR_NORMAL || sf == SCALE_FACTOR_ONEPAWN))
-  {
-      if (pos.opposite_bishops())
-      {
-          // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
-          // is almost a draw, in case of KBP vs KB is even more a draw.
-          if (   pos.non_pawn_material(WHITE) == BishopValueMg
-              && pos.non_pawn_material(BLACK) == BishopValueMg)
-              sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(32) : ScaleFactor(8);
+      &&  (sf == SCALE_FACTOR_NORMAL || sf == SCALE_FACTOR_ONEPAWN)
+      &&  abs(eg_value(score)) <= BishopValueEg
+      &&  ei.pi->pawn_span(strongSide) <= 1
+      &&  !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
+     sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(56) : ScaleFactor(38);
 
-          // Endgame with opposite-colored bishops, but also other pieces. Still
-          // a bit drawish, but not as drawish as with only the two bishops.
-          else
-              sf = ScaleFactor(50 * sf / SCALE_FACTOR_NORMAL);
-      }
-      // Endings where weaker side can place his king in front of the opponent's
-      // pawns are drawish.
-      else if (    abs(eg_value(score)) <= BishopValueEg
-               &&  ei.pi->pawn_span(strongSide) <= 1
-               && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-          sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(56) : ScaleFactor(38);
-  }
-
-  // Scale endgame by number of pawns
+  // Scale endgame by number of pawns and opposite bishops
   int p = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+  int b = pos.opposite_bishops();
+  int defender_bonus = (1 + b) * (98 - 7 * p);
   int v_eg = 1 + abs(int(eg_value(score)));
-  sf = ScaleFactor(std::max(sf / 2, sf - 7 * SCALE_FACTOR_NORMAL * (14 - p) / v_eg));
+  sf = ScaleFactor(std::max(sf / 2, sf - SCALE_FACTOR_NORMAL * defender_bonus / v_eg));
 
   // Interpolate between a middlegame and a (scaled by 'sf') endgame score
   Value v =  mg_value(score) * int(me->game_phase())
