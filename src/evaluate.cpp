@@ -782,9 +782,9 @@ Value Eval::evaluate(const Position& pos) {
   // Scale endgame by number of pawns and opposite bishops
   int p = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
   int b = pos.opposite_bishops();
-  int defender_bonus = (1 + b) * (98 - 7 * p);
+  int defender_bonus = (1 + 4 * b) * (98 - 7 * p);
   int v_eg = 1 + abs(int(eg_value(score)));
-  sf = ScaleFactor(std::max(sf / 2, sf - SCALE_FACTOR_NORMAL * defender_bonus / v_eg));
+  sf = ScaleFactor(std::max(sf / (2 + 4 * b), sf - SCALE_FACTOR_NORMAL * defender_bonus / v_eg));
 
   // Interpolate between a middlegame and a (scaled by 'sf') endgame score
   Value v =  mg_value(score) * int(me->game_phase())
