@@ -124,6 +124,7 @@ namespace {
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
     e->passedPawns[Us]           = 0;
+    e->weakPawns[Us]             = 0;
     e->kingSquares[Us]           = SQ_NONE;
     e->semiopenFiles[Us]         = 0xFF;
     e->pawnAttacks[Us]           = shift_bb<UpRight>(ourPawns) | shift_bb<UpLeft>(ourPawns);
@@ -202,6 +203,9 @@ namespace {
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
+        
+        if ((isolated | backward | doubled | !supported) && !(lever | passed))
+            e->weakPawns[Us] |= s;
     }
 
     b = e->semiopenFiles[Us] ^ 0xFF;
