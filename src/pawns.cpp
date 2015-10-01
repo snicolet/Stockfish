@@ -33,8 +33,8 @@ namespace {
 
   // Doubled pawn penalty by file
   const Score Doubled[FILE_NB] = {
-    S(13, 43), S(20, 48), S(23, 48), S(23, 48),
-    S(23, 48), S(23, 48), S(20, 48), S(13, 43) };
+    S(13, 43), S( 0, 48), S(23, 48), S(23, 48),
+    S(23, 48), S(23, 48), S( 0, 48), S(13, 43) };
 
   // Isolated pawn penalty by opposed flag and file
   const Score Isolated[2][FILE_NB] = {
@@ -73,23 +73,46 @@ namespace {
   { V( 80), V(11), V(44), V(68), V(87), V( 90), V(119) } };
 
   // Danger of enemy pawns moving toward our king by [type][distance from edge][rank]
-  const Value StormDanger[][4][RANK_NB] = {
-  { { V( 0),  V(  67), V( 134), V(38), V(32) },
+/*  const Value StormDanger[][4][RANK_NB] = {
+  { { V( 0),  V(  67), V( 134), V(38), V(32) },      // NoFriendlyPawn
     { V( 0),  V(  57), V( 139), V(37), V(22) },
     { V( 0),  V(  43), V( 115), V(43), V(27) },
     { V( 0),  V(  68), V( 124), V(57), V(32) } },
-  { { V(20),  V(  43), V( 100), V(56), V(20) },
+  { { V(20),  V(  43), V( 100), V(56), V(20) },      // Unblocked
     { V(23),  V(  20), V(  98), V(40), V(15) },
     { V(23),  V(  39), V( 103), V(36), V(18) },
-    { V(28),  V(  19), V( 108), V(42), V(26) } },
-  { { V( 0),  V(   0), V(  75), V(14), V( 2) },
+    { V(28),  V(  19), V( 108), V(42), V(26) } },    
+  { { V( 0),  V(   0), V(  75), V(14), V( 2) },      // BlockedByPawn
     { V( 0),  V(   0), V( 150), V(30), V( 4) },
     { V( 0),  V(   0), V( 160), V(22), V( 5) },
     { V( 0),  V(   0), V( 166), V(24), V(13) } },
-  { { V( 0),  V(-283), V(-281), V(57), V(31) },
+  { { V( 0),  V(-283), V(-281), V(57), V(31) },      // BlockedByKing
     { V( 0),  V(  58), V( 141), V(39), V(18) },
     { V( 0),  V(  65), V( 142), V(48), V(32) },
     { V( 0),  V(  60), V( 126), V(51), V(19) } } };
+*/
+
+#define A 20
+
+  // Danger of enemy pawns moving toward our king by [type][distance from edge][rank]
+  const Value StormDanger[][4][RANK_NB] = {
+  { { V( A),  V(  67), V( 134), V(38), V(32) },      // NoFriendlyPawn
+    { V( 0),  V(  57), V( 139), V(37), V(22) },
+    { V( 0),  V(  43), V( 115), V(43), V(27) },
+    { V( 0),  V(  68), V( 124), V(57), V(32) } },
+  { { V(20+A),  V(  43), V( 100), V(56), V(20) },      // Unblocked
+    { V(23  ),  V(  20), V(  98), V(40), V(15) },
+    { V(23  ),  V(  39), V( 103), V(36), V(18) },
+    { V(28  ),  V(  19), V( 108), V(42), V(26) } },    
+  { { V( 0),  V(   0), V(  75), V(14), V( 2) },      // BlockedByPawn
+    { V( 0),  V(   0), V( 150), V(30), V( 4) },
+    { V( 0),  V(   0), V( 160), V(22), V( 5) },
+    { V( 0),  V(   0), V( 166), V(24), V(13) } },
+  { { V( 0),  V(-283), V(-281), V(57), V(31) },      // BlockedByKing
+    { V( 0),  V(  58), V( 141), V(39), V(18) },
+    { V( 0),  V(  65), V( 142), V(48), V(32) },
+    { V( 0),  V(  60), V( 126), V(51), V(19) } } };
+#undef A
 
   // Max bonus for king safety. Corresponds to start position with all the pawns
   // in front of the king and no enemy pawn on the horizon.
