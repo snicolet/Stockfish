@@ -617,7 +617,6 @@ namespace {
         int piecesCnt = pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK);
 
         if (    piecesCnt <= TB::Cardinality
-            && (piecesCnt <  TB::Cardinality || depth >= TB::ProbeDepth)
             &&  pos.rule50_count() == 0)
         {
             int found, v = Tablebases::probe_wdl(pos, &found);
@@ -1204,6 +1203,35 @@ moves_loop: // When in check and at SpNode search starts from here
     {
         ss->currentMove = ttMove; // Can be MOVE_NONE
         return ttValue;
+    }
+    
+    // Tablebase probe
+    if (TB::Cardinality)
+    {
+        int piecesCnt = pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK);
+
+        if (    piecesCnt <= TB::Cardinality
+            &&  pos.rule50_count() == 0)
+        {
+            int found, v = Tablebases::probe_wdl(pos, &found);
+
+            if (found)
+            {
+                TB::Hits++;
+
+                int drawScore = TB::UseRule50 ? 1 : 0;
+
+                value =  v < -drawScore ? -VALUE_MATE + MAX_PLY + ss->ply
+                       : v >  drawScore ?  VALUE_MATE - MAX_PLY - ss->ply
+                                        :  VALUE_DRAW + 2 * v * drawScore;
+
+                tte->save(posKey, value_to_tt(value, ss->ply), BOUND_EXACT,
+                          std::min(DEPTH_MAX - ONE_PLY, depth + 6 * ONE_PLY),
+                          MOVE_NONE, VALUE_NONE, TT.generation());
+
+                return value;
+            }
+        }
     }
 
     // Evaluate the position statically
