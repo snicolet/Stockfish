@@ -505,6 +505,33 @@ namespace {
   }
 
 
+  // tb_hit() is used to probe the tablebases during search() and qsearch().
+  bool tb_hit(Position& pos, Stack* ss, TTEntry* tte, Key posKey, Depth depth, Value &value)
+  {
+     assert( TB::Cardinality > 0 );
+     assert( pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK) <= TB::Cardinality );
+     assert( pos.rule50_count() == 0 );
+        
+     int found, v = Tablebases::probe_wdl(pos, &found);
+
+     if (found)
+     {
+        TB::Hits++;
+
+        int drawScore = TB::UseRule50 ? 1 : 0;
+
+        value =  v < -drawScore ? -VALUE_MATE + MAX_PLY + ss->ply
+               : v >  drawScore ?  VALUE_MATE - MAX_PLY - ss->ply
+                                :  VALUE_DRAW + 2 * v * drawScore;
+
+        tte->save(posKey, value_to_tt(value, ss->ply), BOUND_EXACT,
+                  std::min(DEPTH_MAX - ONE_PLY, depth + 6 * ONE_PLY),
+                  MOVE_NONE, VALUE_NONE, TT.generation());
+     }
+     
+     return found;
+  }
+
   // search<>() is the main search function for both PV and non-PV nodes and for
   // normal and SplitPoint nodes. When called just after a split point the search
   // is simpler because we have already probed the hash table, done a null move
@@ -612,34 +639,11 @@ namespace {
     }
 
     // Step 4a. Tablebase probe
-    if (!RootNode && TB::Cardinality)
-    {
-        int piecesCnt = pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK);
-
-        if (    piecesCnt <= TB::Cardinality
-            && (piecesCnt <  TB::Cardinality || depth >= TB::ProbeDepth)
-            &&  pos.rule50_count() == 0)
-        {
-            int found, v = Tablebases::probe_wdl(pos, &found);
-
-            if (found)
-            {
-                TB::Hits++;
-
-                int drawScore = TB::UseRule50 ? 1 : 0;
-
-                value =  v < -drawScore ? -VALUE_MATE + MAX_PLY + ss->ply
-                       : v >  drawScore ?  VALUE_MATE - MAX_PLY - ss->ply
-                                        :  VALUE_DRAW + 2 * v * drawScore;
-
-                tte->save(posKey, value_to_tt(value, ss->ply), BOUND_EXACT,
-                          std::min(DEPTH_MAX - ONE_PLY, depth + 6 * ONE_PLY),
-                          MOVE_NONE, VALUE_NONE, TT.generation());
-
-                return value;
-            }
-        }
-    }
+    if (   !RootNode 
+        && pos.rule50_count() == 0
+        && pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK) <= TB::Cardinality
+        && tb_hit( pos , ss , tte , posKey , depth , value ))
+        return value;
 
     // Step 5. Evaluate the position statically
     if (inCheck)
