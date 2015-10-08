@@ -314,6 +314,13 @@ namespace {
             // Penalty for pawns on same color square of bishop
             if (Pt == BISHOP)
                 score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
+            
+            // Stochastic bishop mobility, after http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
+            if (Pt == BISHOP)
+            {
+                int random_eval = (uint64_t(pos.key()) & 15) - 8;
+                score += make_score(random_eval, random_eval);
+            }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
