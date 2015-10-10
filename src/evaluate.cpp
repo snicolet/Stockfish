@@ -219,11 +219,11 @@ namespace {
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 7, 5, 4, 1 };
 
   // Penalties for enemy's safe checks
-  const int QueenContactCheck = 89;
-  const int QueenCheck        = 50;
-  const int RookCheck         = 45;
+  const int QueenContactCheck = 98;
+  const int QueenCheck        = 107;
+  const int RookCheck         = 52;
   const int BishopCheck       = 6;
-  const int KnightCheck       = 14;
+  const int KnightCheck       = 16;
 
 
   // init_eval_info() initializes king bitboards for given color adding
@@ -418,7 +418,7 @@ namespace {
                 | ei.attackedBy[Them][KING];
 
             if (b)
-                attackUnits += QueenContactCheck * popcount<Max15>(b);
+                attackUnits += QueenContactCheck;
         }
 
         // Analyse the enemy's safe distance checks for sliders and knights
@@ -431,7 +431,7 @@ namespace {
         b = (b1 | b2) & ei.attackedBy[Them][QUEEN];
         if (b)
         {
-            attackUnits += QueenCheck * popcount<Max15>(b);
+            attackUnits += QueenCheck;
             score -= Checked;
         }
 
@@ -439,7 +439,7 @@ namespace {
         b = b1 & ei.attackedBy[Them][ROOK];
         if (b)
         {
-            attackUnits += RookCheck * popcount<Max15>(b);
+            attackUnits += RookCheck;
             score -= Checked;
         }
 
@@ -447,7 +447,7 @@ namespace {
         b = b2 & ei.attackedBy[Them][BISHOP];
         if (b)
         {
-            attackUnits += BishopCheck * popcount<Max15>(b);
+            attackUnits += BishopCheck;
             score -= Checked;
         }
 
@@ -455,7 +455,7 @@ namespace {
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT] & safe;
         if (b)
         {
-            attackUnits += KnightCheck * popcount<Max15>(b);
+            attackUnits += KnightCheck;
             score -= Checked;
         }
 
