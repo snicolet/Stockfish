@@ -219,11 +219,11 @@ namespace {
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 7, 5, 4, 1 };
 
   // Penalties for enemy's safe checks
-  const int QueenContactCheck = 98;
-  const int QueenCheck        = 107;
-  const int RookCheck         = 52;
+  const int QueenContactCheck = 89;
+  const int QueenCheck        = 50;
+  const int RookCheck         = 45;
   const int BishopCheck       = 6;
-  const int KnightCheck       = 16;
+  const int KnightCheck       = 14;
 
 
   // init_eval_info() initializes king bitboards for given color adding
