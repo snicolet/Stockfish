@@ -723,7 +723,7 @@ namespace {
     int eg = eg_value(positional_score);
     int value = ((eg > 0) - (eg < 0)) * std::max( attacker_bonus , -abs( eg / 2 ) );
 
-    return make_score( -value / 4 , 3 * value / 2 ) ; 
+    return make_score( 0 , value ) ; 
   }
 
 } // namespace
