@@ -24,7 +24,6 @@
 #include "bitcount.h"
 #include "endgame.h"
 #include "movegen.h"
-#include "misc.h"  // for dbg()
 
 using std::string;
 
@@ -86,7 +85,7 @@ namespace {
   // and then let a Position object do the work for us.
   Key key(const string& code, Color c) {
 
-    assert(code.length() > 0 && code.length() < 8);
+    assert(code.length() > 0 && code.length() <= 9);
     assert(code[0] == 'K');
 
     string sides[] = { code.substr(code.find('K', 1)),      // Weak
