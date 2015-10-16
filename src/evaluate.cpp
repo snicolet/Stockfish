@@ -151,10 +151,10 @@ namespace {
   // Threat[defended/weak][minor/rook attacking][attacked PieceType] contains
   // bonuses according to which piece type attacks which one.
   const Score Threat[][2][PIECE_TYPE_NB] = {
-  { { S(0, 0), S( 0, 0), S(19, 37), S(24, 37), S(44, 97), S(44,115) },   // Minor on Defended
-    { S(0, 0), S( 0, 0), S( 9, 14), S( 9, 14), S( 7, 14), S(33, 57) } }, // Rook on Defended
-  { { S(0, 0), S( 0,32), S(33, 41), S(31, 50), S(41,100), S(44,113) },   // Minor on Weak
-    { S(0, 0), S( 0,27), S(26, 57), S(26, 57), S(0 , 43), S(32, 50) } }  // Rook on Weak
+  { { S(0, 0), S( 0, 0), S(19, 37), S(24, 37), S(44, 97), S(41,112) },   // Minor on Defended
+    { S(0, 0), S( 0, 0), S( 9, 14), S( 9, 14), S( 7, 14), S(30, 54) } }, // Rook on Defended
+  { { S(0, 0), S( 0,32), S(33, 41), S(31, 50), S(41,100), S(41,110) },   // Minor on Weak
+    { S(0, 0), S( 0,27), S(26, 57), S(26, 57), S(0 , 43), S(29, 57) } }  // Rook on Weak
   };
 
   // ThreatenedByPawn[PieceType] contains a penalty according to which piece
