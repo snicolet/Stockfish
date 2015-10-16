@@ -24,6 +24,7 @@
 #include "bitcount.h"
 #include "endgame.h"
 #include "movegen.h"
+#include "misc.h"  // for dbg()
 
 using std::string;
 
@@ -123,6 +124,7 @@ Endgames::Endgames() {
   add<KBPKN>("KBPKN");
   add<KBPPKB>("KBPPKB");
   add<KRPPKRP>("KRPPKRP");
+  add<KRPPPKRPP>("KRPPPKRPP");
 }
 
 
@@ -612,6 +614,34 @@ ScaleFactor Endgame<KRPPKRP>::operator()(const Position& pos) const {
   return SCALE_FACTOR_NONE;
 }
 
+/// KRPPP vs KRPP. If the stronger side has no passed pawns and the defending 
+/// king is actively placed with a good pawn structure, the position is drawish.
+template<>
+ScaleFactor Endgame<KRPPPKRPP>::operator()(const Position& pos) const {
+
+  assert(verify_material(pos, strongSide, RookValueMg, 3));
+  assert(verify_material(pos, weakSide,   RookValueMg, 2));
+
+  // Does the stronger side have a passed pawn?
+  Square wpsq1 = pos.squares<PAWN>(strongSide)[0];
+  Square wpsq2 = pos.squares<PAWN>(strongSide)[1];
+  Square wpsq3 = pos.squares<PAWN>(strongSide)[2];
+  if (pos.pawn_passed(strongSide, wpsq1) || pos.pawn_passed(strongSide, wpsq2) || pos.pawn_passed(strongSide, wpsq3))
+      return SCALE_FACTOR_NONE;
+
+  // Are the weak side pawns doubled or disconnected ?
+  Square s1 = pos.squares<PAWN>(weakSide)[0];
+  Square s2 = pos.squares<PAWN>(weakSide)[1];
+  if (distance<File>(s1, s2) != 1 || distance<Rank>(s1, s2) >= 2)
+      return SCALE_FACTOR_NONE;
+
+  // Is the weak side king actively located, in front of all strong side pawns ?
+  Square bksq = pos.square<KING>(weakSide);
+  if (!(~passed_pawn_mask(weakSide, bksq) & pos.pieces(strongSide, PAWN)))
+     return SCALE_FACTOR_DRAW;
+
+  return SCALE_FACTOR_NONE;
+}
 
 /// K and two or more pawns vs K. There is just a single rule here: If all pawns
 /// are on the same rook file and are blocked by the defending king, it's a draw.
