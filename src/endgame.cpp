@@ -597,9 +597,7 @@ ScaleFactor Endgame<KRPPKRP>::operator()(const Position& pos) const {
 
   Rank r = std::max(relative_rank(strongSide, wpsq1), relative_rank(strongSide, wpsq2));
 
-  if (   distance<File>(bksq, wpsq1) <= 1
-      && distance<File>(bksq, wpsq2) <= 1
-      && relative_rank(strongSide, bksq) > r)
+  if (!(~passed_pawn_mask(weakSide, bksq) & pos.pieces(strongSide, PAWN)))
   {
       switch (r) {
       case RANK_2: return ScaleFactor(9);
@@ -628,16 +626,16 @@ ScaleFactor Endgame<KRPPPKRPP>::operator()(const Position& pos) const {
   if (pos.pawn_passed(strongSide, wpsq1) || pos.pawn_passed(strongSide, wpsq2) || pos.pawn_passed(strongSide, wpsq3))
       return SCALE_FACTOR_NONE;
 
-  // Are the weak side pawns doubled or disconnected ?
+  // Are the weak side pawns disconnected ?
   Square s1 = pos.squares<PAWN>(weakSide)[0];
   Square s2 = pos.squares<PAWN>(weakSide)[1];
-  if (distance<File>(s1, s2) != 1 || distance<Rank>(s1, s2) >= 2)
+  if (distance<File>(s1, s2) >= 2 || distance<Rank>(s1, s2) >= 2)
       return SCALE_FACTOR_NONE;
 
   // Is the weak side king actively located, in front of all strong side pawns ?
   Square bksq = pos.square<KING>(weakSide);
   if (!(~passed_pawn_mask(weakSide, bksq) & pos.pieces(strongSide, PAWN)))
-     return SCALE_FACTOR_DRAW;
+     return ScaleFactor(20);
 
   return SCALE_FACTOR_NONE;
 }
