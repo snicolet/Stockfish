@@ -125,7 +125,7 @@ namespace {
     e->pawnAttacks[Us]           = shift_bb<UpRight>(ourPawns) | shift_bb<UpLeft>(ourPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount<Max15>(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
-    e->blockedPawns[Us]          =  ourPawns 
+    e->blockedPawns[Us]          =   ourPawns 
                                   &  shift_bb<Down>(theirPawns)
                                   & ~shift_bb<DownRight>(theirPawns)
                                   & ~shift_bb<DownLeft>(theirPawns);
