@@ -694,10 +694,12 @@ namespace {
     int pawns           =  pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
     int king_separation =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int asymmetry       =  ei.pi->pawn_asymmetry();
-    int material        =  2 * ((pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK)) > 2*RookValueMg);
+    int knights         =  pos.count<KNIGHT>(WHITE) + pos.count<KNIGHT>(BLACK);
+    int bishops         =  pos.count<BISHOP>(WHITE) + pos.count<BISHOP>(BLACK);
+    int piece_imbalance =  knights & bishops & 1;
 
     // Compute the initiative bonus for the attacking side
-    int attacker_bonus =   8 * (pawns + asymmetry + king_separation + material) - 120;
+    int attacker_bonus =   8 * (pawns + asymmetry + king_separation - piece_imbalance) - 120;
 
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
     // of the endgame value of "positional_score", and that we carefully cap the bonus so
