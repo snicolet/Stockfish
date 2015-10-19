@@ -699,7 +699,7 @@ namespace {
     int piece_imbalance =  knights & bishops & 1;
 
     // Compute the initiative bonus for the attacking side
-    int attacker_bonus =   8 * (pawns + asymmetry + king_separation - piece_imbalance) - 120;
+    int attacker_bonus =   8 * (pawns + asymmetry + king_separation) - 5 * piece_imbalance - 120;
 
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
     // of the endgame value of "positional_score", and that we carefully cap the bonus so
