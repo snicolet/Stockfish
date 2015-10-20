@@ -697,7 +697,7 @@ namespace {
                           - 2 * distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
     // Compute the initiative bonus for the attacking side
-    int attacker_bonus =   8 * (pawns + asymmetry + king_separation);
+    int attacker_bonus =   8 * (pawns + asymmetry + king_separation) - 8 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
     // of the endgame value of "positional_score", and that we carefully cap the bonus so
