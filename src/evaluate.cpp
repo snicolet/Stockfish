@@ -383,10 +383,6 @@ namespace {
 
     // King shelter and enemy pawns storm
     Score score = ei.pi->king_safety<Us>(pos, ksq);
-    
-    // King support for the most advanced pawn in endgame
-    if ((b = pos.pieces(Us, PAWN)) != 0)
-    	score -= make_score( 0 , 5 * distance<Rank>(ksq , frontmost_sq(Us, b)));
 
     // Main king safety evaluation
     if (ei.kingAttackersCount[Them])
