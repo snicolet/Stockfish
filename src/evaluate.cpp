@@ -707,7 +707,7 @@ namespace {
     //int attacker_bonus =   8 * (pawns + asymmetry + king_separation) - 120;
     
     int attacker_bonus =   4 * pawns + 
-                           8 * (pawn_span + asymmetry + king_separation) - 120;
+                           8 * (pawn_span + asymmetry + king_separation) - 140;
 
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
     // of the endgame value of "positional_score", and that we carefully cap the bonus so
