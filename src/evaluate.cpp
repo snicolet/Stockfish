@@ -698,16 +698,31 @@ namespace {
     int pawn_span       =  ei.pi->pawn_span();
     
     // int p1 = 8 * pawns;
-    // dbg_mean_of(p1);
+    // dbg_mean_of(p1);   // ==> 80
     
-    // int p2 = 4 * pawns + 8 * pawn_span;
-    // dbg_mean_of(p2);
+    // int p5 = 5 * pawns + 6 * pawn_span;
+    // dbg_mean_of(p5);    // ==> 94
+    
+    //int p2 = 6 * pawns + 4 * pawn_span;
+    //dbg_mean_of(p2);    // ==> 90
+    
+    // int p3 = 7 * pawns + 2 * pawn_span;
+    // dbg_mean_of(p3);    // ==> 84
+    
+    // int p4 = 8 * pawn_span;
+    // dbg_mean_of(p4);    // ==> 58
+    
+    
 
     // Compute the initiative bonus for the attacking side
     //int attacker_bonus =   8 * (pawns + asymmetry + king_separation) - 120;
+    // int attacker_bonus = 8 * (pawns + asymmetry + king_separation + pawn_span) - 178 ;
     
-    int attacker_bonus =   4 * pawns + 
-                           8 * (pawn_span + asymmetry + king_separation) - 140;
+    
+    int attacker_bonus =   7 * pawns + 
+                           2 * pawn_span +
+                           8 * (asymmetry + king_separation) - 120;
+    
 
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
     // of the endgame value of "positional_score", and that we carefully cap the bonus so
