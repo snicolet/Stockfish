@@ -692,13 +692,12 @@ namespace {
   // second order bonus/malus based on the known attacking/defending status of the players. 
   Score evaluate_initiative(const Position& pos, const EvalInfo& ei, const Score positional_score) {
 
-    int pawns           =   pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
-    int asymmetry       =   ei.pi->pawn_asymmetry();
-    int king_separation =   distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                          - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    int pawns           =  pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    int king_separation =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    int asymmetry       =  ei.pi->pawn_asymmetry();
 
     // Compute the initiative bonus for the attacking side
-    int attacker_bonus =   8 * (pawns + asymmetry + king_separation) - 64;
+    int attacker_bonus =   8 * (pawns + asymmetry + king_separation) - 120;
 
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
     // of the endgame value of "positional_score", and that we carefully cap the bonus so
