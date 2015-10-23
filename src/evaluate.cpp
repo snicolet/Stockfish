@@ -699,7 +699,7 @@ namespace {
 
     // Compute the initiative bonus for the attacking side
     int attacker_bonus =   8 * (pawns + asymmetry + king_separation) 
-                         - 3 * shuffling 
+                         - 6 * shuffling 
                          - 120;
 
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
