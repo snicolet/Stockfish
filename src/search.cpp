@@ -631,7 +631,7 @@ namespace {
     // At PV nodes we reduce the alpha-beta window
     if (   PvNode
         && ttHit
-        && tte->depth() >= depth
+        && tte->depth() == depth
         && ttValue != VALUE_NONE // Only in case of TT access race
         && beta > alpha + 2
         && ttValue > alpha
