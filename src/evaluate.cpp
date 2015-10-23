@@ -697,8 +697,8 @@ namespace {
     int asymmetry       =  ei.pi->pawn_asymmetry();
     int pawn_span       =  ei.pi->pawn_span();
 
-    int attacker_bonus =   6 * pawns + 
-                           4 * pawn_span +
+    int attacker_bonus =   3 * pawns + 
+                          10 * pawn_span +
                            8 * (asymmetry + king_separation) - 120;
 
     // Now apply the bonus: note that we find the attacking side by extracting the sign 
