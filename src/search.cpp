@@ -611,7 +611,7 @@ namespace {
     ss->ttMove = ttMove = RootNode ? thisThread->rootMoves[thisThread->PVIdx].pv[0] : ttHit ? tte->move() : MOVE_NONE;
     ttValue = ttHit ? value_from_tt(tte->value(), ss->ply) : VALUE_NONE;
 
-    // At non-PV nodes we check for a fail high/low. We don't prune at PV nodes
+    // At non-PV nodes we check for a fail high/low and prune
     if (  !PvNode
         && ttHit
         && tte->depth() >= depth
@@ -620,12 +620,25 @@ namespace {
                             : (tte->bound() & BOUND_UPPER)))
     {
         ss->currentMove = ttMove; // Can be MOVE_NONE
-
+        
         // If ttMove is quiet, update killers, history, counter move on TT hit
         if (ttValue >= beta && ttMove && !pos.capture_or_promotion(ttMove))
             update_stats(pos, ss, ttMove, depth, nullptr, 0);
 
         return ttValue;
+    }
+
+    // At PV nodes we reduce the alpha-beta window
+    if (   PvNode
+        && ttHit
+        && tte->depth() >= depth
+        && ttValue != VALUE_NONE // Only in case of TT access race
+        && beta > alpha + 2
+        && ttValue > alpha
+        && ttValue < beta)
+    {
+        if (tte->bound() & BOUND_LOWER)   alpha = ttValue - 1;
+        if (tte->bound() & BOUND_UPPER)   beta  = ttValue + 1;
     }
 
     // Step 4a. Tablebase probe
