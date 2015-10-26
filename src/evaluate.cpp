@@ -682,10 +682,10 @@ namespace {
     int kingDistance = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
     int asymmetry = ei.pi->pawn_asymmetry();
-    int islands = abs(ei.pi->pawn_islands(WHITE) - ei.pi->pawn_islands(BLACK));
+    int islands = ei.pi->pawn_islands(WHITE) + ei.pi->pawn_islands(BLACK);
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (pawns + asymmetry + kingDistance + islands - 15);
+    int initiative = 8 * (pawns + asymmetry + kingDistance + islands - 18);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
