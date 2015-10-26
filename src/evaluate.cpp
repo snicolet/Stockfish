@@ -685,7 +685,7 @@ namespace {
     int islands = ei.pi->pawn_islands(WHITE) + ei.pi->pawn_islands(BLACK);
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (pawns + asymmetry + kingDistance + islands - 18);
+    int initiative = 8 * (pawns + asymmetry + kingDistance + islands - 19);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
