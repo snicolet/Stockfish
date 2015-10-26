@@ -196,8 +196,6 @@ namespace {
 
     b = e->semiopenFiles[Us] ^ 0xFF;
     e->pawnSpan[Us] = b ? int(msb(b) - lsb(b)) : 0;
-
-    b = e->semiopenFiles[Us];
     e->islands[Us] = popcount<Max15>(b & ~(b >> 1));
 
     // Center binds: Two pawns controlling the same central square
