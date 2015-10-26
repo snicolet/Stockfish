@@ -677,13 +677,15 @@ namespace {
   // evaluate_initiative() computes the initiative correction value for the
   // position, i.e. second order bonus/malus based on the known attacking/defending
   // status of the players.
-  Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
+  Score evaluate_initiative(const Position& pos, const EvalInfo& ei, Value eg) {
 
     int kingDistance = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    int asymmetry = ei.pi->pawn_asymmetry();
+    int islands = abs(ei.pi->pawn_islands(WHITE) - ei.pi->pawn_islands(BLACK));
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (pawns + asymmetry + kingDistance - 15);
+    int initiative = 8 * (pawns + asymmetry + kingDistance + islands - 15);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
@@ -776,7 +778,7 @@ Value Eval::evaluate(const Position& pos) {
       score += (evaluate_space<WHITE>(pos, ei) - evaluate_space<BLACK>(pos, ei)) * Weights[Space];
 
   // Evaluate position potential for the winning side
-  score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
+  score += evaluate_initiative(pos, ei, eg_value(score));
 
   // Scale winning side if position is more drawish than it appears
   Color strongSide = eg_value(score) > VALUE_DRAW ? WHITE : BLACK;
