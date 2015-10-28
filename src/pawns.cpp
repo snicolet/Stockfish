@@ -199,7 +199,7 @@ namespace {
 
     // Holes in the pawn structure
     b = e->semiopenFiles[Us];
-    score -= make_score( 0 , 8 * popcount<Max15>(b & ~(b >> 1)));
+    score -= make_score( 0 , 3 * popcount<Max15>(b & ~(b >> 1)));
 
     // Center binds: Two pawns controlling the same central square
     b = shift_bb<Right>(ourPawns) & shift_bb<Left>(ourPawns) & CenterBindMask[Us];
