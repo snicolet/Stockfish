@@ -152,14 +152,14 @@ namespace {
   // bonuses according to which piece type attacks which one.
   // Attacks on lesser pieces which are pawn defended are not considered.
   const Score Threat[2][PIECE_TYPE_NB] = {
-   { S(0, 0), S(0, 32), S(25, 39), S(28, 44), S(42, 98), S(32, 102) }, // Minor attacks
-   { S(0, 0), S(0, 27), S(26, 57), S(26, 57), S( 0, 30), S(20,  48) }  // Rook attacks
-  };
-
-  // ThreatenedByPawn[PieceType] contains a penalty according to which piece
-  // type is attacked by a pawn.
-  const Score ThreatenedByPawn[PIECE_TYPE_NB] = {
-    S(0, 0), S(0, 0), S(107, 138), S(84, 122), S(114, 203), S(121, 217)
+    { S(0, 0), S(0, 32), S(27, 38), S(28, 45), S(42,100), S(32,102) }, // Minor attacks
+    { S(0, 0), S(0, 27), S(25, 54), S(27, 57), S( 0, 31), S(20, 48) }  // Rook attacks
+   };
+ 
+   // ThreatenedByPawn[PieceType] contains a penalty according to which piece
+   // type is attacked by a pawn.
+   const Score ThreatenedByPawn[PIECE_TYPE_NB] = {
+     S(0, 0), S(0, 0), S(117, 135), S(80, 126), S(115, 211), S(114, 216)
   };
 
   // Passed[mg/eg][rank] contains midgame and endgame bonuses for passed pawns.
