@@ -681,10 +681,10 @@ namespace {
 
     int kingDistance = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
-    int material = (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK)) / 512;
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (pawns + asymmetry + kingDistance - material - 5);
+    int initiative =    8 * (pawns + kingDistance - 15)
+                     + 12 * asymmetry;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
