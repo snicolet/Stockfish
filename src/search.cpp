@@ -75,6 +75,15 @@ namespace {
     return Reductions[PvNode][i][std::min(d, 63 * ONE_PLY)][std::min(mn, 63)];
   }
 
+  // PruningSafety[rootColor][fail high/low] : pruning safety table
+  const int PruningSafety[2][2] = {
+     {  50 ,  50 },  // ~rootColor : high,low
+     { -50 , -50 }   //  rootColor : high,low
+  };
+  template <bool forAlpha> int pruning_safety(const Position& pos) {
+      return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][forAlpha];
+  }
+
   // Skill struct is used to implement strength limiting
   struct Skill {
     Skill(int l) : level(l) {}
@@ -226,7 +235,7 @@ template uint64_t Search::perft<true>(Position&, Depth);
 
 void MainThread::search() {
 
-  Color us = rootPos.side_to_move();
+  Color us = rootColor = rootPos.side_to_move();
   Time.init(Limits, us, rootPos.game_ply());
 
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
@@ -290,6 +299,7 @@ void MainThread::search() {
       {
           th->maxPly = 0;
           th->rootDepth = DEPTH_ZERO;
+          th->rootColor = rootPos.side_to_move();
           th->searching = true;
           if (th != this)
           {
@@ -714,14 +724,14 @@ namespace {
     // Step 6. Razoring (skipped when in check)
     if (   !PvNode
         &&  depth < 4 * ONE_PLY
-        &&  eval + razor_margin[depth] <= alpha
+        &&  eval + razor_margin[depth] + pruning_safety<true>(pos) <= alpha
         &&  ttMove == MOVE_NONE)
     {
         if (   depth <= ONE_PLY
-            && eval + razor_margin[3 * ONE_PLY] <= alpha)
+            && eval + razor_margin[3 * ONE_PLY] + pruning_safety<true>(pos) <= alpha)
             return qsearch<NonPV, false>(pos, ss, alpha, beta, DEPTH_ZERO);
 
-        Value ralpha = alpha - razor_margin[depth];
+        Value ralpha = alpha - razor_margin[depth] - pruning_safety<true>(pos);
         Value v = qsearch<NonPV, false>(pos, ss, ralpha, ralpha+1, DEPTH_ZERO);
         if (v <= ralpha)
             return v;
@@ -730,10 +740,10 @@ namespace {
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !RootNode
         &&  depth < 7 * ONE_PLY
-        &&  eval - futility_margin(depth) >= beta
+        &&  eval - futility_margin(depth) - pruning_safety<false>(pos) >= beta
         &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
         &&  pos.non_pawn_material(pos.side_to_move()))
-        return eval - futility_margin(depth);
+        return eval - futility_margin(depth) - pruning_safety<false>(pos);
 
     // Step 8. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode
@@ -783,7 +793,7 @@ namespace {
         &&  depth >= 5 * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
-        Value rbeta = std::min(beta + 200, VALUE_INFINITE);
+        Value rbeta = std::min(beta + 200 + pruning_safety<false>(pos), VALUE_INFINITE);
         Depth rdepth = depth - 4 * ONE_PLY;
 
         assert(rdepth >= ONE_PLY);
@@ -931,7 +941,7 @@ moves_loop: // When in check search starts from here
           // Futility pruning: parent node
           if (predictedDepth < 7 * ONE_PLY)
           {
-              futilityValue = ss->staticEval + futility_margin(predictedDepth) + 256;
+              futilityValue = ss->staticEval + futility_margin(predictedDepth) + 256 + pruning_safety<true>(pos);
 
               if (futilityValue <= alpha)
               {
