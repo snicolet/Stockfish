@@ -77,8 +77,8 @@ namespace {
 
   // PruningSafety[rootColor][fail high/low] : pruning safety table
   const int PruningSafety[2][2] = {
-     { -50 ,   0 },  // ~rootColor : high,low
-     {   0 ,  25 }   //  rootColor : high,low
+     { -50 , 0 },  // ~rootColor : high,low
+     {   0 , 0 }   //  rootColor : high,low
   };
   template <bool forAlpha> int pruning_safety(const Position& pos) {
       return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][forAlpha];
