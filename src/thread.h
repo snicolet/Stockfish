@@ -62,6 +62,7 @@ struct Thread : public std::thread {
 
   Position rootPos;
   Search::RootMoveVector rootMoves;
+  Color rootColor;
   Depth rootDepth;
   HistoryStats history;
   MovesStats counterMoves;
