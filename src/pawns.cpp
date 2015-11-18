@@ -38,10 +38,10 @@ namespace {
 
   // Isolated pawn penalty by opposed flag and file
   const Score Isolated[2][FILE_NB] = {
-  { S(37, 50), S(54, 52), S(60, 52), S(60, 52),
-    S(60, 52), S(60, 52), S(54, 52), S(37, 50) },
-  { S(25, 50), S(36, 35), S(40, 35), S(40, 35),
-    S(40, 35), S(40, 35), S(36, 35), S(25, 50) } };
+  { S(37, 45), S(54, 52), S(60, 52), S(60, 52),
+    S(60, 52), S(60, 52), S(54, 52), S(37, 45) },
+  { S(35, 40), S(36, 35), S(40, 35), S(40, 35),
+    S(40, 35), S(40, 35), S(36, 35), S(35, 40) } };
 
   // Backward pawn penalty by opposed flag
   const Score Backward[2] = { S(67, 42), S(49, 24) };
