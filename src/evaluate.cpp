@@ -110,7 +110,7 @@ namespace {
   enum { Mobility, PawnStructure, PassedPawns, Space, KingSafety };
 
   const struct Weight { int mg, eg; } Weights[] = {
-    {289, 344}, {233, 201}, {221, 273}, {46, 0}, {322, 0}
+    {289, 344}, {233, 201}, {221, 273}, {46, 0}, {332, -50}
   };
 
   Score operator*(Score s, const Weight& w) {
@@ -900,6 +900,6 @@ void Eval::init() {
   for (int i = 0; i < 400; ++i)
   {
       t = std::min(Peak, std::min(i * i * 27, t + MaxSlope));
-      KingDanger[i] = make_score(t / 1000, 0) * Weights[KingSafety];
+      KingDanger[i] = make_score(t / 1000, t / 1000) * Weights[KingSafety];
   }
 }
