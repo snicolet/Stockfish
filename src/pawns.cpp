@@ -51,10 +51,10 @@ namespace {
 
   // Levers bonus by unsupported flag and rank
   const Score Lever[2][RANK_NB] = {
-  { S( 0, 0), S( 0, 0), S(0, 0), S(10,10),
-    S(37,37), S(78,78), S(0, 0), S( 0, 0) },
-  { S( 0, 0), S( 0, 0), S(0, 0), S( 6, 6),
-    S(27,27), S(50,50), S(0, 0), S( 0, 0) } };
+  { S( 0, 0), S( 0, 0), S(0, 0), S(10, 0),
+    S(40,20), S(80,40), S(0, 0), S( 0, 0) },
+  { S( 0, 0), S( 0, 0), S(0, 0), S( 0, 0),
+    S(20,10), S(40,20), S(0, 0), S( 0, 0) } };
 
   // Unsupported pawn penalty
   const Score UnsupportedPawnPenalty = S(20, 10);
