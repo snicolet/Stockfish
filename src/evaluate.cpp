@@ -107,10 +107,10 @@ namespace {
 
 
   // Evaluation weights, indexed by the corresponding evaluation term
-  enum { Mobility, PawnStructure, PassedPawns, Space, KingSafety };
+  enum { Mobility, PawnStructure, PassedPawns, Space, KingSafety, Threats };
 
   const struct Weight { int mg, eg; } Weights[] = {
-    {289, 344}, {233, 201}, {221, 273}, {46, 0}, {322, 0}
+    {289, 344}, {233, 191}, {221, 273}, {46, 0}, {322, 0}, {300, 300}
   };
 
   Score operator*(Score s, const Weight& w) {
@@ -566,9 +566,9 @@ namespace {
         score += popcount<Max15>(b) * PawnAttackThreat;
 
     if (DoTrace)
-        Trace::add(THREAT, Us, score);
+        Trace::add(THREAT, Us, score * Weights[Threats]);
 
-    return score;
+    return score * Weights[Threats];
   }
 
 
@@ -700,7 +700,7 @@ namespace {
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (pawns + asymmetry + kingDistance - 15);
+    int initiative = 12 * (pawns + asymmetry + kingDistance - 15);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
