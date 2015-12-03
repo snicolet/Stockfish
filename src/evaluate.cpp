@@ -149,6 +149,8 @@ namespace {
   // Outpost[knight/bishop][supported by pawn] contains bonuses for knights and
   // bishops outposts, bigger if outpost piece is supported by a pawn.
   const Score Outpost[][2] = {
+   // { S(49,18), S(70,24) }, // Knights
+   // { S(25,12), S(34,15) }  // Bishops
     { S(42,11), S(63,17) }, // Knights
     { S(18, 5), S(27, 8) }  // Bishops
   };
@@ -281,6 +283,10 @@ namespace {
 
     while ((s = *pl++) != SQ_NONE)
     {
+        // King tropism
+        //int dist = distance<File>(pos.square<KING>(Them), s);
+        //score -= make_score(dist , dist);
+
         // Find attacked squares, including x-ray attacks for bishops and rooks
         b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Us, QUEEN))
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(Us, ROOK, QUEEN))
@@ -315,11 +321,14 @@ namespace {
             bb = OutpostMask[Us] & ~ei.pi->pawn_attacks_span(Them);
             if (bb & s)
                 score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
-            else
+           // else
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
                    score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
+                if (more_than_one(bb))
+                   score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
+                
             }
 
             // Bonus when behind a pawn
