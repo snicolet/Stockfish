@@ -320,6 +320,8 @@ namespace {
             bb &= b & ~pos.pieces(Us);
             if (bb)
                 score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
+            if (more_than_one(bb))
+                score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
 
             // Bonus when behind a pawn
             if (    relative_rank(Us, s) < RANK_5
