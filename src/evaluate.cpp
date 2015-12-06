@@ -476,6 +476,26 @@ namespace {
 
     return score;
   }
+  
+  
+  // accumulate_threats() is a helper function to calculate the score of a set of threats.
+  // The set of threatened pieces is in the "targets" parameter, and they are scored with
+  // the threat_values[] array.
+
+  template<Color Us> inline
+  Score accumulate_threats(Bitboard targets, const Position& pos, const Score threat_values[]) {
+
+    const Color Them = (Us == WHITE ? BLACK : WHITE);
+    Score score = SCORE_ZERO;
+
+    if (targets & pos.pieces(Them, PAWN))    score = threat_values[PAWN];
+    if (targets & pos.pieces(Them, KNIGHT))  score = threat_values[KNIGHT];
+    if (targets & pos.pieces(Them, BISHOP))  score = threat_values[BISHOP];
+    if (targets & pos.pieces(Them, ROOK))    score = threat_values[ROOK];
+    if (targets & pos.pieces(Them, QUEEN))   score = threat_values[QUEEN];
+
+    return score;
+  }
 
 
   // evaluate_threats() assigns bonuses according to the type of attacking piece
@@ -509,8 +529,8 @@ namespace {
         if (weak ^ safeThreats)
             score += ThreatenedByHangingPawn;
 
-        while (safeThreats)
-            score += ThreatenedByPawn[type_of(pos.piece_on(pop_lsb(&safeThreats)))];
+        if (safeThreats)
+            score += accumulate_threats<Us>(safeThreats, pos, ThreatenedByPawn);
     }
 
     // Non-pawn enemies defended by a pawn
@@ -525,12 +545,12 @@ namespace {
     if (defended | weak)
     {
         b = (defended | weak) & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
-        while (b)
-            score += Threat[Minor][type_of(pos.piece_on(pop_lsb(&b)))];
+        if (b)
+            score += accumulate_threats<Us>(b, pos, Threat[Minor]);
 
         b = (pos.pieces(Them, QUEEN) | weak) & ei.attackedBy[Us][ROOK];
-        while (b)
-            score += Threat[Rook ][type_of(pos.piece_on(pop_lsb(&b)))];
+        if (b)
+            score += accumulate_threats<Us>(b, pos, Threat[Rook]);
 
         b = weak & ~ei.attackedBy[Them][ALL_PIECES];
         if (b)
