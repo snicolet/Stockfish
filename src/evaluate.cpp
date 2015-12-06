@@ -488,11 +488,13 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     Score score = SCORE_ZERO;
 
-    if (targets & pos.pieces(Them, PAWN))    score = threat_values[PAWN];
-    if (targets & pos.pieces(Them, KNIGHT))  score = threat_values[KNIGHT];
-    if (targets & pos.pieces(Them, BISHOP))  score = threat_values[BISHOP];
-    if (targets & pos.pieces(Them, ROOK))    score = threat_values[ROOK];
-    if (targets & pos.pieces(Them, QUEEN))   score = threat_values[QUEEN];
+    Square ksq = pos.square<KING>(Them);
+    while (targets)
+    {
+    	Square sq = pop_lsb(&targets);
+        score += threat_values[type_of(pos.piece_on(sq))];
+        score -= make_score( distance<File>(ksq, sq) , 0);
+    }
 
     return score;
   }
