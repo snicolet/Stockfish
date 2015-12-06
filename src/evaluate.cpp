@@ -485,15 +485,14 @@ namespace {
   template<Color Us> inline
   Score accumulate_threats(Bitboard targets, const Position& pos, const Score threat_values[]) {
 
-    const Color Them = (Us == WHITE ? BLACK : WHITE);
     Score score = SCORE_ZERO;
 
-    Square ksq = pos.square<KING>(Them);
     while (targets)
     {
-    	Square sq = pop_lsb(&targets);
+        Square sq = pop_lsb(&targets);
+        int r = relative_rank(Us, sq);
         score += threat_values[type_of(pos.piece_on(sq))];
-        score -= make_score( distance<File>(ksq, sq) , 0);
+        score += make_score( r , r );
     }
 
     return score;
