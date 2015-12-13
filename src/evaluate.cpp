@@ -145,8 +145,8 @@ namespace {
   // Outpost[knight/bishop][supported by pawn] contains bonuses for knights and
   // bishops outposts, bigger if outpost piece is supported by a pawn.
   const Score Outpost[][2] = {
-    { S(44,13), S(65,19) }, // Knights
-    { S(20, 7), S(29,10) }  // Bishops
+    { S(46,15), S(67,21) }, // Knights
+    { S(22, 9), S(31,12) }  // Bishops
   };
 
   // ReachableOutpost[knight/bishop][supported by pawn] contains bonuses for
@@ -307,8 +307,8 @@ namespace {
             if (bb & s)
             {
                 score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
-                int d = distance<File>(pos.square<KING>(Them), s);
-                score -= make_score( 2 * d , 0 );
+                int d = 2 * distance<File>(pos.square<KING>(Them), s);
+                score -= make_score( d , d );
             }
             else
             {
