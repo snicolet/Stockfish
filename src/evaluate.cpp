@@ -305,7 +305,10 @@ namespace {
             // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
             if (bb & s)
-                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+            {
+                Score outpost = Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+                score += (passed_pawn_mask(Them, s) & pos.pieces(Them, PAWN)) ? outpost + outpost : outpost;
+            }
             else
             {
                 bb &= b & ~pos.pieces(Us);
