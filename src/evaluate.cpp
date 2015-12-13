@@ -307,7 +307,8 @@ namespace {
             if (bb & s)
             {
                 Score outpost = Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
-                score += (passed_pawn_mask(Them, s) & pos.pieces(Them, PAWN)) ? outpost + outpost : outpost;
+                score += (passed_pawn_mask(Them, s + pawn_push(Us)) & pos.pieces(Them, PAWN)) ? 
+                         outpost + outpost : outpost;
             }
             else
             {
