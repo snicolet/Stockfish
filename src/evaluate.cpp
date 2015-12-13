@@ -306,9 +306,8 @@ namespace {
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
             if (bb & s)
             {
-                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
-                int d = 2 * distance<File>(pos.square<KING>(Them), s);
-                score -= make_score( d , d );
+                Score outpost = Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+                score += (passed_pawn_mask(Them, s) & pos.pieces(Them, PAWN)) ? outpost + outpost : outpost;
             }
             else
             {
