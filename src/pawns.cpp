@@ -104,8 +104,8 @@ namespace {
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
     const Bitboard CenterBindMask =
-      Us == WHITE ? (FileDBB | FileEBB) & (Rank5BB | Rank6BB | Rank7BB)
-                  : (FileDBB | FileEBB) & (Rank4BB | Rank3BB | Rank2BB);
+      Us == WHITE ? (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank5BB | Rank6BB | Rank7BB)
+                  : (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank4BB | Rank3BB | Rank2BB);
 
     Bitboard b, neighbours, doubled, supported, phalanx;
     Square s;
