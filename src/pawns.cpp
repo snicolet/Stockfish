@@ -104,8 +104,8 @@ namespace {
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
     const Bitboard CenterBindMask =
-      Us == WHITE ? (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank5BB | Rank6BB | Rank7BB)
-                  : (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank4BB | Rank3BB | Rank2BB);
+      Us == WHITE ? (FileDBB | FileEBB) & (Rank5BB | Rank6BB | Rank7BB)
+                  : (FileDBB | FileEBB) & (Rank4BB | Rank3BB | Rank2BB);
 
     Bitboard b, neighbours, doubled, supported, phalanx;
     Square s;
@@ -198,7 +198,7 @@ namespace {
     b = e->semiopenFiles[Us] ^ 0xFF;
     e->pawnSpan[Us] = b ? int(msb(b) - lsb(b)) : 0;
 
-    b = shift_bb<Right>(ourPawns) & shift_bb<Left>(ourPawns) & CenterBindMask;
+    b = shift_bb<Right>(ourPawns) & shift_bb<Left>(ourPawns) & CenterBindMask & ~ourPawns;
     score += CenterBind * popcount<Max15>(b);
 
     return score;
