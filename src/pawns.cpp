@@ -48,11 +48,11 @@ namespace {
 
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
-  
+
   // Connection bonus for the central files
   Score ConnectedByFile[FILE_NB] = {
-    S( 0,  0), S( 5,  5), S(10, 10), S(25, 25),
-    S(25, 25), S(10, 10), S( 5,  5), S( 0,  0) };
+    S( 0,  0), S( 0,  5), S( 0, 10), S( 0, 25),
+    S( 0, 25), S( 0, 10), S( 0,  5), S( 0,  0) };
 
   // Doubled pawn penalty by file
   const Score Doubled[FILE_NB] = {
