@@ -51,8 +51,8 @@ namespace {
 
   // Connection bonus for the central files
   Score ConnectedByFile[FILE_NB] = {
-    S( 0,  0), S( 0,  5), S( 0, 10), S( 0, 25),
-    S( 0, 25), S( 0, 10), S( 0,  5), S( 0,  0) };
+    S( 0, 0), S( 5, 0), S(10, 0), S(25, 0),
+    S(25, 0), S(10, 0), S( 5, 0), S( 0, 0) };
 
   // Doubled pawn penalty by file
   const Score Doubled[FILE_NB] = {
