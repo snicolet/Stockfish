@@ -100,9 +100,9 @@ namespace {
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
-    Bitboard b, neighbours, doubled, supported, phalanx;
+    Bitboard b, neighbours, doubled, supported, phalanx, opposed;
     Square s;
-    bool passed, isolated, opposed, backward, lever, connected;
+    bool passed, isolated, backward, lever, connected;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
@@ -110,7 +110,7 @@ namespace {
     Bitboard ourPawns   = pos.pieces(Us  , PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
-    e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->pawnFrontSpan[Us] = 0;
+    e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->pawnTempi[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
     e->semiopenFiles[Us] = 0xFF;
     e->pawnAttacks[Us] = shift_bb<Right>(ourPawns) | shift_bb<Left>(ourPawns);
@@ -170,21 +170,22 @@ namespace {
 
         // Score this pawn
         if (isolated)
-            score -= Isolated[opposed][f];
+            score -= Isolated[!!opposed][f];
 
         else if (backward)
-            score -= Backward[opposed];
+            score -= Backward[!!opposed];
 
         else if (!supported)
             score -= Unsupported[more_than_one(neighbours & rank_bb(s + Up))];
 
         if (connected)
-            score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
+            score += Connected[!!opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
 
         if (doubled)
             score -= Doubled[f] / distance<Rank>(s, frontmost_sq(Us, doubled));
         else
-            e->pawnFrontSpan[Us] |= forward_bb(Us, s);
+            e->pawnTempi[Us] |= opposed ? forward_bb(Us, s) & forward_bb(Them, frontmost_sq(Them, opposed))
+                                        : forward_bb(Us, s);
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
@@ -236,9 +237,7 @@ Entry* probe(const Position& pos) {
   e->key = key;
   e->score = evaluate<WHITE>(pos, e) - evaluate<BLACK>(pos, e);
   e->asymmetry = popcount<Max15>(e->semiopenFiles[WHITE] ^ e->semiopenFiles[BLACK]);
-  
-  int inter_span = popcount<Full>(e->pawnFrontSpan[WHITE] | e->pawnFrontSpan[BLACK]);
-  e->pawnInterSpan = inter_span ? inter_span / (pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK)) : 0;
+  e->tempi = popcount<Full>(e->pawnTempi[WHITE]) + popcount<Full>(e->pawnTempi[BLACK]);
   
   return e;
 }
