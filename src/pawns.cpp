@@ -236,7 +236,10 @@ Entry* probe(const Position& pos) {
   e->key = key;
   e->score = evaluate<WHITE>(pos, e) - evaluate<BLACK>(pos, e);
   e->asymmetry = popcount<Max15>(e->semiopenFiles[WHITE] ^ e->semiopenFiles[BLACK]);
-  e->pawnInterSpan = popcount<Full>(e->pawnFrontSpan[WHITE] | e->pawnFrontSpan[BLACK]);
+  
+  int inter_span = popcount<Full>(e->pawnFrontSpan[WHITE] | e->pawnFrontSpan[BLACK]);
+  e->pawnInterSpan = inter_span ? inter_span / (pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK)) : 0;
+  
   return e;
 }
 
