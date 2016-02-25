@@ -682,7 +682,7 @@ namespace {
     int kingDistance = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * kingDistance + 3 * pawnTempi - 110;
+    int initiative = 8 * kingDistance + 3 * pawnTempi - 130;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
