@@ -184,8 +184,7 @@ namespace {
         if (doubled)
             score -= Doubled[f] / distance<Rank>(s, frontmost_sq(Us, doubled));
         else
-            e->pawnTempi[Us] |= opposed ? forward_bb(Us, s) & forward_bb(Them, frontmost_sq(Them, opposed))
-                                        : forward_bb(Us, s);
+            e->pawnTempi[Us] |= forward_bb(Us, s);
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
@@ -237,7 +236,7 @@ Entry* probe(const Position& pos) {
   e->key = key;
   e->score = evaluate<WHITE>(pos, e) - evaluate<BLACK>(pos, e);
   e->asymmetry = popcount<Max15>(e->semiopenFiles[WHITE] ^ e->semiopenFiles[BLACK]);
-  e->tempi = popcount<Full>(e->pawnTempi[WHITE]) + popcount<Full>(e->pawnTempi[BLACK]);
+  e->tempi = popcount<Full>(e->pawnTempi[WHITE] & e->pawnTempi[BLACK]);
   
   return e;
 }
