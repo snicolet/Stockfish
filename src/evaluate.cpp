@@ -188,6 +188,7 @@ namespace {
   const Score Hanging             = S(48, 28);
   const Score ThreatByPawnPush    = S(31, 19);
   const Score Unstoppable         = S( 0, 20);
+  const Score Fork                = S(20, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -351,6 +352,20 @@ namespace {
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
         }
+        
+        // Detect fork threats
+        if (Pt == KNIGHT)
+        {
+            Bitboard targets = pos.pieces(Them, QUEEN, ROOK) |  pos.pieces(Them, KING);
+            Bitboard bbb = b & mobilityArea[Us] & ~pos.pieces(Us);
+            while (bbb)
+            {
+                Square sq = pop_lsb(&bbb);
+                if (more_than_one(StepAttacksBB[KNIGHT][sq] & targets))
+                    score += Fork;
+            }
+        }
+
     }
 
     if (DoTrace)
