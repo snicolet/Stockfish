@@ -352,17 +352,6 @@ namespace {
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
         }
-        
-        // Detect fork threats
-        if (Pt == KNIGHT)
-        {
-            Bitboard targets = pos.pieces(Them, QUEEN, ROOK) |  pos.pieces(Them, KING);
-            Bitboard bbb = b & mobilityArea[Us] & ~pos.pieces();
-            while (bbb)
-                if (more_than_one(StepAttacksBB[KNIGHT][pop_lsb(&bbb)] & targets))
-                    score += Fork;
-        }
-
     }
 
     if (DoTrace)
@@ -385,7 +374,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard undefended, b, b1, b2, safe;
+    Bitboard undefended, b, b1, b2, safe, targets;
     int attackUnits;
     const Square ksq = pos.square<KING>(Us);
 
@@ -465,6 +454,11 @@ namespace {
         {
             attackUnits += KnightCheck * popcount<Max15>(b);
             score -= Checked;
+            
+            if ((targets = pos.pieces(Us, QUEEN, ROOK)))
+                while (b)
+                    if (StepAttacksBB[KNIGHT][pop_lsb(&b)] & targets)
+                        score -= Fork;
         }
 
         // Finally, extract the king danger score from the KingDanger[]
