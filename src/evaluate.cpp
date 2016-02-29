@@ -357,7 +357,7 @@ namespace {
         if (Pt == KNIGHT)
         {
             Bitboard targets = pos.pieces(Them, QUEEN, ROOK) |  pos.pieces(Them, KING);
-            Bitboard bbb = b & mobilityArea[Us] & ~pos.pieces(Us);
+            Bitboard bbb = b & mobilityArea[Us] & ~pos.pieces();
             while (bbb)
                 if (more_than_one(StepAttacksBB[KNIGHT][pop_lsb(&bbb)] & targets))
                     score += Fork;
