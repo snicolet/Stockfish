@@ -186,6 +186,7 @@ namespace {
   const Score Checked             = S(20, 20);
   const Score ThreatByHangingPawn = S(70, 63);
   const Score Hanging             = S(48, 28);
+  const Score Fork                = S(30, 30);
   const Score ThreatByPawnPush    = S(31, 19);
   const Score Unstoppable         = S( 0, 20);
 
@@ -373,7 +374,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard undefended, b, b1, b2, safe;
+    Bitboard undefended, b, b1, b2, safe, targets;
     int attackUnits;
     const Square ksq = pos.square<KING>(Us);
 
@@ -429,6 +430,11 @@ namespace {
         {
             attackUnits += QueenCheck * popcount<Max15>(b);
             score -= Checked;
+
+            if ((targets = (safe & pos.pieces(Us) & ~ei.attackedBy[Them][ALL_PIECES])))
+                while (b)
+                    if (pos.attacks_from<QUEEN>(pop_lsb(&b)) & targets)
+                        score -= Fork;
         }
 
         // Enemy rooks safe checks
