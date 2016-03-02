@@ -459,6 +459,11 @@ namespace {
         {
             attackUnits += KnightCheck * popcount<Max15>(b);
             score -= Checked;
+
+            if ((targets = pos.pieces(Us, QUEEN, ROOK)))
+                while (b)
+                    if (StepAttacksBB[KNIGHT][pop_lsb(&b)] & targets)
+                        score -= Fork;
         }
 
         // Finally, extract the king danger score from the KingDanger[]
