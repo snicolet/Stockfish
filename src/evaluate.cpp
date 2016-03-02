@@ -188,7 +188,7 @@ namespace {
   const Score Hanging             = S(48, 28);
   const Score ThreatByPawnPush    = S(31, 19);
   const Score Unstoppable         = S( 0, 20);
-  const Score Fork                = S(20, 20);
+  const Score Fork                = S(30, 30);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -430,6 +430,11 @@ namespace {
         {
             attackUnits += QueenCheck * popcount<Max15>(b);
             score -= Checked;
+            
+            if ((targets = (pos.pieces(Us) & ~ei.attackedBy[Us][ALL_PIECES] & ~ei.attackedBy[Them][ALL_PIECES])))
+                while (b)
+                    if (pos.attacks_from<QUEEN>(pop_lsb(&b)) & targets)
+                        score -= Fork;
         }
 
         // Enemy rooks safe checks
