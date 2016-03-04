@@ -212,6 +212,7 @@ namespace {
   const int RookCheck         = 45;
   const int BishopCheck       = 6;
   const int KnightCheck       = 14;
+  const int ForkingCheck      = 10;
 
 
   // eval_init() initializes king and attack bitboards for a given color
@@ -373,7 +374,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard undefended, b, b1, b2, safe;
+    Bitboard undefended, b, b1, b2, safe, targets;
     int attackUnits;
     const Square ksq = pos.square<KING>(Us);
 
@@ -417,8 +418,9 @@ namespace {
                 attackUnits += QueenContactCheck * popcount<Max15>(b);
         }
 
-        // Analyse the enemy's safe distance checks for sliders and knights
+        // Analyse the enemy's safe distance checks and forks
         safe = ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Them));
+        targets = (pos.pieces(Us) ^ pos.pieces(Us,KING)) & safe & ~ei.attackedBy[Us][ALL_PIECES];
 
         b1 = pos.attacks_from<ROOK  >(ksq) & safe;
         b2 = pos.attacks_from<BISHOP>(ksq) & safe;
@@ -429,6 +431,11 @@ namespace {
         {
             attackUnits += QueenCheck * popcount<Max15>(b);
             score -= Checked;
+
+            if (targets)
+                while (b)
+                    if (targets & pos.attacks_from<QUEEN>(pop_lsb(&b)))
+                        attackUnits += ForkingCheck;
         }
 
         // Enemy rooks safe checks
@@ -437,6 +444,11 @@ namespace {
         {
             attackUnits += RookCheck * popcount<Max15>(b);
             score -= Checked;
+
+            if (targets)
+                while (b)
+                    if (targets & pos.attacks_from<ROOK>(pop_lsb(&b)))
+                        attackUnits += ForkingCheck;
         }
 
         // Enemy bishops safe checks
@@ -445,6 +457,11 @@ namespace {
         {
             attackUnits += BishopCheck * popcount<Max15>(b);
             score -= Checked;
+
+            if (targets)
+                while (b)
+                    if (targets & pos.attacks_from<BISHOP>(pop_lsb(&b)))
+                        attackUnits += ForkingCheck;
         }
 
         // Enemy knights safe checks
@@ -453,6 +470,11 @@ namespace {
         {
             attackUnits += KnightCheck * popcount<Max15>(b);
             score -= Checked;
+
+            if (targets)
+                while (b)
+                    if (targets & pos.attacks_from<KNIGHT>(pop_lsb(&b)))
+                        attackUnits += ForkingCheck;
         }
 
         // Finally, extract the king danger score from the KingDanger[]
