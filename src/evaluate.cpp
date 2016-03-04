@@ -207,11 +207,8 @@ namespace {
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 7, 5, 4, 1 };
 
   // Penalties for enemy's safe checks
+  const int Check[PIECE_TYPE_NB] = { 0, 0, 14, 6, 45, 50 };
   const int QueenContactCheck = 89;
-  const int QueenCheck        = 50;
-  const int RookCheck         = 45;
-  const int BishopCheck       = 6;
-  const int KnightCheck       = 14;
   const int ForkingCheck      = 10;
 
 
@@ -374,7 +371,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard undefended, b, b1, b2, safe, targets;
+    Bitboard undefended, b, b1, b2, b3, safe, targets;
     int attackUnits;
     const Square ksq = pos.square<KING>(Us);
 
@@ -418,64 +415,32 @@ namespace {
                 attackUnits += QueenContactCheck * popcount<Max15>(b);
         }
 
-        // Analyse the enemy's safe distance checks and forks
+        // Calculate safe checking squares by piece type
         safe = ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Them));
         targets = (pos.pieces(Us) ^ pos.pieces(Us,KING)) & safe & ~ei.attackedBy[Us][ALL_PIECES];
 
         b1 = pos.attacks_from<ROOK  >(ksq) & safe;
         b2 = pos.attacks_from<BISHOP>(ksq) & safe;
+        b3 = pos.attacks_from<KNIGHT>(ksq) & safe;
 
-        // Enemy queen safe checks
-        b = (b1 | b2) & ei.attackedBy[Them][QUEEN];
-        if (b)
-        {
-            attackUnits += QueenCheck * popcount<Max15>(b);
-            score -= Checked;
+        Bitboard checkingSquares[PIECE_TYPE_NB];
+        checkingSquares[QUEEN]  = (b1 | b2) & ei.attackedBy[Them][QUEEN];
+        checkingSquares[ROOK]   = b1        & ei.attackedBy[Them][ROOK];
+        checkingSquares[BISHOP] = b2        & ei.attackedBy[Them][BISHOP];
+        checkingSquares[KNIGHT] = b3        & ei.attackedBy[Them][KNIGHT];
 
-            if (targets)
-                while (b)
-                    if (targets & pos.attacks_from<QUEEN>(pop_lsb(&b)))
-                        attackUnits += ForkingCheck;
-        }
+        // Analyse the enemy's safe distance checks and forks
+        for (PieceType pt = KNIGHT ; pt <= QUEEN ; pt = PieceType(pt + 1))
+            if ((b = checkingSquares[pt]))
+            {
+                attackUnits += Check[pt] * popcount<Max15>(b);
+                score -= Checked;
 
-        // Enemy rooks safe checks
-        b = b1 & ei.attackedBy[Them][ROOK];
-        if (b)
-        {
-            attackUnits += RookCheck * popcount<Max15>(b);
-            score -= Checked;
-
-            if (targets)
-                while (b)
-                    if (targets & pos.attacks_from<ROOK>(pop_lsb(&b)))
-                        attackUnits += ForkingCheck;
-        }
-
-        // Enemy bishops safe checks
-        b = b2 & ei.attackedBy[Them][BISHOP];
-        if (b)
-        {
-            attackUnits += BishopCheck * popcount<Max15>(b);
-            score -= Checked;
-
-            if (targets)
-                while (b)
-                    if (targets & pos.attacks_from<BISHOP>(pop_lsb(&b)))
-                        attackUnits += ForkingCheck;
-        }
-
-        // Enemy knights safe checks
-        b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT] & safe;
-        if (b)
-        {
-            attackUnits += KnightCheck * popcount<Max15>(b);
-            score -= Checked;
-
-            if (targets)
-                while (b)
-                    if (targets & pos.attacks_from<KNIGHT>(pop_lsb(&b)))
-                        attackUnits += ForkingCheck;
-        }
+                if (targets)
+                    while (b)
+                        if (targets & pos.attacks_from(make_piece(Them, pt), pop_lsb(&b)))
+                            attackUnits += ForkingCheck;
+            }
 
         // Finally, extract the king danger score from the KingDanger[]
         // array and subtract the score from the evaluation.
