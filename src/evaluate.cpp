@@ -209,7 +209,7 @@ namespace {
   // Penalties for enemy's safe checks
   const int Check[PIECE_TYPE_NB] = { 0, 0, 14, 6, 45, 50 };
   const int QueenContactCheck = 89;
-  const int ForkingCheck      = 10;
+  const int ForkingCheck      = 2;
 
 
   // eval_init() initializes king and attack bitboards for a given color
@@ -417,19 +417,19 @@ namespace {
 
         // Calculate safe checking squares by piece type
         safe = ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Them));
-        targets = (pos.pieces(Us) ^ pos.pieces(Us,KING)) & safe & ~ei.attackedBy[Us][ALL_PIECES];
 
         b1 = pos.attacks_from<ROOK  >(ksq) & safe;
         b2 = pos.attacks_from<BISHOP>(ksq) & safe;
         b3 = pos.attacks_from<KNIGHT>(ksq) & safe;
 
         Bitboard checkingSquares[PIECE_TYPE_NB];
-        checkingSquares[QUEEN]  = (b1 | b2) & ei.attackedBy[Them][QUEEN];
-        checkingSquares[ROOK]   = b1        & ei.attackedBy[Them][ROOK];
-        checkingSquares[BISHOP] = b2        & ei.attackedBy[Them][BISHOP];
         checkingSquares[KNIGHT] = b3        & ei.attackedBy[Them][KNIGHT];
+        checkingSquares[BISHOP] = b2        & ei.attackedBy[Them][BISHOP];
+        checkingSquares[ROOK]   = b1        & ei.attackedBy[Them][ROOK];
+        checkingSquares[QUEEN]  = (b1 | b2) & ei.attackedBy[Them][QUEEN];
 
         // Analyse the enemy's safe distance checks and forks
+        targets = (pos.pieces(Us) ^ pos.pieces(Us,KING)) & safe & ~ei.attackedBy[Us][ALL_PIECES];
         for (PieceType pt = KNIGHT ; pt <= QUEEN ; pt = PieceType(pt + 1))
             if ((b = checkingSquares[pt]))
             {
