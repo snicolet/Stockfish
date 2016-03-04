@@ -429,7 +429,7 @@ namespace {
         checkingSquares[QUEEN]  = (b1 | b2) & ei.attackedBy[Them][QUEEN];
 
         // Analyse the enemy's safe distance checks and forks
-        targets = (pos.pieces(Us) ^ pos.pieces(Us,KING)) & safe & ~ei.attackedBy[Us][ALL_PIECES];
+        targets = (pos.pieces(Us) ^ pos.pieces(Us,KING)) & safe & ~ei.attackedBy[Them][ALL_PIECES];
         for (PieceType pt = KNIGHT ; pt <= QUEEN ; pt = PieceType(pt + 1))
             if ((b = checkingSquares[pt]))
             {
