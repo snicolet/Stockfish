@@ -122,7 +122,7 @@ namespace {
     e->pawnsOnSquares[Us][BLACK] = popcount<Max15>(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
-    Bitboard controlled = ~(ourPawns | theirPawns) & in_front_bb(Us, relative_rank(Us, RANK_4))
+    Bitboard controlled = in_front_bb(Us, relative_rank(Us, RANK_4))
                           & e->pawnAttacks[Us] & ~e->pawnAttacks[Them];
     Score score = Control * popcount<Max15>(controlled);
 
