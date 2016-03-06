@@ -60,7 +60,7 @@ namespace {
     S(17, 16), S(33, 32), S(0, 0), S(0, 0) };
 
   // Bonus for each square controlled in the opponent side by our pawns
-  const Score Control = S(20,20);
+  const Score Control = S(0, 15);
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
@@ -121,8 +121,10 @@ namespace {
     e->pawnAttacks[Them] = shift_bb<DownRight>(theirPawns) | shift_bb<DownLeft>(theirPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount<Max15>(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
-    
-    Score score = Control * popcount<Full>(e->pawnAttacks[Us] & in_front_bb(Us, RANK_4) & ~e->pawnAttacks[Them]);
+
+    Bitboard controlled = ~(ourPawns | theirPawns) & in_front_bb(Us, relative_rank(Us, RANK_4))
+                          & e->pawnAttacks[Us] & ~e->pawnAttacks[Them];
+    Score score = Control * popcount<Max15>(controlled);
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
