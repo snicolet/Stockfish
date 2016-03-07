@@ -40,7 +40,7 @@ namespace {
       S(33, 28), S(33, 28), S(30, 28), S(21, 24) } };
 
   // Backward pawn penalty by opposed flag
-  const Score Backward[2] = { S(56, 43), S(41, 29) };
+  const Score Backward[2] = { S(56, 33), S(41, 19) };
 
   // Unsupported pawn penalty for pawns which are neither isolated or backward,
   // by number of pawns it supports [less than 2 / exactly 2].
@@ -60,7 +60,7 @@ namespace {
     S(17, 16), S(33, 32), S(0, 0), S(0, 0) };
 
   // Bonus for each square controlled in the opponent side by our pawns
-  const Score Control = S(0, 18);
+  const Score Control = S(8, 8);
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
