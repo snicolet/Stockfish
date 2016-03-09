@@ -400,7 +400,7 @@ namespace {
                      +  9 * ei.kingAdjacentZoneAttacksCount[Them]
                      + 27 * popcount<Max15>(undefended)
                      + 11 * !!ei.pinnedPieces[Us]
-                     - 64 * !pos.count<QUEEN>(Them)
+                     + 32 * ( pos.non_pawn_material(Them)/QueenValueMg - 3 )
                      - mg_value(score) / 8;
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
