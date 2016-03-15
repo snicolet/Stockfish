@@ -106,6 +106,9 @@ namespace {
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
+    const Bitboard Center = 
+       (Us == WHITE ? in_front_bb(Them, RANK_5) & (FileCBB | FileDBB | FileEBB | FileFBB)
+                    : in_front_bb(Us  , RANK_4) & (FileCBB | FileDBB | FileEBB | FileFBB));
 
     Bitboard ourPawns   = pos.pieces(Us  , PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
@@ -116,6 +119,10 @@ namespace {
     e->pawnAttacks[Us] = shift_bb<Right>(ourPawns) | shift_bb<Left>(ourPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount<Max15>(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
+    
+    e->pawnsOnCenterSquares[Us][BLACK] = popcount<Max15>(ourPawns & DarkSquares & Center);
+    e->pawnsOnCenterSquares[Us][WHITE] = popcount<Max15>(ourPawns & ~DarkSquares & Center);
+    
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)

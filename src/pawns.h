@@ -51,6 +51,10 @@ struct Entry {
   int pawns_on_same_color_squares(Color c, Square s) const {
     return pawnsOnSquares[c][!!(DarkSquares & s)];
   }
+  
+  int pawns_on_same_color_center_squares(Color c, Square s) const {
+    return pawnsOnCenterSquares[c][!!(DarkSquares & s)];
+  }
 
   template<Color Us>
   Score king_safety(const Position& pos, Square ksq)  {
@@ -75,6 +79,7 @@ struct Entry {
   int semiopenFiles[COLOR_NB];
   int pawnSpan[COLOR_NB];
   int pawnsOnSquares[COLOR_NB][COLOR_NB]; // [color][light/dark squares]
+  int pawnsOnCenterSquares[COLOR_NB][COLOR_NB]; // [color][light/dark squares]
   int asymmetry;
 };
 
