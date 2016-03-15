@@ -180,7 +180,8 @@ namespace {
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
-  const Score BishopPawns         = S( 8, 12);
+  const Score BishopPawns         = S( 6, 10);
+  const Score BishopCenterPawns   = S(10, 14);
   const Score RookOnPawn          = S( 7, 27);
   const Score TrappedRook         = S(92,  0);
   const Score Checked             = S(20, 20);
@@ -309,7 +310,10 @@ namespace {
 
             // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
-                score -= BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s);
+            {
+                score -=   BishopPawns * ei.pi->pawns_on_same_color_squares(Us, s)
+                         + BishopCenterPawns * ei.pi->pawns_on_same_color_center_squares(Us, s);
+            }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
@@ -696,12 +700,13 @@ namespace {
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
+                sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(20 + 2*pos.count<PAWN>())
+                                                     : ScaleFactor(9);
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
             else
-                sf = ScaleFactor(46 * sf / SCALE_FACTOR_NORMAL);
+                sf = ScaleFactor((35 + 2*pos.count<PAWN>()) * sf / SCALE_FACTOR_NORMAL);
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
