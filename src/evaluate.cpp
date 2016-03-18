@@ -654,7 +654,7 @@ namespace {
     int weight =  pos.count<KNIGHT>(Us) + pos.count<BISHOP>(Us)
                 + pos.count<KNIGHT>(Them) + pos.count<BISHOP>(Them);
 
-    return make_score(bonus * weight * weight * 2 / 11, 0);
+    return make_score(bonus * weight, 0);
   }
 
 
