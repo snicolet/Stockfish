@@ -619,12 +619,11 @@ namespace {
   }
 
 
-  // evaluate_space() computes the space evaluation for a given side. The
-  // space evaluation is a simple bonus based on the number of safe squares
-  // available for minor pieces on the central four files on ranks 2--4. Safe
-  // squares one, two or three squares behind a friendly pawn are counted
-  // twice. Finally, the space bonus is multiplied by a weight. The aim is to
-  // improve play on game opening.
+  // evaluate_space() computes the space evaluation for a given side during
+  // the opening phase. The space evaluation is a simple bonus based on the 
+  // number of safe squares available for our pieces on the central four files 
+  // on ranks 2--4. Safe squares behind a friendly pawn, as well as safe squares 
+  // not attacked by the opponent, are counted multiple times.
   template<Color Us>
   Score evaluate_space(const Position& pos, const EvalInfo& ei) {
 
@@ -646,7 +645,7 @@ namespace {
     behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
     behind |= (Us == WHITE ? behind >> 16 : behind << 16);
 
-    // count the safe squares
+    // Count the safe squares
     int bonus =   popcount<Full>(safe)
                 + popcount<Full>(safe & ~ei.attackedBy[Them][ALL_PIECES])
                 + popcount<Full>(safe & behind);
