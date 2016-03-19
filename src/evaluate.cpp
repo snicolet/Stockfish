@@ -646,15 +646,12 @@ namespace {
     behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
     behind |= (Us == WHITE ? behind >> 16 : behind << 16);
 
-    // Since SpaceMask[Us] is fully on our half of the board...
-    assert(unsigned(safe >> (Us == WHITE ? 32 : 0)) == 0);
+    // count the safe squares
+    int bonus =   popcount<Full>(safe)
+                + popcount<Full>(safe & ~ei.attackedBy[Them][ALL_PIECES])
+                + popcount<Full>(safe & behind);
 
-    // ...count safe + (behind & safe) with a single popcount
-    int bonus = popcount<Full>((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
-    int weight =  pos.count<KNIGHT>(Us) + pos.count<BISHOP>(Us)
-                + pos.count<KNIGHT>(Them) + pos.count<BISHOP>(Them);
-
-    return make_score(bonus * weight, 0);
+    return make_score(bonus * 5, bonus * 2);
   }
 
 
