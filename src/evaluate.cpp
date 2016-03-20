@@ -619,11 +619,10 @@ namespace {
   }
 
 
-  // evaluate_space() computes the space evaluation for a given side during
-  // the opening phase. The space evaluation is a simple bonus based on the 
-  // number of safe squares available for our pieces on the central four files 
-  // on ranks 2--4. Safe squares behind a friendly pawn, as well as safe squares 
-  // not attacked by the opponent, are counted multiple times.
+  // evaluate_space() computes the space evaluation for a given side. It is a
+  // simple bonus based on the number of safe squares available for our pieces
+  // on the central four files on ranks 2--4. Safe squares not attacked by the
+  // opponent are counted multiple times.
   template<Color Us>
   Score evaluate_space(const Position& pos, const EvalInfo& ei) {
 
@@ -640,17 +639,13 @@ namespace {
                    & ~ei.attackedBy[Them][PAWN]
                    & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
 
-    // Find all squares which are at most three squares behind some friendly pawn
-    Bitboard behind = pos.pieces(Us, PAWN);
-    behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
-    behind |= (Us == WHITE ? behind >> 16 : behind << 16);
-
     // Count the safe squares
-    int bonus =   popcount<Full>(safe)
-                + popcount<Full>(safe & ~ei.attackedBy[Them][ALL_PIECES])
-                + popcount<Full>(safe & behind);
+    int bonus =  popcount<Full>(safe)
+               + popcount<Full>(safe & ~ei.attackedBy[Them][ALL_PIECES]);
+    int weight =  pos.count<KNIGHT>(Us) + pos.count<BISHOP>(Us)
+                + pos.count<KNIGHT>(Them) + pos.count<BISHOP>(Them);
 
-    return make_score(bonus * 5, bonus * 2);
+    return make_score(bonus * weight, 0);
   }
 
 
