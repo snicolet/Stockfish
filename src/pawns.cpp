@@ -59,9 +59,6 @@ namespace {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
     S(17, 16), S(33, 32), S(0, 0), S(0, 0) };
 
-  // Bonus for space advantage on both wings
-  const Score SpaceOnBothWings = S(50, 0);
-
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
     { V( 97), V(21), V(26), V(51), V(87), V( 89), V( 99) },
@@ -193,16 +190,6 @@ namespace {
 
     b = e->semiopenFiles[Us] ^ 0xFF;
     e->pawnSpan[Us] = b ? int(msb(b) - lsb(b)) : 0;
-
-    // Space advantage on both wings: add bonus for each pawn pair 
-    // on 4th or 5th rank with distance 3 (like c4/f4 or a5/d5)
-    b = ourPawns & (Rank4BB | Rank5BB);
-    if (more_than_one(b))
-    {
-        b = shift_bb<DELTA_E>(shift_bb<DELTA_E>(b)) & shift_bb<DELTA_W>(b);
-        if (b)
-            score += SpaceOnBothWings * popcount<Max15>(b);
-    }
 
     return score;
   }
