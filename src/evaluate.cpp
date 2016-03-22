@@ -621,15 +621,15 @@ namespace {
 
   // evaluate_space() computes the space evaluation for a given side. It is a
   // simple bonus based on the number of safe squares available for our pieces
-  // on the central four files on ranks 2--4, the safe squares behind a friendly
-  // pawn and the squares controlled by our pawns in the opponent side of the board.
+  // on the central four files on ranks 2--5 and the safe squares behind a friendly
+  // pawn. This bonus is then multiplied by a weight (number of minor pieces left).
   template<Color Us>
   Score evaluate_space(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     const Bitboard SpaceMask =
-      Us == WHITE ? (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank2BB | Rank3BB | Rank4BB)
-                  : (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB);
+      Us == WHITE ? (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank2BB | Rank3BB | Rank4BB | Rank5BB)
+                  : (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB | Rank4BB);
 
     // Find the safe squares for our pieces inside the area defined by
     // SpaceMask. A square is unsafe if it is attacked by an enemy
@@ -644,15 +644,9 @@ namespace {
     behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
     behind |= (Us == WHITE ? behind >> 16 : behind << 16);
 
-    // Find the squares controlled by our pawns in the opponent side of the board
-    Bitboard controlled = in_front_bb(Us, relative_rank(Us, RANK_4))
-                          & ei.attackedBy[Us][PAWN]
-                          & ~ei.attackedBy[Them][PAWN];
-
     // Count the safe squares
     int bonus =   popcount<Full>(safe)
-                + popcount<Full>(safe & behind)
-                + popcount<Full>(controlled);
+                + popcount<Full>(safe & behind);
 
     int weight =  pos.count<KNIGHT>(Us) + pos.count<BISHOP>(Us)
                 + pos.count<KNIGHT>(Them) + pos.count<BISHOP>(Them);
