@@ -304,8 +304,8 @@ namespace {
 
             if (!(b & (ei.kingRing[Us] | ei.kingRing[Them])))
             {
-            	int d = distance(s, pos.square<KING>(Us));
-                score -=  make_score( 10 * d , -5 * d );
+                int d = distance(s, pos.square<KING>(Us));
+                score -= make_score( 10 * d , -5 * d );
             }
 
             // Bonus when behind a pawn
