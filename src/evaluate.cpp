@@ -675,7 +675,7 @@ namespace {
     // that the endgame score will never be divided by more than two.
     int value = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg / 2));
 
-    return make_score(0, value);
+    return make_score(value, value);
   }
 
 
