@@ -101,7 +101,6 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAdjacentZoneAttacksCount[WHITE].
     int kingAdjacentZoneAttacksCount[COLOR_NB];
-    int outOfPlay[COLOR_NB];
 
     Bitboard pinnedPieces[COLOR_NB];
     Material::Entry* me;
@@ -225,7 +224,6 @@ namespace {
     const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
 
     ei.pinnedPieces[Us] = pos.pinned_pieces(Us);
-    ei.outOfPlay[Us] = 0;
     Bitboard b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.square<KING>(Them));
     ei.attackedBy[Them][ALL_PIECES] |= b;
     ei.attackedBy[Us][ALL_PIECES] |= ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
@@ -303,9 +301,12 @@ namespace {
                 if (bb)
                    score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
             }
-            
+
             if (!(b & (ei.kingRing[Us] | ei.kingRing[Them])))
-                ei.outOfPlay[Us] += distance(s, pos.square<KING>(Us));
+            {
+            	int d = distance(s, pos.square<KING>(Us));
+                score -=  make_score( 10 * d , -5 * d );
+            }
 
             // Bonus when behind a pawn
             if (    relative_rank(Us, s) < RANK_5
@@ -403,7 +404,6 @@ namespace {
         // the pawn shelter (current 'score' value).
         attackUnits =  std::min(72, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
                      +  9 * ei.kingAdjacentZoneAttacksCount[Them]
-                     +      ei.outOfPlay[Us]
                      + 27 * popcount<Max15>(undefended)
                      + 11 * !!ei.pinnedPieces[Us]
                      - 64 * !pos.count<QUEEN>(Them)
