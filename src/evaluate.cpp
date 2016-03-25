@@ -302,11 +302,9 @@ namespace {
                    score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
             }
 
+            // Malus for minor out of play
             if (!(b & (ei.kingRing[Us] | ei.kingRing[Them])))
-            {
-                int d = distance(s, pos.square<KING>(Us));
-                score -= make_score( 10 * d , -5 * d );
-            }
+                score -= make_score( 5 * distance(s, pos.square<KING>(Them)) , 0 );
 
             // Bonus when behind a pawn
             if (    relative_rank(Us, s) < RANK_5
