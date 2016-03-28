@@ -379,10 +379,10 @@ namespace {
     // King shelter and enemy pawns storm
     Score score = ei.pi->king_safety<Us>(pos, ksq);
 
-    // Main king safety evaluation
-    if (pos.non_pawn_material(Us) >= QueenValueMg)
+    // Main safety evaluation for our king
+    if (pos.non_pawn_material(Them) >= QueenValueMg)
     {
-        // Find the attacked squares around the king which have no defenders
+        // Find the attacked squares around our king which have no defenders
         // apart from the king itself.
         undefended =  ei.attackedBy[Them][ALL_PIECES]
                     & ei.attackedBy[Us][KING]
