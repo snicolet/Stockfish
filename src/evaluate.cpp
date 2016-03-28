@@ -229,7 +229,7 @@ namespace {
 
     // Init king safety tables only if we are going to use them
     ei.kingAdjacentZoneAttacksCount[Us] = ei.kingAttackersWeight[Us] = 0;
-    if (pos.non_pawn_material(Us) >= BishopValueMg + BishopValueMg)
+    if (pos.non_pawn_material(Us) >= QueenValueMg)
     {
         ei.kingRing[Them] = b | DistanceRingBB[pos.square<KING>(Them)][1];
         b &= ei.attackedBy[Us][PAWN];
