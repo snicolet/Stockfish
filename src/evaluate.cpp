@@ -233,7 +233,7 @@ namespace {
     if (pos.non_pawn_material(Us) >= QueenValueMg)
     {
         ei.kingRing[Them] = b | shift_bb<Down>(b);
-        b &= ei.attackedBy[Us][PAWN];
+        b = ei.kingRing[Them] & ei.attackedBy[Us][PAWN];
         ei.kingAttackersCount[Us] = b ? popcount<Max15>(b) : 0;
         ei.kingAdjacentZoneAttacksCount[Us] = ei.kingAttackersWeight[Us] = 0;
     }
@@ -381,10 +381,10 @@ namespace {
     // King shelter and enemy pawns storm
     Score score = ei.pi->king_safety<Us>(pos, ksq);
 
-    // Main king safety evaluation
+    // Main safety evaluation for our king
     if (ei.kingAttackersCount[Them])
     {
-        // Find the attacked squares around the king which have no defenders
+        // Find the attacked squares around our king which have no defenders
         // apart from the king itself.
         undefended =  ei.attackedBy[Them][ALL_PIECES]
                     & ei.attackedBy[Us][KING]
