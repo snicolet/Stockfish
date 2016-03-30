@@ -58,8 +58,8 @@ namespace {
   const Score Lever[2][RANK_NB] = {
     { S( 0,  0), S( 0,  0), S(0, 10), S(0, 20),
       S(16, 40), S(32, 80), S(0,  0), S(0,  0) },
-    { S( 0,  0), S( 0,-30), S(0,-30), S(0,  0),
-      S(16, 16), S(32, 32), S(0,  0), S(0,  0) } };
+    { S( 0,  0), S( 0,-30), S(0,-30), S(0,-20),
+      S(16,  6), S(32, 22), S(0,  0), S(0,  0) } };
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
