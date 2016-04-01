@@ -56,9 +56,9 @@ namespace {
 
   // Levers bonus by unsupported flag and rank
   const Score Lever[2][RANK_NB] = {
-    { S( 0,  0), S( 0,  0), S(0, 10), S(0, 20),
+    { S( 0,  0), S( 0,  0), S(0, 10), S(0, 20),       // supported
       S(16, 40), S(32, 80), S(0,  0), S(0,  0) },
-    { S( 0,  0), S( 0,-30), S(0,-30), S(0,-20),
+    { S( 0,  0), S( 0,-30), S(0,-30), S(0,-20),       // unsupported
       S(16,  6), S(32, 22), S(0,  0), S(0,  0) } };
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
