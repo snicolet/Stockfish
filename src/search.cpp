@@ -916,8 +916,7 @@ moves_loop: // When in check search starts from here
           (ss+1)->pv = nullptr;
 
       extension = DEPTH_ZERO;
-      captureOrPromotion = pos.capture_or_promotion(move);
-
+      
       givesCheck =  type_of(move) == NORMAL && !ci.dcCandidates
                   ? ci.checkSquares[type_of(pos.piece_on(from_sq(move)))] & to_sq(move)
                   : pos.gives_check(move, ci);
@@ -952,10 +951,10 @@ moves_loop: // When in check search starts from here
 
       // Step 13. Pruning at shallow depth
       if (   !rootNode
-          && !captureOrPromotion
           && !inCheck
           && !givesCheck
           && !pos.advanced_pawn_push(move)
+          && !pos.capture_or_promotion(move)
           &&  bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           // Move count based pruning
@@ -1000,6 +999,7 @@ moves_loop: // When in check search starts from here
       }
 
       ss->currentMove = move;
+      captureOrPromotion = pos.capture_or_promotion(move);
 
       // Step 14. Make the move
       pos.do_move(move, st, givesCheck);
