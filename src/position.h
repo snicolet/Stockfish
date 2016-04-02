@@ -329,6 +329,7 @@ inline bool Position::advanced_pawn_push(Move m) const {
 inline bool Position::pawn_break(Move m) const {
   Piece pc = moved_piece(m);
   return   type_of(pc) == PAWN
+        && relative_rank(sideToMove, to_sq(m)) > RANK_4
         && (pieces(sideToMove, PAWN) & StepAttacksBB[make_piece(~sideToMove, PAWN)][to_sq(m)])
         && (pieces(~sideToMove, PAWN) & StepAttacksBB[pc][to_sq(m)]);
 }
