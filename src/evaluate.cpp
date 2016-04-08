@@ -393,8 +393,7 @@ namespace {
 
         // ... and those which are not defended at all in the larger king ring
         b =   ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES] 
-            & (ei.kingRing[Us] | DistanceRingBB[pos.square<KING>(Us)][1])
-            & ~pos.pieces(Them);
+            & DistanceRingBB[pos.square<KING>(Us)][1] & ~pos.pieces(Them);
 
         // Initialize the 'attackUnits' variable, which is used later on as an
         // index into the KingDanger[] array. The initial value is based on the
