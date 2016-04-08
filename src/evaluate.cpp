@@ -393,7 +393,7 @@ namespace {
 
         // ... and those which are not defended at all in the larger king ring
         b =   ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES] 
-            & ei.kingRing[Us] & ~pos.pieces(Them);
+            & DistanceRingBB[pos.square<KING>(Us)][1] & ~pos.pieces(Them);
 
         // Initialize the 'attackUnits' variable, which is used later on as an
         // index into the KingDanger[] array. The initial value is based on the
@@ -403,7 +403,8 @@ namespace {
         attackUnits =  std::min(72, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
                      +  9 * ei.kingAdjacentZoneAttacksCount[Them]
                      + 27 * popcount(undefended)
-                     + 11 * (popcount(b) + !!ei.pinnedPieces[Us])
+                     + 11 * !!ei.pinnedPieces[Us]
+                     + 12 * popcount(b)
                      - 64 * !pos.count<QUEEN>(Them)
                      - mg_value(score) / 8;
 
