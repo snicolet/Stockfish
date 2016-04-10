@@ -58,6 +58,9 @@ namespace {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
     S(17, 16), S(33, 32), S(0, 0), S(0, 0) };
 
+  // Bonus for squares controlled by our pawns, but not by the opponent's pawns
+  const Score Control = S(0, 8);
+
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
     { V( 97), V(21), V(26), V(51), V(87), V( 89), V( 99) },
@@ -225,6 +228,11 @@ Entry* probe(const Position& pos) {
   e->key = key;
   e->score = evaluate<WHITE>(pos, e) - evaluate<BLACK>(pos, e);
   e->asymmetry = popcount(e->semiopenFiles[WHITE] ^ e->semiopenFiles[BLACK]);
+
+  Bitboard w = e->pawnAttacks[WHITE] & (~e->pawnAttacks[BLACK] | pos.pieces(WHITE, PAWN));
+  Bitboard b = e->pawnAttacks[BLACK] & (~e->pawnAttacks[WHITE] | pos.pieces(BLACK, PAWN));
+  e->score += Control * (popcount(w) - popcount(b));
+
   return e;
 }
 
