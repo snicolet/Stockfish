@@ -209,7 +209,7 @@ namespace {
 
   // Penalties for enemy's safe checks
   const int QueenContactCheck = 89;
-  const int QueenApproachMove = 32;
+  const int QueenApproachMove = 11;
   const int QueenCheck        = 52;
   const int RookCheck         = 45;
   const int BishopCheck       = 5;
