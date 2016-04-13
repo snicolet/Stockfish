@@ -208,7 +208,8 @@ namespace {
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 7, 5, 4, 1 };
 
   // Penalties for enemy's safe checks
-  const int QueenApproachMove = 64;
+  const int QueenContactCheck = 89;
+  const int QueenApproachMove = 32;
   const int QueenCheck        = 52;
   const int RookCheck         = 45;
   const int BishopCheck       = 5;
@@ -374,7 +375,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
-    Bitboard undefended, b, b1, b2, safe;
+    Bitboard undefended, undefended2, b, b1, b2, safe;
     int attackUnits;
     const Square ksq = pos.square<KING>(Us);
 
@@ -392,8 +393,8 @@ namespace {
                         | ei.attackedBy[Us][QUEEN]);
 
         // ... and those which are not defended at all in the larger king ring
-        b =   ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES] 
-            & DistanceRingBB[ksq][1] & ~pos.pieces(Them);
+        undefended2 =  ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES] 
+                     & DistanceRingBB[ksq][1] & ~pos.pieces(Them);
 
         // Initialize the 'attackUnits' variable, which is used later on as an
         // index into the KingDanger[] array. The initial value is based on the
@@ -403,13 +404,13 @@ namespace {
         attackUnits =  std::min(72, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
                      +  9 * ei.kingAdjacentZoneAttacksCount[Them]
                      + 27 * popcount(undefended)
-                     + 11 * (popcount(b & ei.kingRing[Us]) + !!ei.pinnedPieces[Us])
+                     + 11 * (popcount(undefended2 & ei.kingRing[Us]) + !!ei.pinnedPieces[Us])
                      - 64 * !pos.count<QUEEN>(Them)
                      - mg_value(score) / 8;
 
         // Analyse the enemy's safe queen contact moves. Firstly, find the
         // undefended squares around the king reachable by the enemy queen...
-        b = (undefended | b) & ei.attackedBy[Them][QUEEN] & ~pos.pieces(Them);
+        b = (undefended | undefended2) & ei.attackedBy[Them][QUEEN] & ~pos.pieces(Them);
         if (b)
         {
             // ...and then remove squares not supported by another enemy piece
@@ -417,8 +418,10 @@ namespace {
                 | ei.attackedBy[Them][BISHOP] | ei.attackedBy[Them][ROOK]
                 | ei.attackedBy[Them][KING];
 
-            if (b)
-                attackUnits += QueenApproachMove * popcount(b);
+            if (b & undefended)
+                attackUnits += QueenContactCheck * popcount(b & undefended);
+            if (b & undefended2)
+                attackUnits += QueenApproachMove * popcount(b & undefended2);
         }
 
         // Analyse the enemy's safe distance checks for sliders and knights
