@@ -209,7 +209,7 @@ namespace {
 
   // Penalties for enemy's safe checks
   const int QueenContactCheck = 89;
-  const int QueenApproachMove = 11;
+  const int QueenApproachMove = 19;
   const int QueenCheck        = 52;
   const int RookCheck         = 45;
   const int BishopCheck       = 5;
@@ -428,10 +428,9 @@ namespace {
         b1 = pos.attacks_from<ROOK  >(ksq) & safe;
         b2 = pos.attacks_from<BISHOP>(ksq) & safe;
 
-        // Enemy queen safe approaches
-        b =  DistanceRingBB[ksq][1] & ei.attackedBy[Them][QUEEN] & safe;
-        if (b)
-            attackUnits += QueenApproachMove * popcount(b);
+        // Enemy queen safe approach moves
+        if (DistanceRingBB[ksq][1] & ei.attackedBy[Them][QUEEN] & safe)
+            attackUnits += QueenApproachMove;
 
         // Enemy queen safe checks
         if ((b1 | b2) & ei.attackedBy[Them][QUEEN])
