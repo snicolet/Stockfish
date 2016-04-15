@@ -62,7 +62,7 @@ namespace {
   const Score OpposedLever[2] = { S(3, 3), S(-3, -3) };
 
   // Bonus/malus for [supported/unsuppported] lever
-  const Score UnsupportedLever[2] = { S(0, 6), S(0, -6) };
+  const Score UnsupportedLever[2] = { S(2, 4), S(-2, -4) };
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
