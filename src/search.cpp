@@ -786,7 +786,7 @@ namespace {
     if (   !PvNode
         &&  depth >= 2 * ONE_PLY
         &&  eval >= beta
-        &&  pos.non_pawn_material(pos.side_to_move()))
+        &&  pos.non_pawn_material(pos.side_to_move()) > BishopValueMg)
     {
         ss->currentMove = MOVE_NULL;
         ss->cms = nullptr;
