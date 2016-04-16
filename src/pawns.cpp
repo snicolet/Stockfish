@@ -60,6 +60,9 @@ namespace {
     { S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
       S(12, 16), S(28, 22), S(0, 0), S(0, 0) } };
 
+  // Bonus/malus for [supported/unsuppported] lever
+  const Score UnsupportedLever[2] = { S(0, 10), S(0, -10) };
+
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
     { V( 97), V(21), V(26), V(51), V(87), V( 89), V( 99) },
@@ -178,7 +181,10 @@ namespace {
             score -= Doubled[f] / distance<Rank>(s, frontmost_sq(Us, doubled));
 
         if (lever)
+        {
             score += Lever[opposed][relative_rank(Us, s)];
+            score += UnsupportedLever[!supported];
+        }
     }
 
     b = e->semiopenFiles[Us] ^ 0xFF;
