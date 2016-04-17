@@ -30,9 +30,11 @@
 #include "position.h"
 #include "types.h"
 
-template<typename T, bool CM>
-struct Stats;
-typedef Stats<Value,  true> CounterMoveStats;
+// Different history table types, used as a template parameter
+enum HistoryType { NoHistory, History, CounterMove };
+
+template<typename T, HistoryType type> struct Stats;
+typedef Stats<Value, CounterMove> CounterMoveStats;
 
 namespace Search {
 
