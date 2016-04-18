@@ -27,6 +27,7 @@ class Position;
 
 enum GenType {
   CAPTURES,
+  CAPTURES_THERE,
   QUIETS,
   QUIET_CHECKS,
   EVASIONS,
@@ -47,7 +48,7 @@ inline bool operator<(const ExtMove& f, const ExtMove& s) {
 }
 
 template<GenType>
-ExtMove* generate(const Position& pos, ExtMove* moveList);
+ExtMove* generate(const Position& pos, ExtMove* moveList, Square s = SQ_NONE);
 
 /// The MoveList struct is a simple wrapper around generate(). It sometimes comes
 /// in handy to use this class instead of the low level generate() function.

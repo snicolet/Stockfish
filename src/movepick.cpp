@@ -186,10 +186,15 @@ void MovePicker::generate_next_stage() {
   switch (++stage) {
 
   case GOOD_CAPTURES: case QCAPTURES_1: case QCAPTURES_2:
-  case PROBCUT_CAPTURES: case RECAPTURES:
+  case PROBCUT_CAPTURES: 
       endMoves = generate<CAPTURES>(pos, moves);
       score<CAPTURES>();
       break;
+
+  case RECAPTURES:
+      endMoves = generate<CAPTURES_THERE>(pos, moves, recaptureSquare);
+      score<CAPTURES>();
+      break; 
 
   case KILLERS:
       killers[0] = ss->killers[0];
