@@ -450,6 +450,7 @@ namespace {
         score -= KingDanger[std::max(std::min(attackUnits, 399), 0)];
     }
 
+    // King activity (only in endgame)
     if (pos.non_pawn_material(Us) + pos.non_pawn_material(Them) < 2 * QueenValueMg)
     {
         // Find squares where the enemy king can get closer to our king
@@ -458,6 +459,7 @@ namespace {
            & ei.attackedBy[Them][KING]
            & ~(pos.pieces(Them) | ei.attackedBy[Us][ALL_PIECES]);
 
+        // Malus for each such square, especially if they are near our back rank
         int r = 1 + relative_rank(Them, pos.square<KING>(Them));
         score -= make_score(0, KingWalk * r * (6 + popcount(b)) / dist );
     }
