@@ -215,7 +215,7 @@ namespace {
   const int KnightCheck       = 17;
 
   // Bonus for king march in endgame
-  const int KingWalk          = 6;
+  const int KingWalk          = 4;
 
   // eval_init() initializes king and attack bitboards for a given color
   // adding pawn attacks. To be done at the beginning of the evaluation.
@@ -449,20 +449,17 @@ namespace {
         // array and subtract the score from the evaluation.
         score -= KingDanger[std::max(std::min(attackUnits, 399), 0)];
     }
-    else if (pos.non_pawn_material(Us) < QueenValueMg)
+
+    if (pos.non_pawn_material(Us) + pos.non_pawn_material(Them) < 2 * QueenValueMg)
     {
-        // Find squares where the enemy King get closer with our king
+        // Find squares where the enemy king can get closer to our king
         int dist = distance(pos.square<KING>(Them), ksq) - 1;
         b =  DistanceRingBB[ksq][dist-1]
            & ei.attackedBy[Them][KING]
            & ~(pos.pieces(Them) | ei.attackedBy[Us][ALL_PIECES]);
 
-        // Penalize for each such square according to distance
-        if (b)
-        {
-            int r = 1 + relative_rank(Them, pos.square<KING>(Them));
-            score -= make_score(0, KingWalk * popcount(b) * r / dist);
-        }
+        int r = 1 + relative_rank(Them, pos.square<KING>(Them));
+        score -= make_score(0, KingWalk * r * (6 + popcount(b)) / dist );
     }
 
     if (DoTrace)
