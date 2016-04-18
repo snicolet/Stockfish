@@ -309,35 +309,34 @@ namespace {
 /// non-captures. Returns a pointer to the end of the move list.
 
 template<GenType Type>
-ExtMove* generate(const Position& pos, ExtMove* moveList, Square s) {
+ExtMove* generate(const Position& pos, ExtMove* moveList, Bitboard target) {
 
   assert(Type == CAPTURES || Type == QUIETS || Type == NON_EVASIONS);
   assert(!pos.checkers());
 
   Color us = pos.side_to_move();
 
-  Bitboard target =  Type == CAPTURES       ?  pos.pieces(~us)
-                   : Type == QUIETS         ? ~pos.pieces()
-                   : Type == NON_EVASIONS   ? ~pos.pieces(us)
-                   : Type == CAPTURES_THERE ?  (pos.ep_square() ? SquareBB[s] | SquareBB[pos.ep_square()] 
-                                                                : SquareBB[s])
-                   : 0;
+  target =  Type == CAPTURES       ?  pos.pieces(~us)
+          : Type == QUIETS         ? ~pos.pieces()
+          : Type == NON_EVASIONS   ? ~pos.pieces(us)
+          : Type == CAPTURES_THERE ?  target
+          : 0;
 
   return us == WHITE ? generate_all<WHITE, Type>(pos, moveList, target)
                      : generate_all<BLACK, Type>(pos, moveList, target);
 }
 
 // Explicit template instantiations
-template ExtMove* generate<CAPTURES>(const Position&, ExtMove*, Square);
-template ExtMove* generate<CAPTURES_THERE>(const Position&, ExtMove*, Square);
-template ExtMove* generate<QUIETS>(const Position&, ExtMove*, Square);
-template ExtMove* generate<NON_EVASIONS>(const Position&, ExtMove*, Square);
+template ExtMove* generate<CAPTURES>(const Position&, ExtMove*, Bitboard);
+template ExtMove* generate<CAPTURES_THERE>(const Position&, ExtMove*, Bitboard);
+template ExtMove* generate<QUIETS>(const Position&, ExtMove*, Bitboard);
+template ExtMove* generate<NON_EVASIONS>(const Position&, ExtMove*, Bitboard);
 
 
 /// generate<QUIET_CHECKS> generates all pseudo-legal non-captures and knight
 /// underpromotions that give check. Returns a pointer to the end of the move list.
 template<>
-ExtMove* generate<QUIET_CHECKS>(const Position& pos, ExtMove* moveList, Square) {
+ExtMove* generate<QUIET_CHECKS>(const Position& pos, ExtMove* moveList, Bitboard) {
 
   assert(!pos.checkers());
 
@@ -370,7 +369,7 @@ ExtMove* generate<QUIET_CHECKS>(const Position& pos, ExtMove* moveList, Square) 
 /// generate<EVASIONS> generates all pseudo-legal check evasions when the side
 /// to move is in check. Returns a pointer to the end of the move list.
 template<>
-ExtMove* generate<EVASIONS>(const Position& pos, ExtMove* moveList, Square) {
+ExtMove* generate<EVASIONS>(const Position& pos, ExtMove* moveList, Bitboard) {
 
   assert(pos.checkers());
 
@@ -408,7 +407,7 @@ ExtMove* generate<EVASIONS>(const Position& pos, ExtMove* moveList, Square) {
 /// generate<LEGAL> generates all the legal moves in the given position
 
 template<>
-ExtMove* generate<LEGAL>(const Position& pos, ExtMove* moveList, Square) {
+ExtMove* generate<LEGAL>(const Position& pos, ExtMove* moveList, Bitboard) {
 
   Bitboard pinned = pos.pinned_pieces(pos.side_to_move());
   Square ksq = pos.square<KING>(pos.side_to_move());

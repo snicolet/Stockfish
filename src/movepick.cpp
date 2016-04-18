@@ -178,6 +178,7 @@ void MovePicker::score<EVASIONS>() {
 /// when there are no more moves to try for the current stage.
 
 void MovePicker::generate_next_stage() {
+  Bitboard target;
 
   assert(stage != STOP);
 
@@ -192,9 +193,11 @@ void MovePicker::generate_next_stage() {
       break;
 
   case RECAPTURES:
-      endMoves = generate<CAPTURES_THERE>(pos, moves, recaptureSquare);
+      target = SquareBB[recaptureSquare] | (pos.ep_square() ? SquareBB[pos.ep_square()] : 0);
+      endMoves = generate<CAPTURES_THERE>(pos, moves, target);
+
       score<CAPTURES>();
-      break; 
+      break;
 
   case KILLERS:
       killers[0] = ss->killers[0];
