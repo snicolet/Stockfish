@@ -53,10 +53,12 @@ namespace {
     S(11, 34), S(17, 38), S(19, 38), S(19, 38),
     S(19, 38), S(19, 38), S(17, 38), S(11, 34) };
 
-  // Lever bonus by rank
-  const Score Lever[RANK_NB] = {
-    S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
-    S(17, 16), S(33, 32), S(0, 0), S(0, 0) };
+  // Lever bonus by opposed flag and rank
+  const Score Lever[2][RANK_NB] = {
+    { S( 0,  0), S(  0,  0), S( 0, 0), S(8, 0),
+      S(22, 16), S( 38, 32), S( 0, 0), S(0, 0) },
+    { S( 0,  0), S(-10,  0), S(-5, 0), S(0, 0),
+      S(12, 16), S( 28, 22), S( 0, 0), S(0, 0) } };
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
@@ -176,7 +178,7 @@ namespace {
             score -= Doubled[f] / distance<Rank>(s, frontmost_sq(Us, doubled));
 
         if (lever)
-            score += Lever[relative_rank(Us, s)];
+            score += Lever[opposed][relative_rank(Us, s)];
     }
 
     b = e->semiopenFiles[Us] ^ 0xFF;
