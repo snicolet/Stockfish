@@ -136,8 +136,7 @@ void MovePicker::score<CAPTURES>() {
   Square ksq = pos.square<KING>(pos.side_to_move());
   for (auto& m : *this)
       m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-               - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)))
-               - Value(distance<File>(ksq , to_sq(m)));
+               - Value(200 * distance<Rank>(ksq , to_sq(m)));
 }
 
 template<>
