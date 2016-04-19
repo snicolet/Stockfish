@@ -135,11 +135,11 @@ void MovePicker::score<CAPTURES>() {
   // has been picked up, saving some SEE calls in case we get a cutoff.
   for (auto& m : *this)
   {
-      int f = file_of(to_sq(m));
+      int f = file_of(from_sq(m));
 
       m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
                - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)))
-               + Value(4 * f * (7 - f));
+               - Value(f * (7 - f));
   }
 }
 
