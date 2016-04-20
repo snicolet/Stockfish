@@ -370,7 +370,7 @@ namespace {
   // evaluate_king() assigns bonuses and penalties to a king of a given color
 
   template<Color Us, bool DoTrace>
-  Score evaluate_king(const Position& pos, const EvalInfo& ei) {
+  Score evaluate_king(const Position& pos, const EvalInfo& ei, Score* mobility) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
 
@@ -447,6 +447,11 @@ namespace {
         // array and subtract the score from the evaluation.
         score -= KingDanger[std::max(std::min(attackUnits, 399), 0)];
     }
+    
+    // King mobility
+    b = ei.attackedBy[Us][KING] & ~(pos.pieces(Us) | ei.attackedBy[Them][ALL_PIECES]);
+    int mob = popcount(b);
+    mobility[Us] += make_score(2 * mob, 2 * mob);
 
     if (DoTrace)
         Trace::add(KING, Us, score);
@@ -772,12 +777,13 @@ Value Eval::evaluate(const Position& pos) {
 
   // Evaluate all pieces but king and pawns
   score += evaluate_pieces<DoTrace>(pos, ei, mobility, mobilityArea);
-  score += mobility[WHITE] - mobility[BLACK];
 
   // Evaluate kings after all other pieces because we need full attack
   // information when computing the king safety evaluation.
-  score +=  evaluate_king<WHITE, DoTrace>(pos, ei)
-          - evaluate_king<BLACK, DoTrace>(pos, ei);
+  score +=  evaluate_king<WHITE, DoTrace>(pos, ei, mobility)
+          - evaluate_king<BLACK, DoTrace>(pos, ei, mobility);
+
+  score += mobility[WHITE] - mobility[BLACK];
 
   // Evaluate tactical threats, we need full attack information including king
   score +=  evaluate_threats<WHITE, DoTrace>(pos, ei)
