@@ -675,7 +675,7 @@ namespace {
     int material = pos.count<ALL_PIECES>(WHITE) + pos.count<ALL_PIECES>(BLACK) - pawns;
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + outflanking - material - 7) + 12 * pawns;
+    int initiative = 8 * (asymmetry + outflanking - 11) + 12 * pawns - 4 * material;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
