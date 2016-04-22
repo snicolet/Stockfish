@@ -458,7 +458,7 @@ namespace {
   // free_pawns() returns the pawns of the given color which can freely advance
   template<Color Us>
   inline Bitboard free_pawns(const Position& pos, const EvalInfo& ei) {
-  
+
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
 
@@ -689,7 +689,7 @@ namespace {
     int freePawns = popcount(free_pawns<WHITE>(pos, ei) | free_pawns<BLACK>(pos, ei));
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns + 4 * freePawns;
+    int initiative = 8 * (asymmetry + kingDistance - 18) + 12 * pawns + 4 * freePawns;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
