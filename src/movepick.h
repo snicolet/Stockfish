@@ -46,9 +46,13 @@ struct Stats {
   T* operator[](Piece pc) { return table[pc]; }
   void clear() { std::memset(table, 0, sizeof(table)); }
 
-  void update(Piece pc, Square to, Move m) { table[pc][to] = m; }
+  inline void update(Piece pc, Square to, Move m) { table[pc][to] = m; }
 
+  inline 
   void update(Piece pc, Square to, Value v) {
+  
+    if (CM && (void*)this == (void*)(&Search::noHistory))
+      return;
 
     if (abs(int(v)) >= 324)
         return;
