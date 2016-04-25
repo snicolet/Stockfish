@@ -448,6 +448,20 @@ namespace {
   }
 
 
+  // free_pawns() returns the pawns of the given color with good endgame potential,
+  // ie pawns which have a safe square in front of them (empty or not).
+  template<Color Us>
+  inline Bitboard free_pawns(const Position& pos, const EvalInfo& ei) {
+
+    const Color Them = (Us == WHITE ? BLACK : WHITE);
+    const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
+    
+    Bitboard safe = ~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy[Us][PAWN];
+    
+    return pos.pieces(Us, PAWN) & shift_bb<Down>(safe);
+  }
+
+
   // evaluate_threats() assigns bonuses according to the types of the attacking
   // and the attacked pieces.
 
@@ -657,14 +671,16 @@ namespace {
   // evaluate_initiative() computes the initiative correction value for the
   // position, i.e., second order bonus/malus based on the known attacking/defending
   // status of the players.
-  Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
+  Score evaluate_initiative(const Position& pos, const EvalInfo& ei, Value eg) {
 
-    int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    int asymmetry = ei.pi->pawn_asymmetry();
+    int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
+                     - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    int freePawns = popcount(free_pawns<WHITE>(pos, ei) | free_pawns<BLACK>(pos, ei));
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
+    int initiative = 8 * (asymmetry + outflanking - 17) + 12 * pawns + 4 * freePawns;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
@@ -794,7 +810,7 @@ Value Eval::evaluate(const Position& pos) {
               - evaluate_space<BLACK>(pos, ei);
 
   // Evaluate position potential for the winning side
-  score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
+  score += evaluate_initiative(pos, ei, eg_value(score));
 
   // Evaluate scale factor for the winning side
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
