@@ -448,16 +448,16 @@ namespace {
   }
 
 
-  // free_pawns() returns the pawns of the given color with good endgame potential,
-  // ie pawns which have a safe square in front of them (empty or not).
+  // free_pawns() returns the pawns of the given color which have a safe square
+  // in front of them (empty or not). These pawns have good endgame potential.
   template<Color Us>
   inline Bitboard free_pawns(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
-    
+
     Bitboard safe = ~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy[Us][PAWN];
-    
+
     return pos.pieces(Us, PAWN) & shift_bb<Down>(safe);
   }
 
