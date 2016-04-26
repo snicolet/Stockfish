@@ -456,7 +456,8 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
 
-    Bitboard safe = ~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy[Us][PAWN];
+    Bitboard safe =  ~ei.attackedBy[Them][ALL_PIECES]
+                   | (ei.attackedBy[Us][ALL_PIECES] & ~ei.attackedBy[Them][PAWN]);
 
     return pos.pieces(Us, PAWN) & shift_bb<Down>(safe);
   }
@@ -680,7 +681,7 @@ namespace {
     int freePawns = popcount(free_pawns<WHITE>(pos, ei) | free_pawns<BLACK>(pos, ei));
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + outflanking - 17) + 12 * pawns + 4 * freePawns;
+    int initiative = 8 * (asymmetry + outflanking - 18) + 12 * pawns + 4 * freePawns;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
