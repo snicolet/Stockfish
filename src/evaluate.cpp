@@ -188,6 +188,7 @@ namespace {
   const Score LooseEnemies        = S( 0, 25);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
+  const Score FreePawn            = S(10, 10);
   const Score Unstoppable         = S( 0, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -456,8 +457,7 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
 
-    Bitboard safe =  ~ei.attackedBy[Them][ALL_PIECES]
-                   | (ei.attackedBy[Us][ALL_PIECES] & ~ei.attackedBy[Them][PAWN]);
+    Bitboard safe =  ~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy[Us][PAWN];
 
     return pos.pieces(Us, PAWN) & shift_bb<Down>(safe);
   }
@@ -542,6 +542,9 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+    
+    // Bonus for free pawns
+    score += FreePawn * popcount(free_pawns<Us>(pos, ei));
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
@@ -672,16 +675,14 @@ namespace {
   // evaluate_initiative() computes the initiative correction value for the
   // position, i.e., second order bonus/malus based on the known attacking/defending
   // status of the players.
-  Score evaluate_initiative(const Position& pos, const EvalInfo& ei, Value eg) {
+  Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
 
-    int asymmetry = ei.pi->pawn_asymmetry();
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
-    int freePawns = popcount(free_pawns<WHITE>(pos, ei) | free_pawns<BLACK>(pos, ei));
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + outflanking - 18) + 12 * pawns + 4 * freePawns;
+    int initiative = 8 * (asymmetry + outflanking - 15) + 12 * pawns;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
@@ -811,7 +812,7 @@ Value Eval::evaluate(const Position& pos) {
               - evaluate_space<BLACK>(pos, ei);
 
   // Evaluate position potential for the winning side
-  score += evaluate_initiative(pos, ei, eg_value(score));
+  score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
 
   // Evaluate scale factor for the winning side
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
