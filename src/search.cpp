@@ -821,7 +821,7 @@ namespace {
     // safely prune the previous move.
     if (   !PvNode
         &&  depth >= 5 * ONE_PLY
-        &&  eval + PieceValue[MG][pos.captured_piece_type()] >= beta
+        &&  eval + PieceValue[MG][pos.captured_piece_type()] >= beta + 150
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
         Value rbeta = std::min(beta + 200, VALUE_INFINITE);
