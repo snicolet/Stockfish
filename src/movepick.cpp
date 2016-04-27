@@ -139,10 +139,31 @@ void MovePicker::score<CAPTURES>() {
 }
 
 template<>
+void MovePicker::score<MAIN_CAPTURES>() {
+  // This combines the history ideas and the usual ordering of captures
+  
+  const HistoryStats& history = pos.this_thread()->history;
+  const CounterMoveStats* cm = (ss-1)->counterMoves;
+  const CounterMoveStats* fm = (ss-2)->counterMoves;
+  const CounterMoveStats* f2 = (ss-4)->counterMoves;
+
+  for (auto& m : *this)
+      m.value =      history[pos.moved_piece(m)][to_sq(m)]
+               + (cm ? (*cm)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
+               + (fm ? (*fm)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
+               + (f2 ? (*f2)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO);
+               
+  for (auto& m : *this)
+      m.value =   m.value / 128
+                + PieceValue[MG][pos.piece_on(to_sq(m))]
+                - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)));
+}
+
+
+template<>
 void MovePicker::score<QUIETS>() {
 
   const HistoryStats& history = pos.this_thread()->history;
-
   const CounterMoveStats* cm = (ss-1)->counterMoves;
   const CounterMoveStats* fm = (ss-2)->counterMoves;
   const CounterMoveStats* f2 = (ss-4)->counterMoves;
@@ -185,10 +206,15 @@ void MovePicker::generate_next_stage() {
 
   switch (++stage) {
 
-  case GOOD_CAPTURES: case QCAPTURES_1: case QCAPTURES_2:
+  case QCAPTURES_1: case QCAPTURES_2:
   case PROBCUT_CAPTURES: case RECAPTURES:
       endMoves = generate<CAPTURES>(pos, moves);
       score<CAPTURES>();
+      break;
+
+  case GOOD_CAPTURES:
+      endMoves = generate<CAPTURES>(pos, moves);
+      score<MAIN_CAPTURES>();
       break;
 
   case KILLERS:
