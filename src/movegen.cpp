@@ -42,6 +42,13 @@ namespace {
 
     assert(!pos.checkers());
 
+    Move m = make<CASTLING>(kfrom, rfrom);
+
+    if (Checks && !pos.gives_check(m, *ci))
+        return moveList;
+    else
+        (void)ci; // Silence a warning under MSVC
+
     const Square K = Chess960 ? kto > kfrom ? DELTA_W : DELTA_E
                               : KingSide    ? DELTA_W : DELTA_E;
 
@@ -54,13 +61,6 @@ namespace {
     // For instance an enemy queen in SQ_A1 when castling rook is in SQ_B1.
     if (Chess960 && (attacks_bb<ROOK>(kto, pos.pieces() ^ rfrom) & pos.pieces(~us, ROOK, QUEEN)))
         return moveList;
-
-    Move m = make<CASTLING>(kfrom, rfrom);
-
-    if (Checks && !pos.gives_check(m, *ci))
-        return moveList;
-    else
-        (void)ci; // Silence a warning under MSVC
 
     *moveList++ = m;
     return moveList;
