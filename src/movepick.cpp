@@ -154,7 +154,7 @@ void MovePicker::score<MAIN_CAPTURES>() {
                + (f2 ? (*f2)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO);
                
   for (auto& m : *this)
-      m.value =   m.value / 128
+      m.value =   m.value / 1024
                 + PieceValue[MG][pos.piece_on(to_sq(m))]
                 - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)));
 }
