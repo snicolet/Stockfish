@@ -81,7 +81,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s)
 }
 
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square s)
-           : pos(p) {
+           : pos(p), ss(nullptr) {
 
   assert(d <= DEPTH_ZERO);
 
@@ -106,7 +106,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square s)
 }
 
 MovePicker::MovePicker(const Position& p, Move ttm, Value th)
-           : pos(p), threshold(th) {
+           : pos(p), ss(nullptr), threshold(th) {
 
   assert(!pos.checkers());
 
@@ -127,36 +127,31 @@ MovePicker::MovePicker(const Position& p, Move ttm, Value th)
 template<>
 void MovePicker::score<CAPTURES>() {
   // Winning and equal captures in the main search are ordered by MVV, preferring
-  // captures near our home rank. Surprisingly, this appears to perform slightly
-  // better than SEE-based move ordering: exchanging big pieces before capturing
-  // a hanging piece probably helps to reduce the subtree size.
+  // captures near our home rank and using the history tables if available. Surprisingly,
+  // this appears to perform better than SEE-based move ordering: exchanging big pieces
+  // before capturing a hanging piece probably helps to reduce the subtree size.
   // In the main search we want to push captures with negative SEE values to the
   // badCaptures[] array, but instead of doing it now we delay until the move
   // has been picked up, saving some SEE calls in case we get a cutoff.
-  for (auto& m : *this)
-      m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-               - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)));
-}
-
-template<>
-void MovePicker::score<MAIN_CAPTURES>() {
-  // This combines the history ideas and the usual ordering of captures
-  
-  const HistoryStats& history = pos.this_thread()->history;
-  const CounterMoveStats* cm = (ss-1)->counterMoves;
-  const CounterMoveStats* fm = (ss-2)->counterMoves;
-  const CounterMoveStats* f2 = (ss-4)->counterMoves;
 
   for (auto& m : *this)
-      m.value =      history[pos.moved_piece(m)][to_sq(m)]
-               + (cm ? (*cm)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
-               + (fm ? (*fm)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
-               + (f2 ? (*f2)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO);
-               
-  for (auto& m : *this)
-      m.value =   m.value / 1024
-                + PieceValue[MG][pos.piece_on(to_sq(m))]
+      m.value =   PieceValue[MG][pos.piece_on(to_sq(m))]
                 - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)));
+
+  if (ss)
+  {
+      const HistoryStats& history = pos.this_thread()->history;
+      const CounterMoveStats* cm = (ss-1)->counterMoves;
+      const CounterMoveStats* fm = (ss-2)->counterMoves;
+      const CounterMoveStats* f2 = (ss-4)->counterMoves;
+
+      for (auto& m : *this)
+          m.value += (   history[pos.moved_piece(m)][to_sq(m)]
+                       + (cm ? (*cm)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
+                       + (fm ? (*fm)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
+                       + (f2 ? (*f2)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)) / 1024;
+  }        
+
 }
 
 
@@ -206,15 +201,10 @@ void MovePicker::generate_next_stage() {
 
   switch (++stage) {
 
-  case QCAPTURES_1: case QCAPTURES_2:
+  case GOOD_CAPTURES: case QCAPTURES_1: case QCAPTURES_2:
   case PROBCUT_CAPTURES: case RECAPTURES:
       endMoves = generate<CAPTURES>(pos, moves);
       score<CAPTURES>();
-      break;
-
-  case GOOD_CAPTURES:
-      endMoves = generate<CAPTURES>(pos, moves);
-      score<MAIN_CAPTURES>();
       break;
 
   case KILLERS:
