@@ -126,17 +126,17 @@ MovePicker::MovePicker(const Position& p, Move ttm, Value th)
 /// highest values will be picked first.
 template<>
 void MovePicker::score<CAPTURES>() {
-  // Winning and equal captures in the main search are ordered by MVV, preferring
-  // captures near our home rank and using the history tables if available. Surprisingly,
-  // this appears to perform better than SEE-based move ordering: exchanging big pieces
-  // before capturing a hanging piece probably helps to reduce the subtree size.
+  // Winning and equal captures in the main search are ordered by opponent piece value,
+  // preferring captures near our home rank and using the history tables if available.
+  // Surprisingly, this performs better than SEE-based move ordering: exchanging big 
+  // pieces before capturing a hanging piece probably helps to reduce the subtree size.
   // In the main search we want to push captures with negative SEE values to the
   // badCaptures[] array, but instead of doing it now we delay until the move
   // has been picked up, saving some SEE calls in case we get a cutoff.
 
   for (auto& m : *this)
-      m.value =   PieceValue[MG][pos.piece_on(to_sq(m))]
-                - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)));
+      m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
+               - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)));
 
   if (ss)
   {
@@ -150,10 +150,8 @@ void MovePicker::score<CAPTURES>() {
                        + (cm ? (*cm)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
                        + (fm ? (*fm)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
                        + (f2 ? (*f2)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)) / 1024;
-  }        
-
+  }
 }
-
 
 template<>
 void MovePicker::score<QUIETS>() {
