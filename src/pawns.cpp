@@ -54,6 +54,9 @@ namespace {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
     S(17, 16), S(33, 32), S(0, 0), S(0, 0) };
 
+  // Central pawns majority
+  const Score CentralMajority = S(0, 30);
+
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
     { V( 97), V(21), V(26), V(51), V(87), V( 89), V( 99) },
@@ -94,6 +97,7 @@ namespace {
     const Square Up    = (Us == WHITE ? DELTA_N  : DELTA_S);
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
+    const Bitboard CentralFiles = FileCBB | FileDBB | FileEBB | FileFBB;
 
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Square s;
@@ -177,6 +181,9 @@ namespace {
 
     b = e->semiopenFiles[Us] ^ 0xFF;
     e->pawnSpan[Us] = b ? int(msb(b) - lsb(b)) : 0;
+
+    if (popcount(ourPawns & CentralFiles) > popcount(theirPawns & CentralFiles))
+        score += CentralMajority;
 
     return score;
   }
