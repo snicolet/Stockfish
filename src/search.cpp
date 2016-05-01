@@ -821,6 +821,7 @@ namespace {
     // safely prune the previous move.
     if (   !PvNode
         &&  depth >= 5 * ONE_PLY
+        &&  eval >= beta + 150
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
         Value rbeta = std::min(beta + 200, VALUE_INFINITE);
@@ -830,7 +831,7 @@ namespace {
         assert((ss-1)->currentMove != MOVE_NONE);
         assert((ss-1)->currentMove != MOVE_NULL);
 
-        MovePicker mp(pos, ttMove, PieceValue[MG][pos.captured_piece_type()]);
+        MovePicker mp(pos, ttMove, Value(-10));
         CheckInfo ci(pos);
 
         while ((move = mp.next_move()) != MOVE_NONE)
