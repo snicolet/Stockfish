@@ -55,7 +55,7 @@ namespace {
     S(17, 16), S(33, 32), S(0, 0), S(0, 0) };
 
   // Central pawns majority
-  const Score CentralMajority = S(0, 30);
+  const Score CentralMajority = S(5, 5);
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
@@ -113,6 +113,7 @@ namespace {
     e->kingSquares[Us] = SQ_NONE;
     e->semiopenFiles[Us] = 0xFF;
     e->pawnAttacks[Us] = shift_bb<Right>(ourPawns) | shift_bb<Left>(ourPawns);
+    e->centralPawns[Us] = popcount(ourPawns & CentralFiles);
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
@@ -182,9 +183,6 @@ namespace {
     b = e->semiopenFiles[Us] ^ 0xFF;
     e->pawnSpan[Us] = b ? int(msb(b) - lsb(b)) : 0;
 
-    if (popcount(ourPawns & CentralFiles) > popcount(theirPawns & CentralFiles))
-        score += CentralMajority;
-
     return score;
   }
 
@@ -228,6 +226,12 @@ Entry* probe(const Position& pos) {
   e->key = key;
   e->score = evaluate<WHITE>(pos, e) - evaluate<BLACK>(pos, e);
   e->asymmetry = popcount(e->semiopenFiles[WHITE] ^ e->semiopenFiles[BLACK]);
+
+  int cw = e->centralPawns[WHITE];
+  int cb = e->centralPawns[BLACK];
+  e->score += cw > cb ?  CentralMajority * cw : 
+              cw < cb ? -CentralMajority * cb : SCORE_ZERO;
+
   return e;
 }
 
