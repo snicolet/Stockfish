@@ -404,6 +404,7 @@ namespace {
                      +  9 * ei.kingAdjacentZoneAttacksCount[Them]
                      + 27 * popcount(undefended)
                      + 11 * (popcount(b) + !!ei.pinnedPieces[Us])
+                     + 16 * zero_one_many(ei.pinnedPieces[Us] & pos.pieces(PAWN))
                      - 64 * !pos.count<QUEEN>(Them)
                      - mg_value(score) / 8;
 
@@ -762,8 +763,8 @@ Value Eval::evaluate(const Position& pos) {
   // Do not include in mobility area squares protected by enemy pawns, or occupied
   // by our blocked pawns or king.
   Bitboard mobilityArea[] = {
-    ~(ei.attackedBy[BLACK][PAWN] | blockedPawns[WHITE] | pos.square<KING>(WHITE)),
-    ~(ei.attackedBy[WHITE][PAWN] | blockedPawns[BLACK] | pos.square<KING>(BLACK))
+    ~(ei.pi->pawn_attacks(BLACK) | blockedPawns[WHITE] | pos.square<KING>(WHITE)),
+    ~(ei.pi->pawn_attacks(WHITE) | blockedPawns[BLACK] | pos.square<KING>(BLACK))
   };
 
   // Evaluate all pieces but king and pawns

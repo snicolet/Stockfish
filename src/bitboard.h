@@ -105,6 +105,12 @@ inline bool more_than_one(Bitboard b) {
 }
 
 
+// zero_one_many(b) returns 0 if b is empty, 1 if b has one bit set, and 2 otherwise
+inline int zero_one_many(Bitboard b) {
+  return (!!b) * (1 + more_than_one(b));
+}
+
+
 /// rank_bb() and file_bb() return a bitboard representing all the squares on
 /// the given file or rank.
 
