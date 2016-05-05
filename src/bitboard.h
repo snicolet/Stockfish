@@ -74,6 +74,7 @@ extern Bitboard ForwardBB[COLOR_NB][SQUARE_NB];
 extern Bitboard PassedPawnMask[COLOR_NB][SQUARE_NB];
 extern Bitboard PawnAttackSpan[COLOR_NB][SQUARE_NB];
 extern Bitboard PseudoAttacks[PIECE_TYPE_NB][SQUARE_NB];
+extern Bitboard DiagonalPinningMask[SQUARE_NB];
 
 
 /// Overloads of bitwise operators between a Bitboard and a Square for testing
@@ -121,6 +122,14 @@ inline Bitboard file_bb(File f) {
 
 inline Bitboard file_bb(Square s) {
   return FileBB[file_of(s)];
+}
+
+/// pawn_threats() calculates the pawn threats from bitboard b for the given color
+
+template<Color c>
+inline Bitboard pawn_threats(Bitboard b) {
+  return  c == WHITE  ? ((b & ~FileHBB) << 9) | ((b & ~FileABB) << 7) 
+                      : ((b & ~FileHBB) >> 7) | ((b & ~FileABB) >> 9);
 }
 
 

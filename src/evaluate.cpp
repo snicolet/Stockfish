@@ -225,9 +225,15 @@ namespace {
     const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
 
     ei.pinnedPieces[Us] = pos.pinned_pieces(Us);
+
+    // Calculate pawn attacks
+    Bitboard attacks1 = pawn_threats<Us>(~ei.pinnedPieces[Us] & pos.pieces(Us, PAWN));
+    Bitboard attacks2 = (ei.pi->pawn_attacks(Us) ^ attacks1) & DiagonalPinningMask[pos.square<KING>(Us)];
+    ei.attackedBy[Us][ALL_PIECES] |= ei.attackedBy[Us][PAWN] = attacks1 | attacks2;
+
+    // Calculate king attacks and prepare king ring bitboard
     Bitboard b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.square<KING>(Them));
     ei.attackedBy[Them][ALL_PIECES] |= b;
-    ei.attackedBy[Us][ALL_PIECES] |= ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
 
     // Init king safety tables only if we are going to use them
     if (pos.non_pawn_material(Us) >= QueenValueMg)
