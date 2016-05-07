@@ -184,7 +184,7 @@ namespace {
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
   const Score SafeCheck           = S(20, 20);
-  const Score OtherCheck          = S(10, 10);
+  const Score OtherCheck          = S(14, 14);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score Hanging             = S(48, 27);
@@ -421,8 +421,7 @@ namespace {
 
         // ... and some other potential checks, only requiring the square to be
         // safe from pawn-attacks, and not being occupied by a blocked pawn.
-        other = ~(   ei.attackedBy[Us][PAWN]
-                  | (pos.pieces(Them, PAWN) & shift_bb<Up>(pos.pieces(PAWN))));
+        other = ~ei.attackedBy[Us][PAWN];
 
         b1 = pos.attacks_from<ROOK  >(ksq);
         b2 = pos.attacks_from<BISHOP>(ksq);
