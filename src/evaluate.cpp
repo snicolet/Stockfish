@@ -422,7 +422,7 @@ namespace {
         // ... and some other potential checks, only requiring the square to be
         // safe from pawn-attacks, and not being occupied by a blocked pawn.
         other = ~(   ei.attackedBy[Us][PAWN]
-                  | (pos.pieces(Them, PAWN) & shift_bb<Up>(pos.pieces(PAWN))));
+                  | (pos.pieces(Them, PAWN) & shift_bb<Up>(pos.pieces())));
 
         b1 = pos.attacks_from<ROOK  >(ksq);
         b2 = pos.attacks_from<BISHOP>(ksq);
