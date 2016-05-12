@@ -545,6 +545,9 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
 
+    if (pos.side_to_move() == Us)
+        score += score / 2;
+
     if (DoTrace)
         Trace::add(THREAT, Us, score);
 
