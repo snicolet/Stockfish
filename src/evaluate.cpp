@@ -545,6 +545,7 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
 
+    // Extra bonus for threats by the side to move
     if (pos.side_to_move() == Us)
         score += score / 2;
     else
