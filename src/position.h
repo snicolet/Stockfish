@@ -124,6 +124,7 @@ public:
   Bitboard checkers() const;
   Bitboard discovered_check_candidates() const;
   Bitboard pinned_pieces(Color c) const;
+  Bitboard check_blockers(Color c, Color kingColor) const;
 
   // Attacks to/from a given square
   Bitboard attackers_to(Square s) const;
@@ -186,7 +187,6 @@ private:
   void set_state(StateInfo* si) const;
 
   // Other helpers
-  Bitboard check_blockers(Color c, Color kingColor) const;
   void put_piece(Color c, PieceType pt, Square s);
   void remove_piece(Color c, PieceType pt, Square s);
   void move_piece(Color c, PieceType pt, Square from, Square to);

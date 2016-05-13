@@ -103,6 +103,7 @@ namespace {
     int kingAdjacentZoneAttacksCount[COLOR_NB];
 
     Bitboard pinnedPieces[COLOR_NB];
+    Bitboard discoveredCheckCandidates[COLOR_NB];
     Material::Entry* me;
     Pawns::Entry* pi;
   };
@@ -226,6 +227,7 @@ namespace {
     const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
 
     ei.pinnedPieces[Us] = pos.pinned_pieces(Us);
+    ei.discoveredCheckCandidates[Us] = pos.check_blockers(Us, Them);
     Bitboard b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.square<KING>(Them));
     ei.attackedBy[Them][ALL_PIECES] |= b;
     ei.attackedBy[Us][ALL_PIECES] |= ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
@@ -370,7 +372,7 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK   : WHITE);
     const Square  Up = (Us == WHITE ? DELTA_N : DELTA_S);
 
-    Bitboard undefended, b, b1, b2, safe, other;
+    Bitboard undefended, b, b1, b2, safe, other, blocked;
     int attackUnits;
     const Square ksq = pos.square<KING>(Us);
 
@@ -416,13 +418,15 @@ namespace {
             attackUnits += QueenContactCheck * popcount(b);
         }
 
-        // Analyse the safe enemy's checks which are possible on next move...
+        blocked = pos.pieces(Them, PAWN) & shift_bb<Up>(pos.pieces());
+
+        // Analyse the enemy's discovered or safe checks which are possible...
         safe  = ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Them));
+        safe |=  (ei.discoveredCheckCandidates[Them] & ~blocked);
 
         // ... and some other potential checks, only requiring the square to be
         // safe from pawn-attacks, and not being occupied by a blocked pawn.
-        other = ~(   ei.attackedBy[Us][PAWN]
-                  | (pos.pieces(Them, PAWN) & shift_bb<Up>(pos.pieces(PAWN))));
+        other = ~(ei.attackedBy[Us][PAWN] | blocked);
 
         b1 = pos.attacks_from<ROOK  >(ksq);
         b2 = pos.attacks_from<BISHOP>(ksq);
