@@ -41,11 +41,11 @@ namespace {
   // by number of pawns it supports [less than 2 / exactly 2].
   const Score Unsupported[2] = { S(17, 8), S(21, 12) };
 
+  // Doubled pawn penalty
+  const Score Doubled = S(18, 38);
+
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
-
-  // Doubled pawn penalty
-  const Score Doubled = S(18,38);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
@@ -150,7 +150,7 @@ namespace {
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them. Only the frontmost passed
         // pawn on each file is considered a true passed pawn.
-        if (!(stoppers | doubled))
+        if (!stoppers)
             e->passedPawns[Us] |= s;
 
         // Score this pawn
