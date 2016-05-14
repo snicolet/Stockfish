@@ -418,15 +418,13 @@ namespace {
             attackUnits += QueenContactCheck * popcount(b);
         }
 
+        // Analyse the safe enemy's checks which are possible on next move...
+        safe = ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Them));
+
+        // ... and some discovered or potential checks, only requiring the square 
+        // to be safe from pawn-attacks, and not being occupied by a blocked pawn.
         blocked = pos.pieces(Them, PAWN) & shift_bb<Up>(pos.pieces());
-
-        // Analyse the enemy's discovered or safe checks which are possible...
-        safe  = ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Them));
-        safe |=  (ei.discoveredCheckCandidates[Them] & ~blocked);
-
-        // ... and some other potential checks, only requiring the square to be
-        // safe from pawn-attacks, and not being occupied by a blocked pawn.
-        other = ~(ei.attackedBy[Us][PAWN] | blocked);
+        other = (ei.discoveredCheckCandidates[Them] | ~ei.attackedBy[Us][PAWN]) & ~blocked;
 
         b1 = pos.attacks_from<ROOK  >(ksq);
         b2 = pos.attacks_from<BISHOP>(ksq);
