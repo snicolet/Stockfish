@@ -420,30 +420,39 @@ Phase Position::game_phase() const {
 }
 
 
-/// Position::check_blockers() returns a bitboard of all the pieces with color
-/// 'c' that are blocking check on the king with color 'kingColor'. A piece
-/// blocks a check if removing that piece from the board would result in a
-/// position where the king is in check. A check blocking piece can be either a
-/// pinned or a discovered check piece, according if its color 'c' is the same
-/// or the opposite of 'kingColor'.
+/// Position::slider_blockers() returns a bitboard of all the pieces with color 'c1'
+/// that are blocking sliders attacks on the square 's' of color 'c2'. A piece blocks
+/// a slider if removing that piece from the board would result in a position where
+/// square 's' is attacked. For example, a king-attack blocking piece can be either 
+/// a pinned or a discovered check piece, according if its color 'c1' is the same or
+/// the opposite of 'c2'.
 
-Bitboard Position::check_blockers(Color c, Color kingColor) const {
+Bitboard Position::slider_blockers(Color c1, Square s, Color c2, bool onQueen) const {
 
-  Bitboard b, pinners, result = 0;
-  Square ksq = square<KING>(kingColor);
+  Bitboard b, pinners, result = 0, p = pieces();
 
-  // Pinners are sliders that give check when a pinned piece is removed
-  pinners = (  (pieces(  ROOK, QUEEN) & PseudoAttacks[ROOK  ][ksq])
-             | (pieces(BISHOP, QUEEN) & PseudoAttacks[BISHOP][ksq])) & pieces(~kingColor);
+  // Pinners are sliders that attack s when a pinned piece is removed
+  pinners = pieces(~c2);
+  if (onQueen)
+      pinners &=  (PseudoAttacks[ROOK  ][s] & pieces(ROOK))
+                | (PseudoAttacks[BISHOP][s] & pieces(BISHOP));
+  else
+      pinners &=  (PseudoAttacks[ROOK  ][s] & pieces(QUEEN, ROOK))
+                | (PseudoAttacks[BISHOP][s] & pieces(QUEEN, BISHOP));
 
   while (pinners)
   {
-      b = between_bb(ksq, pop_lsb(&pinners)) & pieces();
+      b = between_bb(s, pop_lsb(&pinners)) & p;
 
       if (!more_than_one(b))
-          result |= b & pieces(c);
+          result |= b;
   }
-  return result;
+
+  if (onQueen)
+      result &= ~(  (PseudoAttacks[ROOK  ][s] & pieces(ROOK))
+                  | (PseudoAttacks[BISHOP][s] & pieces(BISHOP)));
+
+  return result & pieces(c1);
 }
 
 
