@@ -450,7 +450,8 @@ Bitboard Position::slider_blockers(Color c1, Square s, Color c2, bool onQueen) c
 
   if (onQueen)
       result &= ~(  (PseudoAttacks[ROOK  ][s] & pieces(ROOK))
-                  | (PseudoAttacks[BISHOP][s] & pieces(BISHOP)));
+                  | (PseudoAttacks[BISHOP][s] & pieces(BISHOP))
+                  | pieces(PAWN));
 
   return result & pieces(c1);
 }
