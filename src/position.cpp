@@ -427,18 +427,18 @@ Phase Position::game_phase() const {
 /// a pinned or a discovered check piece, according if its color 'c1' is the same or
 /// the opposite of 'c2'.
 
-Bitboard Position::slider_blockers(Color c1, Square s, Color c2, bool onQueen) const {
+Bitboard Position::slider_blockers(Color c1, Square s, Color c2, bool withQueen) const {
 
   Bitboard b, pinners, result = 0, p = pieces();
 
   // Pinners are sliders that attack s when a pinned piece is removed
   pinners = pieces(~c2);
-  if (onQueen)
-      pinners &=  (PseudoAttacks[ROOK  ][s] & pieces(ROOK))
-                | (PseudoAttacks[BISHOP][s] & pieces(BISHOP));
-  else
+  if (withQueen)
       pinners &=  (PseudoAttacks[ROOK  ][s] & pieces(QUEEN, ROOK))
                 | (PseudoAttacks[BISHOP][s] & pieces(QUEEN, BISHOP));
+  else
+      pinners &=  (PseudoAttacks[ROOK  ][s] & pieces(ROOK))
+                | (PseudoAttacks[BISHOP][s] & pieces(BISHOP));
 
   while (pinners)
   {
@@ -447,10 +447,6 @@ Bitboard Position::slider_blockers(Color c1, Square s, Color c2, bool onQueen) c
       if (!more_than_one(b))
           result |= b;
   }
-
-  if (onQueen)
-      result &= ~(  (PseudoAttacks[ROOK  ][s] & pieces(ROOK))
-                  | (PseudoAttacks[BISHOP][s] & pieces(BISHOP)));
 
   return result & pieces(c1);
 }

@@ -145,7 +145,7 @@ public:
   // Piece specific
   bool pawn_passed(Color c, Square s) const;
   bool opposite_bishops() const;
-  Bitboard queen_pins(Color c) const;
+  Bitboard queen_pins(Color c, bool withQueen) const;
 
   // Doing and undoing moves
   void do_move(Move m, StateInfo& st, bool givesCheck);
@@ -187,7 +187,7 @@ private:
   void set_state(StateInfo* si) const;
 
   // Other helpers
-  Bitboard slider_blockers(Color c1, Square s, Color c2, bool onQueen = false) const;
+  Bitboard slider_blockers(Color c1, Square s, Color c2, bool withQueen = true) const;
   void put_piece(Color c, PieceType pt, Square s);
   void remove_piece(Color c, PieceType pt, Square s);
   void move_piece(Color c, PieceType pt, Square from, Square to);
@@ -319,8 +319,9 @@ inline Bitboard Position::pinned_pieces(Color c) const {
   return slider_blockers(c, square<KING>(c), c);
 }
 
-inline Bitboard Position::queen_pins(Color c) const {
-  return pieceCount[c][QUEEN] ? slider_blockers(c, pieceList[c][QUEEN][0], c, true) : 0;
+inline Bitboard Position::queen_pins(Color c, bool withQueen) const {
+  assert(pieceCount[c][QUEEN] > 0);
+  return slider_blockers(c, pieceList[c][QUEEN][0], c, withQueen);
 }
 
 inline bool Position::pawn_passed(Color c, Square s) const {

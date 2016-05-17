@@ -490,7 +490,8 @@ namespace {
         score += LooseEnemies;
 
     // Bonus for pins on the opponent queen
-    if (pos.queen_pins(Them))
+    if (   pos.count<QUEEN>(Them)
+        && pos.queen_pins(Them, !(ei.attackedBy[Them][ALL_PIECES] & pos.pieces(QUEEN))))
         score += PinOnQueen;
 
     // Non-pawn enemies attacked by a pawn
