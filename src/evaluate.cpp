@@ -711,10 +711,10 @@ namespace {
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
                 sf = more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
 
-            // Endgame with opposite-colored bishops, but also other pieces. Still
-            // a bit drawish, but not as drawish as with only the two bishops.
-            else
-                sf = ScaleFactor(46 * sf / SCALE_FACTOR_NORMAL);
+            // Endgame with opposite-colored bishops and knights. Still a bit
+            // drawish, but not as drawish as with only the two bishops.
+            else if (!pos.pieces(QUEEN, ROOK))
+                sf = ScaleFactor(42 * sf / SCALE_FACTOR_NORMAL);
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
