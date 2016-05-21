@@ -18,6 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <cstring>   // For std::memset, std::memcmp
@@ -420,25 +421,25 @@ Phase Position::game_phase() const {
 }
 
 
-/// Position::slider_blockers() returns a bitboard of all the pieces with color
-/// 'c1' that are blocking sliders attacks on the square 's' of color 'c2'. A piece
-/// blocks a slider if removing that piece from the board would result in a position
-/// where square 's' is attacked. For example, a king attack blocking piece can be either 
+/// Position::slider_blockers() returns a bitboard of all the pieces with color 'c1'
+/// that are blocking sliders attacks on the square 's' of color 'c2'. A piece blocks
+/// a slider if removing that piece from the board would result in a position where
+/// square 's' is attacked. For example, a king-attack blocking piece can be either 
 /// a pinned or a discovered check piece, according if its color 'c1' is the same or
 /// the opposite of 'c2'.
 
-Bitboard Position::slider_blockers(Color c1, Square s, Color c2, bool WithQueens) const {
+Bitboard Position::slider_blockers(Color c1, Square s, Color c2, bool onQueen) const {
 
   Bitboard b, pinners, result = 0, p = pieces();
 
   // Pinners are sliders that attack s when a pinned piece is removed
   pinners = pieces(~c2);
-  if (WithQueens)
-      pinners &=  (PseudoAttacks[ROOK  ][s] & pieces(QUEEN, ROOK))
-                | (PseudoAttacks[BISHOP][s] & pieces(QUEEN, BISHOP));
-  else
+  if (onQueen)
       pinners &=  (PseudoAttacks[ROOK  ][s] & pieces(ROOK))
                 | (PseudoAttacks[BISHOP][s] & pieces(BISHOP));
+  else
+      pinners &=  (PseudoAttacks[ROOK  ][s] & pieces(QUEEN, ROOK))
+                | (PseudoAttacks[BISHOP][s] & pieces(QUEEN, BISHOP));
 
   while (pinners)
   {
@@ -447,6 +448,7 @@ Bitboard Position::slider_blockers(Color c1, Square s, Color c2, bool WithQueens
       if (!more_than_one(b))
           result |= b;
   }
+
   return result & pieces(c1);
 }
 

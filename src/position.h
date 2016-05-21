@@ -187,7 +187,7 @@ private:
   void set_state(StateInfo* si) const;
 
   // Other helpers
-  Bitboard slider_blockers(Color c1, Square s, Color c2, bool WithQueens = true) const;
+  Bitboard slider_blockers(Color c1, Square s, Color c2, bool onQueen = false) const;
   void put_piece(Color c, PieceType pt, Square s);
   void remove_piece(Color c, PieceType pt, Square s);
   void move_piece(Color c, PieceType pt, Square from, Square to);
@@ -320,7 +320,7 @@ inline Bitboard Position::pinned_pieces(Color c) const {
 }
 
 inline Bitboard Position::queen_pins(Color c) const {
-  return pieceCount[c][QUEEN] > 0 ? slider_blockers(c, pieceList[c][QUEEN][0], c, false) : 0;
+  return pieceCount[c][QUEEN] ? slider_blockers(c, pieceList[c][QUEEN][0], c, true) : 0;
 }
 
 inline bool Position::pawn_passed(Color c, Square s) const {
