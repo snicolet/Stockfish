@@ -28,8 +28,8 @@ namespace {
   enum Stages {
     MAIN_SEARCH, GOOD_CAPTURES, KILLERS, QUIET, BAD_CAPTURES,
     EVASION, ALL_EVASIONS,
-    QSEARCH_WITH_CHECKS, QCAPTURES_1, CHECKS,
-    QSEARCH_WITHOUT_CHECKS, QCAPTURES_2,
+    QSEARCH_WITH_CHECKS, QCAPTURES_1, CHECKS, BAD_QCAPTURES_1,
+    QSEARCH_WITHOUT_CHECKS, QCAPTURES_2, BAD_QCAPTURES_2,
     PROBCUT, PROBCUT_CAPTURES,
     RECAPTURE, RECAPTURES,
     STOP
@@ -139,6 +139,13 @@ void MovePicker::score<CAPTURES>() {
 }
 
 template<>
+void MovePicker::score<QUIET_CHECKS>() {
+  for (auto& m : *this)
+      m.value =  PieceValue[MG][pos.piece_on(from_sq(m))]
+               - Value(500 * relative_rank(pos.side_to_move(), to_sq(m)));
+}
+
+template<>
 void MovePicker::score<QUIETS>() {
 
   const HistoryStats& history = pos.this_thread()->history;
@@ -211,7 +218,7 @@ void MovePicker::generate_next_stage() {
           insertion_sort(cur, endMoves);
       break;
 
-  case BAD_CAPTURES:
+  case BAD_CAPTURES: case BAD_QCAPTURES_1: case BAD_QCAPTURES_2:
       // Just pick them in reverse order to get correct ordering
       cur = moves + MAX_MOVES - 1;
       endMoves = endBadCaptures;
@@ -225,6 +232,7 @@ void MovePicker::generate_next_stage() {
 
   case CHECKS:
       endMoves = generate<QUIET_CHECKS>(pos, moves);
+      score<QUIET_CHECKS>();
       break;
 
   case EVASION: case QSEARCH_WITH_CHECKS: case QSEARCH_WITHOUT_CHECKS:
@@ -259,7 +267,7 @@ Move MovePicker::next_move() {
           ++cur;
           return ttMove;
 
-      case GOOD_CAPTURES:
+      case GOOD_CAPTURES: case QCAPTURES_1: case QCAPTURES_2:
           move = pick_best(cur++, endMoves);
           if (move != ttMove)
           {
@@ -289,10 +297,10 @@ Move MovePicker::next_move() {
               return move;
           break;
 
-      case BAD_CAPTURES:
+      case BAD_CAPTURES: case BAD_QCAPTURES_1: case BAD_QCAPTURES_2:
           return *cur--;
 
-      case ALL_EVASIONS: case QCAPTURES_1: case QCAPTURES_2:
+      case ALL_EVASIONS:
           move = pick_best(cur++, endMoves);
           if (move != ttMove)
               return move;
@@ -311,7 +319,7 @@ Move MovePicker::next_move() {
           break;
 
       case CHECKS:
-          move = *cur++;
+          move = pick_best(cur++, endMoves);
           if (move != ttMove)
               return move;
           break;

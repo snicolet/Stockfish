@@ -211,7 +211,7 @@ enum Depth {
 
   DEPTH_ZERO          =  0,
   DEPTH_QS_CHECKS     =  0,
-  DEPTH_QS_NO_CHECKS  = -3,
+  DEPTH_QS_NO_CHECKS  = -2,
   DEPTH_QS_RECAPTURES = -5,
 
   DEPTH_NONE = -6,
