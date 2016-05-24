@@ -131,6 +131,7 @@ public:
   Bitboard attacks_from(Piece pc, Square s) const;
   template<PieceType> Bitboard attacks_from(Square s) const;
   template<PieceType> Bitboard attacks_from(Square s, Color c) const;
+  Bitboard slider_blockers(Bitboard target, Square s, Color c2, bool onQueen = false) const;
 
   // Properties of moves
   bool legal(Move m, Bitboard pinned) const;
@@ -145,7 +146,6 @@ public:
   // Piece specific
   bool pawn_passed(Color c, Square s) const;
   bool opposite_bishops() const;
-  Bitboard queen_pins(Color c) const;
 
   // Doing and undoing moves
   void do_move(Move m, StateInfo& st, bool givesCheck);
@@ -187,7 +187,6 @@ private:
   void set_state(StateInfo* si) const;
 
   // Other helpers
-  Bitboard slider_blockers(Color c1, Square s, Color c2, bool onQueen = false) const;
   void put_piece(Color c, PieceType pt, Square s);
   void remove_piece(Color c, PieceType pt, Square s);
   void move_piece(Color c, PieceType pt, Square from, Square to);
@@ -312,7 +311,7 @@ inline Bitboard Position::checkers() const {
 }
 
 inline Bitboard Position::discovered_check_candidates() const {
-  return slider_blockers(sideToMove, square<KING>(~sideToMove), ~sideToMove);
+  return slider_blockers(pieces(sideToMove), square<KING>(~sideToMove), ~sideToMove);
 }
 
 inline Bitboard Position::pinned_pieces(Color c) const {

@@ -187,7 +187,7 @@ namespace {
   const Score OtherCheck          = S(10, 10);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
-  const Score PinOnQueen          = S(45,  0);
+  const Score WeakQueen           = S(45,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
@@ -489,9 +489,10 @@ namespace {
         & ~(ei.attackedBy[Us][ALL_PIECES] | ei.attackedBy[Them][ALL_PIECES]))
         score += LooseEnemies;
 
-    // Bonus for pins on the opponent queen
-    if (pos.queen_pins(Them))
-        score += PinOnQueen;
+    // Bonus for pin or discovered attack on the opponent queen
+    b = pos.pieces(Them, QUEEN);
+    if (b && pos.slider_blockers(pos.pieces(), msb(b), Them, true))
+        score += WeakQueen;
 
     // Non-pawn enemies attacked by a pawn
     weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & ei.attackedBy[Us][PAWN];
