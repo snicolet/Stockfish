@@ -424,7 +424,7 @@ Phase Position::game_phase() const {
 /// are blocking attacks on the square 's' from 'sliders'. A piece blocks a slider
 /// if removing that piece from the board would result in a position where square 's'
 /// is attacked. For example, a king-attack blocking piece can be either a pinned or
-/// a discovered check piece, according if its color is the same or the opposite of
+/// a discovered check piece, according if its color is the opposite or the same of
 /// the color of the slider.
 
 Bitboard Position::slider_blockers(Bitboard target, Bitboard sliders, Square s) const {
