@@ -420,8 +420,8 @@ Phase Position::game_phase() const {
 }
 
 
-/// Position::slider_blockers() returns a bitboard of all the pieces from 'target'
-/// that are blocking attacks on the square 's' from 'sliders'. A piece blocks a slider 
+/// Position::slider_blockers() returns a bitboard of all the pieces in 'target' that
+/// are blocking attacks on the square 's' from 'sliders'. A piece blocks a slider
 /// if removing that piece from the board would result in a position where square 's'
 /// is attacked. For example, a king-attack blocking piece can be either a pinned or
 /// a discovered check piece, according if its color is the same or the opposite of
