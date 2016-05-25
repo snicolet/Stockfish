@@ -492,7 +492,7 @@ namespace {
     // Bonus for pin or discovered attack on the opponent queen
     if (   pos.count<QUEEN>(Them) == 1
         && pos.slider_blockers(pos.pieces(), 
-                               pos.pieces(Us) ^ pos.pieces(Us, QUEEN), 
+                               pos.pieces(Us, ROOK, BISHOP), 
                                pos.square<QUEEN>(Them)))
         score += WeakQueen;
 
