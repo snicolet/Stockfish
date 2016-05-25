@@ -131,7 +131,7 @@ public:
   Bitboard attacks_from(Piece pc, Square s) const;
   template<PieceType> Bitboard attacks_from(Square s) const;
   template<PieceType> Bitboard attacks_from(Square s, Color c) const;
-  Bitboard slider_blockers(Bitboard target, Square s, Color c2, bool onQueen = false) const;
+  Bitboard slider_blockers(Bitboard target, Bitboard sliders, Square s) const;
 
   // Properties of moves
   bool legal(Move m, Bitboard pinned) const;
@@ -311,11 +311,11 @@ inline Bitboard Position::checkers() const {
 }
 
 inline Bitboard Position::discovered_check_candidates() const {
-  return slider_blockers(pieces(sideToMove), square<KING>(~sideToMove), ~sideToMove);
+  return slider_blockers(pieces(sideToMove), pieces(sideToMove), square<KING>(~sideToMove));
 }
 
 inline Bitboard Position::pinned_pieces(Color c) const {
-  return slider_blockers(pieces(c), square<KING>(c), c);
+  return slider_blockers(pieces(c), pieces(~c), square<KING>(c));
 }
 
 inline bool Position::pawn_passed(Color c, Square s) const {

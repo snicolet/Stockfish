@@ -491,7 +491,7 @@ namespace {
 
     // Bonus for pin or discovered attack on the opponent queen
     b = pos.pieces(Them, QUEEN);
-    if (b && pos.slider_blockers(pos.pieces(), msb(b), Them, true))
+    if (b && pos.slider_blockers(pos.pieces(), pos.pieces(Us) ^ pos.pieces(Us, QUEEN), msb(b)))
         score += WeakQueen;
 
     // Non-pawn enemies attacked by a pawn
