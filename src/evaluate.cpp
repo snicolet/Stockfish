@@ -696,7 +696,7 @@ namespace {
     // that the endgame score does not change sign too violently.
     int value = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg) - 25);
 
-    return make_score(0, value);
+    return make_score(value / 2, value);
   }
 
 
