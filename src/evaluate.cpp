@@ -102,6 +102,7 @@ namespace {
     // to kingAdjacentZoneAttacksCount[WHITE].
     int kingAdjacentZoneAttacksCount[COLOR_NB];
 
+    Bitboard pinnedOrDiscoveredChecks[COLOR_NB];
     Bitboard pinnedPieces[COLOR_NB];
     Material::Entry* me;
     Pawns::Entry* pi;
@@ -226,8 +227,11 @@ namespace {
     const Color  Them = (Us == WHITE ? BLACK   : WHITE);
     const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
 
-    ei.pinnedPieces[Us] = pos.pinned_pieces(Us);
-    Bitboard b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.square<KING>(Them));
+    Bitboard b = pos.slider_blockers(pos.pieces(), pos.pieces(Them), pos.square<KING>(Us));
+    ei.pinnedOrDiscoveredChecks[Us] = b;
+    ei.pinnedPieces[Us] = b & pos.pieces(Us);
+
+    b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.square<KING>(Them));
     ei.attackedBy[Them][ALL_PIECES] |= b;
     ei.attackedBy[Us][ALL_PIECES] |= ei.attackedBy[Us][PAWN] = ei.pi->pawn_attacks(Us);
 
@@ -400,7 +404,8 @@ namespace {
         attackUnits =  std::min(72, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
                      +  9 * ei.kingAdjacentZoneAttacksCount[Them]
                      + 27 * popcount(undefended)
-                     + 11 * (popcount(b) + !!ei.pinnedPieces[Us])
+                     + 11 * popcount(b)
+                     + 12 * !!ei.pinnedOrDiscoveredChecks[Us]
                      - 64 * !pos.count<QUEEN>(Them)
                      - mg_value(score) / 8;
 
