@@ -45,12 +45,17 @@ namespace {
   Score Connected[2][2][2][RANK_NB];
 
   // Doubled pawn penalty
-  const Score Doubled = S(18,38);
+  const Score Doubled = S(18, 38);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
     S(17, 16), S(33, 32), S(0, 0), S(0, 0) };
+    
+  // Mobile pawn bonus by rank
+  const Score Mobile[RANK_NB] = {
+    S(0, 0 ), S(0, 5 ), S(0, 10), S(0, 15),
+    S(0, 20), S(0, 25), S(0, 30), S(0, 0) };
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
@@ -90,12 +95,15 @@ namespace {
 
     const Color  Them  = (Us == WHITE ? BLACK    : WHITE);
     const Square Up    = (Us == WHITE ? DELTA_N  : DELTA_S);
+    const Square Down  = (Us == WHITE ? DELTA_S  : DELTA_N);
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
+    const Square DownRight = (Us == WHITE ? DELTA_SE : DELTA_NW);
+    const Square DownLeft  = (Us == WHITE ? DELTA_SW : DELTA_NE);
 
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Square s;
-    bool opposed, lever, connected, backward;
+    bool opposed, lever, connected, backward, mobile;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
@@ -107,8 +115,10 @@ namespace {
     e->kingSquares[Us] = SQ_NONE;
     e->semiopenFiles[Us] = 0xFF;
     e->pawnAttacks[Us] = shift_bb<Right>(ourPawns) | shift_bb<Left>(ourPawns);
+    e->pawnAttacks[Them] = shift_bb<DownRight>(theirPawns) | shift_bb<DownLeft>(theirPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
+    e->mobilePawns[Us] = ourPawns & ~shift_bb<Down>(ourPawns | theirPawns | e->pawnAttacks[Them]);
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -129,6 +139,7 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
         connected  = supported | phalanx;
+        mobile     = e->mobilePawns[Us] & s;
 
         // A pawn is backward when it is behind all pawns of the same color on the
         // adjacent files and cannot be safely advanced.
@@ -171,6 +182,9 @@ namespace {
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
+        
+        if (mobile)
+            score += Mobile[relative_rank(Us, s)];
     }
 
     b = e->semiopenFiles[Us] ^ 0xFF;
