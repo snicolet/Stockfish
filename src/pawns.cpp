@@ -45,12 +45,17 @@ namespace {
   Score Connected[2][2][2][RANK_NB];
 
   // Doubled pawn penalty
-  const Score Doubled = S(18,38);
+  const Score Doubled = S(18, 38);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
     S(17, 16), S(33, 32), S(0, 0), S(0, 0) };
+    
+  // Mobile pawn bonus by rank
+  const Score Mobile[RANK_NB] = {
+    S(0, 0 ), S(0, 5 ), S(0, 10), S(0, 15),
+    S(0, 20), S(0, 25), S(0, 30), S(0, 0) };
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
@@ -95,7 +100,7 @@ namespace {
 
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Square s;
-    bool opposed, lever, connected, backward;
+    bool opposed, lever, connected, backward, mobile;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
@@ -129,6 +134,8 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
         connected  = supported | phalanx;
+        mobile     =     !((ourPawns | theirPawns) & (s + Up))
+                      && !(theirPawns & pawnAttacksBB[s + Up]);
 
         // A pawn is backward when it is behind all pawns of the same color on the
         // adjacent files and cannot be safely advanced.
@@ -171,6 +178,9 @@ namespace {
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
+        
+        if (mobile)
+            score += Mobile[relative_rank(Us, s)];
     }
 
     b = e->semiopenFiles[Us] ^ 0xFF;
