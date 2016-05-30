@@ -41,8 +41,8 @@ namespace {
   // by number of pawns it supports [less than 2 / exactly 2].
   const Score Unsupported[2] = { S(17, 8), S(21, 12) };
 
-  // Connected pawn bonus by opposed, phalanx, twice supported and rank
-  Score Connected[2][2][2][RANK_NB];
+  // Connected pawn bonus by opposed, twice supported and rank
+  Score Connected[2][2][RANK_NB];
 
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
@@ -164,7 +164,7 @@ namespace {
             score -= Unsupported[more_than_one(neighbours & pawnAttacksBB[s])];
 
         if (connected)
-            score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
+            score += Connected[opposed][more_than_one(supported)][relative_rank(Us, s)];
 
         if (doubled)
             score -= Doubled;
@@ -192,13 +192,12 @@ void init()
   static const int Seed[RANK_NB] = { 0, 8, 19, 13, 71, 94, 169, 324 };
 
   for (int opposed = 0; opposed <= 1; ++opposed)
-      for (int phalanx = 0; phalanx <= 1; ++phalanx)
-          for (int apex = 0; apex <= 1; ++apex)
-              for (Rank r = RANK_2; r < RANK_8; ++r)
+      for (int apex = 0; apex <= 1; ++apex)
+          for (Rank r = RANK_2; r < RANK_8; ++r)
   {
-      int v = (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
-      v += (apex ? v / 2 : 0);
-      Connected[opposed][phalanx][apex][r] = make_score(v, v * 5 / 8);
+      int v = Seed[r] >> opposed;
+      v += apex ? v / 2 : 0;
+      Connected[opposed][apex][r] = make_score(v, v * 5 / 8);
   }
 }
 
