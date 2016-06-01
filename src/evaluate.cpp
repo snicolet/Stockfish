@@ -191,6 +191,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
+  const Score Fork                = S(40, 40);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -371,7 +372,7 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK   : WHITE);
     const Square  Up = (Us == WHITE ? DELTA_N : DELTA_S);
 
-    Bitboard undefended, b, b1, b2, safe, other;
+    Bitboard undefended, b, b1, b2, safe, other, targets;
     int attackUnits;
     const Square ksq = pos.square<KING>(Us);
 
@@ -453,6 +454,13 @@ namespace {
 
         else if (b & other)
             score -= OtherCheck;
+
+        // Knight forks on queen, rooks, and other hanging pieces
+        targets = pos.pieces(Us, QUEEN, ROOK) | (pos.pieces(Us, BISHOP, PAWN) & safe);
+        b = b & safe;
+        while (b)
+            if (StepAttacksBB[KNIGHT][pop_lsb(&b)] & targets)
+                score -= Fork;
 
         // Finally, extract the king danger score from the KingDanger[]
         // array and subtract the score from the evaluation.
