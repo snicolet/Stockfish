@@ -18,6 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <cstring>   // For std::memset
@@ -178,6 +179,11 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
 
+  // Fork[unprotected/protected] : bonus for knight forking a hanging or defended piece
+  const Score Fork[2] = {
+    S(80, 80), S(50, 50)
+  };
+
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
@@ -191,7 +197,6 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
-  const Score Fork                = S(50, 50);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -458,8 +463,11 @@ namespace {
             Bitboard targets =   pos.pieces(Us, QUEEN, ROOK)
                               | (pos.pieces(Us, BISHOP, PAWN) & ~ei.attackedBy[Us][PAWN]);
             do
-                if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
-                    score -= Fork;
+            {
+                Bitboard bb = pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets;
+                if (bb)
+                    score -= Fork[!(bb & ~ei.attackedBy[Us][ALL_PIECES])];
+            }
             while (checks);
         }
 
