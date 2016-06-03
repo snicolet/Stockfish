@@ -178,6 +178,11 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
 
+  // Fork[unprotected/protected] : bonus for knight forking a hanging or defended piece
+  const Score Fork[2] = {
+    S(80, 80), S(50, 50)
+  };
+
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
@@ -449,7 +454,21 @@ namespace {
         // Enemy knights safe and other checks
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
         if (b & safe)
+        {
             attackUnits += KnightCheck, score -= SafeCheck;
+
+            // Knight forking king and (queen, rooks, bishops or pawns)
+            Bitboard checks = b & safe;
+            Bitboard targets =   pos.pieces(Us, QUEEN, ROOK)
+                              | (pos.pieces(Us, BISHOP, PAWN) & ~ei.attackedBy[Us][PAWN]);
+            do
+            {
+                Bitboard bb = pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets;
+                if (bb)
+                    score -= Fork[!(bb & ~ei.attackedBy[Us][ALL_PIECES])];
+            }
+            while (checks);
+        }
 
         else if (b & other)
             score -= OtherCheck;
