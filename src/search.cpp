@@ -263,8 +263,8 @@ void MainThread::search() {
       DrawValue[r][ us] = VALUE_DRAW - Value(contempt);
       DrawValue[r][~us] = VALUE_DRAW + Value(contempt);
   }
-  DrawValue[DRAW_IN_INITIATIVE][ us] -= Value(10);
-  DrawValue[DRAW_IN_INITIATIVE][~us] += Value(10);
+  DrawValue[DRAW_IN_INITIATIVE][ us] += Value(10);
+  DrawValue[DRAW_IN_INITIATIVE][~us] -= Value(10);
 
   TB::Hits = 0;
   TB::RootInTB = false;
