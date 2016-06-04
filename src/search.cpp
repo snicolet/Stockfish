@@ -56,6 +56,7 @@ namespace TB = Tablebases;
 
 using std::string;
 using Eval::evaluate;
+using Eval::DrawValue;
 using namespace Search;
 
 namespace {
@@ -156,7 +157,6 @@ namespace {
   const size_t HalfDensitySize = std::extent<decltype(HalfDensity)>::value;
 
   EasyMoveManager EasyMove;
-  Value DrawValue[COLOR_NB];
   CounterMoveHistoryStats CounterMoveHistory;
 
   template <NodeType NT>
@@ -258,8 +258,13 @@ void MainThread::search() {
   Time.init(Limits, us, rootPos.game_ply());
 
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
-  DrawValue[ us] = VALUE_DRAW - Value(contempt);
-  DrawValue[~us] = VALUE_DRAW + Value(contempt);
+  for (int r = NORMAL_DRAW; r < DRAW_TYPE_NB ; r++)
+  {
+      DrawValue[r][ us] = VALUE_DRAW - Value(contempt);
+      DrawValue[r][~us] = VALUE_DRAW + Value(contempt);
+  }
+  DrawValue[DRAW_IN_INITIATIVE][ us] -= Value(10);
+  DrawValue[DRAW_IN_INITIATIVE][~us] += Value(10);
 
   TB::Hits = 0;
   TB::RootInTB = false;
@@ -640,9 +645,10 @@ namespace {
     if (!rootNode)
     {
         // Step 2. Check for aborted search and immediate draw
-        if (Signals.stop.load(std::memory_order_relaxed) || pos.is_draw() || ss->ply >= MAX_PLY)
+        DrawType reason = NORMAL_DRAW;
+        if (Signals.stop.load(std::memory_order_relaxed) || pos.is_draw(reason) || ss->ply >= MAX_PLY)
             return ss->ply >= MAX_PLY && !inCheck ? evaluate(pos)
-                                                  : DrawValue[pos.side_to_move()];
+                                                  : DrawValue[reason][pos.side_to_move()];
 
         // Step 3. Mate distance pruning. Even if we mate at the next move our score
         // would be at best mate_in(ss->ply+1), but if alpha is already bigger because
@@ -1142,7 +1148,7 @@ moves_loop: // When in check search starts from here
     // return a fail low score.
     if (!moveCount)
         bestValue = excludedMove ? alpha
-                   :     inCheck ? mated_in(ss->ply) : DrawValue[pos.side_to_move()];
+                   :     inCheck ? mated_in(ss->ply) : DrawValue[DRAW_BY_STALEMATE][pos.side_to_move()];
 
     // Quiet best move: update killers, history and countermoves
     else if (bestMove && !pos.capture_or_promotion(bestMove))
@@ -1211,9 +1217,10 @@ moves_loop: // When in check search starts from here
     ss->ply = (ss-1)->ply + 1;
 
     // Check for an instant draw or if the maximum ply has been reached
-    if (pos.is_draw() || ss->ply >= MAX_PLY)
+    DrawType reason = NORMAL_DRAW;
+    if (pos.is_draw(reason) || ss->ply >= MAX_PLY)
         return ss->ply >= MAX_PLY && !InCheck ? evaluate(pos)
-                                              : DrawValue[pos.side_to_move()];
+                                              : DrawValue[reason][pos.side_to_move()];
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 

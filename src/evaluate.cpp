@@ -682,7 +682,9 @@ namespace {
   // evaluate_initiative() computes the initiative correction value for the
   // position, i.e., second order bonus/malus based on the known attacking/defending
   // status of the players.
-  Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
+  Score evaluate_initiative(const Position& pos, int asymmetry, Score score) {
+
+    int eg = eg_value(score) - Eval::DrawValue[DRAW_IN_INITIATIVE][WHITE];
 
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
@@ -819,7 +821,7 @@ Value Eval::evaluate(const Position& pos) {
               - evaluate_space<BLACK>(pos, ei);
 
   // Evaluate position potential for the winning side
-  score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
+  score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), score);
 
   // Evaluate scale factor for the winning side
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
@@ -901,3 +903,5 @@ void Eval::init() {
       KingDanger[i] = make_score(t * 268 / 7700, 0);
   }
 }
+
+Value Eval::DrawValue[DRAW_TYPE_NB][COLOR_NB];
