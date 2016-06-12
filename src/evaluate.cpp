@@ -687,10 +687,10 @@ namespace {
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
-    int imbalance =   (pos.count<KNIGHT>(WHITE) != pos.count<KNIGHT>(BLACK))
-                    + (pos.count<BISHOP>(WHITE) != pos.count<BISHOP>(BLACK))
-                    + (pos.count<ROOK>(WHITE)   != pos.count<ROOK>(BLACK))
-                    + 2 * (pos.count<QUEEN>(WHITE)  != pos.count<QUEEN>(BLACK));
+    int imbalance =   (pos.count<KNIGHT>(WHITE) ^ pos.count<KNIGHT>(BLACK))
+                    + (pos.count<BISHOP>(WHITE) ^ pos.count<BISHOP>(BLACK))
+                    + (pos.count<ROOK>(WHITE)   ^ pos.count<ROOK>  (BLACK))
+                    + 2 * (pos.count<QUEEN>(WHITE) ^ pos.count<QUEEN>(BLACK));
 
     // Compute the initiative bonus for the attacking side
     int initiative = 8 * (asymmetry + kingDistance + imbalance - 15) + 12 * pawns;
