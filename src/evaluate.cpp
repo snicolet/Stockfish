@@ -286,7 +286,8 @@ namespace {
                    | ei.attackedBy[Them][BISHOP]
                    | ei.attackedBy[Them][ROOK]);
 
-        int mob = popcount(b & mobilityArea[Us]);
+        int mob = (Pt == KNIGHT) ? popcount(b & mobilityArea[Us] & in_front_bb(Us, relative_rank(Us, RANK_3)))
+                                 : popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
