@@ -189,7 +189,7 @@ namespace {
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
-  const Score Coordination        = S(10,  0);
+  const Score SemiHanging         = S(25, 10);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
 
@@ -541,9 +541,13 @@ namespace {
             score += ThreatByKing[more_than_one(b)];
     }
 
-    // Coordination bonus
-    b = ~pos.pieces(Us) & ei.attackedBy[Us][DOUBLE_ATTACK];
-    score += Coordination * popcount(b);
+    // Bonus for enemy pieces under double attack but defended once
+    b = pos.pieces(Them) &  ei.attackedBy[Us][DOUBLE_ATTACK]
+                         & ~ei.attackedBy[Them][DOUBLE_ATTACK]
+                         &  ei.attackedBy[Them][ALL_PIECES]
+                         & ~ei.attackedBy[Us][PAWN]
+                         & ~(pos.pieces(Them, PAWN) & ei.attackedBy[Them][PAWN]);
+    score += SemiHanging * popcount(b);
 
     // Bonus if some pawns can safely push and attack an enemy piece
     b = pos.pieces(Us, PAWN) & ~TRank7BB;
