@@ -56,6 +56,7 @@ namespace TB = Tablebases;
 
 using std::string;
 using Eval::evaluate;
+using Eval::midgameLove;
 using namespace Search;
 
 namespace {
@@ -260,6 +261,8 @@ void MainThread::search() {
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
   DrawValue[ us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
+  Eval::midgameLove[ us] = Value( 40);
+  Eval::midgameLove[~us] = Value(-40);
 
   if (rootMoves.empty())
   {

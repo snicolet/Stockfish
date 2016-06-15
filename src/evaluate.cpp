@@ -825,7 +825,7 @@ Value Eval::evaluate(const Position& pos) {
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
 
   // Interpolate between a middlegame and a (scaled by 'sf') endgame score
-  Value v =  mg_value(score) * int(ei.me->game_phase())
+  Value v =  (mg_value(score) + midgameLove[WHITE]) * int(ei.me->game_phase())
            + eg_value(score) * int(PHASE_MIDGAME - ei.me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
   v /= int(PHASE_MIDGAME);
@@ -901,3 +901,5 @@ void Eval::init() {
       KingDanger[i] = make_score(t * 268 / 7700, 0);
   }
 }
+
+Value Eval::midgameLove[COLOR_NB];
