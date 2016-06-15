@@ -113,7 +113,10 @@ namespace {
   // MobilityBonus[PieceType][attacked] contains bonuses for middle and end
   // game, indexed by piece type and number of attacked squares in the MobilityArea.
   const Score MobilityBonus[][32] = {
-    {}, {},
+    {}, 
+    { S(0,  0), S(0,  7), S(0, 14), S(0, 21), S(0, 28), S(0, 35),             // Pawns
+      S(0, 42), S(0, 49), S(0, 56), S(0, 63), S(0, 70), S(0, 77),
+      S(0, 84), S(0, 91), S(0, 98), S(0, 105), S(0, 112) },
     { S(-75,-76), S(-56,-54), S(- 9,-26), S( -2,-10), S(  6,  5), S( 15, 11), // Knights
       S( 22, 26), S( 30, 28), S( 36, 29) },
     { S(-48,-58), S(-21,-19), S( 16, -2), S( 26, 12), S( 37, 22), S( 51, 42), // Bishops
@@ -539,14 +542,15 @@ namespace {
             score += ThreatByKing[more_than_one(b)];
     }
 
-    // Bonus if some pawns can safely push and attack an enemy piece
+    // Bonus if some pawns can be safely pushed, and attack an enemy piece
     b = pos.pieces(Us, PAWN) & ~TRank7BB;
     b = shift_bb<Up>(b | (shift_bb<Up>(b & TRank2BB) & ~pos.pieces()));
-
-    b &=  ~pos.pieces()
-        & ~ei.attackedBy[Them][PAWN]
+    b &=  ~pos.pieces() 
         & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
 
+    score += MobilityBonus[PAWN][popcount(b)];
+
+    b &= ~ei.attackedBy[Them][PAWN];
     b =  (shift_bb<Left>(b) | shift_bb<Right>(b))
        &  pos.pieces(Them)
        & ~ei.attackedBy[Us][PAWN];
