@@ -68,6 +68,7 @@ namespace {
   }
 
   using namespace Trace;
+  using Eval::queenlessEndgameLove;
 
   // Struct EvalInfo contains various information computed and collected
   // by the evaluation functions.
@@ -732,7 +733,7 @@ namespace {
             sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(51) : ScaleFactor(37);
     }
 
-    return sf;
+    return ScaleFactor(sf + queenlessEndgameLove[strongSide]);
   }
 
 } // namespace
@@ -825,7 +826,7 @@ Value Eval::evaluate(const Position& pos) {
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
 
   // Interpolate between a middlegame and a (scaled by 'sf') endgame score
-  Value v =  (mg_value(score) + midgameLove[WHITE]) * int(ei.me->game_phase())
+  Value v =  mg_value(score) * int(ei.me->game_phase())
            + eg_value(score) * int(PHASE_MIDGAME - ei.me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
   v /= int(PHASE_MIDGAME);
@@ -902,4 +903,4 @@ void Eval::init() {
   }
 }
 
-Value Eval::midgameLove[COLOR_NB];
+Value Eval::queenlessEndgameLove[COLOR_NB];

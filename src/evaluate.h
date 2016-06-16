@@ -29,8 +29,8 @@ class Position;
 
 namespace Eval {
 
-const Value Tempo = Value(20); // Must be visible to search
-extern Value midgameLove[COLOR_NB];  // Must be visible to search
+const Value Tempo = Value(20);                // Must be visible to search
+extern Value queenlessEndgameLove[COLOR_NB];  // Must be visible to search
 
 void init();
 std::string trace(const Position& pos);
