@@ -828,6 +828,7 @@ Value Eval::evaluate(const Position& pos) {
   Value v =  mg_value(score) * int(ei.me->game_phase())
            + eg_value(score) * int(PHASE_MIDGAME - ei.me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
+  v += v > 0 ? PHASE_MIDGAME / 2 : -PHASE_MIDGAME / 2;
   v /= int(PHASE_MIDGAME);
 
   // In case of tracing add all remaining individual evaluation terms
