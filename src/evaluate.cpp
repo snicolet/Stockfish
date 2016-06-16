@@ -541,8 +541,11 @@ namespace {
             score += ThreatByKing[more_than_one(b)];
     }
     
-    // Coordination bonus
-    b = ~pos.pieces(Us) & ei.attackedBy[Us][DOUBLE_ATTACK];
+    // Coordination bonus for empty squares or enemy pieces that we double attack
+    // (except for double attacks on solidly protected pawns).
+    b =  ~pos.pieces(Us) 
+       &  ei.attackedBy[Us][DOUBLE_ATTACK]
+       & ~(pos.pieces(Them, PAWN) & ei.attackedBy[Them][PAWN] & ~ei.attackedBy[Us][PAWN]);
     
     score += Coordination * popcount(b);
 
