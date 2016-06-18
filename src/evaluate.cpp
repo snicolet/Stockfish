@@ -183,7 +183,7 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
-  const Score KingCorridor        = S( 0, 40);
+  const Score KingCorridor        = S( 0, 20);
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
   const Score ThreatByHangingPawn = S(71, 61);
@@ -391,7 +391,8 @@ namespace {
     b = ei.attackedBy[Us][KING] & ~(ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Us));
     if (   ((b & rank_bb(ksq)) == b)
         && (   (pos.count<QUEEN>(Them) + pos.count<ROOK>(Them) >= 2)
-            || (pos.count<ROOK>(Them) == 1 && distance<Rank>(ksq, pos.square<ROOK>(Them)) != 1)))
+            || (pos.count<ROOK> (Them) == 1 && distance<Rank>(ksq, pos.square<ROOK> (Them)) != 1)
+            || (pos.count<QUEEN>(Them) == 1 && distance<Rank>(ksq, pos.square<QUEEN>(Them)) != 1)))
         score -= KingCorridor;
 
     // Main king safety evaluation
