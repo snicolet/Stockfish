@@ -743,7 +743,7 @@ namespace {
         pos.do_null_move(st);
         (ss+1)->skipEarlyPruning = true;
         nullValue = depth-R < ONE_PLY ? -qsearch<NonPV, false>(pos, ss+1, -beta, -beta+1, DEPTH_ZERO)
-                                      : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+                                      : - search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, eval <= beta + 100);
         (ss+1)->skipEarlyPruning = false;
         pos.undo_null_move();
 
@@ -759,7 +759,7 @@ namespace {
             // Do verification search at high depths
             ss->skipEarlyPruning = true;
             Value v = depth-R < ONE_PLY ? qsearch<NonPV, false>(pos, ss, beta-1, beta, DEPTH_ZERO)
-                                        :  search<NonPV>(pos, ss, beta-1, beta, depth-R, false);
+                                        :  search<NonPV>(pos, ss, beta-1, beta, depth-R, true);
             ss->skipEarlyPruning = false;
 
             if (v >= beta)
