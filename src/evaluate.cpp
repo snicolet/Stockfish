@@ -189,6 +189,7 @@ namespace {
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
+  const Score SemiHanging         = S( 0, 50);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
 
@@ -272,6 +273,7 @@ namespace {
         if (ei.pinnedPieces[Us] & s)
             b &= LineBB[pos.square<KING>(Us)][s];
 
+        ei.attackedBy[Us][DOUBLE_ATTACK] |= b & ei.attackedBy[Us][ALL_PIECES];
         ei.attackedBy[Us][ALL_PIECES] |= ei.attackedBy[Us][Pt] |= b;
 
         if (b & ei.kingRing[Them])
@@ -539,6 +541,15 @@ namespace {
             score += ThreatByKing[more_than_one(b)];
     }
 
+    // Bonus for enemy pawns under double attack but defended once
+    b =   pos.pieces(Them, PAWN)
+       &  ei.attackedBy[Us][DOUBLE_ATTACK]
+       & ~ei.attackedBy[Them][DOUBLE_ATTACK]
+       &  ei.attackedBy[Them][ALL_PIECES]
+       & ~(ei.attackedBy[Them][PAWN] & ~ei.attackedBy[Us][PAWN]);
+    if (b) 
+        score += SemiHanging;
+
     // Bonus if some pawns can safely push and attack an enemy piece
     b = pos.pieces(Us, PAWN) & ~TRank7BB;
     b = shift_bb<Up>(b | (shift_bb<Up>(b & TRank2BB) & ~pos.pieces()));
@@ -771,6 +782,11 @@ Value Eval::evaluate(const Position& pos) {
   ei.attackedBy[WHITE][ALL_PIECES] = ei.attackedBy[BLACK][ALL_PIECES] = 0;
   eval_init<WHITE>(pos, ei);
   eval_init<BLACK>(pos, ei);
+
+  ei.attackedBy[WHITE][DOUBLE_ATTACK] = ei.pi->pawn_binds(WHITE);
+  ei.attackedBy[BLACK][DOUBLE_ATTACK] = ei.pi->pawn_binds(BLACK);
+  ei.attackedBy[WHITE][DOUBLE_ATTACK] |= ei.attackedBy[WHITE][KING] & ei.attackedBy[WHITE][PAWN];
+  ei.attackedBy[BLACK][DOUBLE_ATTACK] |= ei.attackedBy[BLACK][KING] & ei.attackedBy[BLACK][PAWN];
 
   // Pawns blocked or on ranks 2 and 3 will be excluded from the mobility area
   Bitboard blockedPawns[] = {
