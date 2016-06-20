@@ -189,7 +189,7 @@ namespace {
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
-  const Score SemiHanging         = S( 0, 50);
+  const Score SemiHanging         = S( 0, 30);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
 
@@ -542,12 +542,13 @@ namespace {
     }
 
     // Bonus for enemy pawns under double attack but defended once
-    b =   pos.pieces(Them, PAWN)
+    b =   pos.pieces(Them)
        &  ei.attackedBy[Us][DOUBLE_ATTACK]
        & ~ei.attackedBy[Them][DOUBLE_ATTACK]
        &  ei.attackedBy[Them][ALL_PIECES]
-       & ~(ei.attackedBy[Them][PAWN] & ~ei.attackedBy[Us][PAWN]);
-    if (b) 
+       & ~(pos.pieces(Them, PAWN) & ei.attackedBy[Them][PAWN] & ~ei.attackedBy[Us][PAWN]);
+
+    if (b && pos.side_to_move() == Us)
         score += SemiHanging;
 
     // Bonus if some pawns can safely push and attack an enemy piece
