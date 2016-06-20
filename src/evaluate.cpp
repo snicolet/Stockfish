@@ -730,6 +730,32 @@ namespace {
                  &&  ei.pi->pawn_span(strongSide) <= 1
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(51) : ScaleFactor(37);
+        
+        // Positions which can be converted to rook endings with pawns on only 
+        // one side of the board are drawish
+        else if (   pos.count<ROOK>(WHITE) == 1
+                 && pos.count<ROOK>(BLACK) == 1)
+        {
+            int spanStrong = ei.pi->pawn_span(strongSide);
+            int spanWeak = ei.pi->pawn_span(~strongSide);
+
+            if (    spanStrong <= 4
+                &&  ei.pi->pawn_asymmetry() <= 1
+                && (spanWeak == (spanStrong - 1) || spanWeak == spanStrong)
+                &&  pos.count<PAWN>(strongSide) == spanStrong
+                &&  pos.count<PAWN>(~strongSide) == spanWeak
+                && !ei.pi->passed_pawns(WHITE)
+                && !ei.pi->passed_pawns(BLACK)
+                && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
+            {
+                Bitboard strongPawns = pos.pieces(strongSide, PAWN);
+                Bitboard weakPawns = pos.pieces(~strongSide, PAWN);
+
+                if (   ((strongPawns & file_bb(FILE_A)) && (weakPawns & file_bb(FILE_A)))
+                    || ((strongPawns & file_bb(FILE_H)) && (weakPawns & file_bb(FILE_H))))
+                    sf = ScaleFactor(32);
+            }
+        }
     }
 
     return sf;
