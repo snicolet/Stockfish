@@ -311,7 +311,7 @@ namespace {
            capture = moves & pos.pieces(Them) & ~(pos.pieces(Them, PAWN) & ei.attackedBy[Them][ALL_PIECES]);
 
            if (!escape && !capture)
-               score -= make_score(PieceValue[MG][Pt] / 4, PieceValue[EG][Pt] / 4);
+               score -= make_score(PieceValue[MG][Pt] / 8, PieceValue[EG][Pt] / 8);
         }
 
 
