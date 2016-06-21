@@ -18,7 +18,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <cstring>   // For std::memset
@@ -293,38 +292,28 @@ namespace {
         mobility[Us] += MobilityBonus[Pt][mob];
 
 
-        // Look for trapped pieces which are in danger, but cannot escape nor capture
+        // Look for trapped pieces which are in danger, and cannot escape nor capture
         Bitboard danger, safe, moves, escape, capture;
-        
+
         danger = ei.attackedBy[Them][PAWN];
         if (Pt == QUEEN)
           danger |=   ei.attackedBy[Them][KNIGHT] 
                     | ei.attackedBy[Them][BISHOP] 
                     | ei.attackedBy[Them][ROOK];
-          
+
         if (danger & s)
         {
            safe = (Pt == QUEEN ? ~danger
                                : ~danger & (~ei.attackedBy[Them][ALL_PIECES] | protectedByOthers));
-                  
+
            moves = b & ~pos.pieces(Us) & pos.attacks_from<Pt>(s);
            escape  = moves & safe;
            capture = moves & pos.pieces(Them) & ~(pos.pieces(Them, PAWN) & ei.attackedBy[Them][ALL_PIECES]);
-           
-//            if (!escape && capture)
-//            {
-//                std::cerr << pos << std::endl;
-//                std::cerr << Bitboards::pretty(danger & s) << std::endl;
-//                std::cerr << Bitboards::pretty(escape) << std::endl;
-//                std::cerr << Bitboards::pretty(capture) << std::endl;
-//                std::cerr << "========================================" << std::endl;
-//            }
-// 
-//            dbg_mean_of( !escape  &&  capture);
-           
+
            if (!escape && !capture)
                score -= make_score(PieceValue[MG][Pt] / 4, PieceValue[EG][Pt] / 4);
         }
+
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
