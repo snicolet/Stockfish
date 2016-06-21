@@ -290,6 +290,12 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
+        // Penalty for pieces which are threatened by a pawn but cannot escape or capture
+        if (   (ei.attackedBy[Them][PAWN] & s)
+           && !(b & ~ei.attackedBy[Them][PAWN] & ~pos.pieces(Us))
+           && !(b & pos.pieces(Them)  & ~(pos.pieces(Them, PAWN) & ei.attackedBy[Them][ALL_PIECES])))
+           score -= make_score(PieceValue[MG][Pt] / 4, PieceValue[EG][Pt] / 4);
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus for outpost squares
