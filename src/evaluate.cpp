@@ -18,6 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <cstring>   // For std::memset
@@ -250,7 +251,7 @@ namespace {
   template<bool DoTrace, Color Us = WHITE, PieceType Pt = KNIGHT>
   Score evaluate_pieces(const Position& pos, EvalInfo& ei, Score* mobility,
                         const Bitboard* mobilityArea) {
-    Bitboard b, bb;
+    Bitboard b, bb, protectedByOthers;
     Square s;
     Score score = SCORE_ZERO;
 
@@ -272,6 +273,7 @@ namespace {
         if (ei.pinnedPieces[Us] & s)
             b &= LineBB[pos.square<KING>(Us)][s];
 
+        protectedByOthers = ei.attackedBy[Us][ALL_PIECES];
         ei.attackedBy[Us][ALL_PIECES] |= ei.attackedBy[Us][Pt] |= b;
 
         if (b & ei.kingRing[Them])
@@ -290,11 +292,39 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
-        // Penalty for pieces which are threatened by a pawn but cannot escape or capture
-        if (   (ei.attackedBy[Them][PAWN] & s)
-           && !(b & ~ei.attackedBy[Them][PAWN] & ~pos.pieces(Us))
-           && !(b & pos.pieces(Them)  & ~(pos.pieces(Them, PAWN) & ei.attackedBy[Them][ALL_PIECES])))
-           score -= make_score(PieceValue[MG][Pt] / 4, PieceValue[EG][Pt] / 4);
+
+        // Look for trapped pieces which are in danger, but cannot escape nor capture
+        Bitboard danger, safe, moves, escape, capture;
+        
+        danger = ei.attackedBy[Them][PAWN];
+        if (Pt == QUEEN)
+          danger |=   ei.attackedBy[Them][KNIGHT] 
+                    | ei.attackedBy[Them][BISHOP] 
+                    | ei.attackedBy[Them][ROOK];
+          
+        if (danger & s)
+        {
+           safe = (Pt == QUEEN ? ~danger
+                               : ~danger & (~ei.attackedBy[Them][ALL_PIECES] | protectedByOthers));
+                  
+           moves = b & ~pos.pieces(Us) & pos.attacks_from<Pt>(s);
+           escape  = moves & safe;
+           capture = moves & pos.pieces(Them) & ~(pos.pieces(Them, PAWN) & ei.attackedBy[Them][ALL_PIECES]);
+           
+//            if (!escape && capture)
+//            {
+//                std::cerr << pos << std::endl;
+//                std::cerr << Bitboards::pretty(danger & s) << std::endl;
+//                std::cerr << Bitboards::pretty(escape) << std::endl;
+//                std::cerr << Bitboards::pretty(capture) << std::endl;
+//                std::cerr << "========================================" << std::endl;
+//            }
+// 
+//            dbg_mean_of( !escape  &&  capture);
+           
+           if (!escape && !capture)
+               score -= make_score(PieceValue[MG][Pt] / 4, PieceValue[EG][Pt] / 4);
+        }
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
