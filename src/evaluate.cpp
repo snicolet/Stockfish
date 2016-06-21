@@ -102,6 +102,7 @@ namespace {
     // to kingAdjacentZoneAttacksCount[WHITE].
     int kingAdjacentZoneAttacksCount[COLOR_NB];
 
+    Bitboard trappedPieceCandidates[COLOR_NB];
     Bitboard pinnedPieces[COLOR_NB];
     Material::Entry* me;
     Pawns::Entry* pi;
@@ -226,6 +227,7 @@ namespace {
     const Color  Them = (Us == WHITE ? BLACK   : WHITE);
     const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
 
+    ei.trappedPieceCandidates[Us] = 0;
     ei.pinnedPieces[Us] = pos.pinned_pieces(Us);
     Bitboard b = ei.attackedBy[Them][KING] = pos.attacks_from<KING>(pos.square<KING>(Them));
     ei.attackedBy[Them][ALL_PIECES] |= b;
@@ -250,7 +252,7 @@ namespace {
   template<bool DoTrace, Color Us = WHITE, PieceType Pt = KNIGHT>
   Score evaluate_pieces(const Position& pos, EvalInfo& ei, Score* mobility,
                         const Bitboard* mobilityArea) {
-    Bitboard b, bb, protectedByOthers;
+    Bitboard b, bb;
     Square s;
     Score score = SCORE_ZERO;
 
@@ -272,7 +274,7 @@ namespace {
         if (ei.pinnedPieces[Us] & s)
             b &= LineBB[pos.square<KING>(Us)][s];
 
-        protectedByOthers = ei.attackedBy[Us][ALL_PIECES];
+        ei.attackedBy[Us][DOUBLE_ATTACK] |= b & ei.attackedBy[Us][ALL_PIECES];
         ei.attackedBy[Us][ALL_PIECES] |= ei.attackedBy[Us][Pt] |= b;
 
         if (b & ei.kingRing[Them])
@@ -293,27 +295,13 @@ namespace {
 
 
         // Look for trapped pieces which are in danger, and cannot escape nor capture
-        Bitboard danger, safe, moves, escape, capture;
-
-        danger = ei.attackedBy[Them][PAWN];
+        Bitboard danger = ei.attackedBy[Them][PAWN];
         if (Pt == QUEEN)
-          danger |=   ei.attackedBy[Them][KNIGHT] 
-                    | ei.attackedBy[Them][BISHOP] 
-                    | ei.attackedBy[Them][ROOK];
-
+            danger |=   ei.attackedBy[Them][KNIGHT] 
+                      | ei.attackedBy[Them][BISHOP] 
+                      | ei.attackedBy[Them][ROOK];
         if (danger & s)
-        {
-           safe = (Pt == QUEEN ? ~danger
-                               : ~danger & (~ei.attackedBy[Them][ALL_PIECES] | protectedByOthers));
-
-           moves = b & ~pos.pieces(Us) & pos.attacks_from<Pt>(s);
-           escape  = moves & safe;
-           capture = moves & pos.pieces(Them) & ~(pos.pieces(Them, PAWN) & ei.attackedBy[Them][ALL_PIECES]);
-
-           if (!escape && !capture)
-               score -= make_score(PieceValue[MG][Pt] / 8, PieceValue[EG][Pt] / 8);
-        }
-
+            ei.trappedPieceCandidates[Us] |= s;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -663,6 +651,62 @@ namespace {
     // Add the scores to the middlegame and endgame eval
     return score;
   }
+  
+  
+  // evaluate_trapped_pieces() evaluates the trapped pieces of the given color
+
+  template<Color Us, bool DoTrace>
+  Score evaluate_trapped_pieces(const Position& pos, const EvalInfo& ei) {
+
+    const Color Them = (Us == WHITE ? BLACK : WHITE);
+
+    Bitboard b, danger, safe, moves, escape, targets, captures;
+    Score score = SCORE_ZERO;
+
+    b = ei.trappedPieceCandidates[Us];
+
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+
+        PieceType Pt = type_of(pos.piece_on(s));
+
+        moves = ~pos.pieces(Us) & pos.attacks_from(Piece(Pt), s);
+        if (ei.pinnedPieces[Us] & s)
+            moves &= LineBB[pos.square<KING>(Us)][s];
+            
+        danger = ei.attackedBy[Them][PAWN];
+        if (Pt == QUEEN)
+        {
+            danger =   ei.attackedBy[Them][PAWN] | ei.attackedBy[Them][KNIGHT] 
+                     | ei.attackedBy[Them][ROOK] | ei.attackedBy[Them][BISHOP];
+            targets =  pos.pieces(Them, QUEEN)
+                     | (pos.pieces(Them) & ~danger);
+        }
+        else
+        {
+            danger =  ei.attackedBy[Them][PAWN];
+            targets = pos.pieces(Them);
+        }
+
+        captures =    moves 
+                   &  targets
+                   & ~(pos.pieces(Them, PAWN) & danger);
+
+        if (!captures)
+        {
+            safe = (Pt == QUEEN ? ~danger
+                                : ~danger & (~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy[Us][DOUBLE_ATTACK]));
+
+            escape = moves & safe;
+
+            if (!escape)
+                score -= make_score(PieceValue[MG][Pt] / 8, PieceValue[EG][Pt] / 8);
+        }
+    }
+
+    return score;
+  }
 
 
   // evaluate_space() computes the space evaluation for a given side. The
@@ -796,6 +840,11 @@ Value Eval::evaluate(const Position& pos) {
   ei.attackedBy[WHITE][ALL_PIECES] = ei.attackedBy[BLACK][ALL_PIECES] = 0;
   eval_init<WHITE>(pos, ei);
   eval_init<BLACK>(pos, ei);
+  
+  ei.attackedBy[WHITE][DOUBLE_ATTACK] = ei.pi->pawn_binds(WHITE);
+  ei.attackedBy[BLACK][DOUBLE_ATTACK] = ei.pi->pawn_binds(BLACK);
+  ei.attackedBy[WHITE][DOUBLE_ATTACK] |= ei.attackedBy[WHITE][KING] & ei.attackedBy[WHITE][PAWN];
+  ei.attackedBy[BLACK][DOUBLE_ATTACK] |= ei.attackedBy[BLACK][KING] & ei.attackedBy[BLACK][PAWN];
 
   // Pawns blocked or on ranks 2 and 3 will be excluded from the mobility area
   Bitboard blockedPawns[] = {
@@ -826,6 +875,10 @@ Value Eval::evaluate(const Position& pos) {
   // Evaluate passed pawns, we need full attack information including king
   score +=  evaluate_passed_pawns<WHITE, DoTrace>(pos, ei)
           - evaluate_passed_pawns<BLACK, DoTrace>(pos, ei);
+
+  // Evaluate trapped pieces, we need full attack information including king
+  score +=  evaluate_trapped_pieces<WHITE, DoTrace>(pos, ei)
+          - evaluate_trapped_pieces<BLACK, DoTrace>(pos, ei);
 
   // If both sides have only pawns, score for potential unstoppable pawns
   if (!pos.non_pawn_material(WHITE) && !pos.non_pawn_material(BLACK))
