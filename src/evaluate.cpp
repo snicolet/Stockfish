@@ -491,6 +491,9 @@ namespace {
     const Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
     const Bitboard KingFlank[FILE_NB] = {QueenSide, QueenSide, QueenSide, CenterFiles,
                                          CenterFiles, KingSide, KingSide, KingSide};
+    const Bitboard OppositeHalf =
+           Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB 
+                       : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB ;
 
     enum { Minor, Rook };
 
@@ -561,6 +564,7 @@ namespace {
 
     // King tropism
     b =   KingFlank[file_of(pos.square<KING>(Them))]
+       &  OppositeHalf
        &  ei.attackedBy[Us][ALL_PIECES]
        & ~ei.attackedBy[Them][ALL_PIECES];
 
