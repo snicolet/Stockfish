@@ -190,6 +190,7 @@ namespace {
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
+  const Score KingTropism         = S( 5,  0);
   const Score Unstoppable         = S( 0, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -485,6 +486,11 @@ namespace {
     const Square Right      = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB  : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB  : Rank2BB);
+    const Bitboard QueenSide = FileABB | FileBBB | FileCBB | FileDBB;
+    const Bitboard KingSide  = FileEBB | FileFBB | FileGBB | FileHBB;
+    const Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
+    const Bitboard KingFlank[FILE_NB] = {QueenSide, QueenSide, QueenSide, CenterFiles,
+                                         CenterFiles, KingSide, KingSide, KingSide};
 
     enum { Minor, Rook };
 
@@ -552,6 +558,13 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    // King tropism
+    b =   KingFlank[file_of(pos.square<KING>(Them))]
+       &  ei.attackedBy[Us][ALL_PIECES]
+       & ~ei.attackedBy[Them][ALL_PIECES];
+
+    score += KingTropism * popcount(b);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
