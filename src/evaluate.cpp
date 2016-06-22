@@ -565,8 +565,7 @@ namespace {
     // King tropism
     b =   KingFlank[file_of(pos.square<KING>(Them))]
        &  OppositeHalf
-       &  ei.attackedBy[Us][ALL_PIECES]
-       & ~ei.attackedBy[Them][ALL_PIECES];
+       &  ei.attackedBy[Us][ALL_PIECES];
 
     score += KingTropism * popcount(b);
 
