@@ -151,7 +151,7 @@ namespace {
   // ThreatBySafePawn[PieceType] contains bonuses according to which piece
   // type is attacked by a pawn which is protected or is not attacked.
   const Score ThreatBySafePawn[PIECE_TYPE_NB] = {
-    S(0, 0), S(0, 0), S(176, 139), S(131, 127), S(217, 218), S(203, 215) };
+    S(0, 0), S(0, 0), S(176, 139), S(131, 127), S(217, 218), S(208, 220) };
 
   // Threat[by minor/by rook][attacked PieceType] contains
   // bonuses according to which piece type attacks which one.
@@ -159,7 +159,7 @@ namespace {
   const Score Threat[][PIECE_TYPE_NB] = {
     { S(0, 0), S(0, 33), S(45, 43), S(46, 47), S(72,107), S(68,138) }, // by Minor
     { S(0, 0), S(0, 25), S(40, 62), S(40, 59), S( 0, 34), S(55, 68) }, // by Rook
-    { S(0, 0), S(15,15), S(50, 72), S(20, 20), S(20, 20), S(20, 20) }  // by Queen
+    { S(0, 0), S( 5, 5), S(30, 30), S(20, 20), S(20, 20), S(20, 20) }  // by Queen
   };
 
   // ThreatByKing[on one/on many] contains bonuses for King attacks on
