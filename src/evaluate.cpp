@@ -157,9 +157,9 @@ namespace {
   // bonuses according to which piece type attacks which one.
   // Attacks on lesser pieces which are pawn-defended are not considered.
   const Score Threat[][PIECE_TYPE_NB] = {
-    { S(0, 0), S(0, 33), S(45, 43), S(46, 47), S(72,107), S(48,118) }, // by Minor
-    { S(0, 0), S(0, 25), S(40, 62), S(40, 59), S( 0, 34), S(35, 48) }, // by Rook
-    { S(0, 0), S(25,35), S(50, 72), S(30, 49), S(-10,24), S(20, 20) }  // by Queen
+    { S(0, 0), S(0, 33), S(45, 43), S(46, 47), S(72,107), S(68,138) }, // by Minor
+    { S(0, 0), S(0, 25), S(40, 62), S(40, 59), S( 0, 34), S(55, 68) }, // by Rook
+    { S(0, 0), S(15,15), S(50, 72), S(20, 20), S(20, 20), S(20, 20) }  // by Queen
   };
 
   // ThreatByKing[on one/on many] contains bonuses for King attacks on
@@ -532,8 +532,8 @@ namespace {
         b = (pos.pieces(Them, QUEEN) | weak) & ei.attackedBy[Us][ROOK];
         while (b)
             score += Threat[Rook ][type_of(pos.piece_on(pop_lsb(&b)))];
-        
-        b = weak & ei.attackedBy[Us][QUEEN];
+
+        b = weak & ei.attackedBy[Us][QUEEN] & ei.attackedBy[Them][ALL_PIECES];
         while (b)
             score += Threat[Queen][type_of(pos.piece_on(pop_lsb(&b)))];
 
