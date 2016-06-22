@@ -183,6 +183,7 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
+  const Score PieceProtection     = S(-10, 0);
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
   const Score ThreatByHangingPawn = S(71, 61);
@@ -286,10 +287,15 @@ namespace {
                    | ei.attackedBy[Them][BISHOP]
                    | ei.attackedBy[Them][ROOK]);
 
+        // Mobility bonus
         int mob = popcount(b & mobilityArea[Us]);
-
         mobility[Us] += MobilityBonus[Pt][mob];
 
+        // Piece over-protection malus
+        score += PieceProtection * popcount(b & (pos.pieces(Us) ^ pos.pieces(Us, PAWN)));
+
+
+        // Now apply special bonuses depending on the type of the piece
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus for outpost squares
