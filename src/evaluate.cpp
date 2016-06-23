@@ -730,6 +730,24 @@ namespace {
                  &&  ei.pi->pawn_span(strongSide) <= 1
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(51) : ScaleFactor(37);
+
+        // Positions with equal material and compact symmetrical pawn chains are drawish
+        else if (    pos.non_pawn_material(WHITE) <= RookValueMg + RookValueMg
+                 &&  pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK)
+                 && !ei.pi->passed_pawns(WHITE)
+                 && !ei.pi->passed_pawns(BLACK)
+                 &&  ei.pi->pawn_asymmetry() <= 1)
+        {
+            int spanStrong = ei.pi->pawn_span(strongSide);
+            int spanWeak = ei.pi->pawn_span(~strongSide);
+
+            if (    spanStrong <= 4
+                && (spanWeak == spanStrong - 1 || spanWeak == spanStrong)
+                &&  pos.count<PAWN>(strongSide) >= spanStrong + 1
+                &&  pos.count<PAWN>(~strongSide) >= spanWeak + 1
+                && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
+                 sf = ScaleFactor(32);
+        }
     }
 
     return sf;
