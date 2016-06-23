@@ -190,7 +190,6 @@ namespace {
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
-  const Score KingTropism         = S( 5,  0);
   const Score Unstoppable         = S( 0, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -378,6 +377,13 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK   : WHITE);
     const Square  Up = (Us == WHITE ? DELTA_N : DELTA_S);
+    const Bitboard OurCamp = Us == WHITE ? Rank4BB | Rank3BB | Rank2BB | Rank1BB
+                                         : Rank5BB | Rank6BB | Rank7BB | Rank8BB;
+    const Bitboard QueenSide = (FileABB | FileBBB | FileCBB | FileDBB) & OurCamp;
+    const Bitboard KingSide  = (FileEBB | FileFBB | FileGBB | FileHBB) & OurCamp;
+    const Bitboard CenterFiles = (FileCBB | FileDBB | FileEBB | FileFBB) & OurCamp;
+    const Bitboard KingFlank[FILE_NB] = {QueenSide, QueenSide, QueenSide, CenterFiles,
+                                         CenterFiles, KingSide, KingSide, KingSide};
 
     Bitboard undefended, b, b1, b2, safe, other;
     int attackUnits;
@@ -467,6 +473,10 @@ namespace {
         score -= KingDanger[std::max(std::min(attackUnits, 399), 0)];
     }
 
+    // Adjust the king value with the enemy piece storm
+    int x = popcount(KingFlank[file_of(ksq)] & ei.attackedBy[Them][ALL_PIECES]);
+    score -= make_score( x * x , 0);
+
     if (DoTrace)
         Trace::add(KING, Us, score);
 
@@ -486,14 +496,6 @@ namespace {
     const Square Right      = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB  : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB  : Rank2BB);
-    const Bitboard QueenSide = FileABB | FileBBB | FileCBB | FileDBB;
-    const Bitboard KingSide  = FileEBB | FileFBB | FileGBB | FileHBB;
-    const Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
-    const Bitboard KingFlank[FILE_NB] = {QueenSide, QueenSide, QueenSide, CenterFiles,
-                                         CenterFiles, KingSide, KingSide, KingSide};
-    const Bitboard OppositeHalf =
-           Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB 
-                       : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB ;
 
     enum { Minor, Rook };
 
@@ -561,13 +563,6 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
-
-    // King tropism
-    b =   KingFlank[file_of(pos.square<KING>(Them))]
-       &  OppositeHalf
-       &  ei.attackedBy[Us][ALL_PIECES];
-
-    score += KingTropism * popcount(b);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
