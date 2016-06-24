@@ -485,6 +485,8 @@ namespace {
     const Square Right      = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB  : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB  : Rank2BB);
+    const Bitboard TheirCamp =(Us == WHITE ? Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                                           : Rank4BB | Rank3BB | Rank2BB | Rank1BB);
 
     enum { Minor, Rook };
 
@@ -552,6 +554,12 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+    
+    // Bonus for strong squares in the enemy camp
+    int x = popcount(    ei.attackedBy[Us][ALL_PIECES] 
+                      & ~ei.attackedBy[Them][ALL_PIECES]
+                      &  TheirCamp);
+    score += make_score(5 * x , 0);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
