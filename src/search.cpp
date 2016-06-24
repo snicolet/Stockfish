@@ -699,6 +699,13 @@ namespace {
         tte->save(posKey, VALUE_NONE, BOUND_NONE, DEPTH_NONE, MOVE_NONE,
                   ss->staticEval, TT.generation());
     }
+    
+    // Heuristic cutNode prediction
+    if (abs(eval) < VALUE_KNOWN_WIN)
+    {
+        cutNode |= (eval >= beta + 200);
+        cutNode &= (eval > alpha - 200);
+    }
 
     if (ss->skipEarlyPruning)
         goto moves_loop;
