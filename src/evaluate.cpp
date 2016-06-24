@@ -732,7 +732,7 @@ namespace {
             sf = ei.pi->pawn_span(strongSide) ? ScaleFactor(51) : ScaleFactor(37);
 
         // Positions with equal material and compact symmetrical pawn chains are drawish
-        else if (    pos.non_pawn_material(WHITE) <= RookValueMg + RookValueMg + BishopValueMg
+        else if (    pos.non_pawn_material(WHITE) <= RookValueMg + RookValueMg
                  &&  pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK)
                  && !ei.pi->passed_pawns(WHITE)
                  && !ei.pi->passed_pawns(BLACK)
