@@ -473,7 +473,7 @@ namespace {
         score -= KingDanger[std::max(std::min(attackUnits, 399), 0)];
     }
 
-    // Adjust the king value with the enemy piece storm
+    // Adjust the king safety value with the enemy strong squares on our king flank
     int x = popcount(   ei.attackedBy[Them][ALL_PIECES]
                      & ~ei.attackedBy[Us][ALL_PIECES]
                      &  KingFlank[file_of(ksq)]);
