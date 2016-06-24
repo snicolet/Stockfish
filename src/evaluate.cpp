@@ -377,11 +377,11 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK   : WHITE);
     const Square  Up = (Us == WHITE ? DELTA_N : DELTA_S);
-    const Bitboard OurCamp = Us == WHITE ? Rank4BB | Rank3BB | Rank2BB | Rank1BB
-                                         : Rank5BB | Rank6BB | Rank7BB | Rank8BB;
-    const Bitboard QueenSide = (FileABB | FileBBB | FileCBB | FileDBB) & OurCamp;
-    const Bitboard KingSide  = (FileEBB | FileFBB | FileGBB | FileHBB) & OurCamp;
-    const Bitboard CenterFiles = (FileCBB | FileDBB | FileEBB | FileFBB) & OurCamp;
+    const Bitboard OurCamp = Us == WHITE ? Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB
+                                         : Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB;
+    const Bitboard KingSide    = OurCamp & (FileEBB | FileFBB | FileGBB | FileHBB);
+    const Bitboard QueenSide   = OurCamp & (FileABB | FileBBB | FileCBB | FileDBB);
+    const Bitboard CenterFiles = OurCamp & (FileCBB | FileDBB | FileEBB | FileFBB);
     const Bitboard KingFlank[FILE_NB] = {QueenSide, QueenSide, QueenSide, CenterFiles,
                                          CenterFiles, KingSide, KingSide, KingSide};
 
@@ -474,8 +474,10 @@ namespace {
     }
 
     // Adjust the king value with the enemy piece storm
-    int x = popcount(KingFlank[file_of(ksq)] & ei.attackedBy[Them][ALL_PIECES]);
-    score -= make_score( x * x , 0);
+    int x = popcount(   ei.attackedBy[Them][ALL_PIECES]
+                     & ~ei.attackedBy[Us][ALL_PIECES]
+                     &  KingFlank[file_of(ksq)]);
+    score -= make_score( 2 * x * x , 0);
 
     if (DoTrace)
         Trace::add(KING, Us, score);
