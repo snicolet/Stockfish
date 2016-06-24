@@ -392,6 +392,13 @@ namespace {
     // King shelter and enemy pawns storm
     Score score = ei.pi->king_safety<Us>(pos, ksq);
 
+    // Adjust our king shelter value with the number of weak squares inside
+    // our king flank, as they may become outpost squares for our opponent
+    int x = popcount(   ei.attackedBy[Them][ALL_PIECES] 
+                     & ~ei.attackedBy[Us][ALL_PIECES]
+                     &  KingFlank[file_of(ksq)]);
+    score -= make_score( 8 * x , 0);
+
     // Main king safety evaluation
     if (ei.kingAttackersCount[Them])
     {
@@ -472,12 +479,6 @@ namespace {
         // array and subtract the score from the evaluation.
         score -= KingDanger[std::max(std::min(attackUnits, 399), 0)];
     }
-
-    // Adjust the king safety value with the enemy strong squares on our king flank
-    int x = popcount(   ei.attackedBy[Them][ALL_PIECES]
-                     & ~ei.attackedBy[Us][ALL_PIECES]
-                     &  KingFlank[file_of(ksq)]);
-    score -= make_score( 2 * x * x , 0);
 
     if (DoTrace)
         Trace::add(KING, Us, score);
