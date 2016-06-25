@@ -253,6 +253,19 @@ enum Rank {
 };
 
 
+enum Optimism_type {
+    OPTIMISM_PIECES,
+    OPTIMISM_PAWNS,
+    OPTIMISM_MOBILITY,
+    OPTIMISM_ASYMMETRY,
+    OPTIMISM_SPACE,
+    OPTIMISM_IMBALANCE,
+    OPTIMISM_THREAT,
+    OPTIMISM_SAFETY,
+    OPTIMISM_NB = 8
+};
+
+
 /// Score enum stores a middlegame and an endgame value in a single integer
 /// (enum). The least significant 16 bits are used to store the endgame value
 /// and the upper 16 bits are used to store the middlegame value.

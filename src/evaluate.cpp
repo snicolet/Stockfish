@@ -68,6 +68,7 @@ namespace {
   }
 
   using namespace Trace;
+  using Eval::Optimism;
 
   // Struct EvalInfo contains various information computed and collected
   // by the evaluation functions.
@@ -748,6 +749,7 @@ Value Eval::evaluate(const Position& pos) {
 
   EvalInfo ei;
   Score score, mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
+  long wo,bo;
 
   // Initialize score by reading the incrementally updated scores included in
   // the position object (material + piece square tables). Score is computed
@@ -757,6 +759,11 @@ Value Eval::evaluate(const Position& pos) {
   // Probe the material hash table
   ei.me = Material::probe(pos);
   score += ei.me->imbalance();
+  
+  wo = (Optimism[OPTIMISM_PIECES][WHITE] * long(pos.non_pawn_material(WHITE))) / 4096;
+  bo = (Optimism[OPTIMISM_PIECES][BLACK] * long(pos.non_pawn_material(BLACK))) / 4096;
+  score += make_score( wo - bo , 0);
+  //dbg_mean_of(abs( wo - bo));
 
   // If we have a specialized evaluation function for the current material
   // configuration, call it and return.
@@ -766,6 +773,11 @@ Value Eval::evaluate(const Position& pos) {
   // Probe the pawn hash table
   ei.pi = Pawns::probe(pos);
   score += ei.pi->pawns_score();
+  
+  wo = Optimism[OPTIMISM_PIECES][WHITE] * pos.count<PAWN>(WHITE);
+  bo = Optimism[OPTIMISM_PIECES][BLACK] * pos.count<PAWN>(BLACK);
+  score += make_score( wo - bo , 0);
+  //dbg_mean_of(abs(wo - bo));
 
   // Initialize attack and king safety bitboards
   ei.attackedBy[WHITE][ALL_PIECES] = ei.attackedBy[BLACK][ALL_PIECES] = 0;
@@ -788,6 +800,11 @@ Value Eval::evaluate(const Position& pos) {
   // Evaluate all pieces but king and pawns
   score += evaluate_pieces<DoTrace>(pos, ei, mobility, mobilityArea);
   score += mobility[WHITE] - mobility[BLACK];
+  
+  wo = (Optimism[OPTIMISM_MOBILITY][WHITE] * long(mg_value(mobility[WHITE]))) / 256;
+  bo = (Optimism[OPTIMISM_MOBILITY][BLACK] * long(mg_value(mobility[BLACK]))) / 256;
+  score += make_score( wo - bo , 0);
+  //dbg_mean_of(abs(wo - bo));
 
   // Evaluate kings after all other pieces because we need full attack
   // information when computing the king safety evaluation.
@@ -901,3 +918,5 @@ void Eval::init() {
       KingDanger[i] = make_score(t * 268 / 7700, 0);
   }
 }
+
+long Eval::Optimism[OPTIMISM_NB][COLOR_NB];
