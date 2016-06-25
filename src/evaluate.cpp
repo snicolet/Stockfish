@@ -325,6 +325,17 @@ namespace {
                             : pos.piece_on(s + d + d) == make_piece(Us, PAWN) ? TrappedBishopA1H1 * 2
                                                                               : TrappedBishopA1H1;
             }
+
+            // Knights are best with compact pawn structures
+            if (Pt == KNIGHT)
+            {
+                if (pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK))
+                {
+                    int x = 6 - (ei.pi->pawn_span(WHITE) - pos.count<PAWN>(WHITE))
+                              - (ei.pi->pawn_span(BLACK) - pos.count<PAWN>(BLACK));
+                    score += make_score(0, 5 * x);
+                }
+            }
         }
 
         if (Pt == ROOK)
