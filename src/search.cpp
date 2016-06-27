@@ -262,8 +262,8 @@ void MainThread::search() {
   DrawValue[ us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
   
-  Optimism[OPTIMISM_PIECES    ][us] = 10;
-  Optimism[OPTIMISM_PAWNS     ][us] = Options["optimism_pawns"];
+  Optimism[OPTIMISM_PIECES    ][us] = Options["optimism_pieces"];
+  Optimism[OPTIMISM_PAWNS     ][us] = 10;
   Optimism[OPTIMISM_MOBILITY  ][us] = Options["optimism_mobility"];
   Optimism[OPTIMISM_ASYMMETRY ][us] = 0;
   Optimism[OPTIMISM_SPACE     ][us] = 0;
