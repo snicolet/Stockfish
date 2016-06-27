@@ -76,6 +76,7 @@ namespace {
     // attackedBy[color][piece type] is a bitboard representing all squares
     // attacked by a given color and piece type (can be also ALL_PIECES).
     Bitboard attackedBy[COLOR_NB][PIECE_TYPE_NB];
+    Bitboard attackedBy2[COLOR_NB];
 
     // kingRing[color] is the zone around the king which is considered
     // by the king safety evaluation. This consists of the squares directly
@@ -272,6 +273,7 @@ namespace {
         if (ei.pinnedPieces[Us] & s)
             b &= LineBB[pos.square<KING>(Us)][s];
 
+        ei.attackedBy2[Us] |= ei.attackedBy[Us][ALL_PIECES] & b;
         ei.attackedBy[Us][ALL_PIECES] |= ei.attackedBy[Us][Pt] |= b;
 
         if (b & ei.kingRing[Them])
@@ -486,6 +488,16 @@ namespace {
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB  : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB  : Rank2BB);
 
+    const Bitboard TheirCamp = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                                            : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
+                                            
+    const Bitboard QueenSide   = TheirCamp & (FileABB | FileBBB | FileCBB | FileDBB);
+    const Bitboard KingSide    = TheirCamp & (FileEBB | FileFBB | FileGBB | FileHBB);
+    const Bitboard CenterFiles = TheirCamp & (FileCBB | FileDBB | FileEBB | FileFBB);
+    
+    const Bitboard KingFlank[FILE_NB] = {QueenSide, QueenSide, QueenSide, CenterFiles,
+                                         CenterFiles, KingSide, KingSide, KingSide};
+                                         
     enum { Minor, Rook };
 
     Bitboard b, weak, defended, safeThreats;
@@ -552,6 +564,13 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    // King tropism
+    b = ei.attackedBy[Us][ALL_PIECES] & KingFlank[file_of(pos.square<KING>(Them))];
+    int x = popcount(b);
+    score += make_score( 7 * x , 0);
+    int y = popcount(b & ei.attackedBy2[Us] & ~ei.attackedBy2[Them]);
+    score += make_score( 5 * y , 0);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
@@ -772,6 +791,12 @@ Value Eval::evaluate(const Position& pos) {
   ei.attackedBy[WHITE][ALL_PIECES] = ei.attackedBy[BLACK][ALL_PIECES] = 0;
   eval_init<WHITE>(pos, ei);
   eval_init<BLACK>(pos, ei);
+
+  // Initialize double attacks
+  ei.attackedBy2[WHITE] = ei.attackedBy[WHITE][PAWN] & ei.attackedBy[WHITE][KING];
+  ei.attackedBy2[BLACK] = ei.attackedBy[BLACK][PAWN] & ei.attackedBy[BLACK][KING];
+  ei.attackedBy2[WHITE] |= ei.pi->pawn_binds(WHITE);
+  ei.attackedBy2[BLACK] |= ei.pi->pawn_binds(BLACK);
 
   // Pawns blocked or on ranks 2 and 3 will be excluded from the mobility area
   Bitboard blockedPawns[] = {
