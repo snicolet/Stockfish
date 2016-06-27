@@ -799,8 +799,8 @@ Value Eval::evaluate(const Position& pos) {
   score += make_score( wo - bo , 0);
   //dbg_mean_of(abs( wo - bo));
 
-  wo = Optimism[OPTIMISM_PIECES][WHITE] * pos.count<PAWN>(WHITE);
-  bo = Optimism[OPTIMISM_PIECES][BLACK] * pos.count<PAWN>(BLACK);
+  wo = Optimism[OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE);
+  bo = Optimism[OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
   score += make_score( wo - bo , 0);
   //dbg_mean_of(abs(wo - bo));
 
