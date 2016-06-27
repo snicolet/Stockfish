@@ -264,7 +264,7 @@ void MainThread::search() {
   
   Optimism[OPTIMISM_PIECES    ][us] = 0;
   Optimism[OPTIMISM_PAWNS     ][us] = 0;
-  Optimism[OPTIMISM_MOBILITY  ][us] = 4;
+  Optimism[OPTIMISM_MOBILITY  ][us] = 0;
   Optimism[OPTIMISM_ASYMMETRY ][us] = 0;
   Optimism[OPTIMISM_SPACE     ][us] = 0;
   Optimism[OPTIMISM_IMBALANCE ][us] = 0;
