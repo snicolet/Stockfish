@@ -791,25 +791,6 @@ Value Eval::evaluate(const Position& pos) {
   // Evaluate all pieces but king and pawns
   score += evaluate_pieces<DoTrace>(pos, ei, mobility, mobilityArea);
   score += mobility[WHITE] - mobility[BLACK];
-  
-  if (  pos.non_pawn_material(WHITE) > QueenValueMg
-     && pos.non_pawn_material(BLACK) > QueenValueMg)
-  {
-  wo = (Optimism[OPTIMISM_PIECES][WHITE] * long(pos.non_pawn_material(WHITE))) / 4096;
-  bo = (Optimism[OPTIMISM_PIECES][BLACK] * long(pos.non_pawn_material(BLACK))) / 4096;
-  score += make_score( wo - bo , 0);
-  //dbg_mean_of(abs( wo - bo));
-  
-  wo = Optimism[OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE);
-  bo = Optimism[OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
-  score += make_score( wo - bo , 0);
-  //dbg_mean_of(abs(wo - bo));
-  
-  wo = (Optimism[OPTIMISM_MOBILITY][WHITE] * long(mg_value(mobility[WHITE]))) / 256;
-  bo = (Optimism[OPTIMISM_MOBILITY][BLACK] * long(mg_value(mobility[BLACK]))) / 256;
-  score += make_score( wo - bo , 0);
-  //dbg_mean_of(abs(wo - bo));
-  }
 
   // Evaluate kings after all other pieces because we need full attack
   // information when computing the king safety evaluation.
@@ -839,6 +820,32 @@ Value Eval::evaluate(const Position& pos) {
   if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
       score +=  evaluate_space<WHITE>(pos, ei)
               - evaluate_space<BLACK>(pos, ei);
+
+  if (  pos.non_pawn_material(WHITE) > QueenValueMg
+     && pos.non_pawn_material(BLACK) > QueenValueMg)
+  {
+  
+	  Value mg = mg_value(score);
+  
+	  if (   (mg <=  20 && Optimism[COLOR_AT_ROOT][WHITE] == WHITE)
+		  || (mg >= -20 && Optimism[COLOR_AT_ROOT][WHITE] == BLACK))
+	  {
+		  wo = (Optimism[OPTIMISM_PIECES][WHITE] * long(pos.non_pawn_material(WHITE))) / 4096;
+		  bo = (Optimism[OPTIMISM_PIECES][BLACK] * long(pos.non_pawn_material(BLACK))) / 4096;
+		  score += make_score( wo - bo , 0);
+		  //dbg_mean_of(abs( wo - bo));
+  
+		  wo = Optimism[OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE);
+		  bo = Optimism[OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
+		  score += make_score( wo - bo , 0);
+		  //dbg_mean_of(abs(wo - bo));
+  
+		  wo = (Optimism[OPTIMISM_MOBILITY][WHITE] * long(mg_value(mobility[WHITE]))) / 256;
+		  bo = (Optimism[OPTIMISM_MOBILITY][BLACK] * long(mg_value(mobility[BLACK]))) / 256;
+		  score += make_score( wo - bo , 0);
+		  //dbg_mean_of(abs(wo - bo));
+	  }
+  }
 
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));

@@ -261,13 +261,15 @@ void MainThread::search() {
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
   DrawValue[ us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
+  
+  Optimism[COLOR_AT_ROOT    ][ us] = rootPos.side_to_move();
+  Optimism[COLOR_AT_ROOT    ][~us] = rootPos.side_to_move();
 
-  Optimism[OPTIMISM_PIECES    ][us] = -5;
-  Optimism[OPTIMISM_PAWNS     ][us] = 5;
-  Optimism[OPTIMISM_MOBILITY  ][us] = -5;
+  Optimism[OPTIMISM_PIECES    ][us] = 5;
+  Optimism[OPTIMISM_PAWNS     ][us] = -2;
+  Optimism[OPTIMISM_MOBILITY  ][us] = 2;
   Optimism[OPTIMISM_ASYMMETRY ][us] = 0;
   Optimism[OPTIMISM_SPACE     ][us] = 0;
-  Optimism[OPTIMISM_IMBALANCE ][us] = 0;
   Optimism[OPTIMISM_THREAT    ][us] = 0;
   Optimism[OPTIMISM_SAFETY    ][us] = 0;
 
@@ -276,7 +278,6 @@ void MainThread::search() {
   Optimism[OPTIMISM_MOBILITY  ][~us] = 0;
   Optimism[OPTIMISM_ASYMMETRY ][~us] = 0;
   Optimism[OPTIMISM_SPACE     ][~us] = 0;
-  Optimism[OPTIMISM_IMBALANCE ][~us] = 0;
   Optimism[OPTIMISM_THREAT    ][~us] = 0;
   Optimism[OPTIMISM_SAFETY    ][~us] = 0;
 
