@@ -76,7 +76,7 @@ void init(OptionsMap& o) {
   o["SyzygyProbeLimit"]      << Option(6, 0, 6);
   
   o["optimism_pieces"]     << Option(0, -100, 100);
-  o["optimism_mobility"]  << Option(0, -100, 100);
+  o["optimism_pawns"]  << Option(0, -100, 100);
 }
 
 
