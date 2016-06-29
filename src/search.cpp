@@ -57,6 +57,7 @@ namespace TB = Tablebases;
 using std::string;
 using Eval::evaluate;
 using Eval::Optimism;
+using Eval::rootColor;
 using namespace Search;
 
 namespace {
@@ -262,20 +263,19 @@ void MainThread::search() {
   DrawValue[ us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
   
-  Optimism[COLOR_AT_ROOT    ][ us] = rootPos.side_to_move();
-  Optimism[COLOR_AT_ROOT    ][~us] = rootPos.side_to_move();
+  rootColor = rootPos.side_to_move();
 
-  Optimism[OPTIMISM_PIECES    ][us] = 5;
-  Optimism[OPTIMISM_PAWNS     ][us] = -2;
-  Optimism[OPTIMISM_MOBILITY  ][us] = 2;
+  Optimism[OPTIMISM_PIECES    ][us] = -4;
+  Optimism[OPTIMISM_PAWNS     ][us] = 2;
+  Optimism[OPTIMISM_MOBILITY  ][us] = 10;
   Optimism[OPTIMISM_ASYMMETRY ][us] = 0;
   Optimism[OPTIMISM_SPACE     ][us] = 0;
   Optimism[OPTIMISM_THREAT    ][us] = 0;
   Optimism[OPTIMISM_SAFETY    ][us] = 0;
 
   Optimism[OPTIMISM_PIECES    ][~us] = 0;
-  Optimism[OPTIMISM_PAWNS     ][~us] = 0;
-  Optimism[OPTIMISM_MOBILITY  ][~us] = 0;
+  Optimism[OPTIMISM_PAWNS     ][~us] = -2;
+  Optimism[OPTIMISM_MOBILITY  ][~us] = 5;
   Optimism[OPTIMISM_ASYMMETRY ][~us] = 0;
   Optimism[OPTIMISM_SPACE     ][~us] = 0;
   Optimism[OPTIMISM_THREAT    ][~us] = 0;

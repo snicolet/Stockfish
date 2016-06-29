@@ -254,7 +254,6 @@ enum Rank {
 
 
 enum Optimism_type {
-    COLOR_AT_ROOT,
     OPTIMISM_PIECES,
     OPTIMISM_PAWNS,
     OPTIMISM_MOBILITY,
@@ -262,6 +261,7 @@ enum Optimism_type {
     OPTIMISM_SPACE,
     OPTIMISM_THREAT,
     OPTIMISM_SAFETY,
+    OPTIMISM_DRAW_VALUE,
     OPTIMISM_NB = 8
 };
 
