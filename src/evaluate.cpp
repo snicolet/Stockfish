@@ -104,6 +104,7 @@ namespace {
     int kingAdjacentZoneAttacksCount[COLOR_NB];
 
     Bitboard pinnedPieces[COLOR_NB];
+    Score mobility[COLOR_NB] = {SCORE_ZERO, SCORE_ZERO};
     Material::Entry* me;
     Pawns::Entry* pi;
   };
@@ -249,8 +250,7 @@ namespace {
   // color and type.
 
   template<bool DoTrace, Color Us = WHITE, PieceType Pt = KNIGHT>
-  Score evaluate_pieces(const Position& pos, EvalInfo& ei, Score* mobility,
-                        const Bitboard* mobilityArea) {
+  Score evaluate_pieces(const Position& pos, EvalInfo& ei, const Bitboard* mobilityArea) {
     Bitboard b, bb;
     Square s;
     Score score = SCORE_ZERO;
@@ -289,7 +289,7 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
 
-        mobility[Us] += MobilityBonus[Pt][mob];
+        ei.mobility[Us] += MobilityBonus[Pt][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -362,13 +362,13 @@ namespace {
         Trace::add(Pt, Us, score);
 
     // Recursively call evaluate_pieces() of next piece type until KING is excluded
-    return score - evaluate_pieces<DoTrace, Them, NextPt>(pos, ei, mobility, mobilityArea);
+    return score - evaluate_pieces<DoTrace, Them, NextPt>(pos, ei, mobilityArea);
   }
 
   template<>
-  Score evaluate_pieces<false, WHITE, KING>(const Position&, EvalInfo&, Score*, const Bitboard*) { return SCORE_ZERO; }
+  Score evaluate_pieces<false, WHITE, KING>(const Position&, EvalInfo&, const Bitboard*) { return SCORE_ZERO; }
   template<>
-  Score evaluate_pieces< true, WHITE, KING>(const Position&, EvalInfo&, Score*, const Bitboard*) { return SCORE_ZERO; }
+  Score evaluate_pieces< true, WHITE, KING>(const Position&, EvalInfo&, const Bitboard*) { return SCORE_ZERO; }
 
 
   // evaluate_king() assigns bonuses and penalties to a king of a given color
@@ -749,7 +749,7 @@ Value Eval::evaluate(const Position& pos) {
   assert(!pos.checkers());
 
   EvalInfo ei;
-  Score score, mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
+  Score score;
   long wo,bo;
 
   // Initialize score by reading the incrementally updated scores included in
@@ -789,8 +789,8 @@ Value Eval::evaluate(const Position& pos) {
   };
 
   // Evaluate all pieces but king and pawns
-  score += evaluate_pieces<DoTrace>(pos, ei, mobility, mobilityArea);
-  score += mobility[WHITE] - mobility[BLACK];
+  score += evaluate_pieces<DoTrace>(pos, ei, mobilityArea);
+  score += ei.mobility[WHITE] - ei.mobility[BLACK];
 
   // Evaluate kings after all other pieces because we need full attack
   // information when computing the king safety evaluation.
@@ -838,8 +838,8 @@ Value Eval::evaluate(const Position& pos) {
 		  bo = Optimism[LOSING][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
 		  score += make_score( wo - bo , 0);
   
-		  wo = (Optimism[LOSING][OPTIMISM_MOBILITY][WHITE] * long(mg_value(mobility[WHITE]))) / 256;
-		  bo = (Optimism[LOSING][OPTIMISM_MOBILITY][BLACK] * long(mg_value(mobility[BLACK]))) / 256;
+		  wo = (Optimism[LOSING][OPTIMISM_MOBILITY][WHITE] * long(mg_value(ei.mobility[WHITE]))) / 256;
+		  bo = (Optimism[LOSING][OPTIMISM_MOBILITY][BLACK] * long(mg_value(ei.mobility[BLACK]))) / 256;
 		  score += make_score( wo - bo , 0);
 	  }
 	  else
@@ -852,8 +852,8 @@ Value Eval::evaluate(const Position& pos) {
 		  bo = Optimism[WINNING][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
 		  score += make_score( wo - bo , 0);
   
-		  wo = (Optimism[WINNING][OPTIMISM_MOBILITY][WHITE] * long(mg_value(mobility[WHITE]))) / 256;
-		  bo = (Optimism[WINNING][OPTIMISM_MOBILITY][BLACK] * long(mg_value(mobility[BLACK]))) / 256;
+		  wo = (Optimism[WINNING][OPTIMISM_MOBILITY][WHITE] * long(mg_value(ei.mobility[WHITE]))) / 256;
+		  bo = (Optimism[WINNING][OPTIMISM_MOBILITY][BLACK] * long(mg_value(ei.mobility[BLACK]))) / 256;
 		  score += make_score( wo - bo , 0);
 	  }
   }
@@ -876,7 +876,7 @@ Value Eval::evaluate(const Position& pos) {
       Trace::add(MATERIAL, pos.psq_score());
       Trace::add(IMBALANCE, ei.me->imbalance());
       Trace::add(PAWN, ei.pi->pawns_score());
-      Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
+      Trace::add(MOBILITY, ei.mobility[WHITE], ei.mobility[BLACK]);
       Trace::add(SPACE, evaluate_space<WHITE>(pos, ei)
                       , evaluate_space<BLACK>(pos, ei));
       Trace::add(TOTAL, score);
