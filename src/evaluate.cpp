@@ -827,21 +827,34 @@ Value Eval::evaluate(const Position& pos) {
   
  	   Value mg = mg_value(score);
     
-  	  if (   (mg <= 0 && rootColor == WHITE)
-  		  || (mg >= 0 && rootColor == BLACK))
+  	  if (   (mg <=  0 && rootColor == WHITE)
+  		  || (mg >=  0 && rootColor == BLACK))
  	  {
-		  wo = (Optimism[OPTIMISM_PIECES][WHITE] * long(pos.non_pawn_material(WHITE))) / 4096;
-		  bo = (Optimism[OPTIMISM_PIECES][BLACK] * long(pos.non_pawn_material(BLACK))) / 4096;
+		  wo = (Optimism[LOSING][OPTIMISM_PIECES][WHITE] * long(pos.non_pawn_material(WHITE))) / 4096;
+		  bo = (Optimism[LOSING][OPTIMISM_PIECES][BLACK] * long(pos.non_pawn_material(BLACK))) / 4096;
 		  score += make_score( wo - bo , 0);
-		  //dbg_mean_of(abs( wo - bo));
   
-		  wo = Optimism[OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE);
-		  bo = Optimism[OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
+		  wo = Optimism[LOSING][OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE);
+		  bo = Optimism[LOSING][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
+		  score += make_score( wo - bo , 0);
+  
+		  wo = (Optimism[LOSING][OPTIMISM_MOBILITY][WHITE] * long(mg_value(mobility[WHITE]))) / 256;
+		  bo = (Optimism[LOSING][OPTIMISM_MOBILITY][BLACK] * long(mg_value(mobility[BLACK]))) / 256;
 		  score += make_score( wo - bo , 0);
 		  //dbg_mean_of(abs(wo - bo));
+	  }
+	  else
+ 	  {
+		  wo = (Optimism[WINNING][OPTIMISM_PIECES][WHITE] * long(pos.non_pawn_material(WHITE))) / 4096;
+		  bo = (Optimism[WINNING][OPTIMISM_PIECES][BLACK] * long(pos.non_pawn_material(BLACK))) / 4096;
+		  score += make_score( wo - bo , 0);
   
-		  wo = (Optimism[OPTIMISM_MOBILITY][WHITE] * long(mg_value(mobility[WHITE]))) / 256;
-		  bo = (Optimism[OPTIMISM_MOBILITY][BLACK] * long(mg_value(mobility[BLACK]))) / 256;
+		  wo = Optimism[WINNING][OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE);
+		  bo = Optimism[WINNING][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
+		  score += make_score( wo - bo , 0);
+  
+		  wo = (Optimism[WINNING][OPTIMISM_MOBILITY][WHITE] * long(mg_value(mobility[WHITE]))) / 256;
+		  bo = (Optimism[WINNING][OPTIMISM_MOBILITY][BLACK] * long(mg_value(mobility[BLACK]))) / 256;
 		  score += make_score( wo - bo , 0);
 		  //dbg_mean_of(abs(wo - bo));
 	  }
@@ -931,5 +944,5 @@ void Eval::init() {
   }
 }
 
-long Eval::Optimism[OPTIMISM_NB][COLOR_NB];
+long Eval::Optimism[ADVANTAGE_NB][OPTIMISM_NB][COLOR_NB];
 Color Eval::rootColor;

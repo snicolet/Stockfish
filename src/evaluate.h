@@ -29,9 +29,10 @@ class Position;
 
 namespace Eval {
 
-const Value Tempo = Value(20);                // Must be visible to search
-extern long Optimism[OPTIMISM_NB][COLOR_NB];  // Must be visible to search
-extern Color rootColor;                       // Must be visible to search
+const Value Tempo = Value(20);                              // Must be visible to search
+extern Color rootColor;                                     // Must be visible to search
+extern long Optimism[ADVANTAGE_NB][OPTIMISM_NB][COLOR_NB];  // Must be visible to search
+
 
 void init();
 std::string trace(const Position& pos);

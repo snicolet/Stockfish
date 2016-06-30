@@ -265,6 +265,9 @@ enum Optimism_type {
     OPTIMISM_NB = 8
 };
 
+enum Advantage {
+  WINNING, LOSING, ADVANTAGE_NB
+};
 
 /// Score enum stores a middlegame and an endgame value in a single integer
 /// (enum). The least significant 16 bits are used to store the endgame value
