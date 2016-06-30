@@ -825,10 +825,10 @@ Value Eval::evaluate(const Position& pos) {
      && pos.non_pawn_material(BLACK) > QueenValueMg)
   {
   
- 	 //  Value mg = mg_value(score);
-//    
-//  	  if (   (mg >= -10 && rootColor == WHITE)
-//  		  || (mg <=  10 && rootColor == BLACK))
+ 	   Value mg = mg_value(score);
+    
+  	  if (   (mg <= 0 && rootColor == WHITE)
+  		  || (mg >= 0 && rootColor == BLACK))
  	  {
 		  wo = (Optimism[OPTIMISM_PIECES][WHITE] * long(pos.non_pawn_material(WHITE))) / 4096;
 		  bo = (Optimism[OPTIMISM_PIECES][BLACK] * long(pos.non_pawn_material(BLACK))) / 4096;
