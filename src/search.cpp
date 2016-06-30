@@ -268,13 +268,13 @@ void MainThread::search() {
   std::memset(Optimism, 0, sizeof(Optimism));
   
   // Distortion values of eval for when we are winning
-  Optimism[WINNING][OPTIMISM_PIECES    ][ us] = 0;
-  Optimism[WINNING][OPTIMISM_PAWNS     ][ us] = 0;
-  Optimism[WINNING][OPTIMISM_MOBILITY  ][ us] = 0;
+  Optimism[WINNING][OPTIMISM_PIECES    ][ us] = 10;
+  Optimism[WINNING][OPTIMISM_PAWNS     ][ us] = -4;
+  Optimism[WINNING][OPTIMISM_MOBILITY  ][ us] = 10;
 
   Optimism[WINNING][OPTIMISM_PIECES    ][~us] = 0;
   Optimism[WINNING][OPTIMISM_PAWNS     ][~us] = 0;
-  Optimism[WINNING][OPTIMISM_MOBILITY  ][~us] = 0;
+  Optimism[WINNING][OPTIMISM_MOBILITY  ][~us] = 10;
 
   // Distortion values of eval for when we are losing
   Optimism[LOSING][OPTIMISM_PIECES    ][ us] = -5;

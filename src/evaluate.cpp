@@ -841,7 +841,6 @@ Value Eval::evaluate(const Position& pos) {
 		  wo = (Optimism[LOSING][OPTIMISM_MOBILITY][WHITE] * long(mg_value(mobility[WHITE]))) / 256;
 		  bo = (Optimism[LOSING][OPTIMISM_MOBILITY][BLACK] * long(mg_value(mobility[BLACK]))) / 256;
 		  score += make_score( wo - bo , 0);
-		  //dbg_mean_of(abs(wo - bo));
 	  }
 	  else
  	  {
@@ -856,7 +855,6 @@ Value Eval::evaluate(const Position& pos) {
 		  wo = (Optimism[WINNING][OPTIMISM_MOBILITY][WHITE] * long(mg_value(mobility[WHITE]))) / 256;
 		  bo = (Optimism[WINNING][OPTIMISM_MOBILITY][BLACK] * long(mg_value(mobility[BLACK]))) / 256;
 		  score += make_score( wo - bo , 0);
-		  //dbg_mean_of(abs(wo - bo));
 	  }
   }
 
