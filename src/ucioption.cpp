@@ -74,6 +74,24 @@ void init(OptionsMap& o) {
   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(6, 0, 6);
+  
+  o["winning_optimism_pieces_us"]    << Option(0, -100, 100);
+  o["winning_optimism_pawns_us"]     << Option(0, -100, 100);
+  o["winning_optimism_mobility_us"]  << Option(0, -100, 100);
+  
+  // o["winning_optimism_pieces_them"]    << Option(0, -100, 100);
+  o["winning_optimism_pawns_them"]     << Option(0, -100, 100);
+  o["winning_optimism_mobility_them"]  << Option(0, -100, 100);
+  
+  o["losing_optimism_pieces_us"]    << Option(0, -100, 100);
+  o["losing_optimism_pawns_us"]     << Option(0, -100, 100);
+  o["losing_optimism_mobility_us"]  << Option(0, -100, 100);
+  
+  // o["losing_optimism_pieces_them"]    << Option(0, -100, 100);
+  o["losing_optimism_pawns_them"]     << Option(0, -100, 100);
+  o["losing_optimism_mobility_them"]  << Option(0, -100, 100);
+  
+ 
 }
 
 
