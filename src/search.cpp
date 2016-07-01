@@ -279,11 +279,11 @@ void MainThread::search() {
   // Distortion values of eval when we are losing
   Optimism[LOSING][OPTIMISM_PIECES    ][ us] =  0;
   Optimism[LOSING][OPTIMISM_PAWNS     ][ us] =  0;
-  Optimism[LOSING][OPTIMISM_MOBILITY  ][ us] = 10;
+  Optimism[LOSING][OPTIMISM_MOBILITY  ][ us] =  0;
 
-  Optimism[LOSING][OPTIMISM_PIECES    ][~us] =  5;
-  Optimism[LOSING][OPTIMISM_PAWNS     ][~us] = -2;
-  Optimism[LOSING][OPTIMISM_MOBILITY  ][~us] =  2;
+  Optimism[LOSING][OPTIMISM_PIECES    ][~us] =  0;
+  Optimism[LOSING][OPTIMISM_PAWNS     ][~us] =  0;
+  Optimism[LOSING][OPTIMISM_MOBILITY  ][~us] =  0;
 
 
   if (rootMoves.empty())
