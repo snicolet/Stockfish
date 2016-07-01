@@ -569,11 +569,10 @@ namespace {
     b = ei.attackedBy[Us][ALL_PIECES] & KingFlank[file_of(pos.square<KING>(Them))];
 
     int x = popcount(b);
-    score += make_score( 4 * x , 0);
+    score += make_score( 3 * x , 3 * x );
 
     int y = popcount(b & ei.attackedBy2[Us] & ~ei.attackedBy2[Them] & ~ei.attackedBy[Them][PAWN]);
-    score += make_score( 4 * y , 0);
-
+    score += make_score( 3 * y , 3 * y );
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
