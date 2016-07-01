@@ -68,6 +68,7 @@ namespace {
   }
 
   using namespace Trace;
+  using Eval::Optimism;
 
   // Struct EvalInfo contains various information computed and collected
   // by the evaluation functions.
@@ -103,6 +104,7 @@ namespace {
     int kingAdjacentZoneAttacksCount[COLOR_NB];
 
     Bitboard pinnedPieces[COLOR_NB];
+    Score mobility[COLOR_NB] = {SCORE_ZERO, SCORE_ZERO};
     Material::Entry* me;
     Pawns::Entry* pi;
   };
@@ -248,8 +250,7 @@ namespace {
   // color and type.
 
   template<bool DoTrace, Color Us = WHITE, PieceType Pt = KNIGHT>
-  Score evaluate_pieces(const Position& pos, EvalInfo& ei, Score* mobility,
-                        const Bitboard* mobilityArea) {
+  Score evaluate_pieces(const Position& pos, EvalInfo& ei, const Bitboard* mobilityArea) {
     Bitboard b, bb;
     Square s;
     Score score = SCORE_ZERO;
@@ -288,7 +289,7 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
 
-        mobility[Us] += MobilityBonus[Pt][mob];
+        ei.mobility[Us] += MobilityBonus[Pt][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -361,13 +362,13 @@ namespace {
         Trace::add(Pt, Us, score);
 
     // Recursively call evaluate_pieces() of next piece type until KING is excluded
-    return score - evaluate_pieces<DoTrace, Them, NextPt>(pos, ei, mobility, mobilityArea);
+    return score - evaluate_pieces<DoTrace, Them, NextPt>(pos, ei, mobilityArea);
   }
 
   template<>
-  Score evaluate_pieces<false, WHITE, KING>(const Position&, EvalInfo&, Score*, const Bitboard*) { return SCORE_ZERO; }
+  Score evaluate_pieces<false, WHITE, KING>(const Position&, EvalInfo&, const Bitboard*) { return SCORE_ZERO; }
   template<>
-  Score evaluate_pieces< true, WHITE, KING>(const Position&, EvalInfo&, Score*, const Bitboard*) { return SCORE_ZERO; }
+  Score evaluate_pieces< true, WHITE, KING>(const Position&, EvalInfo&, const Bitboard*) { return SCORE_ZERO; }
 
 
   // evaluate_king() assigns bonuses and penalties to a king of a given color
@@ -683,21 +684,49 @@ namespace {
   // evaluate_initiative() computes the initiative correction value for the
   // position, i.e., second order bonus/malus based on the known attacking/defending
   // status of the players.
-  Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
+  Score evaluate_initiative(const Position& pos, const EvalInfo& ei, const Score score) {
 
+      int bonus_mg = 0;
+
+      // We construct a midgame bonus by using slightly different weights
+      // for material, number of pawns and mobility depending if Stockfish
+      // is currently winning or losing.
+	  if (  pos.non_pawn_material(WHITE) > QueenValueMg
+		 && pos.non_pawn_material(BLACK) > QueenValueMg)
+	  {
+		  Value mg = mg_value(score);
+
+		  Strategy strategy =   (mg >=  0 && Eval::rootColor == WHITE) ? WINNING
+		                      : (mg <=  0 && Eval::rootColor == BLACK) ? WINNING
+		                      : LOSING;
+
+		  bonus_mg += (Optimism[strategy][OPTIMISM_PIECES][WHITE] * int(pos.non_pawn_material(WHITE))) / 4096
+					- (Optimism[strategy][OPTIMISM_PIECES][BLACK] * int(pos.non_pawn_material(BLACK))) / 4096;
+
+		  bonus_mg += Optimism[strategy][OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE)
+					- Optimism[strategy][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
+
+		  bonus_mg += (Optimism[strategy][OPTIMISM_MOBILITY][WHITE] * int(mg_value(ei.mobility[WHITE]))) / 256
+					- (Optimism[strategy][OPTIMISM_MOBILITY][BLACK] * int(mg_value(ei.mobility[BLACK]))) / 256;
+	  }
+
+    // These terms will be useful for computing the endgame bonus
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    int asymmetry = ei.pi->pawn_asymmetry();
 
-    // Compute the initiative bonus for the attacking side
+    // Compute the initiative bonus for the attacking side in endgame
     int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
 
-    // Now apply the bonus: note that we find the attacking side by extracting
-    // the sign of the endgame value, and that we carefully cap the bonus so
+    // Note that for endgame we find the attacking side by extracting the
+    // sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never be divided by more than two.
-    int value = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg / 2));
+    Value eg = eg_value(score);
+    int bonus_eg = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg / 2));
 
-    return make_score(0, value);
+    // Apply both the midgame and the endgame initiative bonuses
+    return make_score(bonus_mg, bonus_eg);
   }
 
 
@@ -748,7 +777,7 @@ Value Eval::evaluate(const Position& pos) {
   assert(!pos.checkers());
 
   EvalInfo ei;
-  Score score, mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
+  Score score;
 
   // Initialize score by reading the incrementally updated scores included in
   // the position object (material + piece square tables). Score is computed
@@ -787,8 +816,8 @@ Value Eval::evaluate(const Position& pos) {
   };
 
   // Evaluate all pieces but king and pawns
-  score += evaluate_pieces<DoTrace>(pos, ei, mobility, mobilityArea);
-  score += mobility[WHITE] - mobility[BLACK];
+  score += evaluate_pieces<DoTrace>(pos, ei, mobilityArea);
+  score += ei.mobility[WHITE] - ei.mobility[BLACK];
 
   // Evaluate kings after all other pieces because we need full attack
   // information when computing the king safety evaluation.
@@ -820,7 +849,7 @@ Value Eval::evaluate(const Position& pos) {
               - evaluate_space<BLACK>(pos, ei);
 
   // Evaluate position potential for the winning side
-  score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
+  score += evaluate_initiative(pos, ei, score);
 
   // Evaluate scale factor for the winning side
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
@@ -837,7 +866,7 @@ Value Eval::evaluate(const Position& pos) {
       Trace::add(MATERIAL, pos.psq_score());
       Trace::add(IMBALANCE, ei.me->imbalance());
       Trace::add(PAWN, ei.pi->pawns_score());
-      Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
+      Trace::add(MOBILITY, ei.mobility[WHITE], ei.mobility[BLACK]);
       Trace::add(SPACE, evaluate_space<WHITE>(pos, ei)
                       , evaluate_space<BLACK>(pos, ei));
       Trace::add(TOTAL, score);
@@ -902,3 +931,6 @@ void Eval::init() {
       KingDanger[i] = make_score(t * 268 / 7700, 0);
   }
 }
+
+long Eval::Optimism[STRATEGY_NB][OPTIMISM_NB][COLOR_NB];
+Color Eval::rootColor;
