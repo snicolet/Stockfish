@@ -252,7 +252,6 @@ enum Rank {
   RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NB
 };
 
-
 enum Optimism_type {
     OPTIMISM_PIECES,
     OPTIMISM_PAWNS,
@@ -265,8 +264,8 @@ enum Optimism_type {
     OPTIMISM_NB = 8
 };
 
-enum Advantage {
-  WINNING, LOSING, ADVANTAGE_NB
+enum Strategy {
+  WINNING, LOSING, STRATEGY_NB
 };
 
 /// Score enum stores a middlegame and an endgame value in a single integer

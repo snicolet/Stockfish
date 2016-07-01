@@ -262,28 +262,29 @@ void MainThread::search() {
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
   DrawValue[ us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
-  
+
   rootColor = rootPos.side_to_move();
-  
+
   std::memset(Optimism, 0, sizeof(Optimism));
-  
-  // Distortion values of eval for when we are winning
-  Optimism[WINNING][OPTIMISM_PIECES    ][ us] = 10;
-  Optimism[WINNING][OPTIMISM_PAWNS     ][ us] = -4;
-  Optimism[WINNING][OPTIMISM_MOBILITY  ][ us] = 10;
 
-  Optimism[WINNING][OPTIMISM_PIECES    ][~us] = 0;
-  Optimism[WINNING][OPTIMISM_PAWNS     ][~us] = 0;
-  Optimism[WINNING][OPTIMISM_MOBILITY  ][~us] = 10;
+  // Distortion values of eval when we are winning
+  Optimism[WINNING][OPTIMISM_PIECES    ][ us] =  0;
+  Optimism[WINNING][OPTIMISM_PAWNS     ][ us] =  0;
+  Optimism[WINNING][OPTIMISM_MOBILITY  ][ us] =  0;
 
-  // Distortion values of eval for when we are losing
-  Optimism[LOSING][OPTIMISM_PIECES    ][ us] = -5;
-  Optimism[LOSING][OPTIMISM_PAWNS     ][ us] =  5;
-  Optimism[LOSING][OPTIMISM_MOBILITY  ][ us] = -5;
+  Optimism[WINNING][OPTIMISM_PIECES    ][~us] =  0;
+  Optimism[WINNING][OPTIMISM_PAWNS     ][~us] =  0;
+  Optimism[WINNING][OPTIMISM_MOBILITY  ][~us] =  0;
 
-  Optimism[LOSING][OPTIMISM_PIECES    ][~us] = 0;
-  Optimism[LOSING][OPTIMISM_PAWNS     ][~us] = 0;
-  Optimism[LOSING][OPTIMISM_MOBILITY  ][~us] = 0;
+  // Distortion values of eval when we are losing
+  Optimism[LOSING][OPTIMISM_PIECES    ][ us] =  0;
+  Optimism[LOSING][OPTIMISM_PAWNS     ][ us] =  0;
+  Optimism[LOSING][OPTIMISM_MOBILITY  ][ us] = 10;
+
+  Optimism[LOSING][OPTIMISM_PIECES    ][~us] =  5;
+  Optimism[LOSING][OPTIMISM_PAWNS     ][~us] = -2;
+  Optimism[LOSING][OPTIMISM_MOBILITY  ][~us] =  2;
+
 
   if (rootMoves.empty())
   {

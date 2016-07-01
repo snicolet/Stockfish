@@ -684,23 +684,49 @@ namespace {
   // evaluate_initiative() computes the initiative correction value for the
   // position, i.e., second order bonus/malus based on the known attacking/defending
   // status of the players.
-  Score evaluate_initiative(const Position& pos, const EvalInfo& ei, Score score) {
+  Score evaluate_initiative(const Position& pos, const EvalInfo& ei, const Score score) {
 
+      int bonus_mg = 0;
+
+      // We construct a midgame bonus by using slightly different weights
+      // for material, number of pawns and mobility depending if Stockfish
+      // is currently winning or losing.
+	  if (  pos.non_pawn_material(WHITE) > QueenValueMg
+		 && pos.non_pawn_material(BLACK) > QueenValueMg)
+	  {
+		  Value mg = mg_value(score);
+
+		  Strategy strategy =   (mg >=  0 && Eval::rootColor == WHITE) ? WINNING
+		                      : (mg <=  0 && Eval::rootColor == BLACK) ? WINNING
+		                      : LOSING;
+
+		  bonus_mg += (Optimism[strategy][OPTIMISM_PIECES][WHITE] * long(pos.non_pawn_material(WHITE))) / 4096
+					- (Optimism[strategy][OPTIMISM_PIECES][BLACK] * long(pos.non_pawn_material(BLACK))) / 4096;
+
+		  bonus_mg += Optimism[strategy][OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE)
+					- Optimism[strategy][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
+
+		  bonus_mg += (Optimism[strategy][OPTIMISM_MOBILITY][WHITE] * long(mg_value(ei.mobility[WHITE]))) / 256
+					- (Optimism[strategy][OPTIMISM_MOBILITY][BLACK] * long(mg_value(ei.mobility[BLACK]))) / 256;
+	  }
+
+    // These terms will be useful for computing the endgame bonus
     int asymmetry = ei.pi->pawn_asymmetry();
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
 
-    // Compute the initiative bonus for the attacking side
+    // Compute the initiative bonus for the attacking side in endgame
     int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
 
-    // Now apply the bonus: note that we find the attacking side by extracting
-    // the sign of the endgame value, and that we carefully cap the bonus so
+    // Note that for endgame we find the attacking side by extracting the
+    // sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never be divided by more than two.
     Value eg = eg_value(score);
-    int value = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg / 2));
+    int bonus_eg = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg / 2));
 
-    return make_score(0, value);
+    // Apply both the midgame and the endgame initiative bonus
+    return make_score(bonus_mg, bonus_eg);
   }
 
 
@@ -752,7 +778,6 @@ Value Eval::evaluate(const Position& pos) {
 
   EvalInfo ei;
   Score score;
-  long wo,bo;
 
   // Initialize score by reading the incrementally updated scores included in
   // the position object (material + piece square tables). Score is computed
@@ -822,43 +847,6 @@ Value Eval::evaluate(const Position& pos) {
   if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
       score +=  evaluate_space<WHITE>(pos, ei)
               - evaluate_space<BLACK>(pos, ei);
-
-  if (  pos.non_pawn_material(WHITE) > QueenValueMg
-     && pos.non_pawn_material(BLACK) > QueenValueMg)
-  {
-  
- 	   Value mg = mg_value(score);
-    
-  	  if (   (mg <=  0 && rootColor == WHITE)
-  		  || (mg >=  0 && rootColor == BLACK))
- 	  {
-		  wo = (Optimism[LOSING][OPTIMISM_PIECES][WHITE] * long(pos.non_pawn_material(WHITE))) / 4096;
-		  bo = (Optimism[LOSING][OPTIMISM_PIECES][BLACK] * long(pos.non_pawn_material(BLACK))) / 4096;
-		  score += make_score( wo - bo , 0);
-  
-		  wo = Optimism[LOSING][OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE);
-		  bo = Optimism[LOSING][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
-		  score += make_score( wo - bo , 0);
-  
-		  wo = (Optimism[LOSING][OPTIMISM_MOBILITY][WHITE] * long(mg_value(ei.mobility[WHITE]))) / 256;
-		  bo = (Optimism[LOSING][OPTIMISM_MOBILITY][BLACK] * long(mg_value(ei.mobility[BLACK]))) / 256;
-		  score += make_score( wo - bo , 0);
-	  }
-	  else
- 	  {
-		  wo = (Optimism[WINNING][OPTIMISM_PIECES][WHITE] * long(pos.non_pawn_material(WHITE))) / 4096;
-		  bo = (Optimism[WINNING][OPTIMISM_PIECES][BLACK] * long(pos.non_pawn_material(BLACK))) / 4096;
-		  score += make_score( wo - bo , 0);
-  
-		  wo = Optimism[WINNING][OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE);
-		  bo = Optimism[WINNING][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
-		  score += make_score( wo - bo , 0);
-  
-		  wo = (Optimism[WINNING][OPTIMISM_MOBILITY][WHITE] * long(mg_value(ei.mobility[WHITE]))) / 256;
-		  bo = (Optimism[WINNING][OPTIMISM_MOBILITY][BLACK] * long(mg_value(ei.mobility[BLACK]))) / 256;
-		  score += make_score( wo - bo , 0);
-	  }
-  }
 
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei, score);
@@ -944,5 +932,5 @@ void Eval::init() {
   }
 }
 
-long Eval::Optimism[ADVANTAGE_NB][OPTIMISM_NB][COLOR_NB];
+long Eval::Optimism[STRATEGY_NB][OPTIMISM_NB][COLOR_NB];
 Color Eval::rootColor;
