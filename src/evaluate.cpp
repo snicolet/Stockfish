@@ -686,29 +686,29 @@ namespace {
   // status of the players.
   Score evaluate_initiative(const Position& pos, const EvalInfo& ei, const Score score) {
 
-      int bonus_mg = 0;
+    int bonus_mg = 0;
 
-      // We construct a midgame bonus by using slightly different weights
-      // for material, number of pawns and mobility depending if Stockfish
-      // is currently winning or losing.
-	  if (  pos.non_pawn_material(WHITE) > QueenValueMg
-		 && pos.non_pawn_material(BLACK) > QueenValueMg)
-	  {
-		  Value mg = mg_value(score);
+    // We construct a midgame bonus by using slightly different weights
+    // for material, number of pawns and mobility depending if Stockfish
+    // is currently winning or losing.
+    if (  pos.non_pawn_material(WHITE) > QueenValueMg
+       && pos.non_pawn_material(BLACK) > QueenValueMg)
+    {
+        Value mg = mg_value(score);
 
-		  Strategy strategy =   (mg >=  0 && Eval::rootColor == WHITE) ? WINNING
-		                      : (mg <=  0 && Eval::rootColor == BLACK) ? WINNING
-		                      : LOSING;
+        Strategy strategy =   (mg >= 0 && Eval::rootColor == WHITE) ? WINNING
+                            : (mg <= 0 && Eval::rootColor == BLACK) ? WINNING
+                            : LOSING;
 
-		  bonus_mg += (Optimism[strategy][OPTIMISM_PIECES][WHITE] * int(pos.non_pawn_material(WHITE))) / 4096
-                    - (Optimism[strategy][OPTIMISM_PIECES][BLACK] * int(pos.non_pawn_material(BLACK))) / 4096;
+        bonus_mg += (Optimism[strategy][OPTIMISM_PIECES][WHITE] * int(pos.non_pawn_material(WHITE))) / 4096
+                  - (Optimism[strategy][OPTIMISM_PIECES][BLACK] * int(pos.non_pawn_material(BLACK))) / 4096;
 
-		  bonus_mg += Optimism[strategy][OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE)
-                    - Optimism[strategy][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
+        bonus_mg += Optimism[strategy][OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE)
+                  - Optimism[strategy][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
 
-		  bonus_mg += (Optimism[strategy][OPTIMISM_MOBILITY][WHITE] * int(mg_value(ei.mobility[WHITE]))) / 256
-                    - (Optimism[strategy][OPTIMISM_MOBILITY][BLACK] * int(mg_value(ei.mobility[BLACK]))) / 256;
-	  }
+        bonus_mg += (Optimism[strategy][OPTIMISM_MOBILITY][WHITE] * int(mg_value(ei.mobility[WHITE]))) / 256
+                  - (Optimism[strategy][OPTIMISM_MOBILITY][BLACK] * int(mg_value(ei.mobility[BLACK]))) / 256;
+    }
 
     // These terms will be useful for computing the endgame bonus
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
