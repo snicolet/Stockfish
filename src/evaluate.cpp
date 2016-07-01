@@ -701,13 +701,13 @@ namespace {
 		                      : LOSING;
 
 		  bonus_mg += (Optimism[strategy][OPTIMISM_PIECES][WHITE] * int(pos.non_pawn_material(WHITE))) / 4096
-					- (Optimism[strategy][OPTIMISM_PIECES][BLACK] * int(pos.non_pawn_material(BLACK))) / 4096;
+                    - (Optimism[strategy][OPTIMISM_PIECES][BLACK] * int(pos.non_pawn_material(BLACK))) / 4096;
 
 		  bonus_mg += Optimism[strategy][OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE)
-					- Optimism[strategy][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
+                    - Optimism[strategy][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK);
 
 		  bonus_mg += (Optimism[strategy][OPTIMISM_MOBILITY][WHITE] * int(mg_value(ei.mobility[WHITE]))) / 256
-					- (Optimism[strategy][OPTIMISM_MOBILITY][BLACK] * int(mg_value(ei.mobility[BLACK]))) / 256;
+                    - (Optimism[strategy][OPTIMISM_MOBILITY][BLACK] * int(mg_value(ei.mobility[BLACK]))) / 256;
 	  }
 
     // These terms will be useful for computing the endgame bonus
