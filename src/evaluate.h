@@ -29,8 +29,8 @@ class Position;
 
 namespace Eval {
 
-const Value Tempo = Value(20);                              // Must be visible to search
-extern Color rootColor;                                     // Must be visible to search
+const Value Tempo = Value(20);                          // Must be visible to search
+extern Color rootColor;                                 // Must be visible to search
 extern long Optimism[STRATEGY_NB][TERM_NB][COLOR_NB];   // Must be visible to search
 
 void init();

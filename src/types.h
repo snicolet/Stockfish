@@ -254,7 +254,7 @@ enum Rank {
 
 // Evaluation terms, the first 8 entries are for PieceType
 enum Term {
-   MATERIAL = 8, IMBALANCE, MOBILITY, THREAT, PASSED, SPACE, TOTAL, TERM_NB
+  MATERIAL = 8, IMBALANCE, MOBILITY, THREAT, PASSED, SPACE, TOTAL, TERM_NB
 };
 
 enum Strategy {
