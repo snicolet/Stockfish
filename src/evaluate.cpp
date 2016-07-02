@@ -33,10 +33,6 @@ namespace {
 
   namespace Trace {
 
-    enum Term { // The first 8 entries are for PieceType
-      MATERIAL = 8, IMBALANCE, MOBILITY, THREAT, PASSED, SPACE, TOTAL, TERM_NB
-    };
-
     double scores[TERM_NB][COLOR_NB][PHASE_NB];
 
     double to_cp(Value v) { return double(v) / PawnValueEg; }
@@ -700,14 +696,14 @@ namespace {
                             : (mg <= 0 && Eval::rootColor == BLACK) ? WINNING
                             : LOSING;
 
-        bonus_mg += (Optimism[strategy][OPTIMISM_PIECES][WHITE] * int(pos.non_pawn_material(WHITE))) / 8192
-                  - (Optimism[strategy][OPTIMISM_PIECES][BLACK] * int(pos.non_pawn_material(BLACK))) / 8192;
+        bonus_mg += (Optimism[strategy][MATERIAL][WHITE] * int(pos.non_pawn_material(WHITE))) / 8192
+                  - (Optimism[strategy][MATERIAL][BLACK] * int(pos.non_pawn_material(BLACK))) / 8192;
 
-        bonus_mg += Optimism[strategy][OPTIMISM_PAWNS][WHITE] * pos.count<PAWN>(WHITE) / 2
-                  - Optimism[strategy][OPTIMISM_PAWNS][BLACK] * pos.count<PAWN>(BLACK) / 2;
+        bonus_mg += Optimism[strategy][PAWN][WHITE] * pos.count<PAWN>(WHITE) / 2
+                  - Optimism[strategy][PAWN][BLACK] * pos.count<PAWN>(BLACK) / 2;
 
-        bonus_mg += (Optimism[strategy][OPTIMISM_MOBILITY][WHITE] * int(mg_value(ei.mobility[WHITE]))) / 512
-                  - (Optimism[strategy][OPTIMISM_MOBILITY][BLACK] * int(mg_value(ei.mobility[BLACK]))) / 512;
+        bonus_mg += (Optimism[strategy][MOBILITY][WHITE] * int(mg_value(ei.mobility[WHITE]))) / 512
+                  - (Optimism[strategy][MOBILITY][BLACK] * int(mg_value(ei.mobility[BLACK]))) / 512;
     }
 
     // These terms will be useful for computing the endgame bonus
@@ -932,5 +928,5 @@ void Eval::init() {
   }
 }
 
-long Eval::Optimism[STRATEGY_NB][OPTIMISM_NB][COLOR_NB];
+long Eval::Optimism[STRATEGY_NB][TERM_NB][COLOR_NB];
 Color Eval::rootColor;

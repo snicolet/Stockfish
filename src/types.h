@@ -252,16 +252,9 @@ enum Rank {
   RANK_1, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8, RANK_NB
 };
 
-enum Optimism_type {
-    OPTIMISM_PIECES,
-    OPTIMISM_PAWNS,
-    OPTIMISM_MOBILITY,
-    OPTIMISM_ASYMMETRY,
-    OPTIMISM_SPACE,
-    OPTIMISM_THREAT,
-    OPTIMISM_SAFETY,
-    OPTIMISM_DRAW_VALUE,
-    OPTIMISM_NB = 8
+// Evaluation terms, the first 8 entries are for PieceType
+enum Term {
+   MATERIAL = 8, IMBALANCE, MOBILITY, THREAT, PASSED, SPACE, TOTAL, TERM_NB
 };
 
 enum Strategy {
