@@ -696,14 +696,14 @@ namespace {
                             : (mg <= 0 && Eval::rootColor == BLACK) ? WINNING
                             : LOSING;
 
-        bonus_mg += (Optimism[strategy][MATERIAL][WHITE] * int(pos.non_pawn_material(WHITE))) / 8192
-                  - (Optimism[strategy][MATERIAL][BLACK] * int(pos.non_pawn_material(BLACK))) / 8192;
+        bonus_mg += (Optimism[strategy][MATERIAL][WHITE] * int(pos.non_pawn_material(WHITE))) / 4096
+                  - (Optimism[strategy][MATERIAL][BLACK] * int(pos.non_pawn_material(BLACK))) / 4096;
 
-        bonus_mg += Optimism[strategy][PAWN][WHITE] * pos.count<PAWN>(WHITE) / 2
-                  - Optimism[strategy][PAWN][BLACK] * pos.count<PAWN>(BLACK) / 2;
+        bonus_mg += Optimism[strategy][PAWN][WHITE] * pos.count<PAWN>(WHITE)
+                  - Optimism[strategy][PAWN][BLACK] * pos.count<PAWN>(BLACK);
 
-        bonus_mg += (Optimism[strategy][MOBILITY][WHITE] * int(mg_value(ei.mobility[WHITE]))) / 512
-                  - (Optimism[strategy][MOBILITY][BLACK] * int(mg_value(ei.mobility[BLACK]))) / 512;
+        bonus_mg += (Optimism[strategy][MOBILITY][WHITE] * int(mg_value(ei.mobility[WHITE]))) / 256
+                  - (Optimism[strategy][MOBILITY][BLACK] * int(mg_value(ei.mobility[BLACK]))) / 256;
     }
 
     // These terms will be useful for computing the endgame bonus
