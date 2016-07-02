@@ -532,7 +532,10 @@ namespace {
         while (b)
             score += Threat[Rook ][type_of(pos.piece_on(pop_lsb(&b)))];
 
-        score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+        if (pos.side_to_move() == Us)
+            score += Hanging * (2 * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]));
+        else
+            score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
