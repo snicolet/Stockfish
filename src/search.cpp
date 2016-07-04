@@ -56,6 +56,8 @@ namespace TB = Tablebases;
 
 using std::string;
 using Eval::evaluate;
+using Eval::Optimism;
+using Eval::rootColor;
 using namespace Search;
 
 namespace {
@@ -260,6 +262,29 @@ void MainThread::search() {
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
   DrawValue[ us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
+
+  rootColor = rootPos.side_to_move();
+
+  std::memset(Optimism, 0, sizeof(Optimism));
+
+  // Distortion values of eval when we are winning
+  Optimism[WINNING][MATERIAL][ us] =  6;   //  if positive : keep more pieces
+  Optimism[WINNING][PAWN    ][ us] =  2;   //  if positive : keep more pawns
+  Optimism[WINNING][MOBILITY][ us] =  0;   //  if positive : take more care of our mobility
+
+  Optimism[WINNING][MATERIAL][~us] =  0;   // better leave this to zero
+  Optimism[WINNING][PAWN    ][~us] =  1;   // if negative : prevent opponent from exchanging pawns
+  Optimism[WINNING][MOBILITY][~us] =-12;   // if negative : take less care of opponent mobility
+
+  // Distortion values of eval when we are losing
+  Optimism[LOSING][MATERIAL][ us] = -17;   // if positive : keep more pieces
+  Optimism[LOSING][PAWN    ][ us] =   5;   // if positive : keep more pawns
+  Optimism[LOSING][MOBILITY][ us] =  -9;   // if positive : take more care of our mobility
+
+  Optimism[LOSING][MATERIAL][~us] =  0;    // better leave this to zero
+  Optimism[LOSING][PAWN    ][~us] =  5;    // if negative : prevent opponent from exchanging pawns
+  Optimism[LOSING][MOBILITY][~us] = -5;    // if negative : take less care of opponent mobility
+
 
   if (rootMoves.empty())
   {
