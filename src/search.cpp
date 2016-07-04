@@ -268,18 +268,18 @@ void MainThread::search() {
   std::memset(Optimism, 0, sizeof(Optimism));
 
   // Distortion values of eval when we are winning
-  Optimism[WINNING][MATERIAL][ us] =  5;   //  if positive : keep more pieces
-  Optimism[WINNING][PAWN    ][ us] = -2;   //  if positive : keep more pawns
-  Optimism[WINNING][MOBILITY][ us] =  2;   //  if positive : take more care of our mobility
+  Optimism[WINNING][MATERIAL][ us] =  0;   //  if positive : keep more pieces
+  Optimism[WINNING][PAWN    ][ us] =  0;   //  if positive : keep more pawns
+  Optimism[WINNING][MOBILITY][ us] =  0;   //  if positive : take more care of our mobility
 
   Optimism[WINNING][MATERIAL][~us] =  0;   // better leave this to zero
   Optimism[WINNING][PAWN    ][~us] =  0;   // if negative : prevent opponent from exchanging pawns
   Optimism[WINNING][MOBILITY][~us] =  0;   // if negative : take less care of opponent mobility
 
   // Distortion values of eval when we are losing
-  Optimism[LOSING][MATERIAL][ us] =   0;   // if positive : keep more pieces
-  Optimism[LOSING][PAWN    ][ us] =   0;   // if positive : keep more pawns
-  Optimism[LOSING][MOBILITY][ us] =   0;   // if positive : take more care of our mobility
+  Optimism[LOSING][MATERIAL][ us] =   5;   // if positive : keep more pieces
+  Optimism[LOSING][PAWN    ][ us] =  -2;   // if positive : keep more pawns
+  Optimism[LOSING][MOBILITY][ us] =   2;   // if positive : take more care of our mobility
 
   Optimism[LOSING][MATERIAL][~us] =   0;   // better leave this to zero
   Optimism[LOSING][PAWN    ][~us] =   0;   // if negative : prevent opponent from exchanging pawns
