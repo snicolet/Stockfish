@@ -18,6 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <cstring>   // For std::memset
@@ -725,6 +726,35 @@ namespace {
             else
                 sf = ScaleFactor(46);
         }
+        
+        // Positions with equal material and compact symmetrical pawn chains are drawish
+        else if (    pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK)
+                 && !ei.pi->passed_pawns(WHITE)
+                 && !ei.pi->passed_pawns(BLACK)
+                 &&  ei.pi->pawn_asymmetry() <= 1)
+        {
+            int spanStrong = ei.pi->pawn_span(strongSide);
+            int spanWeak = ei.pi->pawn_span(~strongSide);
+            
+            std::cerr << pos << std::endl;
+            std::cerr << Bitboards::pretty(pos.pieces(PAWN)) << std::endl;
+            std::cerr << "Basic drawish condition found" << std::endl;
+
+            if (    spanStrong <= 4
+                && (spanWeak == spanStrong - 1 || spanWeak == spanStrong)
+                &&  pos.count<PAWN>(strongSide) >= spanStrong + 1
+                &&  pos.count<PAWN>(~strongSide) >= spanWeak + 1
+                && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
+            {
+                 std::cerr << "Complete drawish condition found " << std::endl;
+                 
+                 int material = pos.non_pawn_material(WHITE) / PawnValueMg;
+                 sf = ScaleFactor(25 + material);
+                 
+                 std::cerr << "==> Scale factor will be adjusted to " << int(sf) << " !!\n" << std::endl;
+            }
+        }
+        
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
         else if (    abs(eg) <= BishopValueEg
