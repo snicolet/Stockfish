@@ -729,6 +729,31 @@ namespace {
             else
                 sf = ScaleFactor(46);
         }
+        
+        // Positions with equal material and compact symmetrical pawn chains are drawish
+        else if (    pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK)
+                 && !ei.pi->passed_pawns(WHITE)
+                 && !ei.pi->passed_pawns(BLACK)
+                 &&  ei.pi->pawn_asymmetry() <= 1)
+        {
+            int spanStrong = ei.pi->pawn_span(strongSide);
+            int spanWeak = ei.pi->pawn_span(~strongSide);
+
+            if (    spanStrong <= 4
+                && (spanWeak == spanStrong - 1 || spanWeak == spanStrong)
+                &&  pos.count<PAWN>(strongSide) >= spanStrong + 1
+                &&  pos.count<PAWN>(~strongSide) >= spanWeak + 1
+                &&  (  !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide))
+                     | (pos.pieces(strongSide,PAWN) & ei.attackedBy[~strongSide][KING]))
+                && !(   pos.pieces(~strongSide) 
+                     &  ei.attackedBy[strongSide][ALL_PIECES]
+                     & ~ei.attackedBy[~strongSide][ALL_PIECES]))
+            {
+                 int material = pos.non_pawn_material(WHITE) / PawnValueMg;
+                 sf = ScaleFactor(10 + 2 * material);
+            }
+        }
+
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
         else if (    abs(eg) <= BishopValueEg
