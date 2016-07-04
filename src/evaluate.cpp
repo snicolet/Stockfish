@@ -490,6 +490,16 @@ namespace {
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB  : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB  : Rank2BB);
 
+    const Bitboard TheirCamp = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                                            : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
+                                            
+    const Bitboard QueenSide   = TheirCamp & (FileABB | FileBBB | FileCBB | FileDBB);
+    const Bitboard KingSide    = TheirCamp & (FileEBB | FileFBB | FileGBB | FileHBB);
+    const Bitboard CenterFiles = TheirCamp & (FileCBB | FileDBB | FileEBB | FileFBB);
+    
+    const Bitboard KingFlank[FILE_NB] = {QueenSide, QueenSide, QueenSide, CenterFiles,
+                                         CenterFiles, KingSide, KingSide, KingSide};
+                                         
     enum { Minor, Rook };
 
     Bitboard b, weak, defended, safeThreats;
@@ -556,6 +566,15 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    // King tropism
+    b = ei.attackedBy[Us][ALL_PIECES] & KingFlank[file_of(pos.square<KING>(Them))];
+
+    int x = popcount(b);
+    score += make_score( 5 * x , 0 );
+
+    //int y = popcount(b & ei.attackedBy2[Us] & ~ei.attackedBy2[Them] & ~ei.attackedBy[Them][PAWN]);
+    //score += make_score( 3 * y , 3 * y );
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
