@@ -744,13 +744,10 @@ namespace {
                 &&  pos.count<PAWN>(strongSide) >= spanStrong + 1
                 &&  pos.count<PAWN>(~strongSide) >= spanWeak + 1
                 &&  (  !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide))
-                     | (pos.pieces(strongSide,PAWN) & ei.attackedBy[~strongSide][KING]))
-                && !(   pos.pieces(~strongSide) 
-                     &  ei.attackedBy[strongSide][ALL_PIECES]
-                     & ~ei.attackedBy[~strongSide][ALL_PIECES]))
+                     | (pos.pieces(strongSide,PAWN) & ei.attackedBy[~strongSide][KING])))
             {
                  int material = pos.non_pawn_material(WHITE) / PawnValueMg;
-                 sf = ScaleFactor(10 + 2 * material);
+                 sf = ScaleFactor(13 + 2 * material);
             }
         }
 
