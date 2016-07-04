@@ -277,8 +277,8 @@ void MainThread::search() {
   Optimism[WINNING][MOBILITY][~us] =  0;   // if negative : take less care of opponent mobility
 
   // Distortion values of eval when we are losing
-  Optimism[LOSING][MATERIAL][ us] =   5;   // if positive : keep more pieces
-  Optimism[LOSING][PAWN    ][ us] =  -2;   // if positive : keep more pawns
+  Optimism[LOSING][MATERIAL][ us] =   0;   // if positive : keep more pieces
+  Optimism[LOSING][PAWN    ][ us] =   0;   // if positive : keep more pawns
   Optimism[LOSING][MOBILITY][ us] =   0;   // if positive : take more care of our mobility
 
   Optimism[LOSING][MATERIAL][~us] =   0;   // better leave this to zero
