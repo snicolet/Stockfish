@@ -573,8 +573,8 @@ namespace {
     int x = popcount(b);
     score += make_score( 5 * x , 0 );
 
-    //int y = popcount(b & ei.attackedBy2[Us] & ~ei.attackedBy2[Them] & ~ei.attackedBy[Them][PAWN]);
-    //score += make_score( 3 * y , 3 * y );
+    int y = popcount(b & ei.attackedBy2[Us] & ~ei.attackedBy2[Them] & ~ei.attackedBy[Them][PAWN]);
+    score += make_score( 10 * y , 0 );
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
