@@ -573,7 +573,7 @@ namespace {
     int x = popcount(b);
     score += make_score( 7 * x , 0 );
 
-    int y = popcount(b & ei.attackedBy2[Us] & ~ei.attackedBy2[Them] & ~ei.attackedBy[Them][PAWN]);
+    int y = popcount(b & ei.attackedBy2[Us] & ~ei.attackedBy[Them][PAWN]);
     score += make_score( 7 * y , 0 );
 
     if (DoTrace)
