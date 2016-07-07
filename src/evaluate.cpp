@@ -567,14 +567,18 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
 
-    // King tropism
+
+    // King tropism: firstly, find squares that we attack in the ennemy king flank
     b = ei.attackedBy[Us][ALL_PIECES] & KingFlank[file_of(pos.square<KING>(Them))];
 
-    int x = popcount(b);
-    score += make_score( 7 * x , 0 );
+    // Secondly, add to the bitboard the squares that we attack twice in b
+    // but are not protected by a enemy pawn (note the trick to shift away  
+    // the previous attack bits to the empty part of the bitboard)
+    b =  (b & ei.attackedBy2[Us] & ~ei.attackedBy[Them][PAWN])
+       | (Us == WHITE ? b >> 4 : b << 4);
 
-    int y = popcount(b & ei.attackedBy2[Us] & ~ei.attackedBy[Them][PAWN]);
-    score += make_score( 7 * y , 0 );
+    // Count all these squares with a single popcount
+    score += make_score( 7 * popcount(b) , 0 );
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
