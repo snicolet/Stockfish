@@ -571,9 +571,9 @@ namespace {
     // King tropism: firstly, find squares that we attack in the ennemy king flank
     b = ei.attackedBy[Us][ALL_PIECES] & KingFlank[file_of(pos.square<KING>(Them))];
 
-    // Secondly, add to the bitboard the squares that we attack twice in b
-    // but are not protected by a enemy pawn (note the trick to shift away  
-    // the previous attack bits to the empty part of the bitboard)
+    // Secondly, add to the bitboard the squares that we attack twice in that flank
+    // but are not protected by a enemy pawn (note the trick to shift away the
+    // previous attack bits to the empty part of the bitboard).
     b =  (b & ei.attackedBy2[Us] & ~ei.attackedBy[Them][PAWN])
        | (Us == WHITE ? b >> 4 : b << 4);
 
