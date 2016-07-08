@@ -730,12 +730,8 @@ namespace {
 
 
   // hanging_pieces() returns the hanging pieces of the given color
-  template<Color Us> inline
-  Bitboard hanging_pieces(const Position& pos, const EvalInfo& ei) {
-    const Color Them = (Us == WHITE ? BLACK : WHITE);
-    return    pos.pieces(Us) 
-           &  ei.attackedBy[Them][ALL_PIECES] 
-           & ~ei.attackedBy[Us][ALL_PIECES];
+  inline Bitboard hanging_pieces(Color c, const Position& pos, const EvalInfo& ei) {
+    return pos.pieces(c) & ei.attackedBy[~c][ALL_PIECES] & ~ei.attackedBy[c][ALL_PIECES];
   }
 
   // evaluate_scale_factor() computes the scale factor for the winning side
@@ -784,8 +780,7 @@ namespace {
                 &&  pos.count<PAWN>(~strongSide) >= spanWeak + 1
                 && (  !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide))
                     | (pos.pieces(strongSide, PAWN) & ei.attackedBy[~strongSide][KING]))
-                && !hanging_pieces<WHITE>(pos, ei)
-                && !hanging_pieces<BLACK>(pos, ei))
+                && !hanging_pieces( pos.side_to_move(), pos, ei))
             {
                  int material = pos.non_pawn_material(WHITE) / PawnValueMg;
                  sf = ScaleFactor(25 + material);
