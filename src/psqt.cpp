@@ -30,6 +30,9 @@ namespace PSQT {
 
 #define S(mg, eg) make_score(mg, eg)
 
+const int A = 0;  // mg
+const int B = 3;  // eg
+
 // Bonus[PieceType][Square / 2] contains Piece-Square scores. For each piece
 // type on a given square a (middlegame, endgame) score pair is assigned. Table
 // is defined for files A..D and white side: it is symmetric for black side and
@@ -40,10 +43,10 @@ const Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
    { S(  0, 0), S(  0, 0), S(  0, 0), S( 0, 0) },
    { S(-16, 7), S(  1,-4), S(  7, 8), S( 3,-2) },
    { S(-23,-4), S( -7,-5), S( 19, 5), S(24, 4) },
-   { S(-22, 3), S(-14, 3), S( 20,-8), S(35,-3) },
-   { S(-11, 8), S(  0, 9), S(  3, 7), S(21,-6) },
-   { S(-11, 8), S(-13,-5), S( -6, 2), S(-2, 4) },
-   { S( -9, 3), S( 15,-9), S( -8, 1), S(-4,18) }
+   { S(-22 + A, 3 + B), S(-14 + A, 3 + B), S( 20 + A,-8 + B), S(35 + A,-3 + B) },
+   { S(-11 + A, 8 + B), S(  0 + A, 9 + B), S(  3 + A, 7 + B), S(21 + A,-6 + B) },
+   { S(-11 + A, 8 + B), S(-13 + A,-5 + B), S( -6 + A, 2 + B), S(-2 + A, 4 + B) },
+   { S( -9 + A, 3 + B), S( 15 + A,-9 + B), S( -8 + A, 1 + B), S(-4 + A,18 + B) }
   },
   { // Knight
    { S(-143, -97), S(-96,-82), S(-80,-46), S(-73,-14) },
