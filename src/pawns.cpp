@@ -59,25 +59,6 @@ namespace {
     { V(101), V( 7), V(54), V(78), V(77), V( 92), V(101) },
     { V( 80), V(11), V(44), V(68), V(87), V( 90), V(119) } };
 
-  // Danger of enemy pawns moving toward our king by [type][distance from edge][rank]
-  const Value StormDanger[][4][RANK_NB] = {
-    { { V( 0),  V(  67), V( 134), V(38), V(32) },
-      { V( 0),  V(  57), V( 139), V(37), V(22) },
-      { V( 0),  V(  43), V( 115), V(43), V(27) },
-      { V( 0),  V(  68), V( 124), V(57), V(32) } },
-    { { V(20),  V(  43), V( 100), V(56), V(20) },
-      { V(23),  V(  20), V(  98), V(40), V(15) },
-      { V(23),  V(  39), V( 103), V(36), V(18) },
-      { V(28),  V(  19), V( 108), V(42), V(26) } },
-    { { V( 0),  V(   0), V(  75), V(14), V( 2) },
-      { V( 0),  V(   0), V( 150), V(30), V( 4) },
-      { V( 0),  V(   0), V( 160), V(22), V( 5) },
-      { V( 0),  V(   0), V( 166), V(24), V(13) } },
-    { { V( 0),  V(-283), V(-281), V(57), V(31) },
-      { V( 0),  V(  58), V( 141), V(39), V(18) },
-      { V( 0),  V(  65), V( 142), V(48), V(32) },
-      { V( 0),  V(  60), V( 126), V(51), V(19) } } };
-
   // Max bonus for king safety. Corresponds to start position with all the pawns
   // in front of the king and no enemy pawn on the horizon.
   const Value MaxSafetyBonus = V(258);
@@ -228,13 +209,8 @@ Entry* probe(const Position& pos) {
 template<Color Us>
 Value Entry::shelter_storm(const Position& pos, Square ksq) {
 
-  const Color Them = (Us == WHITE ? BLACK : WHITE);
-
-  enum { NoFriendlyPawn, Unblocked, BlockedByPawn, BlockedByKing };
-
   Bitboard b = pos.pieces(PAWN) & (in_front_bb(Us, rank_of(ksq)) | rank_bb(ksq));
   Bitboard ourPawns = b & pos.pieces(Us);
-  Bitboard theirPawns = b & pos.pieces(Them);
   Value safety = MaxSafetyBonus;
   File center = std::max(FILE_B, std::min(FILE_G, file_of(ksq)));
 
@@ -243,15 +219,7 @@ Value Entry::shelter_storm(const Position& pos, Square ksq) {
       b = ourPawns & file_bb(f);
       Rank rkUs = b ? relative_rank(Us, backmost_sq(Us, b)) : RANK_1;
 
-      b  = theirPawns & file_bb(f);
-      Rank rkThem = b ? relative_rank(Us, frontmost_sq(Them, b)) : RANK_1;
-
-      safety -=  ShelterWeakness[std::min(f, FILE_H - f)][rkUs]
-               + StormDanger
-                 [f == file_of(ksq) && rkThem == relative_rank(Us, ksq) + 1 ? BlockedByKing  :
-                  rkUs   == RANK_1                                          ? NoFriendlyPawn :
-                  rkThem == rkUs + 1                                        ? BlockedByPawn  : Unblocked]
-                 [std::min(f, FILE_H - f)][rkThem];
+      safety -=  ShelterWeakness[std::min(f, FILE_H - f)][rkUs];
   }
 
   return safety;
