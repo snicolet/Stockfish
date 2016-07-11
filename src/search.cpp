@@ -56,6 +56,7 @@ namespace TB = Tablebases;
 
 using std::string;
 using Eval::evaluate;
+using Eval::DrawValue;
 using namespace Search;
 
 namespace {
@@ -156,7 +157,6 @@ namespace {
   const size_t HalfDensitySize = std::extent<decltype(HalfDensity)>::value;
 
   EasyMoveManager EasyMove;
-  Value DrawValue[COLOR_NB];
   CounterMoveHistoryStats CounterMoveHistory;
 
   template <NodeType NT>
@@ -258,6 +258,10 @@ void MainThread::search() {
   Time.init(Limits, us, rootPos.game_ply());
 
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
+  
+  // WARNING: only for testing the patch...
+  contempt = 20;
+  
   DrawValue[ us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
 

@@ -221,6 +221,7 @@ namespace {
   const int BishopCheck       = 48;
   const int KnightCheck       = 78;
 
+  using Eval::DrawValue;
 
   // eval_init() initializes king and attack bitboards for a given color
   // adding pawn attacks. To be done at the beginning of the evaluation.
@@ -724,7 +725,8 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never be divided by more than two.
-    int value = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg / 2));
+    int draw = DrawValue[WHITE];
+    int value = ((eg > draw) - (eg < draw)) * std::max(initiative, -abs(eg / 2));
 
     return make_score(0, value);
   }
@@ -933,3 +935,5 @@ void Eval::init() {
       KingDanger[i] = make_score(t * 268 / 7700, 0);
   }
 }
+
+Value Eval::DrawValue[COLOR_NB];
