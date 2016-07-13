@@ -580,8 +580,7 @@ namespace {
        | (Us == WHITE ? b >> 4 : b << 4);
 
     // Count all these squares with a single popcount
-    int x = popcount(b);
-    score += make_score(7 * x , 0);
+    score += make_score(7 * popcount(b) , 0);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
