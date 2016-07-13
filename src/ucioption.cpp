@@ -58,7 +58,7 @@ void init(OptionsMap& o) {
   const int MaxHashMB = Is64Bit ? 1024 * 1024 : 2048;
 
   o["Debug Log File"]        << Option("", on_logger);
-  o["Contempt"]              << Option(8, -100, 100);
+  o["Contempt"]              << Option(1, -100, 100);
   o["Threads"]               << Option(1, 1, 128, on_threads);
   o["Hash"]                  << Option(16, 1, MaxHashMB, on_hash_size);
   o["Clear Hash"]            << Option(on_clear_hash);
