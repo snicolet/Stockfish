@@ -576,11 +576,11 @@ namespace {
     // Secondly, add to the bitboard the squares which we attack twice in that flank
     // (except empty squares which are protected by a pawn). Note the trick to shift
     // away the previous attack bits to the empty part of the bitboard.
-    b =  (b & ei.attackedBy2[Us] & (~ei.attackedBy[Them][PAWN] | pos.pieces(Us)))
+    b =  (b & ei.attackedBy2[Us] & (~ei.attackedBy[Them][PAWN] | pos.pieces()))
        | (Us == WHITE ? b >> 4 : b << 4);
 
     // Count all these squares with a single popcount
-    score += make_score(7 * popcount(b), 0);
+    score += make_score(6 * popcount(b), 0);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
