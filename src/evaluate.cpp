@@ -680,32 +680,52 @@ namespace {
   Score evaluate_space(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
+    const Bitboard MiddleRows = Rank4BB | Rank5BB;
     const Bitboard SpaceMask =
       Us == WHITE ? (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank2BB | Rank3BB | Rank4BB)
                   : (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB);
 
-    // Find the safe squares for our pieces inside the area defined by
-    // SpaceMask. A square is unsafe if it is attacked by an enemy
-    // pawn, or if it is undefended and attacked by an enemy piece.
-    Bitboard safe =   SpaceMask
-                   & ~pos.pieces(Us, PAWN)
-                   & ~ei.attackedBy[Them][PAWN]
-                   & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
+    int bonus, bonus_mg = 0, bonus_eg = 0;
 
-    // Find all squares which are at most three squares behind some friendly pawn
-    Bitboard behind = pos.pieces(Us, PAWN);
-    behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
-    behind |= (Us == WHITE ? behind >> 16 : behind << 16);
+    // Space evaluation during the opening
+    if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
+    {
+        // Find the safe squares for our pieces inside the area defined by
+        // SpaceMask. A square is unsafe if it is attacked by an enemy
+        // pawn, or if it is undefended and attacked by an enemy piece.
+        Bitboard safe =   SpaceMask
+                       & ~pos.pieces(Us, PAWN)
+                       & ~ei.attackedBy[Them][PAWN]
+                       & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
 
-    // Since SpaceMask[Us] is fully on our half of the board...
-    assert(unsigned(safe >> (Us == WHITE ? 32 : 0)) == 0);
+        // Find all squares which are at most three squares behind some friendly pawn
+        Bitboard behind = pos.pieces(Us, PAWN);
+        behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
+        behind |= (Us == WHITE ? behind >> 16 : behind << 16);
 
-    // ...count safe + (behind & safe) with a single popcount
-    int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
-    int weight =  pos.count<KNIGHT>(Us) + pos.count<BISHOP>(Us)
+        // Since SpaceMask[Us] is fully on our half of the board...
+        assert(unsigned(safe >> (Us == WHITE ? 32 : 0)) == 0);
+
+        // ...count safe + (behind & safe) with a single popcount
+        bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
+        int weight =  pos.count<KNIGHT>(Us) + pos.count<BISHOP>(Us)
                 + pos.count<KNIGHT>(Them) + pos.count<BISHOP>(Them);
 
-    return make_score(bonus * weight * weight * 2 / 11, 0);
+        bonus_mg += bonus * weight * weight * 2 / 11;
+    }
+
+    // Middle rows control
+    Bitboard controlled =   MiddleRows
+                         & ~pos.pieces()
+                         &  ei.attackedBy[Us][ALL_PIECES];
+    controlled =  (controlled & ei.attackedBy2[Us] & ~ei.attackedBy[Them][PAWN])
+                | (Us == WHITE ? controlled >> 16 : controlled << 16);
+    bonus = 2 * popcount(controlled);
+
+    bonus_mg += bonus;
+    bonus_eg += bonus;
+
+    return make_score(bonus_mg, bonus_eg);
   }
 
 
@@ -845,10 +865,9 @@ Value Eval::evaluate(const Position& pos) {
           score -= Unstoppable * int(relative_rank(BLACK, frontmost_sq(BLACK, b)));
   }
 
-  // Evaluate space for both sides, only during opening
-  if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
-      score +=  evaluate_space<WHITE>(pos, ei)
-              - evaluate_space<BLACK>(pos, ei);
+  // Evaluate space for both sides
+  score +=  evaluate_space<WHITE>(pos, ei)
+          - evaluate_space<BLACK>(pos, ei);
 
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
