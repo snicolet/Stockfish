@@ -680,7 +680,8 @@ namespace {
   Score evaluate_space(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
-    const Bitboard MiddleRows = Rank4BB | Rank5BB;
+    const Bitboard MiddleRows =
+      Us == WHITE ? (Rank4BB | Rank5BB | Rank6BB) : (Rank5BB | Rank4BB | Rank3BB);
     const Bitboard SpaceMask =
       Us == WHITE ? (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank2BB | Rank3BB | Rank4BB)
                   : (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB);
@@ -716,10 +717,9 @@ namespace {
 
     // Middle rows control
     Bitboard controlled =   MiddleRows
-                         & ~pos.pieces()
                          &  ei.attackedBy[Us][ALL_PIECES];
     controlled =  (controlled & ei.attackedBy2[Us] & ~ei.attackedBy[Them][PAWN])
-                | (Us == WHITE ? controlled >> 16 : controlled << 16);
+                | (Us == WHITE ? controlled >> 24 : controlled << 24);
     bonus = 2 * popcount(controlled);
 
     bonus_mg += bonus;
