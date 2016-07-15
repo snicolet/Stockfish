@@ -193,9 +193,11 @@ namespace {
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
-  const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
+
+  // Hanging[side to move] contains a bonus for each enemy hanging piece
+  const Score Hanging[2] = { S(43, 23) , S(65, 50) };
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -551,7 +553,7 @@ namespace {
 
         b =  weak & ~ei.attackedBy[Them][ALL_PIECES];
         b |= weak &  ei.attackedBy2[Us] & ~ei.attackedBy2[Them];
-        score += Hanging * popcount(b);
+        score += Hanging[pos.side_to_move() ^ Them] * popcount(b);
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
