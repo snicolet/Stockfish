@@ -681,9 +681,13 @@ namespace {
   Score evaluate_space(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
+    const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
     const Bitboard SpaceMask =
       Us == WHITE ? (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank2BB | Rank3BB | Rank4BB)
                   : (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB);
+    const Bitboard AdvancedRows =
+         (FileBBB | FileCBB | FileDBB | FileEBB | FileFBB | FileGBB)
+       & (Us == WHITE ? (Rank5BB | Rank6BB) : (Rank4BB | Rank3BB));
 
     // Find the safe squares for our pieces inside the area defined by
     // SpaceMask. A square is unsafe if it is attacked by an enemy
@@ -705,6 +709,10 @@ namespace {
     int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
     int weight =  pos.count<KNIGHT>(Us) + pos.count<BISHOP>(Us)
                 + pos.count<KNIGHT>(Them) + pos.count<BISHOP>(Them);
+
+    // Space advantage due to advanced blocked pawns
+    Bitboard b = AdvancedRows & pos.pieces(Us, PAWN) & shift_bb<Down>(pos.pieces(Them, PAWN));
+    bonus += !!b + more_than_one(b);
 
     return make_score(bonus * weight * weight * 2 / 11, 0);
   }
