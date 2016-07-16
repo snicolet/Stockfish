@@ -712,7 +712,7 @@ namespace {
 
     // Space advantage due to advanced blocked pawns
     Bitboard b = AdvancedRows & pos.pieces(Us, PAWN) & shift_bb<Down>(pos.pieces(Them, PAWN));
-    bonus += !!b + more_than_one(b);
+    bonus += 2 * (!!b + more_than_one(b));
 
     return make_score(bonus * weight * weight * 2 / 11, 0);
   }
