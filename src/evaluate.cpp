@@ -721,7 +721,7 @@ namespace {
     Bitboard b = AdvancedRows & pos.pieces(Us, PAWN) & shift_bb<Down>(pos.pieces(Them, PAWN));
     int pieces = pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us);
     if (b && (pieces >= 6))
-        bonus_mg += 6 * (pieces + 2 * more_than_one(b));
+        bonus_mg += 4 * (pieces + 4 * more_than_one(b));
 
     return make_score(bonus_mg, bonus_eg);
   }
