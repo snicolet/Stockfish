@@ -712,9 +712,10 @@ namespace {
 
     // Space advantage due to advanced blocked pawns
     Bitboard b = AdvancedRows & pos.pieces(Us, PAWN) & shift_bb<Down>(pos.pieces(Them, PAWN));
-    bonus += 2 * (!!b + more_than_one(b));
+    bonus += 2 * !!b + more_than_one(b);
+    weight += !!b ;
 
-    return make_score(bonus * weight * weight * 2 / 11, 0);
+    return make_score(bonus * weight * weight * 2 / 13, 0);
   }
 
 
@@ -855,7 +856,7 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Evaluate space for both sides, only during opening
-  if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
+  if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 8222)
       score +=  evaluate_space<WHITE>(pos, ei)
               - evaluate_space<BLACK>(pos, ei);
 
