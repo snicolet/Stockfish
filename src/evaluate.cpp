@@ -577,8 +577,9 @@ namespace {
     // Secondly, add to the bitboard the squares which we attack twice in that flank
     // but which are not protected by a enemy pawn. Note the trick to shift away the
     // previous attack bits to the empty part of the bitboard.
-    b =  (b & ei.attackedBy2[Us] & ~ei.attackedBy[Them][PAWN])
-       | (Us == WHITE ? b >> 4 : b << 4);
+    b =  (Us == WHITE ? b >> 4 : b << 4)
+       | (b & ei.attackedBy2[Us] 
+            & (~ei.attackedBy[Them][PAWN] | pos.pieces(Us) | pos.pieces(Them, PAWN)));
 
     // Count all these squares with a single popcount
     score += make_score(7 * popcount(b), 0);
