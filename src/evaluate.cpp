@@ -315,8 +315,8 @@ namespace {
                 && (pos.pieces(PAWN) & (s + pawn_push(Us))))
                 score += MinorBehindPawn;
 
-            // Double edge bishop: penalty for our pawns (but bonus for enemy targets)
-            // on the same color square as the bishop.
+            // Double edged bishop: penalty for our pawns on the same color squares
+            // as the bishop, but bonus for enemy targets on these squares.
             if (Pt == BISHOP)
             {
                 Bitboard sameColorSquares = (DarkSquares & s) ? DarkSquares : ~DarkSquares;
