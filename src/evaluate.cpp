@@ -185,7 +185,6 @@ namespace {
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
-  const Score BadBishop           = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
   const Score SafeCheck           = S(20, 20);
@@ -196,6 +195,9 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
+
+  // Penalty for each pawn of a bad or double edged bishop [bad/double edged]
+  const Score BadBishop[2] = { S(9, 13), S(4, 8) };
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -262,8 +264,12 @@ namespace {
 
     const PieceType NextPt = (Us == WHITE ? Pt : PieceType(Pt + 1));
     const Color Them = (Us == WHITE ? BLACK : WHITE);
+    const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
+    const Bitboard AdvancedRows =
+         (FileBBB | FileCBB | FileDBB | FileEBB | FileFBB | FileGBB)
+       & (Us == WHITE ? (Rank5BB | Rank6BB) : (Rank4BB | Rank3BB));
     const Square* pl = pos.squares<Pt>(Us);
 
     ei.attackedBy[Us][Pt] = 0;
@@ -315,13 +321,19 @@ namespace {
                 && (pos.pieces(PAWN) & (s + pawn_push(Us))))
                 score += MinorBehindPawn;
 
-            // Double edged bishop: penalty for our pawns on the same color squares
-            // as the bishop, but bonus for enemy targets on these squares.
+            // Bad bishop: penalty for our pawns on the same color squares as the bishop.
+            // If there is a space advantage (blocked pawns on 5th or 6th rows), then the
+            // bishop is a double edged bishop and we use a reduced penalty.
             if (Pt == BISHOP)
             {
                 Bitboard sameColorSquares = (DarkSquares & s) ? DarkSquares : ~DarkSquares;
-                score -= BadBishop * (  ei.pi->pawns_on_same_color_squares(Us, s)
-                                      - popcount(pos.pieces(Them) & sameColorSquares) / 2);
+                
+                bb =   sameColorSquares
+                     & AdvancedRows
+                     & pos.pieces(Us, PAWN) 
+                     & shift_bb<Down>(pos.pieces(Them, PAWN));
+                    
+                score -= BadBishop[!!b] * ei.pi->pawns_on_same_color_squares(Us, s);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
