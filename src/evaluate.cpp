@@ -121,7 +121,7 @@ namespace {
     {}, {},
     { S(-75,-76), S(-56,-54), S(- 9,-26), S( -2,-10), S(  6,  5), S( 15, 11), // Knights
       S( 22, 26), S( 30, 28), S( 36, 29) },
-    { S(-48,-58), S(-21,-19), S( 16, -2), S( 26, 12), S( 37, 22), S( 51, 42), // Bishops
+    { S(-52,-62), S(-21,-19), S( 16, -2), S( 26, 12), S( 37, 22), S( 51, 42), // Bishops
       S( 54, 54), S( 63, 58), S( 65, 63), S( 71, 70), S( 79, 74), S( 81, 86),
       S( 92, 90), S( 97, 94) },
     { S(-56,-78), S(-25,-18), S(-11, 26), S( -5, 55), S( -4, 70), S( -1, 81), // Rooks
@@ -197,7 +197,7 @@ namespace {
   const Score Unstoppable         = S( 0, 20);
 
   // Penalty for each pawn of a bad or double edged bishop [bad/double edged]
-  const Score BadBishop[2] = { S(9, 13), S(4, 8) };
+  const Score BadBishop[2] = { S(7, 11), S(4, 8) };
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -264,7 +264,6 @@ namespace {
 
     const PieceType NextPt = (Us == WHITE ? Pt : PieceType(Pt + 1));
     const Color Them = (Us == WHITE ? BLACK : WHITE);
-    const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
     const Bitboard AdvancedRows =
@@ -327,13 +326,8 @@ namespace {
             if (Pt == BISHOP)
             {
                 Bitboard sameColorSquares = (DarkSquares & s) ? DarkSquares : ~DarkSquares;
-                
-                bb =   sameColorSquares
-                     & AdvancedRows
-                     & pos.pieces(Us, PAWN) 
-                     & shift_bb<Down>(pos.pieces(Them, PAWN));
-                    
-                score -= BadBishop[!!b] * ei.pi->pawns_on_same_color_squares(Us, s);
+                bb = sameColorSquares & AdvancedRows & ei.pi->blocked_pawns(Us);
+                score -= BadBishop[!!bb] * ei.pi->pawns_on_same_color_squares(Us, s);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -400,7 +394,6 @@ namespace {
   Score evaluate_king(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK   : WHITE);
-    const Square  Up = (Us == WHITE ? DELTA_N : DELTA_S);
 
     Bitboard undefended, b, b1, b2, safe, other;
     int attackUnits;
@@ -445,8 +438,7 @@ namespace {
 
         // ... and some other potential checks, only requiring the square to be
         // safe from pawn-attacks, and not being occupied by a blocked pawn.
-        other = ~(   ei.attackedBy[Us][PAWN]
-                  | (pos.pieces(Them, PAWN) & shift_bb<Up>(pos.pieces(PAWN))));
+        other = ~(ei.attackedBy[Us][PAWN] | ei.pi->blocked_pawns(Them));
 
         b1 = pos.attacks_from<ROOK  >(ksq);
         b2 = pos.attacks_from<BISHOP>(ksq);
@@ -864,7 +856,7 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Evaluate space for both sides, only during opening
-  if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
+  if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 10222)
       score +=  evaluate_space<WHITE>(pos, ei)
               - evaluate_space<BLACK>(pos, ei);
 
