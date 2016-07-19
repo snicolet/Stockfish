@@ -674,24 +674,25 @@ namespace {
   // evaluate_space() computes the space evaluation for a given side. The
   // space evaluation is a simple bonus based on the number of safe squares
   // available for minor pieces on the central four files on ranks 2--4. Safe
-  // squares one, two or three squares behind a friendly pawn are counted
-  // twice. Finally, the space bonus is multiplied by a weight. The aim is to
-  // improve play on game opening.
+  // squares one, two or three squares behind a friendly pawn are counted twice.
   template<Color Us>
   Score evaluate_space(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
+    const Square Down = (Us == WHITE ? DELTA_S : DELTA_N);
     const Bitboard SpaceMask =
       Us == WHITE ? (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank2BB | Rank3BB | Rank4BB)
                   : (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB);
+    const Bitboard AdvancedRows =
+         (FileBBB | FileCBB | FileDBB | FileEBB | FileFBB | FileGBB)
+       & (Us == WHITE ? (Rank5BB | Rank6BB) : (Rank4BB | Rank3BB));
 
     // Find the safe squares for our pieces inside the area defined by
-    // SpaceMask. A square is unsafe if it is attacked by an enemy
-    // pawn, or if it is undefended and attacked by an enemy piece.
+    // SpaceMask. A square is safe if we attack it more than it is defended.
     Bitboard safe =   SpaceMask
                    & ~pos.pieces(Us, PAWN)
-                   & ~ei.attackedBy[Them][PAWN]
-                   & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
+                   & (  (ei.attackedBy2[Us] & ~ei.attackedBy[Them][PAWN])
+                      | (ei.attackedBy[Us][ALL_PIECES] & ~ei.attackedBy[Them][ALL_PIECES]));
 
     // Find all squares which are at most three squares behind some friendly pawn
     Bitboard behind = pos.pieces(Us, PAWN);
@@ -706,7 +707,17 @@ namespace {
     int weight =  pos.count<KNIGHT>(Us) + pos.count<BISHOP>(Us)
                 + pos.count<KNIGHT>(Them) + pos.count<BISHOP>(Them);
 
-    return make_score(bonus * weight * weight * 2 / 11, 0);
+    // Space advantage due to advanced blocked pawns
+    Bitboard b = AdvancedRows & pos.pieces(Us, PAWN) & shift_bb<Down>(pos.pieces(Them, PAWN));
+    bonus +=  2 * (!!b + more_than_one(b));
+    
+    // Bonus will be smaller if many majors on the board
+    int majorscale = 7 + 2 * pos.count<QUEEN>(Them) + pos.count<ROOK>(Them);
+    
+    // Apply weight
+    bonus = bonus * weight * weight * 2 / majorscale;
+    
+    return make_score(bonus , 2 * bonus);
   }
 
 
@@ -846,8 +857,8 @@ Value Eval::evaluate(const Position& pos) {
           score -= Unstoppable * int(relative_rank(BLACK, frontmost_sq(BLACK, b)));
   }
 
-  // Evaluate space for both sides, only during opening
-  if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
+  // Evaluate space for both sides
+  if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 4 * (KnightValueMg + BishopValueMg))
       score +=  evaluate_space<WHITE>(pos, ei)
               - evaluate_space<BLACK>(pos, ei);
 
