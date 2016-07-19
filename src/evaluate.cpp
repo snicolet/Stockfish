@@ -183,7 +183,7 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
 
-  // Penalty for each pawn of a "bad" bishop [mobile bishop/immobile bishop]
+  // Penalty for each pawn of a "bad" bishop [mobile bishop/buried bishop]
   const Score BadBishop[2] = { S(4, 8), S(13, 7) };
 
   // Assorted bonuses and penalties used by evaluation
