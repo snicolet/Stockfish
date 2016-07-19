@@ -710,13 +710,13 @@ namespace {
     // Space advantage due to advanced blocked pawns
     Bitboard b = AdvancedRows & pos.pieces(Us, PAWN) & shift_bb<Down>(pos.pieces(Them, PAWN));
     bonus +=  2 * (!!b + more_than_one(b));
-    
+
     // Bonus will be smaller if many majors on the board
     int majorscale = 7 + 2 * pos.count<QUEEN>(Them) + pos.count<ROOK>(Them);
-    
+
     // Apply weight
     bonus = bonus * weight * weight * 2 / majorscale;
-    
+
     return make_score(bonus , 2 * bonus);
   }
 
