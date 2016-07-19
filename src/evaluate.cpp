@@ -121,7 +121,7 @@ namespace {
     {}, {},
     { S(-75,-76), S(-56,-54), S(- 9,-26), S( -2,-10), S(  6,  5), S( 15, 11), // Knights
       S( 22, 26), S( 30, 28), S( 36, 29) },
-    { S(-52,-62), S(-21,-19), S( 16, -2), S( 26, 12), S( 37, 22), S( 51, 42), // Bishops
+    { S(-48,-58), S(-21,-19), S( 16, -2), S( 26, 12), S( 37, 22), S( 51, 42), // Bishops
       S( 54, 54), S( 63, 58), S( 65, 63), S( 71, 70), S( 79, 74), S( 81, 86),
       S( 92, 90), S( 97, 94) },
     { S(-56,-78), S(-25,-18), S(-11, 26), S( -5, 55), S( -4, 70), S( -1, 81), // Rooks
@@ -182,6 +182,9 @@ namespace {
     S(  9, 10), S( 2, 10), S( 1, -8), S(-20,-12),
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
+  
+  // Penalty for each pawn of a "bad" bishop [mobile bishop/immobile bishop]
+  const Score BadBishop[2] = { S(4, 8), S(13, 7) };
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
@@ -195,9 +198,6 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
-
-  // Penalty for each pawn of a bad or double edged bishop [bad/double edged]
-  const Score BadBishop[2] = { S(7, 11), S(4, 8) };
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -266,9 +266,6 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
-    const Bitboard AdvancedRows =
-         (FileBBB | FileCBB | FileDBB | FileEBB | FileFBB | FileGBB)
-       & (Us == WHITE ? (Rank5BB | Rank6BB) : (Rank4BB | Rank3BB));
     const Square* pl = pos.squares<Pt>(Us);
 
     ei.attackedBy[Us][Pt] = 0;
@@ -321,13 +318,9 @@ namespace {
                 score += MinorBehindPawn;
 
             // Bad bishop: penalty for our pawns on the same color squares as the bishop.
-            // If there is a space advantage (blocked pawns on 5th or 6th rows), then the
-            // bishop is a double edged bishop and we use a reduced penalty.
             if (Pt == BISHOP)
             {
-                Bitboard sameColorSquares = (DarkSquares & s) ? DarkSquares : ~DarkSquares;
-                bb = sameColorSquares & AdvancedRows & ei.pi->blocked_pawns(Us);
-                score -= BadBishop[!!bb] * ei.pi->pawns_on_same_color_squares(Us, s);
+                score -= BadBishop[!mob] * ei.pi->pawns_on_same_color_squares(Us, s);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
