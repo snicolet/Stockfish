@@ -182,7 +182,7 @@ namespace {
     S(  9, 10), S( 2, 10), S( 1, -8), S(-20,-12),
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
-  
+
   // Penalty for each pawn of a "bad" bishop [mobile bishop/immobile bishop]
   const Score BadBishop[2] = { S(4, 8), S(13, 7) };
 
@@ -317,11 +317,9 @@ namespace {
                 && (pos.pieces(PAWN) & (s + pawn_push(Us))))
                 score += MinorBehindPawn;
 
-            // Bad bishop: penalty for our pawns on the same color squares as the bishop.
+            // Bad bishop: penalty for our pawns on the same color squares as the bishop
             if (Pt == BISHOP)
-            {
                 score -= BadBishop[!mob] * ei.pi->pawns_on_same_color_squares(Us, s);
-            }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
