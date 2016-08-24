@@ -298,7 +298,7 @@ void Position::set_check_info(CheckInfo* ci) const {
 
   ci->blockers[WHITE] = slider_blockers(pieces(BLACK), square<KING>(WHITE));
   ci->blockers[BLACK] = slider_blockers(pieces(WHITE), square<KING>(BLACK));
-  
+
   ci->pinned       = pieces(sideToMove) & ci->blockers[sideToMove];
   ci->dcCandidates = pieces(sideToMove) & ci->blockers[~sideToMove];
 

@@ -412,7 +412,8 @@ namespace {
         attackUnits =  std::min(72, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
                      +  9 * ei.kingAdjacentZoneAttacksCount[Them]
                      + 21 * popcount(undefended)
-                     + 12 * (popcount(b) + !!ei.pinnedPieces[Us])
+                     + 12 * popcount(b)
+                     + 10 * !!pos.check_info().blockers[Us]
                      - 64 * !pos.count<QUEEN>(Them)
                      - mg_value(score) / 8;
 
