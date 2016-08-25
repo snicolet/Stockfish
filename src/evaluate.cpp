@@ -195,6 +195,7 @@ namespace {
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
+  const Score WeakPawns           = S(60,  0);
   const Score Unstoppable         = S( 0, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -570,6 +571,11 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    // Weak pawns
+    b = ei.pi->weak_pawns(Them) & ei.attackedBy2[Us];
+    if (b)
+    	score += WeakPawns * popcount(b);
 
     // King tropism: firstly, find squares that we attack in the enemy king flank
     b = ei.attackedBy[Us][ALL_PIECES] & KingFlank[Us][file_of(pos.square<KING>(Them))];
