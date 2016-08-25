@@ -575,9 +575,11 @@ namespace {
     b = ei.attackedBy[Us][ALL_PIECES] & KingFlank[Us][file_of(pos.square<KING>(Them))];
 
     // Secondly, add to the bitboard the squares which we attack twice in that flank
-    // but which are not protected by a enemy pawn. Note the trick to shift away the
-    // previous attack bits to the empty part of the bitboard.
+    // but which are not protected by a enemy pawn, and the squares on which we can 
+    // safely push a protectred pawn. Note the trick to shift away the previous attack
+    // bits to the empty part of the bitboard.
     b =  (b & ei.attackedBy2[Us] & ~ei.attackedBy[Them][PAWN])
+       | (b & ~pos.pieces() & shift_bb<Up>(pos.pieces(Us, PAWN)) & ~ei.attackedBy2[Them])
        | (Us == WHITE ? b >> 4 : b << 4);
 
     // Count all these squares with a single popcount
