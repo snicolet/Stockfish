@@ -68,6 +68,7 @@ namespace {
   }
 
   using namespace Trace;
+  using Eval::rootColor;
 
   // Struct EvalInfo contains various information computed and collected
   // by the evaluation functions.
@@ -874,6 +875,10 @@ Value Eval::evaluate(const Position& pos) {
                       , evaluate_space<BLACK>(pos, ei));
       Trace::add(TOTAL, score);
   }
+  
+  // Risk asymmetry
+  if ((v > 0 && rootColor == BLACK) || (v < 0 && rootColor == WHITE))
+      v = v / 2;
 
   return (pos.side_to_move() == WHITE ? v : -v) + Eval::Tempo; // Side to move point of view
 }
@@ -934,3 +939,5 @@ void Eval::init() {
       KingDanger[i] = make_score(t * 268 / 7700, 0);
   }
 }
+
+Color Eval::rootColor;

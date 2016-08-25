@@ -56,6 +56,7 @@ namespace TB = Tablebases;
 
 using std::string;
 using Eval::evaluate;
+using Eval::rootColor;
 using namespace Search;
 
 namespace {
@@ -262,6 +263,8 @@ void MainThread::search() {
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
   DrawValue[ us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
+  
+  rootColor = rootPos.side_to_move();
 
   if (rootMoves.empty())
   {
