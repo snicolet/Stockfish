@@ -162,6 +162,9 @@ namespace {
         else if (!supported)
             score -= Unsupported[more_than_one(neighbours & pawnAttacksBB[s])];
 
+        if (supported)
+            score += PSQT::psq[WHITE][PAWN][s] / 8;
+
         if (connected)
             score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
 
