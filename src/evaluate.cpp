@@ -573,7 +573,7 @@ namespace {
 
     // Weak pawns
     int x = popcount(ei.pi->weak_pawns(Them) & ei.attackedBy2[Us] & ei.attackedBy2[Them]);
-    score += make_score( 0 , 30 * x );
+    score += make_score( 30 * x , 0 );
 
     // King tropism: firstly, find squares that we attack in the enemy king flank
     b = ei.attackedBy[Us][ALL_PIECES] & KingFlank[Us][file_of(pos.square<KING>(Them))];
