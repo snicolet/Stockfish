@@ -165,9 +165,11 @@ namespace {
         else if (!supported)
             score -= Unsupported[more_than_one(neighbours & pawnAttacksBB[s])];
 
+        if (supported)
+            score += Centrality[s];
+
         if (connected)
-            score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)]
-                   + Centrality[s];
+            score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
 
         if (doubled)
             score -= Doubled;
