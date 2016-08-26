@@ -18,6 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
 #include <algorithm>
 #include <cassert>
 
@@ -43,6 +44,9 @@ namespace {
 
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
+  
+  // Centrality bonus for strong pawns
+  Score Centrality[SQUARE_NB];
 
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
@@ -92,6 +96,7 @@ namespace {
     const Square Up    = (Us == WHITE ? DELTA_N  : DELTA_S);
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
+    const Score  PawnValue = make_score(PieceValue[MG][PAWN], PieceValue[EG][PAWN]);
 
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Square s;
@@ -162,8 +167,12 @@ namespace {
         else if (!supported)
             score -= Unsupported[more_than_one(neighbours & pawnAttacksBB[s])];
 
+        //if (supported)
+         //   score += (PSQT::psq[WHITE][PAWN][s] - PawnValue) / 4;
+            
+            
         if (supported)
-            score += PSQT::psq[WHITE][PAWN][s] / 8;
+            score += Centrality[s];
 
         if (connected)
             score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
@@ -198,6 +207,17 @@ void init()
       int v = (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
       v += (apex ? v / 2 : 0);
       Connected[opposed][phalanx][apex][r] = make_score(v, v * 5 / 8);
+  }
+  
+  for (Square s = SQ_A1; s <= SQ_H8; ++s)
+  {
+      int d = distance(s, SQ_D4) + distance(s, SQ_D5) + distance(s, SQ_E4) + distance(s, SQ_E5);
+      d = 24 - 2 * d;
+      Centrality[s] = make_score(d , -d);
+      
+      std::cerr << d << "  ";
+      if (file_of(s) == FILE_H)
+         std::cerr << std::endl;
   }
 }
 
