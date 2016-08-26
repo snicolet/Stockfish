@@ -96,7 +96,7 @@ namespace {
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
-    Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
+    Bitboard b, neighbours, stoppers, doubled, supported, phalanx, supporting;
     Square s;
     bool opposed, lever, connected, backward;
     Score score = SCORE_ZERO;
@@ -129,6 +129,7 @@ namespace {
         lever      = theirPawns & pawnAttacksBB[s];
         doubled    = ourPawns   & (s + Up);
         neighbours = ourPawns   & adjacent_files_bb(f);
+        supporting = neighbours & pawnAttacksBB[s];
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
         connected  = supported | phalanx;
@@ -163,9 +164,9 @@ namespace {
             score -= Backward[opposed];
 
         else if (!supported)
-            score -= Unsupported[more_than_one(neighbours & pawnAttacksBB[s])];
+            score -= Unsupported[more_than_one(supporting)];
 
-        if (supported)
+        if (connected | supporting)
             score += Centrality[s];
 
         if (connected)
