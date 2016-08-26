@@ -171,7 +171,7 @@ namespace {
          //   score += (PSQT::psq[WHITE][PAWN][s] - PawnValue) / 4;
             
             
-        if (connected | supporting)
+        if (connected)
             score += Centrality[s];
 
         if (connected)
