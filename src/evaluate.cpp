@@ -431,8 +431,8 @@ namespace {
         other = ~(   ei.attackedBy[Us][PAWN]
                   | (pos.pieces(Them, PAWN) & shift_bb<Up>(pos.pieces(PAWN))));
 
-        b1 = pos.attacks_from<ROOK  >(ksq);
-        b2 = pos.attacks_from<BISHOP>(ksq);
+        b1 = pos.check_squares(ROOK, Us);
+        b2 = pos.check_squares(BISHOP, Us);
 
         // Enemy queen safe checks
         if ((b1 | b2) & ei.attackedBy[Them][QUEEN] & safe)
@@ -459,7 +459,7 @@ namespace {
             score -= OtherCheck;
 
         // Enemy knights safe and other checks
-        b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
+        b = pos.check_squares(KNIGHT, Us) & ei.attackedBy[Them][KNIGHT];
         if (b & safe)
             attackUnits += KnightCheck, score -= SafeCheck;
 

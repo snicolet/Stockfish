@@ -64,7 +64,7 @@ struct StateInfo {
   PieceType  capturedType;
   StateInfo* previous;
   Bitboard   blockersForKing[COLOR_NB];
-  Bitboard   checkSquares[PIECE_TYPE_NB];
+  Bitboard   checkSquaresForKing[COLOR_NB][PIECE_TYPE_NB];
 };
 
 // In a std::deque references to elements are unaffected upon resizing
@@ -113,7 +113,7 @@ public:
   Bitboard checkers() const;
   Bitboard discovered_check_candidates() const;
   Bitboard pinned_pieces(Color c) const;
-  Bitboard check_squares(PieceType pt) const;
+  Bitboard check_squares(PieceType pt, Color c) const;
 
   // Attacks to/from a given square
   Bitboard attackers_to(Square s) const;
@@ -309,8 +309,8 @@ inline Bitboard Position::pinned_pieces(Color c) const {
   return st->blockersForKing[c] & pieces(c);
 }
 
-inline Bitboard Position::check_squares(PieceType pt) const {
-  return st->checkSquares[pt];
+inline Bitboard Position::check_squares(PieceType pt, Color c) const {
+  return st->checkSquaresForKing[c][pt];
 }
 
 inline bool Position::pawn_passed(Color c, Square s) const {

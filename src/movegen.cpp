@@ -33,14 +33,19 @@ namespace {
     if (pos.castling_impeded(Cr) || !pos.can_castle(Cr))
         return moveList;
 
+    assert(!pos.checkers());
+
     // After castling, the rook and king final positions are the same in Chess960
     // as they would be in standard chess.
     Square kfrom = pos.square<KING>(us);
     Square rfrom = pos.castling_rook_square(Cr);
-    Square kto = relative_square(us, KingSide ? SQ_G1 : SQ_C1);
-    Bitboard enemies = pos.pieces(~us);
+    Move m = make<CASTLING>(kfrom, rfrom);
 
-    assert(!pos.checkers());
+    if (Checks && !pos.gives_check(m))
+        return moveList;
+
+    Square kto = relative_square(us, KingSide ? SQ_G1 : SQ_C1);    
+    Bitboard enemies = pos.pieces(~us);
 
     const Square K = Chess960 ? kto > kfrom ? DELTA_W : DELTA_E
                               : KingSide    ? DELTA_W : DELTA_E;
@@ -53,11 +58,6 @@ namespace {
     // when moving the castling rook we do not discover some hidden checker.
     // For instance an enemy queen in SQ_A1 when castling rook is in SQ_B1.
     if (Chess960 && (attacks_bb<ROOK>(kto, pos.pieces() ^ rfrom) & pos.pieces(~us, ROOK, QUEEN)))
-        return moveList;
-
-    Move m = make<CASTLING>(kfrom, rfrom);
-
-    if (Checks && !pos.gives_check(m))
         return moveList;
 
     *moveList++ = m;
@@ -128,8 +128,8 @@ namespace {
         {
             Square ksq = pos.square<KING>(Them);
 
-            b1 &= pos.attacks_from<PAWN>(ksq, Them);
-            b2 &= pos.attacks_from<PAWN>(ksq, Them);
+            b1 &= pos.check_squares(PAWN, Them);
+            b2 &= pos.check_squares(PAWN, Them);
 
             // Add pawn pushes which give discovered check. This is possible only
             // if the pawn is not on the same file as the enemy king, because we
@@ -238,7 +238,7 @@ namespace {
         if (Checks)
         {
             if (    (Pt == BISHOP || Pt == ROOK || Pt == QUEEN)
-                && !(PseudoAttacks[Pt][from] & target & pos.check_squares(Pt)))
+                && !(PseudoAttacks[Pt][from] & target & pos.check_squares(Pt, ~pos.side_to_move())))
                 continue;
 
             if (pos.discovered_check_candidates() & from)
@@ -248,7 +248,7 @@ namespace {
         Bitboard b = pos.attacks_from<Pt>(from) & target;
 
         if (Checks)
-            b &= pos.check_squares(Pt);
+            b &= pos.check_squares(Pt, ~pos.side_to_move());
 
         while (b)
             *moveList++ = make_move(from, pop_lsb(&b));
@@ -410,7 +410,7 @@ ExtMove* generate<LEGAL>(const Position& pos, ExtMove* moveList) {
   moveList = pos.checkers() ? generate<EVASIONS    >(pos, moveList)
                             : generate<NON_EVASIONS>(pos, moveList);
   while (cur != moveList)
-      if (   (pinned || from_sq(*cur) == ksq || type_of(*cur) == ENPASSANT)
+      if (   (from_sq(*cur) == ksq || (pinned & from_sq(*cur)) || type_of(*cur) == ENPASSANT)
           && !pos.legal(*cur))
           *cur = (--moveList)->move;
       else

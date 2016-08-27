@@ -299,14 +299,27 @@ void Position::set_check_info(StateInfo* si) const {
   si->blockersForKing[WHITE] = slider_blockers(pieces(BLACK), square<KING>(WHITE));
   si->blockersForKing[BLACK] = slider_blockers(pieces(WHITE), square<KING>(BLACK));
 
-  Square ksq = square<KING>(~sideToMove);
+  Square wksq = square<KING>(WHITE);
 
-  si->checkSquares[PAWN]   = attacks_from<PAWN>(ksq, ~sideToMove);
-  si->checkSquares[KNIGHT] = attacks_from<KNIGHT>(ksq);
-  si->checkSquares[BISHOP] = attacks_from<BISHOP>(ksq);
-  si->checkSquares[ROOK]   = attacks_from<ROOK>(ksq);
-  si->checkSquares[QUEEN]  = si->checkSquares[BISHOP] | si->checkSquares[ROOK];
-  si->checkSquares[KING]   = 0;
+  si->checkSquaresForKing[WHITE][KING]   = 0;
+  si->checkSquaresForKing[WHITE][PAWN]   = attacks_from<PAWN>(wksq, WHITE);
+  si->checkSquaresForKing[WHITE][KNIGHT] = attacks_from<KNIGHT>(wksq);
+  si->checkSquaresForKing[WHITE][BISHOP] = attacks_from<BISHOP>(wksq);
+  si->checkSquaresForKing[WHITE][ROOK]   = attacks_from<ROOK>(wksq);
+  si->checkSquaresForKing[WHITE][QUEEN]  = si->checkSquaresForKing[WHITE][BISHOP] 
+                                         | si->checkSquaresForKing[WHITE][ROOK];
+  
+  
+  Square bksq = square<KING>(BLACK);
+  
+  si->checkSquaresForKing[BLACK][KING]   = 0;
+  si->checkSquaresForKing[BLACK][PAWN]   = attacks_from<PAWN>(bksq, BLACK);
+  si->checkSquaresForKing[BLACK][KNIGHT] = attacks_from<KNIGHT>(bksq);
+  si->checkSquaresForKing[BLACK][BISHOP] = attacks_from<BISHOP>(bksq);
+  si->checkSquaresForKing[BLACK][ROOK]   = attacks_from<ROOK>(bksq);
+  si->checkSquaresForKing[BLACK][QUEEN]  = si->checkSquaresForKing[BLACK][BISHOP] 
+                                         | si->checkSquaresForKing[BLACK][ROOK];
+  
 }
 
 
@@ -587,7 +600,7 @@ bool Position::gives_check(Move m) const {
   Square to = to_sq(m);
 
   // Is there a direct check?
-  if (st->checkSquares[type_of(piece_on(from))] & to)
+  if (check_squares(type_of(piece_on(from)), ~sideToMove) & to)
       return true;
 
   // Is there a discovered check?
