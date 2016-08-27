@@ -571,9 +571,9 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
 
-    // Weak pawns
-    int x = popcount(ei.pi->weak_pawns(Them) & ei.attackedBy2[Us] & ei.attackedBy2[Them]);
-    score += make_score( 30 * x , 0 );
+    // Weak pawns: non linear bonus because of the principle of multiple weaknesses
+    int x = popcount(ei.pi->weak_pawns(Them) & ei.attackedBy2[Us]);
+    score += make_score( 0 , 4 * x * x );
 
     // King tropism: firstly, find squares that we attack in the enemy king flank
     b = ei.attackedBy[Us][ALL_PIECES] & KingFlank[Us][file_of(pos.square<KING>(Them))];
