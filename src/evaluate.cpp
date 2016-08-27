@@ -546,11 +546,8 @@ namespace {
         while (b)
             score += Threat[Minor][type_of(pos.piece_on(pop_lsb(&b)))];
 
-        b = (pos.pieces(Them, QUEEN) | weak) & ei.attackedBy[Us][ROOK];
-        while (b)
-            score += Threat[Major][type_of(pos.piece_on(pop_lsb(&b)))];
-        
-        b = (pos.pieces(Them, QUEEN) | weak) & ei.attackedBy[Us][QUEEN] & ei.attackedBy2[Us];
+        b =  (pos.pieces(Them, QUEEN) | weak) 
+           & (ei.attackedBy[Us][ROOK] || (ei.attackedBy[Us][QUEEN] & ei.attackedBy2[Us]));
         while (b)
             score += Threat[Major][type_of(pos.piece_on(pop_lsb(&b)))];
 
