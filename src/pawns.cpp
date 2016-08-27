@@ -97,7 +97,7 @@ namespace {
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
-    Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
+    Bitboard b, neighbours, stoppers, doubled, supported, phalanx, supporting;
     Square s;
     bool opposed, lever, connected, backward;
     Score score = SCORE_ZERO;
@@ -130,6 +130,7 @@ namespace {
         lever      = theirPawns & pawnAttacksBB[s];
         doubled    = ourPawns   & (s + Up);
         neighbours = ourPawns   & adjacent_files_bb(f);
+        supporting = neighbours & pawnAttacksBB[s];
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
         connected  = supported | phalanx;
@@ -164,10 +165,13 @@ namespace {
             score -= Backward[opposed];
 
         else if (!supported)
-            score -= Unsupported[more_than_one(neighbours & pawnAttacksBB[s])];
+            score -= Unsupported[more_than_one(supporting)];
 
         if (supported)
             score += Centrality[s];
+
+        if (supporting)
+            score -= Centrality[s] / 2;
 
         if (connected)
             score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
@@ -207,7 +211,7 @@ void init()
   for (Square s = SQ_A1; s <= SQ_H8; ++s)
   {
       int d = distance(s, SQ_D4) + distance(s, SQ_D5) + distance(s, SQ_E4) + distance(s, SQ_E5);
-      d = 12 - d;
+      d = 2 * (12 - d);
       Centrality[s] = make_score(d , -d);
 
       if (0)
