@@ -191,6 +191,7 @@ namespace {
   const Score CloseEnemies        = S( 7,  0);
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
+  const Score Windmill            = S(50,  0);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
@@ -569,6 +570,15 @@ namespace {
         b = weak & ei.attackedBy[Us][KING];
         if (b)
             score += ThreatByKing[more_than_one(b)];
+    }
+    
+    // Bonus for taking material by discovered check, like in the windmill combinaison
+    b = pos.discovered_check_candidates(Us);
+    while (b)
+    {
+    	Square s = pop_lsb(&b);
+        if (pos.attacks_from(pos.piece_on(s), s) & pos.pieces(Them))
+            score += Windmill;
     }
 
     // Bonus if some pawns can safely push and attack an enemy piece
