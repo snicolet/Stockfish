@@ -191,7 +191,7 @@ namespace {
   const Score CloseEnemies        = S( 7,  0);
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
-  const Score Fork                = S(50, 50);
+  const Score Fork                = S(20, 20);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
