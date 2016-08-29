@@ -191,6 +191,7 @@ namespace {
   const Score CloseEnemies        = S( 7,  0);
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
+  const Score Fork                = S(50, 50);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
@@ -475,7 +476,20 @@ namespace {
         // Enemy knights safe and other checks
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
         if (b & safe)
+        {
             attackUnits += KnightCheck, score -= SafeCheck;
+ 
+            // Knight forking king and (queen, rooks, bishops or pawns)
+            Bitboard checks = b & safe;
+            Bitboard targets = pos.pieces(Us, QUEEN, ROOK);
+            targets |=    pos.pieces(Us, BISHOP, PAWN) 
+                        & (~ei.attackedBy[Us][ALL_PIECES] 
+                          | (~ei.attackedBy[Us][PAWN] & ei.attackedBy[Them][ALL_PIECES]));
+            do
+                if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
+                    score -= Fork;
+            while (checks);
+        }
 
         else if (b & other)
             score -= OtherCheck;
