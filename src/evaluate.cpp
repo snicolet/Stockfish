@@ -587,7 +587,7 @@ namespace {
 
     // Weak pawns
     int x = popcount(ei.pi->weak_pawns(Them) & ei.attackedBy2[Us]);
-    score += make_score( 0 , 16 * x * x );
+    score += make_score( 0 , 8 * x * x * x );
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
