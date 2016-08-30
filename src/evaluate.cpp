@@ -400,7 +400,7 @@ namespace {
     const Color Them = (Us == WHITE ? BLACK   : WHITE);
     const Square  Up = (Us == WHITE ? DELTA_N : DELTA_S);
 
-    Bitboard undefended, b, b1, b2, safe, other;
+    Bitboard undefended, b, b1, b2, safe, other, queenSafeChecks, knightSafeChecks;
     int attackUnits;
     const Square ksq = pos.square<KING>(Us);
 
@@ -450,7 +450,8 @@ namespace {
         b2 = pos.attacks_from<BISHOP>(ksq);
 
         // Enemy queen safe checks
-        if ((b1 | b2) & ei.attackedBy[Them][QUEEN] & safe)
+        b = (b1 | b2) & ei.attackedBy[Them][QUEEN];
+        if ((queenSafeChecks = b & safe))
             attackUnits += QueenCheck, score -= SafeCheck;
 
         // For other pieces, also consider the square safe if attacked twice,
@@ -475,24 +476,29 @@ namespace {
 
         // Enemy knights safe and other checks
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
-        if (b & safe)
-        {
+        if ((knightSafeChecks = b & safe))
             attackUnits += KnightCheck, score -= SafeCheck;
- 
-            // Knight forking king and (queen, rooks, bishops or pawns)
-            Bitboard checks = b & safe;
-            Bitboard targets = pos.pieces(Us, QUEEN, ROOK);
-            targets |=    pos.pieces(Us, BISHOP, PAWN) 
-                        & (~ei.attackedBy[Us][ALL_PIECES] 
-                          | (~ei.attackedBy[Us][PAWN] & ei.attackedBy[Them][ALL_PIECES]));
-            do
-                if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
-                    score -= Fork;
-            while (checks);
-        }
 
         else if (b & other)
             score -= OtherCheck;
+
+        // Analyse checking forks by queen and knights
+        if (queenSafeChecks | knightSafeChecks)
+        {
+            Bitboard targets =  (pos.pieces(Us) ^ pos.pieces(Us, QUEEN, KING))
+                              & (  ~ei.attackedBy[Us][ALL_PIECES] 
+                                | (~ei.attackedBy[Us][PAWN] & ei.attackedBy[Them][ALL_PIECES]));
+
+            while (queenSafeChecks)
+               if (pos.attacks_from<QUEEN>(pop_lsb(&queenSafeChecks)) & targets & ~ei.attackedBy[Them][QUEEN])
+                  score -= Fork;
+
+            targets |= pos.pieces(Us, QUEEN, ROOK);
+
+            while (knightSafeChecks)
+               if (pos.attacks_from<KNIGHT>(pop_lsb(&knightSafeChecks)) & targets)
+                  score -= Fork;
+        }
 
         // Finally, extract the king danger score from the KingDanger[]
         // array and subtract the score from the evaluation.
