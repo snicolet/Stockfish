@@ -182,6 +182,10 @@ namespace {
     S(  9, 10), S( 2, 10), S( 1, -8), S(-20,-12),
     S(-20,-12), S( 1, -8), S( 2, 10), S( 9, 10)
   };
+  
+  // Bonus for forks, according to the type of forking piece
+  const Score Fork[PIECE_TYPE_NB] = {
+    S(0, 0), S(0, 0), S(24, 24), S(0, 0), S(0, 0), S(10, 10) };
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
@@ -191,7 +195,6 @@ namespace {
   const Score CloseEnemies        = S( 7,  0);
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
-  const Score Fork                = S(30, 30);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
@@ -491,13 +494,13 @@ namespace {
 
             while (queenSafeChecks)
                if (pos.attacks_from<QUEEN>(pop_lsb(&queenSafeChecks)) & targets & ~ei.attackedBy[Them][QUEEN])
-                  score -= Fork;
+                  score -= Fork[QUEEN];
 
             targets |= pos.pieces(Us, QUEEN, ROOK);
 
             while (knightSafeChecks)
                if (pos.attacks_from<KNIGHT>(pop_lsb(&knightSafeChecks)) & targets)
-                  score -= Fork;
+                  score -= Fork[KNIGHT];
         }
 
         // Finally, extract the king danger score from the KingDanger[]
