@@ -717,12 +717,14 @@ namespace {
   // status of the players.
   Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
 
-    int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-    int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    int kingOutflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
+                         - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    int pawns           = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    int queenSidePawns  = popcount(pos.pieces(PAWN) & QueenSide);
+    int complexity      = std::min(queenSidePawns, pawns - queenSidePawns);
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
+    int initiative = 8 * (pawns + complexity + asymmetry + kingOutflanking - 15);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
