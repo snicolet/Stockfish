@@ -724,7 +724,7 @@ namespace {
     int complexity      = std::min(queenSidePawns, pawns - queenSidePawns);
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (pawns + complexity + asymmetry + kingOutflanking - 15);
+    int initiative = 8 * (complexity + asymmetry + kingOutflanking - 19) + 12 * pawns;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
