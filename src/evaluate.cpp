@@ -708,7 +708,7 @@ namespace {
     bonus = std::min(16, bonus);
     int weight = pos.count<ALL_PIECES>(Us);
 
-    return make_score(bonus * weight * weight / 22, 0);
+    return make_score(bonus * weight * weight / 18, 0);
   }
 
 
