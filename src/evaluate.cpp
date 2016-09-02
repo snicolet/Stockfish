@@ -675,8 +675,8 @@ namespace {
 
   // evaluate_space() computes the space evaluation for a given side. The
   // space evaluation is a simple bonus based on the number of safe squares
-  // available for minor pieces on the central four files on ranks 2--4. Safe
-  // squares one, two or three squares behind a friendly pawn are counted
+  // available for minor pieces on the central four files on ranks 2--5.
+  // Safe squares one, two or three squares behind a friendly pawn are counted
   // twice. Finally, the space bonus is multiplied by a weight. The aim is to
   // improve play on game opening.
   template<Color Us>
@@ -684,12 +684,19 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     const Bitboard SpaceMask =
-      Us == WHITE ? (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank2BB | Rank3BB | Rank4BB)
-                  : (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB);
+      Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB | Rank5BB)
+                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB | Rank4BB);
 
     // Find the safe squares for our pieces inside the area defined by
     // SpaceMask. A square is unsafe if it is attacked by an enemy
     // pawn, or if it is undefended and attacked by an enemy piece.
+    
+//     Bitboard enemy = ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them, PAWN);
+//     Bitboard safe =   SpaceMask
+//                    & ~pos.pieces(Us, PAWN)
+//                    & ~ei.attackedBy[Them][PAWN]
+//                    & (~enemy | ei.attackedBy2[Us]);
+
     Bitboard safe =   SpaceMask
                    & ~pos.pieces(Us, PAWN)
                    & ~ei.attackedBy[Them][PAWN]
@@ -700,12 +707,15 @@ namespace {
     behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
     behind |= (Us == WHITE ? behind >> 16 : behind << 16);
 
-    // Since SpaceMask[Us] is fully on our half of the board...
-    assert(unsigned(safe >> (Us == WHITE ? 32 : 0)) == 0);
+    // Since SpaceMask has only four ranks, we can count
+    // safe + (behind & safe) with a single popcount()
+    int bonus = popcount( Us == WHITE ? (safe << 24) | ((behind & safe) >> 8)
+                                      : (safe >> 24) | ((behind & safe) << 8));
 
-    // ...count safe + (behind & safe) with a single popcount
-    int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
-    bonus = std::min(16, bonus);
+    assert((popcount(safe) + popcount(behind & safe)) == bonus);
+
+    // Calculate the final space evaluation for the given color
+    bonus = std::min(21, bonus);
     int weight = pos.count<ALL_PIECES>(Us) - 2 * ei.pi->open_files();
 
     return make_score(bonus * weight * weight / 18, 0);
@@ -848,7 +858,7 @@ Value Eval::evaluate(const Position& pos) {
           score -= Unstoppable * int(relative_rank(BLACK, frontmost_sq(BLACK, b)));
   }
 
-  // Evaluate space for both sides, only during opening
+  // Evaluate space for both sides
   if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
       score +=  evaluate_space<WHITE>(pos, ei)
               - evaluate_space<BLACK>(pos, ei);
