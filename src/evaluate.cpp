@@ -707,7 +707,7 @@ namespace {
 
     assert((popcount(safe) + popcount(behind & safe)) == bonus);
 
-    // Calculate the final space score
+    // Calculate the final space evaluation for the given color
     bonus = std::min(16, bonus);
     int weight = pos.count<ALL_PIECES>(Us) - 2 * ei.pi->open_files();
 
