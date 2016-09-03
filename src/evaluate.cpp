@@ -552,25 +552,25 @@ namespace {
           & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]);
 
     // Add a bonus according to the kind of attacking pieces
-	b =  (weak | pos.pieces(Them, QUEEN, ROOK)) 
-	   & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
-	while (b)
-		score += Threat[Minor][type_of(pos.piece_on(pop_lsb(&b)))];
+    b =  (weak | pos.pieces(Them, QUEEN, ROOK)) 
+       & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
+    while (b)
+    score += Threat[Minor][type_of(pos.piece_on(pop_lsb(&b)))];
 
-	b =  (weak | pos.pieces(Them, QUEEN)) 
-	   & ei.attackedBy[Us][ROOK];
-	while (b)
-		score += Threat[Rook ][type_of(pos.piece_on(pop_lsb(&b)))];
+    b =  (weak | pos.pieces(Them, QUEEN)) 
+       & ei.attackedBy[Us][ROOK];
+    while (b)
+        score += Threat[Rook ][type_of(pos.piece_on(pop_lsb(&b)))];
 
     if (weak)
     {
-	    score += Hanging        * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+        score += Hanging        * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
         score += DoublyAttacked * popcount(weak & ei.attackedBy2[Us] & ei.attackedBy[Them][ALL_PIECES]);
 
-	    b = weak & ei.attackedBy[Us][KING];
-	    if (b)
-		    score += ThreatByKing[more_than_one(b)];
-	}
+        b = weak & ei.attackedBy[Us][KING];
+        if (b)
+            score += ThreatByKing[more_than_one(b)];
+    }
 
     // Bonus if some pawns can safely push and attack an enemy piece
     b = pos.pieces(Us, PAWN) & ~TRank7BB;
