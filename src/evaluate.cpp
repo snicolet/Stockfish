@@ -18,6 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <cstring>   // For std::memset
@@ -553,11 +554,27 @@ namespace {
           &  ei.attackedBy[Us][ALL_PIECES]
           & ~ei.attackedBy[Them][PAWN]
           & ~ei.attackedBy2[Them];
+          
 
+//     Bitboard missed =   pos.pieces(Them)
+//                       & pos.pieces(Them, QUEEN, ROOK)
+//                       & ei.attackedBy[Us][ALL_PIECES]
+//                       & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP])
+//                       & ~(defended | weak);
+//     
+//     dbg_mean_of( missed != 0);
+//
+//     if (missed)
+//     {
+//         std::cerr << pos << std::endl;
+//         std::cerr << Bitboards::pretty(missed) << std::endl;
+//     }
+                      
     // Add a bonus according to the kind of attacking pieces
     if (defended | weak)
     {
-        b = (defended | weak) & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
+        b =   (pos.pieces(Them, QUEEN) | defended | weak) 
+            & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         while (b)
             score += Threat[Minor][type_of(pos.piece_on(pop_lsb(&b)))];
 
