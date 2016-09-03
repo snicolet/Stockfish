@@ -18,7 +18,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <cstring>   // For std::memset
@@ -547,7 +546,8 @@ namespace {
     }
 
     // Non-pawn enemies defended by a pawn
-    defended = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & ei.attackedBy[Them][PAWN];
+    defended =   (pos.pieces(Them) ^ pos.pieces(Them, PAWN))
+               & (ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]);
 
     // Enemies under our attack and not strongly defended 
     weak =   pos.pieces(Them)
@@ -573,8 +573,6 @@ namespace {
     // Add a bonus according to the kind of attacking pieces
     if (defended | weak)
     {
-        b =   (pos.pieces(Them, QUEEN) | defended | weak) 
-            & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         while (b)
             score += Threat[Minor][type_of(pos.piece_on(pop_lsb(&b)))];
 
