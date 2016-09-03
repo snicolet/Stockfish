@@ -733,6 +733,15 @@ namespace {
   }
 
 
+  // hanging_pieces() : helper function to calculate the hanging pieces of a given color
+  template<Color Us>
+  inline Bitboard hanging_pieces(const Position& pos, const EvalInfo& ei)
+  {
+      const Color Them = (Us == WHITE ? BLACK : WHITE);
+      return pos.pieces(Us) & ~ei.attackedBy[Us][ALL_PIECES] & ei.attackedBy[Them][ALL_PIECES];
+  }
+
+
   // evaluate_scale_factor() computes the scale factor for the winning side
   ScaleFactor evaluate_scale_factor(const Position& pos, const EvalInfo& ei, Value eg) {
 
@@ -757,12 +766,38 @@ namespace {
             else
                 sf = ScaleFactor(46);
         }
+
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
         else if (    abs(eg) <= BishopValueEg
                  &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+
+        // Positions with equal material and compact symmetrical pawn chains are drawish
+        else if (    pos.non_pawn_material(WHITE)
+                 &&  pos.non_pawn_material(WHITE) <= RookValueMg + RookValueMg
+                 &&  pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK)
+                 && !ei.pi->passed_pawns(WHITE)
+                 && !ei.pi->passed_pawns(BLACK)
+                 &&  ei.pi->pawn_asymmetry() <= 1 )
+        {
+            int spanStrong = ei.pi->pawn_span(strongSide);
+            int spanWeak = ei.pi->pawn_span(~strongSide);
+
+            if (    spanStrong <= 4
+                && (spanWeak == spanStrong - 1 || spanWeak == spanStrong)
+                &&  pos.count<PAWN>(strongSide) >= spanStrong
+                &&  pos.count<PAWN>(~strongSide) >= spanWeak
+                && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide))
+                && !hanging_pieces<WHITE>(pos, ei)
+                && !hanging_pieces<BLACK>(pos, ei))
+            {
+                 int material = pos.non_pawn_material(WHITE) / PawnValueMg;
+                 sf = ScaleFactor(10 + 3 * material);
+            }
+        }
+
     }
 
     return sf;
