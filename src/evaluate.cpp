@@ -545,34 +545,19 @@ namespace {
             score += ThreatBySafePawn[type_of(pos.piece_on(pop_lsb(&safeThreats)))];
     }
 
-    // Non-pawn enemies defended by a pawn
+    // Non-pawn enemies strongly defended
     defended =   (pos.pieces(Them) ^ pos.pieces(Them, PAWN))
                & (ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]);
 
     // Enemies under our attack and not strongly defended 
     weak =   pos.pieces(Them)
           &  ei.attackedBy[Us][ALL_PIECES]
-          & ~ei.attackedBy[Them][PAWN]
-          & ~ei.attackedBy2[Them];
-          
+          & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]);
 
-//     Bitboard missed =   pos.pieces(Them)
-//                       & pos.pieces(Them, QUEEN, ROOK)
-//                       & ei.attackedBy[Us][ALL_PIECES]
-//                       & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP])
-//                       & ~(defended | weak);
-//     
-//     dbg_mean_of( missed != 0);
-//
-//     if (missed)
-//     {
-//         std::cerr << pos << std::endl;
-//         std::cerr << Bitboards::pretty(missed) << std::endl;
-//     }
-                      
     // Add a bonus according to the kind of attacking pieces
     if (defended | weak)
     {
+        b = (defended | weak) & (ei.attackedBy[Us][KNIGHT] | ei.attackedBy[Us][BISHOP]);
         while (b)
             score += Threat[Minor][type_of(pos.piece_on(pop_lsb(&b)))];
 
