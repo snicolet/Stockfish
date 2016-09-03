@@ -546,14 +546,14 @@ namespace {
             score += ThreatBySafePawn[type_of(pos.piece_on(pop_lsb(&safeThreats)))];
     }
 
-    // Non-pawn enemies defended by a pawn
-    defended = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & ei.attackedBy[Them][PAWN];
+    // Non-pawn enemies strongly defended
+    defended =   (pos.pieces(Them) ^ pos.pieces(Them, PAWN))
+               & (ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]);
 
-    // Enemies not defended by a pawn and under our attack
+    // Enemies under our attack and not strongly defended 
     weak =   pos.pieces(Them)
-          & ~ei.attackedBy[Them][PAWN]
-          & ~ei.attackedBy2[Them]
-          &  ei.attackedBy[Us][ALL_PIECES];
+          &  ei.attackedBy[Us][ALL_PIECES]
+          & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]);
 
     // Add a bonus according to the kind of attacking pieces
     if (defended | weak)
