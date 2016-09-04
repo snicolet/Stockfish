@@ -31,8 +31,8 @@ namespace {
   #define V Value
   #define S(mg, eg) make_score(mg, eg)
 
-  // Isolated pawn penalty by opposed flag
-  const Score Isolated[2] = { S(45, 40), S(30, 27) };
+  // Penalty for each group of pawns
+  const Score IsolatedGroup = S(37, 34);
 
   // Backward pawn penalty by opposed flag
   const Score Backward[2] = { S(56, 33), S(41, 19) };
@@ -93,7 +93,7 @@ namespace {
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
-    Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
+    Bitboard b, neighbours, stoppers, doubled, supported, phalanx, supporting, right;
     Square s;
     bool opposed, lever, connected, backward;
     Score score = SCORE_ZERO;
@@ -109,6 +109,7 @@ namespace {
     e->pawnAttacks[Us] = shift_bb<Right>(ourPawns) | shift_bb<Left>(ourPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
+    e->groups[Us] = pos.count<PAWN>(Us);
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -117,18 +118,21 @@ namespace {
 
         File f = file_of(s);
 
-        e->semiopenFiles[Us] &= ~(1 << f);
-        e->pawnAttacksSpan[Us] |= pawn_attack_span(Us, s);
-
         // Flag the pawn
         opposed    = theirPawns & forward_bb(Us, s);
         stoppers   = theirPawns & passed_pawn_mask(Us, s);
         lever      = theirPawns & pawnAttacksBB[s];
         doubled    = ourPawns   & (s + Up);
         neighbours = ourPawns   & adjacent_files_bb(f);
+        supporting = neighbours & pawnAttacksBB[s];
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
         connected  = supported | phalanx;
+        right      = (file_bb(f) << 1) & ~FileABB;
+
+        e->semiopenFiles[Us] &= ~(1 << f);
+        e->pawnAttacksSpan[Us] |= pawn_attack_span(Us, s);
+        e->groups[Us] -= !!(right & supported) + !!(right & phalanx) + !!(right & supporting);
 
         // A pawn is backward when it is behind all pawns of the same color on the
         // adjacent files and cannot be safely advanced.
@@ -153,17 +157,18 @@ namespace {
             e->passedPawns[Us] |= s;
 
         // Score this pawn
-        if (!neighbours)
-            score -= Isolated[opposed];
 
-        else if (backward)
-            score -= Backward[opposed];
+        if (neighbours)
+        {
+        	if (backward)
+            	score -= Backward[opposed];
 
-        else if (!supported)
-            score -= Unsupported[more_than_one(neighbours & pawnAttacksBB[s])];
-
-        if (connected)
-            score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
+        	else if (!supported)
+            	score -= Unsupported[more_than_one(supporting)];
+            
+            if (connected)
+                score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
+        }
 
         if (doubled)
             score -= Doubled;
@@ -171,6 +176,8 @@ namespace {
         if (lever)
             score += Lever[relative_rank(Us, s)];
     }
+
+    score -= e->groups[Us] * IsolatedGroup;
 
     return score;
   }
