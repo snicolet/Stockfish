@@ -32,7 +32,7 @@ namespace {
   #define S(mg, eg) make_score(mg, eg)
 
   // Penalty for each group of pawns
-  const Score IsolatedGroup = S(37, 34);
+  const Score IsolatedGroup = S(45, 40);
 
   // Backward pawn penalty by opposed flag
   const Score Backward[2] = { S(56, 33), S(41, 19) };
