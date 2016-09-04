@@ -194,6 +194,7 @@ namespace {
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
+  const Score WeakPawns           = S( 0, 30);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
@@ -566,6 +567,10 @@ namespace {
             score += Threat[Rook ][type_of(pos.piece_on(pop_lsb(&b)))];
 
         score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+
+        b = weak & pos.pieces(PAWN) & ei.attackedBy2[Us];
+        if (b)
+            score += WeakPawns * popcount(b);
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
