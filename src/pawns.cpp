@@ -160,11 +160,11 @@ namespace {
 
         if (neighbours)
         {
-        	if (backward)
-            	score -= Backward[opposed];
+            if (backward)
+                score -= Backward[opposed];
 
-        	else if (!supported)
-            	score -= Unsupported[more_than_one(supporting)];
+            else if (!supported)
+                score -= Unsupported[more_than_one(supporting)];
             
             if (connected)
                 score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
