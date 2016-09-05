@@ -168,7 +168,7 @@ namespace {
 
   // ThreatByKing[on one/on many] contains bonuses for King attacks on
   // pawns or pieces which are not pawn-defended.
-  const Score ThreatByKing[2] = { S(3, 62), S(9, 138) };
+  const Score ThreatByKing[2] = { S(3, 52), S(9, 128) };
 
   // Passed[mg/eg][Rank] contains midgame and endgame bonuses for passed pawns.
   // We don't use a Score because we process the two components independently.
@@ -193,9 +193,10 @@ namespace {
   const Score OtherCheck          = S(10, 10);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
-  const Score WeakPawns           = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
-  const Score Hanging             = S(48, 27);
+  const Score Hanging             = S(48, 17);
+  const Score WeakPawns           = S( 0, 15);
+  const Score EndgameWeaknesses   = S( 0, 10);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
 
@@ -523,6 +524,7 @@ namespace {
 
     Bitboard b, weak, defended, safeThreats;
     Score score = SCORE_ZERO;
+    int weaknesses = 0;
 
     // Small bonus if the opponent has loose pawns or pieces
     if (   (pos.pieces(Them) ^ pos.pieces(Them, QUEEN, KING))
@@ -566,16 +568,33 @@ namespace {
         while (b)
             score += Threat[Rook ][type_of(pos.piece_on(pop_lsb(&b)))];
 
-        score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+        b = weak & ~ei.attackedBy[Them][ALL_PIECES];
+        if (b)
+        {
+            int x = popcount(b);
+            weaknesses += x;
+            score += Hanging * x;
+        }
 
         b = weak & pos.pieces(PAWN) & ei.attackedBy2[Us];
         if (b)
+        {
+            weaknesses++;
             score += WeakPawns;
+        }
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
+        {
+            weaknesses++;
             score += ThreatByKing[more_than_one(b)];
+        }
     }
+    
+    // Principle of multiple weaknesses : give a nice (quadratic) bonus
+    // if the opponent has more than one static weaknesses in endgame.
+    //score += EndgameWeaknesses * (weaknesses);
+    score += EndgameWeaknesses * (weaknesses * weaknesses);
 
     // Bonus if some pawns can safely push and attack an enemy piece
     b = pos.pieces(Us, PAWN) & ~TRank7BB;
