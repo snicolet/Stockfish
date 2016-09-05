@@ -37,6 +37,7 @@ struct Entry {
   Bitboard pawn_attacks(Color c) const { return pawnAttacks[c]; }
   Bitboard passed_pawns(Color c) const { return passedPawns[c]; }
   Bitboard pawn_attacks_span(Color c) const { return pawnAttacksSpan[c]; }
+  int pawn_groups(Color c) const {return groups[c]; }
   int pawn_asymmetry() const { return asymmetry; }
   int open_files() const { return openFiles; }
 
