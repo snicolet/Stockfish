@@ -146,7 +146,6 @@ void benchmark(const Position& current, istream& is) {
   TimePoint elapsed = now();
   Position pos;
 
-for (int k = 0 ; k < 50 ; k++)
   for (size_t i = 0; i < fens.size(); ++i)
   {
       StateListPtr states(new std::deque<StateInfo>(1));

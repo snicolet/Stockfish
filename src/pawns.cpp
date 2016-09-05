@@ -157,20 +157,17 @@ namespace {
             e->passedPawns[Us] |= s;
 
         // Score this pawn
+        if (!neighbours)
+            score -= Isolated[opposed];
 
-        if (neighbours)
-        {
-            if (backward)
-                score -= Backward[opposed];
+        else if (backward)
+            score -= Backward[opposed];
 
-            else if (!supported)
-                score -= Unsupported[more_than_one(supporting)];
-            
-            if (connected)
-                score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
-        }
-        else
-           score -= Isolated[opposed];
+        else if (!supported)
+            score -= Unsupported[more_than_one(neighbours & pawnAttacksBB[s])];
+
+        if (connected)
+            score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
 
         if (doubled)
             score -= Doubled;
