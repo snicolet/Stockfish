@@ -176,6 +176,8 @@ namespace {
             score += Lever[relative_rank(Us, s)];
     }
 
+    score -= make_score(0, 3 * e->groups[Us]);
+
     return score;
   }
 
