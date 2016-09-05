@@ -475,8 +475,8 @@ namespace {
             score -= OtherCheck;
 
         // Compute king danger score and subtract from the evaluation
-        int A = std::max(std::min(attackUnits, 2428), 0);
-        score -= make_score( A * A / 3572 , 0);
+        int A = attackUnits > 0 ? attackUnits / 60 : 0;
+        score -= make_score(std::min( A * A , 2 * int(BishopValueMg) ), 0);
     }
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
