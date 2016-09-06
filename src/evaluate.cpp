@@ -566,7 +566,7 @@ namespace {
 
         score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
 
-        b = weak & ei.attackedBy[Us][KING];
+        b = weak & ei.attackedBy[Us][KING] & ~ei.attackedBy2[Them];
         if (b)
             score += ThreatByKing[more_than_one(b)];
     }
