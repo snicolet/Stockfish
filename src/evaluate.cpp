@@ -392,6 +392,7 @@ namespace {
 
     const Color Them = (Us == WHITE ? BLACK   : WHITE);
     const Square  Up = (Us == WHITE ? DELTA_N : DELTA_S);
+    const int twoBishops = 2 * int(BishopValueMg);
 
     Bitboard undefended, b, b1, b2, safe, other;
     int attackUnits;
@@ -475,8 +476,8 @@ namespace {
             score -= OtherCheck;
 
         // Compute king danger score and subtract from the evaluation
-        int A = attackUnits > 0 ? attackUnits / 60 : 0;
-        score -= make_score(std::min( A * A , 2 * int(BishopValueMg) ), 0);
+        int A = std::max(attackUnits, 0);
+        score -= make_score( std::min( A * A / 4096 , twoBishops) , 0);
     }
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
