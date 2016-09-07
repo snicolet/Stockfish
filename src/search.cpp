@@ -998,6 +998,9 @@ moves_loop: // When in check search starts from here
                        && pos.see(make_move(to_sq(move), from_sq(move))) < VALUE_ZERO)
                   r -= 2 * ONE_PLY;
 
+              else if (pos.move_threats(move))
+                  r -= ONE_PLY;
+
               // Decrease/increase reduction for moves with a good/bad history
               Value val = thisThread->history[moved_piece][to_sq(move)]
                          +    (cmh  ? (*cmh )[moved_piece][to_sq(move)] : VALUE_ZERO)

@@ -570,6 +570,18 @@ bool Position::pseudo_legal(const Move m) const {
   return true;
 }
 
+/// Position::move_threats() returns the threats of a move. The type of targets
+/// depends on the type of the moved piece.
+Bitboard Position::move_threats(Move m) const {
+
+  Square to = to_sq(m);
+  Piece pc = piece_on(to);
+  Color c = ~color_of(pc);
+  
+  Bitboard targets[PIECE_TYPE_NB] = {0, pieces(c) ^ pieces(c, PAWN, KING), pieces(c, ROOK, QUEEN)};
+     
+  return StepAttacksBB[pc][to] & targets[type_of(pc)];
+}
 
 /// Position::gives_check() tests whether a pseudo-legal move gives a check
 
