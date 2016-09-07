@@ -972,6 +972,9 @@ moves_loop: // When in check search starts from here
 
       // Step 14. Make the move
       pos.do_move(move, st, givesCheck);
+      
+      if (type_of(move) != CASTLING)
+          dbg_mean_of(pos.side_to_move() != color_of(pos.piece_on(to_sq(move))));
 
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
