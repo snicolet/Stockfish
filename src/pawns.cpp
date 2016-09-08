@@ -47,6 +47,9 @@ namespace {
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
 
+  // Hook pawn penalty
+  const Score Hook = S(0, 20);
+
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
@@ -93,9 +96,9 @@ namespace {
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
-    Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
+    Bitboard b, neighbours, stoppers, doubled, supported, phalanx, left, right, lever;
     Square s;
-    bool opposed, lever, connected, backward;
+    bool opposed, connected, backward, hook;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
@@ -129,6 +132,8 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
         connected  = supported | phalanx;
+        left       = (file_bb(f) >> 1) & ~FileHBB;
+        right      = (file_bb(f) << 1) & ~FileABB;
 
         // A pawn is backward when it is behind all pawns of the same color on the
         // adjacent files and cannot be safely advanced.
@@ -146,6 +151,13 @@ namespace {
 
             assert(!backward || !(pawn_attack_span(Them, s + Up) & neighbours));
         }
+
+        // A hook is a pawn of our color, usually advanced, which is challenged
+        // and which will force a defect in our pawn structure no matter how we
+        // defend. Here we consider the simplest form of hooks: levers which
+        // create isolated pawn(s) if we execute the capture.
+        hook =   ((lever & right) && !(adjacent_files_bb(File(f+1)) & (ourPawns ^ s)))
+              || ((lever & left ) && !(adjacent_files_bb(File(f-1)) & (ourPawns ^ s)));
 
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them.
@@ -170,6 +182,9 @@ namespace {
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
+
+        if (hook && neighbours)
+            score -= Hook;
     }
 
     return score;
