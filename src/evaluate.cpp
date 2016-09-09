@@ -425,11 +425,10 @@ namespace {
         b =  ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]
            & ei.kingRing[Us] & ~pos.pieces(Them);
 
-        // Compute the 'kingDanger' variable, which will be transformed
-        // later into a king danger score. Its value is based on the number
-        // and types of the enemy's attacking pieces, the number of attacked
-        // or undefended squares around our king, the presence of pinned pieces
-        // and the absence of the attacking queen.
+        // Compute the 'kingDanger' variable, which will be transformed later into
+        // a king danger score. Its value is based on the number and types of the
+        // enemy's attacking pieces, the number of attacked or undefended squares
+        // around our king, the presence of pinned pieces and of the attacking queen.
         kingDanger =  std::min(807, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
                      + 101 * ei.kingAdjacentZoneAttacksCount[Them]
                      + 235 * popcount(undefended)
