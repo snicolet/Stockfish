@@ -104,6 +104,7 @@ public:
   MovePicker(const Position&, Move, Depth, Search::Stack*);
 
   Move next_move();
+  int see_sign() const;
 
 private:
   template<GenType> void score();
@@ -116,6 +117,7 @@ private:
   Move countermove;
   Depth depth;
   Move ttMove;
+  Move move;
   ExtMove killers[3];
   Square recaptureSquare;
   Value threshold;
