@@ -207,14 +207,14 @@ namespace {
   #undef V
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
-  const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 73, 52, 42, 10 };
+  const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 69, 49, 39, 9 };
 
   // Penalties for enemy's safe checks
-  const int QueenContactCheck = 927;
-  const int QueenCheck        = 646;
-  const int RookCheck         = 593;
-  const int BishopCheck       = 500;
-  const int KnightCheck       = 812;
+  const int QueenContactCheck = 867;
+  const int QueenCheck        = 605;
+  const int RookCheck         = 555;
+  const int BishopCheck       = 468;
+  const int KnightCheck       = 760;
 
 
   // eval_init() initializes king and attack bitboards for a given color
@@ -429,13 +429,12 @@ namespace {
         // Initialize the 'kingDanger' variable, which will be transformed
         // later into a king danger score. The initial value is based on the
         // number and types of the enemy's attacking pieces, the number of
-        // attacked and undefended squares around our king and the quality of
-        // the pawn shelter (current 'score' value).
-        kingDanger =  std::min(750, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
-                     + 93 * ei.kingAdjacentZoneAttacksCount[Them]
-                     + 218 * popcount(undefended)
-                     + 124 * (popcount(b) + !!ei.pinnedPieces[Us])
-                     - 666 * !pos.count<QUEEN>(Them);
+        // attacked and undefended squares around our king.
+        kingDanger =  std::min(702, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
+                     + 88 * ei.kingAdjacentZoneAttacksCount[Them]
+                     + 204 * popcount(undefended)
+                     + 116 * (popcount(b) + !!ei.pinnedPieces[Us])
+                     - 624 * !pos.count<QUEEN>(Them);
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
         // undefended squares around the king reachable by the enemy queen...
