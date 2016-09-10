@@ -717,12 +717,17 @@ namespace {
   // status of the players.
   Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
 
-    int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-    int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    Square wksq = pos.square<KING>(WHITE);
+    Square bksq = pos.square<KING>(BLACK);
 
+    int kingDistance = distance<File>(wksq, bksq) - distance<Rank>(wksq, bksq);
+    int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    
+    Bitboard p = pos.pieces(PAWN);
+    bool bothFlanks = (p & QueenSide) && (p & KingSide) && (p & ~CenterFiles);
+    
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
+    int initiative = 8 * (asymmetry + kingDistance + 2 * bothFlanks - 17) + 12 * pawns;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
