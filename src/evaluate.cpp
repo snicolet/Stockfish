@@ -152,10 +152,6 @@ namespace {
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is no
   // friendly pawn on the rook file.
   const Score RookOnFile[2] = { S(20, 7), S(45, 20) };
-  
-  // RookOnFile[simple/double attacks] contains bonus for global attacks on
-  // weak opponent pawns, bigger is there is at least one double attack. 
-  const Score WeakPawns[2] = { S(0, 10), S( 0, 30) };
 
   // ThreatBySafePawn[PieceType] contains bonuses according to which piece
   // type is attacked by a pawn which is protected or is not attacked.
@@ -198,6 +194,7 @@ namespace {
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
+  const Score WeakPawns           = S( 0, 30);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
@@ -590,9 +587,9 @@ namespace {
     score += ThreatByPawnPush * popcount(b);
 
     // Weak pawns
-    b = ei.pi->weak_pawns(Them) & ei.attackedBy[Us][ALL_PIECES];
+    b = ei.pi->weak_pawns(Them) & ei.attackedBy2[Us];
     if (b)
-        score += WeakPawns[!!(b & ei.attackedBy2[Us])];
+        score += WeakPawns;
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
