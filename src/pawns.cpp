@@ -46,7 +46,7 @@ namespace {
 
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
-  
+
   // Hook pawn penalty
   const Score Hook = S( 0, 30);
 
