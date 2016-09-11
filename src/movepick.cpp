@@ -169,7 +169,7 @@ void MovePicker::score<EVASIONS>() {
   Value see;
 
   for (auto& m : *this)
-      if (depth >= DEPTH_ZERO && (see = pos.see_sign(m)) < VALUE_ZERO)
+      if (depth > DEPTH_ZERO && (see = pos.see_sign(m)) < VALUE_ZERO)
           m.value = see - HistoryStats::Max; // At the bottom
 
       else if (pos.capture(m))
