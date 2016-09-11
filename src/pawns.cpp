@@ -52,6 +52,9 @@ namespace {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
     S(17, 16), S(33, 32), S(0, 0), S(0, 0) };
 
+  // Hook pawn penalty
+  const Score Hook = S(0, 30);
+
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
     { V( 97), V(21), V(26), V(51), V(87), V( 89), V( 99) },
@@ -93,9 +96,9 @@ namespace {
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
-    Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
+    Bitboard b, neighbours, stoppers, doubled, supported, phalanx, left, right, lever;
     Square s;
-    bool opposed, lever, connected, backward;
+    bool opposed, connected, backward, hook;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
@@ -129,6 +132,8 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
         connected  = supported | phalanx;
+        left       = (file_bb(f) & ~FileABB) >> 1;
+        right      = (file_bb(f) & ~FileHBB) << 1;
 
         // A pawn is backward when it is behind all pawns of the same color on the
         // adjacent files and cannot be safely advanced.
@@ -146,6 +151,13 @@ namespace {
 
             assert(!backward || !(pawn_attack_span(Them, s + Up) & neighbours));
         }
+
+        // A hook is a pawn of our color, usually advanced, which is challenged
+        // and which will force a defect in our pawn structure no matter how we
+        // defend. Here we consider the simplest form of hooks: levers which
+        // create isolated pawn(s) if we execute the capture.
+        hook =   ((lever & right) && !(adjacent_files_bb(File(f+1)) & (ourPawns ^ s)))
+              || ((lever & left ) && !(adjacent_files_bb(File(f-1)) & (ourPawns ^ s)));
 
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them.
@@ -170,6 +182,9 @@ namespace {
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
+
+        if (hook && neighbours && !more_than_one(supported))
+            score -= Hook;
     }
 
     return score;
