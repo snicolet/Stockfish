@@ -46,6 +46,9 @@ namespace {
 
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
+  
+  // Hook pawn penalty
+  const Score Hook = S( 0, 30);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
@@ -107,7 +110,6 @@ namespace {
     e->kingSquares[Us] = SQ_NONE;
     e->semiopenFiles[Us] = 0xFF;
     e->pawnAttacks[Us] = shift_bb<Right>(ourPawns) | shift_bb<Left>(ourPawns);
-    e->weakPawns[Us] = ourPawns & ~e->pawnAttacks[Us];
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
@@ -181,8 +183,8 @@ namespace {
         if (lever)
             score += Lever[relative_rank(Us, s)];
 
-        if (hook && neighbours)
-            e->weakPawns[Us] |= s;
+        if (hook && neighbours && !more_than_one(supported))
+            score -= Hook;
     }
 
     return score;
