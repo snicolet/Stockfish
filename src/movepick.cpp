@@ -160,21 +160,19 @@ void MovePicker::score<QUIETS>() {
 
 template<>
 void MovePicker::score<EVASIONS>() {
-  // Try winning and equal captures ordered by MVV/LVA, then non-captures ordered
+  // Try winning and equal captures ordered by SEE value, then non-captures ordered
   // by history value, then bad captures and quiet moves with a negative SEE ordered
   // by SEE value.
   const HistoryStats& history = pos.this_thread()->history;
   const FromToStats& fromTo = pos.this_thread()->fromTo;
   Color c = pos.side_to_move();
-  Value see;
 
   for (auto& m : *this)
-      if ((see = pos.see_sign(m)) < VALUE_ZERO)
-          m.value = see - HistoryStats::Max; // At the bottom
+      if ((m.value = pos.see_sign(m)) < VALUE_ZERO)
+          m.value -= HistoryStats::Max; // At the bottom
 
       else if (pos.capture(m))
-          m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-                   - Value(type_of(pos.moved_piece(m))) + HistoryStats::Max;
+          m.value += HistoryStats::Max; // At the top
       else
           m.value = history[pos.moved_piece(m)][to_sq(m)] + fromTo.get(c, m);
 }
