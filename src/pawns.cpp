@@ -155,7 +155,7 @@ namespace {
         // and which will force a defect in our pawn structure no matter how we
         // defend. Here we consider the simplest form of hooks: levers which
         // create isolated pawn(s) if we execute the capture.
-        if (!lever || apex || !neighbours)
+        if (!lever || !neighbours)
             hook = false;
         else
         {
