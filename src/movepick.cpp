@@ -81,7 +81,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s)
 }
 
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square s)
-           : pos(p) {
+           : pos(p), depth(d) {
 
   assert(d <= DEPTH_ZERO);
 
@@ -166,17 +166,23 @@ void MovePicker::score<EVASIONS>() {
   const HistoryStats& history = pos.this_thread()->history;
   const FromToStats& fromTo = pos.this_thread()->fromTo;
   Color c = pos.side_to_move();
-  Value see;
+  Value v;
 
   for (auto& m : *this)
-      if ((see = pos.see_sign(m)) < VALUE_ZERO)
-          m.value = see - HistoryStats::Max; // At the bottom
+  {
+      v =  depth > 0      ? pos.see_sign(m)
+         : pos.capture(m) ? PieceValue[MG][pos.piece_on(to_sq(m))] - Value(type_of(pos.moved_piece(m)))
+         :                  VALUE_ZERO;
+
+      if (v < VALUE_ZERO)
+          m.value = v - HistoryStats::Max; // At the bottom
 
       else if (pos.capture(m))
           m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
                    - Value(type_of(pos.moved_piece(m))) + HistoryStats::Max;
       else
           m.value = history[pos.moved_piece(m)][to_sq(m)] + fromTo.get(c, m);
+  }
 }
 
 
