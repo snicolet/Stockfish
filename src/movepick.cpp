@@ -170,7 +170,7 @@ void MovePicker::score<EVASIONS>() {
 
   for (auto& m : *this)
   {
-      v =  depth > 0      ? pos.see_sign(m)
+      v =  depth >= 0     ? pos.see_sign(m)
          : pos.capture(m) ? PieceValue[MG][pos.piece_on(to_sq(m))] - PieceValue[MG][pos.moved_piece(m)]
          :                  VALUE_ZERO;
 
