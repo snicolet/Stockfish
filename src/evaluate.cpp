@@ -360,8 +360,8 @@ namespace {
         if (Pt == QUEEN)
         {
             // Penalty if any relative pin or discovered attack against the queen
-            Bitboard pinners;
-            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, pinners))
+            Bitboard snipers;
+            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, snipers))
                 score -= WeakQueen;
         }
     }

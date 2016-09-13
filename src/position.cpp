@@ -291,8 +291,8 @@ void Position::set_castling_right(Color c, Square rfrom) {
 
 void Position::set_check_info(StateInfo* si) const {
 
-  si->blockersForKing[WHITE] = slider_blockers(pieces(BLACK), square<KING>(WHITE), si->pinnersForKing[WHITE]);
-  si->blockersForKing[BLACK] = slider_blockers(pieces(WHITE), square<KING>(BLACK), si->pinnersForKing[BLACK]);
+  si->blockersForKing[WHITE] = slider_blockers(pieces(BLACK), square<KING>(WHITE), si->snipersForKing[WHITE]);
+  si->blockersForKing[BLACK] = slider_blockers(pieces(WHITE), square<KING>(BLACK), si->snipersForKing[BLACK]);
 
   Square ksq = square<KING>(~sideToMove);
 
@@ -420,26 +420,28 @@ Phase Position::game_phase() const {
 /// slider if removing that piece from the board would result in a position where
 /// square 's' is attacked. For example, a king-attack blocking piece can be either
 /// a pinned or a discovered check piece, according if its color is the opposite
-/// or the same of the color of the slider. The pinners bitboard get filled with
-/// real and potential pinners.
+/// or the same of the color of the slider. The 'snipers' bitboard gets filled with
+/// the attacking sliders which make the pins or the discovered checks.
 
-Bitboard Position::slider_blockers(Bitboard sliders, Square s, Bitboard& pinners) const {
+Bitboard Position::slider_blockers(Bitboard sliders, Square s, Bitboard& snipers) const {
 
-  Bitboard b, p, result = 0;
+  Bitboard result;
+  result = snipers = 0;
 
   // Pinners are sliders that attack 's' when a pinned piece is removed
-  pinners = p = (  (PseudoAttacks[ROOK  ][s] & pieces(QUEEN, ROOK))
-                 | (PseudoAttacks[BISHOP][s] & pieces(QUEEN, BISHOP))) & sliders;
-
+  Bitboard p = (  (PseudoAttacks[ROOK  ][s] & pieces(QUEEN, ROOK))
+                | (PseudoAttacks[BISHOP][s] & pieces(QUEEN, BISHOP))) & sliders;
   while (p)
   {
-      b = between_bb(s, pop_lsb(&p)) & pieces();
+      Square pp = pop_lsb(&p);
+      Bitboard b = between_bb(s, pp) & pieces();
 
-      if (!more_than_one(b))
-          result |= b;
+      if (b && !more_than_one(b))
+          snipers |= pp, result |= b;
   }
   return result;
 }
+
 
 
 /// Position::attackers_to() computes a bitboard of all pieces which attack a
@@ -1003,7 +1005,7 @@ Value Position::see(Move m) const {
   // potential ones) are on their original square. When a pinner moves to the
   // exchange-square or get captured on it, we fall back to standard SEE behaviour.
   if (   (stmAttackers & pinned_pieces(stm))
-      && (st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
+      && (st->snipersForKing[stm] & occupied) == st->snipersForKing[stm])
       stmAttackers &= ~pinned_pieces(stm);
 
   if (!stmAttackers)
@@ -1028,7 +1030,7 @@ Value Position::see(Move m) const {
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
       if (   (stmAttackers & pinned_pieces(stm))
-          && (st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
+          && (st->snipersForKing[stm] & occupied) == st->snipersForKing[stm])
           stmAttackers &= ~pinned_pieces(stm);
 
       ++slIndex;
