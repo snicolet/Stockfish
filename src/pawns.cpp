@@ -47,6 +47,9 @@ namespace {
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
 
+  // Hook pawn penalty
+  const Score Hook = S(0, 60);
+
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
@@ -93,9 +96,9 @@ namespace {
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
 
-    Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
+    Bitboard b, neighbours, stoppers, doubled, supported, phalanx, lever;
     Square s;
-    bool opposed, lever, connected, backward;
+    bool opposed, connected, backward, hook, apex;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
@@ -129,6 +132,7 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
         connected  = supported | phalanx;
+        apex       = more_than_one(supported);
 
         // A pawn is backward when it is behind all pawns of the same color on the
         // adjacent files and cannot be safely advanced.
@@ -147,6 +151,31 @@ namespace {
             assert(!backward || !(pawn_attack_span(Them, s + Up) & neighbours));
         }
 
+        // A hook is a pawn of our color, usually advanced, which is challenged
+        // and which will force a defect in our pawn structure no matter how we
+        // defend. Here we consider the simplest form of hooks: levers which
+        // create isolated pawn(s) if we execute the capture.
+        if (!lever || !neighbours)
+            hook = false;
+        else
+        {
+            // Colums at the left and at the right of s
+            Bitboard left  = shift_bb<DELTA_W>(file_bb(f));
+            Bitboard right = shift_bb<DELTA_E>(file_bb(f));
+
+            // Adjacents columns of our left or right columns
+            Bitboard al = shift_bb<DELTA_W>(adjacent_files_bb(f)) | file_bb(f);
+            Bitboard ar = shift_bb<DELTA_E>(adjacent_files_bb(f)) | file_bb(f);
+
+            // Bitboards of our pawns after a speculative left or right capture
+            Bitboard l = (lever & left ) ^ (ourPawns ^ s);
+            Bitboard r = (lever & right) ^ (ourPawns ^ s);
+
+            // Find if a speculative capture create any isolated pawn(s)
+            hook =    ((lever & left ) && (!(al & l) || (!(ar & l) && (right & l))))
+                   || ((lever & right) && (!(ar & r) || (!(al & r) && (left  & r))));
+        }
+
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them.
         if (!stoppers && !(ourPawns & forward_bb(Us, s)))
@@ -163,13 +192,16 @@ namespace {
             score -= Unsupported[more_than_one(neighbours & pawnAttacksBB[s])];
 
         if (connected)
-            score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
+            score += Connected[opposed][!!phalanx][apex][relative_rank(Us, s)];
 
         if (doubled)
             score -= Doubled;
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
+
+        if (hook)
+            score -= Hook;
     }
 
     return score;
