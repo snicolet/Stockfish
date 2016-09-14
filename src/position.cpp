@@ -984,11 +984,11 @@ Value Position::see(Move m) const {
   swapList[0] = PieceValue[MG][piece_on(to)];
   stm = color_of(piece_on(from));
   occupied = pieces() ^ from;
-  
+
   // Early return when the move is illegal because of a pin
   if ((pinned_pieces(stm) & from) && (stm == side_to_move()) && !legal(m))
       return (-VALUE_KNOWN_WIN);
- 
+
   // Castling moves are implemented as king capturing the rook so cannot
   // be handled correctly. Simply return VALUE_ZERO that is always correct
   // unless in the rare case the rook ends up under attack.
