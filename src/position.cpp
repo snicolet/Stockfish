@@ -444,7 +444,6 @@ Bitboard Position::slider_blockers(Bitboard sliders, Square s, Bitboard& snipers
   }
   
   snipers = ss;
-  
   return result;
 }
 
@@ -1035,9 +1034,11 @@ Value Position::see(Move m) const {
       captured = min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers);
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
-      if (   (stmAttackers & pinned_pieces(stm))
-          && (st->snipersForKing[stm] & occupied) == st->snipersForKing[stm])
-          stmAttackers &= ~pinned_pieces(stm);
+
+       if (    captured != KING
+           && (stmAttackers & pinned_pieces(stm))
+           && (st->snipersForKing[stm] & occupied) == st->snipersForKing[stm])
+           stmAttackers &= ~pinned_pieces(stm);
 
       ++slIndex;
 
