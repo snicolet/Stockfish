@@ -153,8 +153,9 @@ namespace {
 
         // A hook is a pawn of our color, usually advanced, which is challenged
         // and which will force a defect in our pawn structure no matter how we
-        // defend. Here we consider the simplest form of hooks: levers which
-        // create isolated pawn(s) if we execute the capture.
+        // defend. Here we consider as hooks the levers which give a passed pawn
+        // to the opponent or create isolated pawn(s) in our camp if we execute 
+        // the capture.
         if (!lever || !neighbours)
             hook = false;
         else
@@ -170,10 +171,13 @@ namespace {
             // Bitboards of our pawns after a speculative left or right capture
             Bitboard l = (lever & left ) ^ (ourPawns ^ s);
             Bitboard r = (lever & right) ^ (ourPawns ^ s);
-
-            // Find if a speculative capture create any isolated pawn(s)
-            hook =    ((lever & left ) && (!(al & l) || (!(ar & l) && (right & l))))
-                   || ((lever & right) && (!(ar & r) || (!(al & r) && (left  & r))));
+                   
+            // Potential opponent passers after the capture
+            Bitboard pop = theirPawns & pawn_attack_span(Us, s);
+            
+            // Does capturing gives us isolated pawn(s) or passed pawn(s) to the opponent ?
+            hook =    ((lever & left ) && (!(al & l) || (!(ar & l) && (right & (l | pop)))))
+                   || ((lever & right) && (!(ar & r) || (!(al & r) && (left  & (r | pop)))));
         }
 
         // Passed pawns will be properly scored in evaluation because we need
