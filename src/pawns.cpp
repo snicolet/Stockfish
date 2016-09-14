@@ -48,7 +48,7 @@ namespace {
   const Score Doubled = S(18,38);
 
   // Hook pawn penalty
-  const Score Hook = S(0, 60);
+  const Score Hook = S(15, 0);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
