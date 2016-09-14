@@ -999,6 +999,13 @@ Value Position::see(Move m) const {
   stmAttackers = attackers & pieces(stm);
   occupied ^= to; // For the case when captured piece is a pinner
 
+  // If m is a discovered check, the only possible defensive capture on
+  // the destination square is a capture by the king to evade the check.
+  if (   stm != side_to_move()
+      && (discovered_check_candidates() & from)
+      && type_of(piece_on(from)) != PAWN)
+      stmAttackers &= pieces(stm, KING);
+
   // Don't allow pinned pieces to attack as long all pinners (this includes also
   // potential ones) are on their original square. When a pinner moves to the
   // exchange-square or get captured on it, we fall back to standard SEE behaviour.
