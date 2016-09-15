@@ -146,6 +146,7 @@ private:
 public:  // for the trempolines, do not use directly
   template<Stages> Move pnm();
   template<Stages> void gns();
+  template<Stages> Move nm();
 
 };
 
