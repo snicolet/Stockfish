@@ -25,16 +25,6 @@
 
 namespace {
 
-  enum Stages {
-    MAIN_SEARCH, GOOD_CAPTURES, KILLERS, QUIET, BAD_CAPTURES,
-    EVASION, ALL_EVASIONS,
-    QSEARCH_WITH_CHECKS, QCAPTURES_1, CHECKS,
-    QSEARCH_WITHOUT_CHECKS, QCAPTURES_2,
-    PROBCUT, PROBCUT_CAPTURES,
-    RECAPTURE, RECAPTURES,
-    STOP
-  };
-
   // Our insertion sort, which is guaranteed to be stable, as it should be
   void insertion_sort(ExtMove* begin, ExtMove* end)
   {
@@ -178,6 +168,70 @@ void MovePicker::score<EVASIONS>() {
       else
           m.value = history[pos.moved_piece(m)][to_sq(m)] + fromTo.get(c, m);
 }
+
+
+template<Stages st>
+void MovePicker::gns()
+{
+  assert(stage != STOP);
+
+  cur = moves;
+  ++stage;
+  
+  if (st == GOOD_CAPTURES || st == QCAPTURES_1 || st == QCAPTURES_2 ||
+      st ==  PROBCUT_CAPTURES || RECAPTURES)
+  {
+      endMoves = generate<CAPTURES>(pos, moves);
+      score<CAPTURES>();
+  }
+
+  if (st == KILLERS)
+  {
+      killers[0] = ss->killers[0];
+      killers[1] = ss->killers[1];
+      killers[2] = countermove;
+      cur = killers;
+      endMoves = cur + 2 + (countermove != killers[0] && countermove != killers[1]);
+  }
+
+  if (st == QUIET)
+  {
+      endMoves = generate<QUIETS>(pos, moves);
+      score<QUIETS>();
+      if (depth < 3 * ONE_PLY)
+      {
+          ExtMove* goodQuiet = std::partition(cur, endMoves, [](const ExtMove& m)
+                                             { return m.value > VALUE_ZERO; });
+          insertion_sort(cur, goodQuiet);
+      } else
+          insertion_sort(cur, endMoves);
+  }
+
+  if (st == BAD_CAPTURES)
+  {
+      // Just pick them in reverse order to get correct ordering
+      cur = moves + MAX_MOVES - 1;
+      endMoves = endBadCaptures;
+  }
+
+  if (st == ALL_EVASIONS)
+  {
+      endMoves = generate<EVASIONS>(pos, moves);
+      if (endMoves - moves > 1)
+          score<EVASIONS>();
+  }
+
+  if (st == CHECKS)
+      endMoves = generate<QUIET_CHECKS>(pos, moves);
+
+  if (st == EVASION || st == QSEARCH_WITH_CHECKS || st == QSEARCH_WITHOUT_CHECKS ||
+      st == PROBCUT || st == RECAPTURE || st == STOP)
+      stage = STOP;
+}
+
+
+//inline int gns_GOOD_CAPTURES() { return gns<GOOD_CAPTURES>(); }
+
 
 
 /// generate_next_stage() generates, scores, and sorts the next bunch of moves

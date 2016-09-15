@@ -87,6 +87,21 @@ private:
     Value table[COLOR_NB][SQUARE_NB][SQUARE_NB];
 };
 
+enum Stages {
+    MAIN_SEARCH, GOOD_CAPTURES, KILLERS, QUIET, BAD_CAPTURES,
+    EVASION, ALL_EVASIONS,
+    QSEARCH_WITH_CHECKS, QCAPTURES_1, CHECKS,
+    QSEARCH_WITHOUT_CHECKS, QCAPTURES_2,
+    PROBCUT, PROBCUT_CAPTURES,
+    RECAPTURE, RECAPTURES,
+    STOP,
+    STAGE_NB = STOP
+  };
+  
+ typedef void Generator(void);
+ typedef Move Picker(void);
+ struct GeneratorAndPicker { Generator g; Picker p; };
+
 /// MovePicker class is used to pick one pseudo legal move at a time from the
 /// current position. The most important method is next_move(), which returns a
 /// new pseudo legal move each time it is called, until there are no moves left,
@@ -105,10 +120,13 @@ public:
 
   Move next_move();
   int see_sign() const;
+  
+  template<Stages> void gns();
 
 private:
   template<GenType> void score();
   void generate_next_stage();
+  
   ExtMove* begin() { return moves; }
   ExtMove* end() { return endMoves; }
 
@@ -123,6 +141,52 @@ private:
   int stage;
   ExtMove* endBadCaptures = moves + MAX_MOVES - 1;
   ExtMove moves[MAX_MOVES], *cur = moves, *endMoves = moves;
+  
+  void gns_GOOD_CAPTURES();
+  void gns_QCAPTURES_1();
+  void gns_QCAPTURES_2();
+  void gns_PROBCUT_CAPTURES();
+  void gns_RECAPTURES();
+  void gns_KILLERS();
+  void gns_QUIET();
+  void gns_BAD_CAPTURES();
+  void gns_ALL_EVASIONS();
+  void gns_CHECKS();
+  void gns_QSEARCH_WITH_CHECKS();
+  void gns_QSEARCH_WITHOUT_CHECKS();
+  void gns_PROBCUT();
+  void gns_RECAPTURE();
+  void gns_STOP();
+  
+  Generator x = &MovePicker::gns_GOOD_CAPTURES;
+  
+  //GeneratorAndPicker x = { &MovePicker::gns_GOOD_CAPTURES , 0};
+  
+ // GeneratorAndPicker func[STAGE_NB] =
+    //  {gns_GOOD_CAPTURES , null_pointer}
+
 };
+
+inline void MovePicker::gns_GOOD_CAPTURES()          { gns<GOOD_CAPTURES>(); }
+inline void MovePicker::gns_QCAPTURES_1()            { gns<QCAPTURES_1>(); }
+inline void MovePicker::gns_QCAPTURES_2()            { gns<QCAPTURES_2>(); }
+inline void MovePicker::gns_PROBCUT_CAPTURES()       { gns<PROBCUT_CAPTURES>(); }
+inline void MovePicker::gns_RECAPTURES()             { gns<RECAPTURES>(); }
+inline void MovePicker::gns_KILLERS()                { gns<KILLERS>(); }
+inline void MovePicker::gns_QUIET()                  { gns<QUIET>(); }
+inline void MovePicker::gns_BAD_CAPTURES()           { gns<BAD_CAPTURES>(); }
+inline void MovePicker::gns_ALL_EVASIONS()           { gns<ALL_EVASIONS>(); }
+inline void MovePicker::gns_CHECKS()                 { gns<CHECKS>(); }
+inline void MovePicker::gns_QSEARCH_WITH_CHECKS()    { gns<QSEARCH_WITH_CHECKS>(); }
+inline void MovePicker::gns_QSEARCH_WITHOUT_CHECKS() { gns<QSEARCH_WITHOUT_CHECKS>(); }
+inline void MovePicker::gns_PROBCUT()                { gns<PROBCUT>(); }
+inline void MovePicker::gns_RECAPTURE()              { gns<RECAPTURE>(); }
+inline void MovePicker::gns_STOP()                   { gns<STOP>(); }
+
+
+
+
+
+
 
 #endif // #ifndef MOVEPICK_H_INCLUDED
