@@ -116,17 +116,11 @@ public:
   MovePicker(const Position&, Move, Depth, Search::Stack*);
 
   Move next_move();
-//  Move next_move_old();
-//  Move next_move_old2();
-  
-//  Move next_move_fast();
   
   int see_sign() const;
 
 private:
   template<GenType> void score();
-  
-//  void generate_next_stage_old();
   
   ExtMove* begin() { return moves; }
   ExtMove* end() { return endMoves; }
@@ -144,42 +138,38 @@ private:
   ExtMove moves[MAX_MOVES], *cur = moves, *endMoves = moves;
   
 public:  // for the trempolines, do not use directly
-  template<Stages> Move pnm();
-  template<Stages> void gns();
-  template<Stages> Move nm();
+  template<Stages> void generate_next_stage();
 
 };
 
 typedef void (MovePicker::*Generator)(void);
-typedef Move (MovePicker::*Picker)(void);
-typedef struct {Generator generator; Picker picker;} GeneratorAndPicker;
 
 
-constexpr GeneratorAndPicker trempoline[STAGE_NB] =
+constexpr Generator generators[STAGE_NB] =
   
-  { { &MovePicker::gns<MAIN_SEARCH           > , &MovePicker::pnm<MAIN_SEARCH           >},
-    { &MovePicker::gns<GOOD_CAPTURES         > , &MovePicker::pnm<GOOD_CAPTURES         >},
-    { &MovePicker::gns<KILLERS               > , &MovePicker::pnm<KILLERS               >},
-    { &MovePicker::gns<QUIET                 > , &MovePicker::pnm<QUIET                 >},
-    { &MovePicker::gns<BAD_CAPTURES          > , &MovePicker::pnm<BAD_CAPTURES          >},
+  { &MovePicker::generate_next_stage<MAIN_SEARCH           > ,
+    &MovePicker::generate_next_stage<GOOD_CAPTURES         > ,
+    &MovePicker::generate_next_stage<KILLERS               > ,
+    &MovePicker::generate_next_stage<QUIET                 > ,
+    &MovePicker::generate_next_stage<BAD_CAPTURES          > ,
     
-    { &MovePicker::gns<EVASION               > , &MovePicker::pnm<EVASION               >},
-    { &MovePicker::gns<ALL_EVASIONS          > , &MovePicker::pnm<ALL_EVASIONS          >},
+    &MovePicker::generate_next_stage<EVASION               > ,
+    &MovePicker::generate_next_stage<ALL_EVASIONS          > ,
     
-    { &MovePicker::gns<QSEARCH_WITH_CHECKS   > , &MovePicker::pnm<QSEARCH_WITH_CHECKS   >},
-    { &MovePicker::gns<QCAPTURES_1           > , &MovePicker::pnm<QCAPTURES_1           >},
-    { &MovePicker::gns<CHECKS                > , &MovePicker::pnm<CHECKS                >},
+    &MovePicker::generate_next_stage<QSEARCH_WITH_CHECKS   > ,
+    &MovePicker::generate_next_stage<QCAPTURES_1           > ,
+    &MovePicker::generate_next_stage<CHECKS                > ,
     
-    { &MovePicker::gns<QSEARCH_WITHOUT_CHECKS> , &MovePicker::pnm<QSEARCH_WITHOUT_CHECKS>},
-    { &MovePicker::gns<QCAPTURES_2           > , &MovePicker::pnm<QCAPTURES_2           >},
+    &MovePicker::generate_next_stage<QSEARCH_WITHOUT_CHECKS> ,
+    &MovePicker::generate_next_stage<QCAPTURES_2           > ,
     
-    { &MovePicker::gns<PROBCUT               > , &MovePicker::pnm<PROBCUT               >},
-    { &MovePicker::gns<PROBCUT_CAPTURES      > , &MovePicker::pnm<PROBCUT_CAPTURES      >},
+    &MovePicker::generate_next_stage<PROBCUT               > ,
+    &MovePicker::generate_next_stage<PROBCUT_CAPTURES      > ,
     
-    { &MovePicker::gns<RECAPTURE             > , &MovePicker::pnm<RECAPTURE             >},
-    { &MovePicker::gns<RECAPTURES            > , &MovePicker::pnm<RECAPTURES            >},
+    &MovePicker::generate_next_stage<RECAPTURE             > ,
+    &MovePicker::generate_next_stage<RECAPTURES            > ,
     
-    { &MovePicker::gns<STOP                  > , &MovePicker::pnm<STOP                  >},
+    &MovePicker::generate_next_stage<STOP                  >
   };
 
 
