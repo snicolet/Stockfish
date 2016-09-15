@@ -48,12 +48,12 @@ namespace {
   const Score Doubled = S(18,38);
 
   // Hook pawn penalty
-  const Score Hook = S(20, 0);
+  const Score Hook = S(30, 0);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
-    S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
-    S(17, 16), S(33, 32), S(0, 0), S(0, 0) };
+    S( 0,  0), S(-10,  0), S(-10, 0), S(-10, 0),
+    S(17, 16), S( 23, 32), S( 0 , 0), S( 0 , 0) };
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
   const Value ShelterWeakness[][RANK_NB] = {
@@ -156,7 +156,7 @@ namespace {
         // defend. Here we consider as hooks the levers which give a passed pawn
         // to the opponent or create isolated pawn(s) in our camp if we execute 
         // the capture.
-        if (!lever)
+        if (!lever & !neighbours)
             hook = false;
         else
         {
