@@ -87,6 +87,18 @@ private:
     Value table[COLOR_NB][SQUARE_NB][SQUARE_NB];
 };
 
+enum Stages {
+    MAIN_SEARCH, GOOD_CAPTURES, KILLERS, QUIET, BAD_CAPTURES,
+    EVASION, ALL_EVASIONS,
+    QSEARCH_WITH_CHECKS, QCAPTURES_1, CHECKS,
+    QSEARCH_WITHOUT_CHECKS, QCAPTURES_2,
+    PROBCUT, PROBCUT_CAPTURES,
+    RECAPTURE, RECAPTURES,
+    STOP,
+    STAGE_NB = STOP + 1
+  };
+
+
 /// MovePicker class is used to pick one pseudo legal move at a time from the
 /// current position. The most important method is next_move(), which returns a
 /// new pseudo legal move each time it is called, until there are no moves left,
@@ -107,7 +119,8 @@ public:
 
 private:
   template<GenType> void score();
-  ExtMove* begin() { return cur; }
+  
+  ExtMove* begin() { return moves; }
   ExtMove* end() { return endMoves; }
 
   const Position& pos;
@@ -115,11 +128,48 @@ private:
   Move countermove;
   Depth depth;
   Move ttMove;
+  ExtMove killers[3];
   Square recaptureSquare;
   Value threshold;
   int stage;
-  ExtMove* cur, *endMoves, *endBadCaptures;
-  ExtMove moves[MAX_MOVES];
+  ExtMove* endBadCaptures = moves + MAX_MOVES - 1;
+  ExtMove moves[MAX_MOVES], *cur = moves, *endMoves = moves;
+  
+public:  // for the trempolines, do not use directly
+  template<Stages> void generate_next_stage();
+
 };
+
+typedef void (MovePicker::*Generator)(void);
+
+
+constexpr Generator generators[STAGE_NB] =
+  
+  { &MovePicker::generate_next_stage<MAIN_SEARCH           > ,
+    &MovePicker::generate_next_stage<GOOD_CAPTURES         > ,
+    &MovePicker::generate_next_stage<KILLERS               > ,
+    &MovePicker::generate_next_stage<QUIET                 > ,
+    &MovePicker::generate_next_stage<BAD_CAPTURES          > ,
+    
+    &MovePicker::generate_next_stage<EVASION               > ,
+    &MovePicker::generate_next_stage<ALL_EVASIONS          > ,
+    
+    &MovePicker::generate_next_stage<QSEARCH_WITH_CHECKS   > ,
+    &MovePicker::generate_next_stage<QCAPTURES_1           > ,
+    &MovePicker::generate_next_stage<CHECKS                > ,
+    
+    &MovePicker::generate_next_stage<QSEARCH_WITHOUT_CHECKS> ,
+    &MovePicker::generate_next_stage<QCAPTURES_2           > ,
+    
+    &MovePicker::generate_next_stage<PROBCUT               > ,
+    &MovePicker::generate_next_stage<PROBCUT_CAPTURES      > ,
+    
+    &MovePicker::generate_next_stage<RECAPTURE             > ,
+    &MovePicker::generate_next_stage<RECAPTURES            > ,
+    
+    &MovePicker::generate_next_stage<STOP                  >
+  };
+
+
 
 #endif // #ifndef MOVEPICK_H_INCLUDED
