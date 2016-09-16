@@ -46,6 +46,9 @@ namespace {
 
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
+  
+  // Bonus for having pawns on both flanks
+  const Score BothFlanks = S(0, 16);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
@@ -92,6 +95,8 @@ namespace {
     const Square Up    = (Us == WHITE ? DELTA_N  : DELTA_S);
     const Square Right = (Us == WHITE ? DELTA_NE : DELTA_SW);
     const Square Left  = (Us == WHITE ? DELTA_NW : DELTA_SE);
+    const Bitboard QueenSide = FileABB | FileBBB | FileCBB | FileDBB;
+    const Bitboard KingSide  = FileEBB | FileFBB | FileGBB | FileHBB;
 
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Square s;
@@ -171,6 +176,9 @@ namespace {
         if (lever)
             score += Lever[relative_rank(Us, s)];
     }
+
+    if ((ourPawns & QueenSide) && (ourPawns & KingSide))
+        score += BothFlanks;
 
     return score;
   }
