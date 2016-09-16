@@ -422,7 +422,7 @@ namespace {
                      + 134 * (popcount(b) + !!ei.pinnedPieces[Us])
                      - 717 * !pos.count<QUEEN>(Them)
                      -   3 * mg_value(score) / 2;
-        
+
         // Compute the king danger score and subtract it from the evaluation
         if (kingDanger > 0)
             score -= make_score(std::min(kingDanger * kingDanger / 4096,  2 * int(BishopValueMg)), 0);
