@@ -393,7 +393,7 @@ namespace {
     const Square  Up = (Us == WHITE ? DELTA_N : DELTA_S);
 
     Bitboard undefended, b, b1, b2, safe, other;
-    int kingDanger;
+    Score kingDanger = SCORE_ZERO;
     const Square ksq = pos.square<KING>(Us);
 
     // King shelter and enemy pawns storm
@@ -411,28 +411,28 @@ namespace {
         b =  ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]
            & ei.kingRing[Us] & ~pos.pieces(Them);
 
-        // Initialize the 'kingDanger' variable, which will be transformed
+        // Initialize the 'attackUnits' variable, which will be transformed
         // later into a king danger score. The initial value is based on the
         // number and types of the enemy's attacking pieces, the number of
         // attacked and undefended squares around our king and the quality of
         // the pawn shelter (current 'score' value).
-        kingDanger =  std::min(807, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
-                     + 101 * ei.kingAdjacentZoneAttacksCount[Them]
-                     + 235 * popcount(undefended)
-                     + 134 * (popcount(b) + !!ei.pinnedPieces[Us])
-                     - 717 * !pos.count<QUEEN>(Them)
-                     -   3 * mg_value(score) / 2;
+        int attackUnits =  std::min(807, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
+                         + 101 * ei.kingAdjacentZoneAttacksCount[Them]
+                         + 235 * popcount(undefended)
+                         + 134 * (popcount(b) + !!ei.pinnedPieces[Us])
+                         - 717 * !pos.count<QUEEN>(Them)
+                         -   3 * mg_value(score) / 2;
 
-        // Compute the king danger score and subtract it from the evaluation
-        if (kingDanger > 0)
-            score -= make_score(std::min(kingDanger * kingDanger / 4096,  2 * int(BishopValueMg)), 0);
+        // Compute the king danger score
+        if (attackUnits > 0)
+            kingDanger += make_score(attackUnits * attackUnits / 4096, 0);
 
         // Analyse the enemy's safe queen contact checks: find the undefended
         // squares around our king reachable by the enemy queen and supported
         // by another enemy piece.
         b = undefended & ei.attackedBy[Them][QUEEN] & ~pos.pieces(Them) & ei.attackedBy2[Them];
         if (b)
-            score -= QueenContactCheck * popcount(b);
+            kingDanger += QueenContactCheck * popcount(b);
 
         // Analyse the safe enemy's checks which are possible on next move...
         safe  = ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Them));
@@ -447,7 +447,7 @@ namespace {
 
         // Enemy queen safe checks
         if ((b1 | b2) & ei.attackedBy[Them][QUEEN] & safe)
-            score -= QueenCheck;
+            kingDanger += QueenCheck;
 
         // For other pieces, also consider the square safe if attacked twice,
         // and only defended by a queen.
@@ -457,25 +457,29 @@ namespace {
 
         // Enemy rooks safe and other checks
         if (b1 & ei.attackedBy[Them][ROOK] & safe)
-            score -= RookCheck;
+            kingDanger += RookCheck;
 
         else if (b1 & ei.attackedBy[Them][ROOK] & other)
-            score -= OtherCheck;
+            kingDanger += OtherCheck;
 
         // Enemy bishops safe and other checks
         if (b2 & ei.attackedBy[Them][BISHOP] & safe)
-            score -= BishopCheck;
+            kingDanger += BishopCheck;
 
         else if (b2 & ei.attackedBy[Them][BISHOP] & other)
-            score -= OtherCheck;
+            kingDanger += OtherCheck;
 
         // Enemy knights safe and other checks
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
         if (b & safe)
-            score -= KnightCheck;
+            kingDanger += KnightCheck;
 
         else if (b & other)
-            score -= OtherCheck;
+            kingDanger += OtherCheck;
+
+        // Subtract kingDanger from the evaluation
+        score -= make_score(std::min(int(mg_value(kingDanger)), 2 * int(BishopValueMg)), 
+                            eg_value(kingDanger));
     }
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
