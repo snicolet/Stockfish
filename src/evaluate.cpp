@@ -427,9 +427,9 @@ namespace {
         if (kingDanger > 0)
             score -= make_score(std::min(kingDanger * kingDanger / 4096,  2 * int(BishopValueMg)), 0);
 
-        // Analyse the enemy's safe queen contact checks. Firstly, find the
-        // undefended squares around the king reachable by the enemy queen
-        // and supported by another enemy piece;
+        // Analyse the enemy's safe queen contact checks: find the undefended
+        // squares around our king reachable by the enemy queen and supported
+        // by another enemy piece.
         b = undefended & ei.attackedBy[Them][QUEEN] & ~pos.pieces(Them) & ei.attackedBy2[Them];
         if (b)
             score -= QueenContactCheck * popcount(b);
