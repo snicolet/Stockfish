@@ -428,11 +428,11 @@ namespace {
             score -= make_score(std::min(kingDanger * kingDanger / 4096,  2 * int(BishopValueMg)), 0);
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
-        // undefended squares around the king reachable by the enemy queen...
-        b = undefended & ei.attackedBy[Them][QUEEN] & ~pos.pieces(Them);
-
-        // ...and keep squares supported by another enemy piece
-        score -= QueenContactCheck * popcount(b & ei.attackedBy2[Them]);
+        // undefended squares around the king reachable by the enemy queen
+        // and supported by another enemy piece;
+        b = undefended & ei.attackedBy[Them][QUEEN] & ~pos.pieces(Them) & ei.attackedBy2[Them];
+        if (b)
+            score -= QueenContactCheck * popcount(b);
 
         // Analyse the safe enemy's checks which are possible on next move...
         safe  = ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Them));
