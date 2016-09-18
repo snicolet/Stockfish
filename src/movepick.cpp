@@ -358,6 +358,7 @@ Move MovePicker::next_move() {
       while (cur < endMoves)
       {
           move = cur++->move;
+          move.see = VALUE_NONE;
           if (move != ttMove)
               return move;
       }
