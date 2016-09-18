@@ -953,7 +953,7 @@ moves_loop: // When in check search starts from here
                   continue;
           }
           else if (   depth < 7 * ONE_PLY
-                   && pos.see_sign(move) < Value(-35 * depth / ONE_PLY * depth / ONE_PLY))
+                   && mp.see_sign(move) < Value(-35 * depth / ONE_PLY * depth / ONE_PLY))
                   continue;
       }
 
@@ -1317,7 +1317,7 @@ moves_loop: // When in check search starts from here
       // Don't search moves with negative SEE values
       if (  (!InCheck || evasionPrunable)
           &&  type_of(move) != PROMOTION
-          &&  pos.see_sign(move) < VALUE_ZERO)
+          &&  mp.see_sign(move) < VALUE_ZERO)
           continue;
 
       // Speculative prefetch as early as possible
