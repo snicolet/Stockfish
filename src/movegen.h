@@ -36,6 +36,7 @@ enum GenType {
 
 struct ExtMove {
   Move move;
+  int16_t see;
   Value value;
 
   operator Move() const { return move; }

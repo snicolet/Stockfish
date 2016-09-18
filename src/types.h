@@ -115,7 +115,7 @@ const int MAX_PLY   = 128;
 /// any normal move destination square is always different from origin square
 /// while MOVE_NONE and MOVE_NULL have the same origin and destination square.
 
-enum Move {
+enum Move : uint16_t {
   MOVE_NONE,
   MOVE_NULL = 65
 };
@@ -172,7 +172,7 @@ enum Bound {
   BOUND_EXACT = BOUND_UPPER | BOUND_LOWER
 };
 
-enum Value : int {
+enum Value : int32_t {
   VALUE_ZERO      = 0,
   VALUE_DRAW      = 0,
   VALUE_KNOWN_WIN = 10000,
