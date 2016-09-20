@@ -1045,10 +1045,11 @@ Value Position::see(Move m) const {
       // with the discovered check candidates of type KNIGHT, BISHOP or ROOK
       Bitboard dcAttackers =  stmAttackers
                             & st->blockersForKing[~stm]
-                            & (pieces(KNIGHT, BISHOP) | pieces(ROOK));
-       
+                            & (pieces(KNIGHT, BISHOP) | pieces(ROOK))
+                            & ~LineBB[to][square<KING>(~stm)];
+
 //    bool discovered = (dcAttackers != 0) && (dcAttackers != stmAttackers);
-  
+
       nextVictim = dcAttackers ?
                      min_attacker<PAWN>(byTypeBB, to, dcAttackers , occupied, attackers, from_bb) :
                      min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers, from_bb);
