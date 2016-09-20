@@ -58,14 +58,14 @@ const string PieceToChar(" PNBRQK  pnbrqk");
 
 template<int Pt>
 PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
-                       Bitboard& occupied, Bitboard& attackers, Square& from) {
+                       Bitboard& occupied, Bitboard& attackers, Bitboard& from_bb) {
 
   Bitboard b = stmAttackers & bb[Pt];
   if (!b)
-      return min_attacker<Pt+1>(bb, to, stmAttackers, occupied, attackers, from);
+      return min_attacker<Pt+1>(bb, to, stmAttackers, occupied, attackers, from_bb);
 
-  from = lsb(b);//b & ~(b - 1);
-  occupied ^= from;
+  from_bb = b & ~(b - 1);
+  occupied ^= from_bb;
 
   if (Pt == PAWN || Pt == BISHOP || Pt == QUEEN)
       attackers |= attacks_bb<BISHOP>(to, occupied) & (bb[BISHOP] | bb[QUEEN]);
@@ -78,7 +78,10 @@ PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
 }
 
 template<>
-PieceType min_attacker<KING>(const Bitboard*, Square, Bitboard, Bitboard&, Bitboard&, Square&) {
+PieceType min_attacker<KING>(const Bitboard*, Square, Bitboard stmAttackers, Bitboard&, Bitboard&, Bitboard& from_bb) {
+  assert(popcount(stmAttackers) == 1);
+  
+  from_bb = stmAttackers;
   return KING; // No need to update bitboards: it is the last cycle
 }
 
@@ -971,7 +974,7 @@ Value Position::see_sign(Move m) const {
 Value Position::see(Move m) const {
 
   Square from, to;
-  Bitboard occupied, attackers, stmAttackers;
+  Bitboard occupied, attackers, stmAttackers, from_bb;
   Value swapList[32];
   int slIndex = 1;
   PieceType captured;
@@ -1012,7 +1015,8 @@ Value Position::see(Move m) const {
 
   // If m is a discovered check, the only possible defensive capture on
   // the destination square is a capture by the king to evade the check.
-  if ((st->blockersForKing[stm] & from) && !aligned(from, to, square<KING>(stm)))
+  if (   (st->blockersForKing[stm] & from)
+      && !aligned(from, to, square<KING>(stm)))
   {
        //sync_cout << *this << " condition " << (stm != side_to_move()) << " move: " << UCI::move(m,false) << sync_endl;
        stmAttackers &= pieces(stm, KING);
@@ -1042,13 +1046,14 @@ Value Position::see(Move m) const {
       swapList[slIndex] = -swapList[slIndex - 1] + PieceValue[MG][captured];
 
       // Locate and remove the next least valuable attacker
-      from = square<KING>(stm);
-      captured = min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers, from);
+      captured = min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers, from_bb);
       
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
 
-      if (stmAttackers && (st->blockersForKing[stm] & from) && !aligned(from, to, square<KING>(stm)))
+      if (    stmAttackers
+           && (st->blockersForKing[stm] & from_bb)
+           && !aligned(from_bb, to, square<KING>(stm)))
       {
 //            sync_cout << *this << " condition " << (stm != side_to_move()) << " move: " << UCI::move(make_move(from, to),false) <<
 //                " startmove " << UCI::move(m,false) << sync_endl;
