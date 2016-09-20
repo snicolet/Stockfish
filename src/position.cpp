@@ -24,7 +24,6 @@
 #include <cstring> // For std::memset, std::memcmp
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 
 #include "bitboard.h"
 #include "misc.h"
@@ -79,9 +78,10 @@ PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
 
 template<>
 PieceType min_attacker<KING>(const Bitboard*, Square, Bitboard stmAttackers, Bitboard&, Bitboard&, Bitboard& from_bb) {
-  assert(popcount(stmAttackers) == 1);
   
+  assert(popcount(stmAttackers) == 1);
   from_bb = stmAttackers;
+  
   return KING; // No need to update bitboards: it is the last cycle
 }
 
@@ -1041,7 +1041,7 @@ Value Position::see(Move m) const {
 
       // Locate and remove the next least valuable attacker
       nextVictim = min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers, from_bb);
-      
+
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
 
@@ -1053,7 +1053,7 @@ Value Position::see(Move m) const {
               && (st->blockersForKing[stm] & from_bb)
               && !aligned(from_bb, to, square<KING>(stm)))
               stmAttackers &= pieces(stm, KING);
-      
+
           // Don't allow pinned pieces to attack 
           if ((st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
               stmAttackers &= ~pinned_pieces(stm);
