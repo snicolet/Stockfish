@@ -24,7 +24,6 @@
 #include <cstring> // For std::memset, std::memcmp
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 
 #include "bitboard.h"
 #include "misc.h"
@@ -35,7 +34,6 @@
 #include "uci.h"
 
 using std::string;
-using namespace std;
 
 namespace PSQT {
   extern Score psq[PIECE_NB][SQUARE_NB];
@@ -65,7 +63,7 @@ PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
   if (!b)
       return min_attacker<Pt+1>(bb, to, stmAttackers, occupied, attackers);
 
-  occupied ^= (b & ~(b - 1));
+  occupied ^= b & ~(b - 1);
 
   if (Pt == PAWN || Pt == BISHOP || Pt == QUEEN)
       attackers |= attacks_bb<BISHOP>(to, occupied) & (bb[BISHOP] | bb[QUEEN]);
@@ -1043,22 +1041,12 @@ Value Position::see(Move m) const {
                             & (pieces(KNIGHT, BISHOP) | pieces(ROOK))
                             & ~LineBB[to][square<KING>(~stm)];
 
-//    bool discovered = (dcAttackers != 0) && (dcAttackers != stmAttackers);
-
       nextVictim = dcAttackers ?
                      min_attacker<PAWN>(byTypeBB, to, dcAttackers , occupied, attackers) :
                      min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers);
 
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
-      
-//    if (discovered)
-//       {
-//          cerr << *this << endl;
-//          cerr << "startmove = " << UCI::move(m, false) << endl;
-//          cerr << "move = "      << UCI::move(make_move(lsb(from_bb), to),false) << endl;
-//          cerr << "==========================" << endl;
-//       }
 
       // If the last capture was a discovered check, the only next possible capture 
       // on the destination square is a capture by the king to evade the check.
@@ -1067,7 +1055,7 @@ Value Position::see(Move m) const {
 
       // Don't allow pinned pieces to attack 
       if ((st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
-         stmAttackers &= ~pinned_pieces(stm);
+          stmAttackers &= ~pinned_pieces(stm);
 
       ++slIndex;
 
