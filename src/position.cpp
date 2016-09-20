@@ -59,14 +59,13 @@ const string PieceToChar(" PNBRQK  pnbrqk");
 
 template<int Pt>
 PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
-                       Bitboard& occupied, Bitboard& attackers, Bitboard& from_bb) {
+                       Bitboard& occupied, Bitboard& attackers) {
 
   Bitboard b = stmAttackers & bb[Pt];
   if (!b)
-      return min_attacker<Pt+1>(bb, to, stmAttackers, occupied, attackers, from_bb);
+      return min_attacker<Pt+1>(bb, to, stmAttackers, occupied, attackers);
 
-  from_bb = b & ~(b - 1);
-  occupied ^= from_bb;
+  occupied ^= (b & ~(b - 1));
 
   if (Pt == PAWN || Pt == BISHOP || Pt == QUEEN)
       attackers |= attacks_bb<BISHOP>(to, occupied) & (bb[BISHOP] | bb[QUEEN]);
@@ -79,11 +78,7 @@ PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
 }
 
 template<>
-PieceType min_attacker<KING>(const Bitboard*, Square, Bitboard stmAttackers, Bitboard&, Bitboard&, Bitboard& from_bb) {
-  
-  assert(popcount(stmAttackers) == 1);
-  from_bb = stmAttackers;
-  
+PieceType min_attacker<KING>(const Bitboard*, Square, Bitboard, Bitboard&, Bitboard&) {
   return KING; // No need to update bitboards: it is the last cycle
 }
 
@@ -976,7 +971,7 @@ Value Position::see_sign(Move m) const {
 Value Position::see(Move m) const {
 
   Square from, to;
-  Bitboard occupied, attackers, stmAttackers, from_bb;
+  Bitboard occupied, attackers, stmAttackers;
   Value swapList[32];
   int slIndex = 1;
   PieceType nextVictim;
@@ -1051,8 +1046,8 @@ Value Position::see(Move m) const {
 //    bool discovered = (dcAttackers != 0) && (dcAttackers != stmAttackers);
 
       nextVictim = dcAttackers ?
-                     min_attacker<PAWN>(byTypeBB, to, dcAttackers , occupied, attackers, from_bb) :
-                     min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers, from_bb);
+                     min_attacker<PAWN>(byTypeBB, to, dcAttackers , occupied, attackers) :
+                     min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers);
 
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
