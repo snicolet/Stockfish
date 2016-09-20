@@ -1049,8 +1049,7 @@ Value Position::see(Move m) const {
       {
           // If the last capture was a discovered check, the only next possible capture 
           // on the destination square is a capture by the king to evade the check.
-          if (   stmAttackers
-              && (st->blockersForKing[stm] & from_bb)
+          if (   (st->blockersForKing[stm] & from_bb)
               && !aligned(from_bb, to, square<KING>(stm)))
               stmAttackers &= pieces(stm, KING);
 
