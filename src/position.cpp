@@ -1039,8 +1039,8 @@ Value Position::see(Move m) const {
       // Add the new entry to the swap list
       swapList[slIndex] = -swapList[slIndex - 1] + PieceValue[MG][nextVictim];
 
-      // Locate and remove the next least valuable attacker,
-      // starting with the discovered check candidates of type KNIGHT, BISHOP or ROOK
+      // Locate and remove the next least valuable attacker, starting
+      // with the discovered check candidates of type KNIGHT, BISHOP or ROOK
       Bitboard dcAttackers =  stmAttackers
                             & st->blockersForKing[~stm]
                             & (pieces(KNIGHT, BISHOP) | pieces(ROOK));
@@ -1054,9 +1054,9 @@ Value Position::see(Move m) const {
       // If the last capture was a discovered check, the only next possible capture 
       // on the destination square is a capture by the king to evade the check.
       if (   (st->blockersForKing[stm] & from_bb)
-          && !aligned(from_bb, to, square<KING>(stm))
           && nextVictim != KING
-          && nextVictim != PAWN)
+          && nextVictim != PAWN
+          && !aligned(from_bb, to, square<KING>(stm)))
           stmAttackers &= pieces(stm, KING);
 
 	  // Don't allow pinned pieces to attack 
