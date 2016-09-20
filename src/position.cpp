@@ -24,6 +24,7 @@
 #include <cstring> // For std::memset, std::memcmp
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "misc.h"
@@ -57,13 +58,14 @@ const string PieceToChar(" PNBRQK  pnbrqk");
 
 template<int Pt>
 PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
-                       Bitboard& occupied, Bitboard& attackers) {
+                       Bitboard& occupied, Bitboard& attackers, Square& from) {
 
   Bitboard b = stmAttackers & bb[Pt];
   if (!b)
-      return min_attacker<Pt+1>(bb, to, stmAttackers, occupied, attackers);
+      return min_attacker<Pt+1>(bb, to, stmAttackers, occupied, attackers, from);
 
-  occupied ^= b & ~(b - 1);
+  from = lsb(b);//b & ~(b - 1);
+  occupied ^= from;
 
   if (Pt == PAWN || Pt == BISHOP || Pt == QUEEN)
       attackers |= attacks_bb<BISHOP>(to, occupied) & (bb[BISHOP] | bb[QUEEN]);
@@ -76,7 +78,7 @@ PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
 }
 
 template<>
-PieceType min_attacker<KING>(const Bitboard*, Square, Bitboard, Bitboard&, Bitboard&) {
+PieceType min_attacker<KING>(const Bitboard*, Square, Bitboard, Bitboard&, Bitboard&, Square&) {
   return KING; // No need to update bitboards: it is the last cycle
 }
 
@@ -1002,8 +1004,19 @@ Value Position::see(Move m) const {
   // If the opponent has no attackers we are finished
   stm = ~stm;
   stmAttackers = attackers & pieces(stm);
+  
+  if (!stmAttackers)
+      return swapList[0];
+      
   occupied ^= to; // For the case when captured piece is a pinner
 
+  // If m is a discovered check, the only possible defensive capture on
+  // the destination square is a capture by the king to evade the check.
+  if ((st->blockersForKing[stm] & from) && !aligned(from, to, square<KING>(stm)))
+  {
+       //sync_cout << *this << " condition " << (stm != side_to_move()) << " move: " << UCI::move(m,false) << sync_endl;
+       stmAttackers &= pieces(stm, KING);
+  }
   // Don't allow pinned pieces to attack as long all pinners (this includes also
   // potential ones) are on their original square. When a pinner moves to the
   // exchange-square or get captured on it, we fall back to standard SEE behaviour.
@@ -1012,7 +1025,7 @@ Value Position::see(Move m) const {
       stmAttackers &= ~pinned_pieces(stm);
 
   if (!stmAttackers)
-        return swapList[0];
+     return swapList[0];
 
   // The destination square is defended, which makes things rather more
   // difficult to compute. We proceed by building up a "swap list" containing
@@ -1029,9 +1042,20 @@ Value Position::see(Move m) const {
       swapList[slIndex] = -swapList[slIndex - 1] + PieceValue[MG][captured];
 
       // Locate and remove the next least valuable attacker
-      captured = min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers);
+      from = square<KING>(stm);
+      captured = min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers, from);
+      
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
+
+      if (stmAttackers && (st->blockersForKing[stm] & from) && !aligned(from, to, square<KING>(stm)))
+      {
+//            sync_cout << *this << " condition " << (stm != side_to_move()) << " move: " << UCI::move(make_move(from, to),false) <<
+//                " startmove " << UCI::move(m,false) << sync_endl;
+//            abort();
+            stmAttackers &= pieces(stm, KING);
+       }
+
       if (   (stmAttackers & pinned_pieces(stm))
           && (st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
           stmAttackers &= ~pinned_pieces(stm);
