@@ -1012,7 +1012,8 @@ Value Position::see(Move m) const {
   // the destination square is a capture by the king to evade the check.
   if (   (st->blockersForKing[stm] & from)
       && !aligned(from, to, square<KING>(stm))
-      && type_of(piece_on(from)) != KING)
+      && type_of(piece_on(from)) != KING
+      && type_of(piece_on(from)) != PAWN)
       stmAttackers &= pieces(stm, KING);
 
   // Don't allow pinned pieces to attack as long all pinners (this includes also
@@ -1039,24 +1040,29 @@ Value Position::see(Move m) const {
       // Add the new entry to the swap list
       swapList[slIndex] = -swapList[slIndex - 1] + PieceValue[MG][nextVictim];
 
-      // Locate and remove the next least valuable attacker
-      nextVictim = min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers, from_bb);
+      // Locate and remove the next least valuable attacker,
+      // starting with the discovered check candidates of type KNIGHT, BISHOP or ROOK
+      Bitboard dcAttackers =  stmAttackers
+                            & st->blockersForKing[~stm]
+                            & (pieces(KNIGHT, BISHOP) | pieces(ROOK));
+      nextVictim = dcAttackers ?
+                     min_attacker<PAWN>(byTypeBB, to, dcAttackers , occupied, attackers, from_bb) :
+                     min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers, from_bb);
 
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
 
-      if (nextVictim != KING)
-      {
-          // If the last capture was a discovered check, the only next possible capture 
-          // on the destination square is a capture by the king to evade the check.
-          if (   (st->blockersForKing[stm] & from_bb)
-              && !aligned(from_bb, to, square<KING>(stm)))
-              stmAttackers &= pieces(stm, KING);
+      // If the last capture was a discovered check, the only next possible capture 
+      // on the destination square is a capture by the king to evade the check.
+      if (   (st->blockersForKing[stm] & from_bb)
+          && !aligned(from_bb, to, square<KING>(stm))
+          && nextVictim != KING
+          && nextVictim != PAWN)
+          stmAttackers &= pieces(stm, KING);
 
-          // Don't allow pinned pieces to attack 
-          if ((st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
-              stmAttackers &= ~pinned_pieces(stm);
-      }
+	  // Don't allow pinned pieces to attack 
+	  if ((st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
+		  stmAttackers &= ~pinned_pieces(stm);
 
       ++slIndex;
 
