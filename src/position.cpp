@@ -1004,23 +1004,16 @@ Value Position::see(Move m) const {
   // removed, but possibly an X-ray attacker added behind it.
   attackers = attackers_to(to, occupied) & occupied;
 
-  // If the opponent has no attackers we are finished
   stm = ~stm;
   stmAttackers = attackers & pieces(stm);
-  
-  if (!stmAttackers)
-      return swapList[0];
-      
   occupied ^= to; // For the case when captured piece is a pinner
 
   // If m is a discovered check, the only possible defensive capture on
   // the destination square is a capture by the king to evade the check.
   if (   (st->blockersForKing[stm] & from)
       && !aligned(from, to, square<KING>(stm)))
-  {
-       //sync_cout << *this << " condition " << (stm != side_to_move()) << " move: " << UCI::move(m,false) << sync_endl;
-       stmAttackers &= pieces(stm, KING);
-  }
+      stmAttackers &= pieces(stm, KING);
+
   // Don't allow pinned pieces to attack as long all pinners (this includes also
   // potential ones) are on their original square. When a pinner moves to the
   // exchange-square or get captured on it, we fall back to standard SEE behaviour.
@@ -1028,6 +1021,7 @@ Value Position::see(Move m) const {
       && (st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
       stmAttackers &= ~pinned_pieces(stm);
 
+  // If the opponent has no attackers we are finished
   if (!stmAttackers)
      return swapList[0];
 
@@ -1051,15 +1045,12 @@ Value Position::see(Move m) const {
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
 
+      // If the last capture was a discovered check, the only next possible capture 
+      // on the destination square is a capture by the king to evade the check.
       if (    stmAttackers
            && (st->blockersForKing[stm] & from_bb)
            && !aligned(from_bb, to, square<KING>(stm)))
-      {
-//            sync_cout << *this << " condition " << (stm != side_to_move()) << " move: " << UCI::move(make_move(from, to),false) <<
-//                " startmove " << UCI::move(m,false) << sync_endl;
-//            abort();
-            stmAttackers &= pieces(stm, KING);
-       }
+           stmAttackers &= pieces(stm, KING);
 
       if (   (stmAttackers & pinned_pieces(stm))
           && (st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
