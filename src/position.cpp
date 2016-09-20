@@ -1011,14 +1011,14 @@ Value Position::see(Move m) const {
   // If m is a discovered check, the only possible defensive capture on
   // the destination square is a capture by the king to evade the check.
   if (   (st->blockersForKing[stm] & from)
-      && !aligned(from, to, square<KING>(stm)))
+      && !aligned(from, to, square<KING>(stm))
+      && type_of(piece_on(from)) != KING)
       stmAttackers &= pieces(stm, KING);
 
   // Don't allow pinned pieces to attack as long all pinners (this includes also
   // potential ones) are on their original square. When a pinner moves to the
   // exchange-square or get captured on it, we fall back to standard SEE behaviour.
-  if (   (stmAttackers & pinned_pieces(stm))
-      && (st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
+  if ((st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
       stmAttackers &= ~pinned_pieces(stm);
 
   // If the opponent has no attackers we are finished
@@ -1045,16 +1045,19 @@ Value Position::see(Move m) const {
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
 
-      // If the last capture was a discovered check, the only next possible capture 
-      // on the destination square is a capture by the king to evade the check.
-      if (    stmAttackers
-           && (st->blockersForKing[stm] & from_bb)
-           && !aligned(from_bb, to, square<KING>(stm)))
-           stmAttackers &= pieces(stm, KING);
-
-      if (   (stmAttackers & pinned_pieces(stm))
-          && (st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
-          stmAttackers &= ~pinned_pieces(stm);
+      if (nextVictim != KING)
+      {
+          // If the last capture was a discovered check, the only next possible capture 
+          // on the destination square is a capture by the king to evade the check.
+          if (   stmAttackers
+              && (st->blockersForKing[stm] & from_bb)
+              && !aligned(from_bb, to, square<KING>(stm)))
+              stmAttackers &= pieces(stm, KING);
+      
+          // Don't allow pinned pieces to attack 
+          if ((st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
+              stmAttackers &= ~pinned_pieces(stm);
+      }
 
       ++slIndex;
 
