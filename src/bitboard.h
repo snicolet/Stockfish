@@ -190,18 +190,11 @@ inline Bitboard passed_pawn_mask(Color c, Square s) {
 }
 
 
-/// aligned(s1, s2, s3) returns true if the squares s1, s2 and s3
-/// are aligned either on a straight or on a diagonal line.
+/// aligned() returns true if the squares s1, s2 and s3 are aligned either on a
+/// straight or on a diagonal line.
 
 inline bool aligned(Square s1, Square s2, Square s3) {
   return LineBB[s1][s2] & s3;
-}
-
-/// aligned(targets, s2, s3) returns true if any of the squares in 'targets'
-/// is aligned either on a straight or on a diagonal line with s2 and s3.
-
-inline bool aligned(Bitboard targets, Square s2, Square s3) {
-  return LineBB[s2][s3] & targets;
 }
 
 
