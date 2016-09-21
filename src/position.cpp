@@ -1027,7 +1027,7 @@ Value Position::see(Move m) const {
       return swapList[0];
 
   // Prepare for both colors the discovered check candidates which might attack "to"
-  Bitboard b = pieces() ^ pieces(KING);
+  Bitboard b = pieces(KNIGHT, BISHOP) | pieces(ROOK);
   Bitboard dcCandidates[2] = { b & st->blockersForKing[BLACK] & ~LineBB[to][square<KING>(BLACK)], 
                                b & st->blockersForKing[WHITE] & ~LineBB[to][square<KING>(WHITE)] };
 
