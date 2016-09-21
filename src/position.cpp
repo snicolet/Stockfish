@@ -1044,7 +1044,9 @@ Value Position::see(Move m) const {
 
       ++slIndex;
 
-  } while (stmAttackers && (nextVictim != KING || (--slIndex, false))); // Stop before a king capture
+  } while (  slIndex <= 4
+          && stmAttackers
+          && (nextVictim != KING || (--slIndex, false))); // Stop before a king capture
 
   // Having built the swap list, we negamax through it to find the best
   // achievable score from the point of view of the side to move.
