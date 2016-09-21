@@ -55,7 +55,7 @@ const string PieceToChar(" PNBRQK  pnbrqk");
 // valuable attacker for the side to move, remove the attacker we just found
 // from the bitboards and scan for new X-ray attacks behind it.
 
-template<int Pt>
+template<int Pt = PAWN>
 PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
                        Bitboard& occupied, Bitboard& attackers) {
 
@@ -1004,10 +1004,16 @@ Value Position::see(Move m) const {
   // removed, but possibly an X-ray attacker added behind it.
   attackers = attackers_to(to, occupied) & occupied;
 
-  // If the opponent has no attackers we are finished
   stm = ~stm;
   stmAttackers = attackers & pieces(stm);
   occupied ^= to; // For the case when captured piece is a pinner
+
+  // If m is a discovered check, the only possible defensive capture on
+  // the destination square is a capture by the king to evade the check.
+  if (   (st->blockersForKing[stm] & from)
+      && type_of(piece_on(from)) != KING
+      && type_of(piece_on(from)) != PAWN)
+      stmAttackers &= pieces(stm, KING);
 
   // Don't allow pinned pieces to attack pieces except the king as long all
   // pinners are on their original square. When a pinner moves to the
@@ -1016,8 +1022,9 @@ Value Position::see(Move m) const {
       && (st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
       stmAttackers &= ~pinned_pieces(stm);
 
+  // If the opponent has no attackers we are finished
   if (!stmAttackers)
-        return swapList[0];
+      return swapList[0];
 
   // The destination square is defended, which makes things rather more
   // difficult to compute. We proceed by building up a "swap list" containing
@@ -1033,10 +1040,25 @@ Value Position::see(Move m) const {
       // Add the new entry to the swap list
       swapList[slIndex] = -swapList[slIndex - 1] + PieceValue[MG][nextVictim];
 
-      // Locate and remove the next least valuable attacker
-      nextVictim = min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers);
+      // Locate and remove the next least valuable attacker, starting
+      // with the discovered check candidates of type KNIGHT, BISHOP or ROOK
+      Bitboard dcAttackers =  stmAttackers
+                            & st->blockersForKing[~stm]
+                            & (pieces(KNIGHT, BISHOP) | pieces(ROOK))
+                            & ~LineBB[to][square<KING>(~stm)];
+
+      nextVictim = dcAttackers ? min_attacker(byTypeBB, to, dcAttackers , occupied, attackers)
+                               : min_attacker(byTypeBB, to, stmAttackers, occupied, attackers);
+
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
+
+      // If the last capture was a discovered check, the only next possible capture 
+      // on the destination square is a capture by the king to evade the check.
+      if (dcAttackers)
+          stmAttackers &= pieces(stm, KING);
+
+      // Don't allow pinned pieces to attack pieces except the king
       if (    nextVictim != KING
           && (stmAttackers & pinned_pieces(stm))
           && (st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
