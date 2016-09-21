@@ -1027,13 +1027,9 @@ Value Position::see(Move m) const {
       return swapList[0];
 
   // Prepare for both colors the discovered check candidates which might attack "to"
-  Bitboard dcCandidates[2] = {0};
   Bitboard b = pieces(KNIGHT, BISHOP) | pieces(ROOK);
-  if (b)
-  {
-     dcCandidates[WHITE] = b & st->blockersForKing[BLACK] & ~LineBB[to][square<KING>(BLACK)];
-     dcCandidates[BLACK] = b & st->blockersForKing[WHITE] & ~LineBB[to][square<KING>(WHITE)];
-  }
+  Bitboard dcCandidates[2] = { b & st->blockersForKing[BLACK] & ~LineBB[to][square<KING>(BLACK)], 
+                               b & st->blockersForKing[WHITE] & ~LineBB[to][square<KING>(WHITE)] };
 
   // The destination square is defended, which makes things rather more
   // difficult to compute. We proceed by building up a "swap list" containing
