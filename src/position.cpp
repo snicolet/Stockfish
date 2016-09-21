@@ -55,7 +55,7 @@ const string PieceToChar(" PNBRQK  pnbrqk");
 // valuable attacker for the side to move, remove the attacker we just found
 // from the bitboards and scan for new X-ray attacks behind it.
 
-template<int Pt>
+template<int Pt = PAWN>
 PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
                        Bitboard& occupied, Bitboard& attackers) {
 
@@ -1042,9 +1042,8 @@ Value Position::see(Move m) const {
       // Locate and remove the next least valuable attacker, starting
       // with the discovered check candidates of type KNIGHT, BISHOP or ROOK
       Bitboard dcAttackers = stmAttackers & dcCandidates[stm];
-      nextVictim = dcAttackers ?
-                     min_attacker<PAWN>(byTypeBB, to, dcAttackers , occupied, attackers) :
-                     min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers);
+      nextVictim = dcAttackers ? min_attacker(byTypeBB, to, dcAttackers , occupied, attackers) :
+                                 min_attacker(byTypeBB, to, stmAttackers, occupied, attackers);
 
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
