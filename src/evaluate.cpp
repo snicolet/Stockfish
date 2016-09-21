@@ -188,7 +188,7 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
-  const Score CloseEnemies        = S( 7,  0);
+  const Score CloseEnemies        = S( 7, -2);
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
   const Score ThreatByHangingPawn = S(71, 61);
@@ -423,7 +423,7 @@ namespace {
                     + 235 * popcount(undefended)
                     + 134 * (popcount(b) + !!ei.pinnedPieces[Us])
                     - 717 * !pos.count<QUEEN>(Them)
-                    -   7 * mg_value(score) / 5 - 5;
+                    -   3 * mg_value(score) / 2;
 
         // Analyse the enemy's safe queen contact checks. Firstly, find the
         // undefended squares around the king reachable by the enemy queen...
