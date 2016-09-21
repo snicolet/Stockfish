@@ -1037,8 +1037,8 @@ Value Position::see(Move m) const {
       nextVictim = min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers);
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
-      if (    nextVictim != KING
-          && (stmAttackers & pinned_pieces(stm))
+
+      if (   (stmAttackers & pinned_pieces(stm))
           && (st->pinnersForKing[stm] & occupied) == st->pinnersForKing[stm])
           stmAttackers &= ~pinned_pieces(stm);
 
