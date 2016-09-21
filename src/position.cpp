@@ -1012,7 +1012,7 @@ Value Position::see(Move m) const {
   // the destination square is a capture by the king to evade the check.
   if (   (st->blockersForKing[stm] & from)
       && type_of(piece_on(from)) != KING
-      && type_of(piece_on(from)) != PAWN)
+      && !aligned(from, to, square<KING>(stm)))
       stmAttackers &= pieces(stm, KING);
 
   // Don't allow pinned pieces to attack pieces except the king as long all
