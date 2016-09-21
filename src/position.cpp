@@ -1026,6 +1026,15 @@ Value Position::see(Move m) const {
   if (!stmAttackers)
       return swapList[0];
 
+  // Prepare for both colors the discovered check candidates which might attack "to"
+  Bitboard dcCandidates[2] = {0};
+  Bitboard b = pieces(KNIGHT, BISHOP) | pieces(ROOK);
+  if (b)
+  {
+     dcCandidates[WHITE] = b & st->blockersForKing[BLACK] & ~LineBB[to][square<KING>(BLACK)];
+     dcCandidates[BLACK] = b & st->blockersForKing[WHITE] & ~LineBB[to][square<KING>(WHITE)];
+  }
+
   // The destination square is defended, which makes things rather more
   // difficult to compute. We proceed by building up a "swap list" containing
   // the material gain or loss at each stop in a sequence of captures to the
@@ -1041,12 +1050,8 @@ Value Position::see(Move m) const {
       swapList[slIndex] = -swapList[slIndex - 1] + PieceValue[MG][nextVictim];
 
       // Locate and remove the next least valuable attacker, starting
-      // with the discovered check candidates of type KNIGHT, BISHOP or ROOK
-      Bitboard dcAttackers =  stmAttackers
-                            & st->blockersForKing[~stm]
-                            & (pieces(KNIGHT, BISHOP) | pieces(ROOK))
-                            & ~LineBB[to][square<KING>(~stm)];
-
+      // with the discovered check candidates
+      Bitboard dcAttackers = stmAttackers & dcCandidates[stm];
       nextVictim = dcAttackers ? min_attacker(byTypeBB, to, dcAttackers , occupied, attackers)
                                : min_attacker(byTypeBB, to, stmAttackers, occupied, attackers);
 
