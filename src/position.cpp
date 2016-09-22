@@ -1008,6 +1008,10 @@ Value Position::see(Move m) const {
   stm = ~stm;
   stmAttackers = attackers & pieces(stm);
   occupied ^= to; // For the case when captured piece is a pinner
+  
+  nextVictim = type_of(piece_on(from));
+  if (nextVictim == KING && stmAttackers)
+      return (-VALUE_KNOWN_WIN);
 
   // Don't allow pinned pieces to attack pieces except the king as long all
   // pinners are on their original square.
@@ -1023,8 +1027,6 @@ Value Position::see(Move m) const {
   // destination square, where the sides alternately capture, and always
   // capture with the least valuable piece. After each capture, we look for
   // new X-ray attacks from behind the capturing piece.
-  nextVictim = type_of(piece_on(from));
-
   do {
       assert(slIndex < 32);
 
