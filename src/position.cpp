@@ -1026,7 +1026,8 @@ Value Position::see(Move m) const {
   if (!stmAttackers)
       return swapList[0];
 
-  // Prepare for both colors the discovered check candidates which might attack "to"
+  // Prepare, for both colors, the discovered check candidates which might
+  // give check while capturing on the square "to".
   Bitboard b = pieces() ^ pieces(KING);
   Bitboard dcCandidates[2] = { b & st->blockersForKing[BLACK] & ~LineBB[to][square<KING>(BLACK)], 
                                b & st->blockersForKing[WHITE] & ~LineBB[to][square<KING>(WHITE)] };
@@ -1046,7 +1047,7 @@ Value Position::see(Move m) const {
       swapList[slIndex] = -swapList[slIndex - 1] + PieceValue[MG][nextVictim];
 
       // Locate and remove the next least valuable attacker, starting
-      // with the discovered check candidates
+      // with the discovered check candidates.
       Bitboard dcAttackers = stmAttackers & dcCandidates[stm];
       nextVictim = dcAttackers ? min_attacker(byTypeBB, to, dcAttackers , occupied, attackers)
                                : min_attacker(byTypeBB, to, stmAttackers, occupied, attackers);
