@@ -192,7 +192,7 @@ void init()
           for (int apex = 0; apex <= 1; ++apex)
               for (Rank r = RANK_2; r < RANK_8; ++r)
   {
-      int v = (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
+      int v = (Seed[r] + (phalanx ? -7 + (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
       v += (apex ? v / 2 : 0);
       Connected[opposed][phalanx][apex][r] = make_score(v, v * 5 / 8);
   }
