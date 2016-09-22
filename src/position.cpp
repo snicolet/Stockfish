@@ -971,6 +971,9 @@ Value Position::see_sign(Move m) const {
   return see(m);
 }
 
+#include <iostream>
+
+
 Value Position::see(Move m) const {
 
   Square from, to;
@@ -1049,6 +1052,20 @@ Value Position::see(Move m) const {
   // achievable score from the point of view of the side to move.
   while (--slIndex)
       swapList[slIndex - 1] = std::min(-swapList[slIndex], swapList[slIndex - 1]);
+
+  occupied = pieces() ^ from;
+  attackers = attackers_to(to, occupied) & occupied;
+  stmAttackers = attackers & pieces(~color_of(piece_on(from)));
+  nextVictim = type_of(piece_on(from));
+  
+  if (   nextVictim == KING 
+      && stmAttackers != 0
+      && swapList[0]
+      )
+  {
+     std::cerr << *this << std::endl;
+     std::cerr << "see(" << UCI::move( m , false) << ") = " << swapList[0] << std::endl;
+  }
 
   return swapList[0];
 }
