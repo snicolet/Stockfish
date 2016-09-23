@@ -44,6 +44,11 @@ namespace {
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
 
+  // Chain bonus by file
+  const Score Chain[FILE_NB] = {
+    S(-6, 0), S(-2, 0), S( 2, 0), S( 6, 0),
+    S( 6, 0), S( 2, 0), S(-2, 0), S(-6, 0) };
+
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
 
@@ -162,6 +167,9 @@ namespace {
         else if (!supported)
             score -= Unsupported[more_than_one(neighbours & pawnAttacksBB[s])];
 
+        if (supported)
+            score += (relative_rank(Us, s) - 1) * Chain[f];
+
         if (connected)
             score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
 
@@ -171,6 +179,9 @@ namespace {
         if (lever)
             score += Lever[relative_rank(Us, s)];
     }
+
+    
+        
 
     return score;
   }
