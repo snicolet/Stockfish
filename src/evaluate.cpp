@@ -17,7 +17,7 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <iostream>
+
 #include <algorithm>
 #include <cassert>
 #include <cstring>   // For std::memset
@@ -719,16 +719,6 @@ namespace {
     Bitboard b =   (shift_bb<DELTA_N>(pos.pieces(WHITE, PAWN)) & ~ei.attackedBy[BLACK][ALL_PIECES])
                  | (shift_bb<DELTA_S>(pos.pieces(BLACK, PAWN)) & ~ei.attackedBy[WHITE][ALL_PIECES]);
     int fluidity = popcount(b & ~pos.pieces());
-    
-//     if (fluidity)
-//     {
-//         std::cerr << pos << std::endl;
-//         std::cerr << Bitboards::pretty(b & ~pos.pieces()) << std::endl;
-//         std::cerr << "fluidity = " << fluidity << std::endl;
-//         std::cerr << "=======================" << std::endl;
-//     }
-    
-//     dbg_mean_of(fluidity);
 
     // Compute the initiative bonus for the attacking side
     int initiative = 4 * fluidity + 8 * (asymmetry + kingDistance - 17) + 12 * pawns;
