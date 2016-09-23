@@ -718,10 +718,10 @@ namespace {
     int asymmetry = ei.pi->pawn_asymmetry();
     Bitboard b =   (shift_bb<DELTA_N>(pos.pieces(WHITE, PAWN)) & ~ei.attackedBy[BLACK][ALL_PIECES])
                  ^ (shift_bb<DELTA_S>(pos.pieces(BLACK, PAWN)) & ~ei.attackedBy[WHITE][ALL_PIECES]);
-    int fluidity = popcount(b & ~pos.pieces());
+    bool fluidity = more_than_one(b & ~pos.pieces());
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 4 * fluidity + 8 * (asymmetry + kingDistance - 17) + 12 * pawns;
+    int initiative = 8 * (asymmetry + kingDistance + 2 * fluidity - 17) + 12 * pawns;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
