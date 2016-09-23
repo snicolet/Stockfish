@@ -141,7 +141,7 @@ namespace {
     { S(0,0)  , S(0,0)    },
     { S(43,11), S(65,20)  }, // Knight
     { S(20, 3), S(29, 8)  }, // Bishop
-    { S(30, 7), S(40, 12) }, // Rooks
+    { S(0,0)  , S(0,0)    }, // Rooks
     { S(30, 7), S(40, 12) }  // Queen
   };
 
@@ -153,7 +153,7 @@ namespace {
     { S(0,0)  , S(0,0)   },
     { S(21, 5), S(35, 8) }, // Knight
     { S( 8, 0), S(14, 4) }, // Bishop
-    { S(15, 2), S(25, 6) }, // Rook
+    { S(0,0)  , S(0,0)   }, // Rook
     { S(15, 2), S(25, 6) }, // Queen
   };
 
@@ -301,14 +301,17 @@ namespace {
         mobility[Us] += MobilityBonus[Pt][mob];
 
 		// Bonus for outpost squares
-		bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
-		if (bb & s)
-			score += Outpost[Pt][!!(ei.attackedBy[Us][PAWN] & s)];
-		else
+		if (Pt == BISHOP || Pt == KNIGHT || Pt == QUEEN)
 		{
-			bb &= b & ~pos.pieces(Us);
-			if (bb)
-			   score += ReachableOutpost[Pt][!!(ei.attackedBy[Us][PAWN] & bb)];
+		    bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
+		    if (bb & s)
+			    score += Outpost[Pt][!!(ei.attackedBy[Us][PAWN] & s)];
+		    else
+		    {
+			    bb &= b & ~pos.pieces(Us);
+			    if (bb)
+			       score += ReachableOutpost[Pt][!!(ei.attackedBy[Us][PAWN] & bb)];
+		    }
 		}
 
         if (Pt == BISHOP || Pt == KNIGHT)
