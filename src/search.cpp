@@ -860,7 +860,7 @@ moves_loop: // When in check search starts from here
       if (move == excludedMove)
           continue;
     
-       // Check for legality
+      // Check for legality
       if (!pos.legal(move))
           continue;
 
@@ -905,8 +905,7 @@ moves_loop: // When in check search starts from here
       // ttValue minus a margin then we extend the ttMove.
       if (    singularExtensionNode
           &&  move == ttMove
-          && !extension
-          &&  pos.legal(move))
+          && !extension)
       {
           Value rBeta = ttValue - 2 * depth / ONE_PLY;
           Depth d = (depth / (2 * ONE_PLY)) * ONE_PLY;
