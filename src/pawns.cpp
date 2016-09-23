@@ -180,9 +180,6 @@ namespace {
             score += Lever[relative_rank(Us, s)];
     }
 
-    
-        
-
     return score;
   }
 
