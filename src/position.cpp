@@ -57,13 +57,14 @@ const string PieceToChar(" PNBRQK  pnbrqk");
 
 template<int Pt>
 PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
-                       Bitboard& occupied, Bitboard& attackers) {
+                       Bitboard& occupied, Bitboard& attackers, Bitboard& fromb) {
 
   Bitboard b = stmAttackers & bb[Pt];
   if (!b)
-      return min_attacker<Pt+1>(bb, to, stmAttackers, occupied, attackers);
+      return min_attacker<Pt+1>(bb, to, stmAttackers, occupied, attackers, fromb);
 
-  occupied ^= b & ~(b - 1);
+  fromb = b & ~(b - 1);
+  occupied ^= fromb;
 
   if (Pt == PAWN || Pt == BISHOP || Pt == QUEEN)
       attackers |= attacks_bb<BISHOP>(to, occupied) & (bb[BISHOP] | bb[QUEEN]);
@@ -76,8 +77,12 @@ PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
 }
 
 template<>
-PieceType min_attacker<KING>(const Bitboard*, Square, Bitboard, Bitboard&, Bitboard&) {
-  return KING; // No need to update bitboards: it is the last cycle
+PieceType min_attacker<KING>(const Bitboard*, Square, Bitboard stmAttackers, Bitboard&, Bitboard&, Bitboard& fromb) {
+
+  assert(popcount(stmAttackers) == 1);  // only the king
+  fromb = stmAttackers;
+
+  return KING; // No need to update other bitboards: it is the last cycle
 }
 
 } // namespace
@@ -974,7 +979,7 @@ Value Position::see_sign(Move m) const {
 Value Position::see(Move m) const {
 
   Square from, to;
-  Bitboard occupied, attackers, stmAttackers;
+  Bitboard occupied, attackers, stmAttackers, fromb;
   Value swapList[32];
   int slIndex = 1;
   PieceType nextVictim;
@@ -1007,6 +1012,17 @@ Value Position::see(Move m) const {
   // If the opponent has no attackers we are finished
   stm = ~stm;
   stmAttackers = attackers & pieces(stm);
+  if (!stmAttackers)
+      return swapList[0];
+
+  // If m is a discovered check, the only possible defensive capture on
+  // the destination square is a capture by the king to evade the check.
+  if ((st->blockersForKing[stm] & from)
+      && type_of(piece_on(from)) != PAWN
+      && type_of(piece_on(from)) != KING)
+        stmAttackers &= pieces(stm, KING);
+
+
   occupied ^= to; // For the case when captured piece is a pinner
 
   // Don't allow pinned pieces to attack pieces except the king as long all
@@ -1032,9 +1048,14 @@ Value Position::see(Move m) const {
       swapList[slIndex] = -swapList[slIndex - 1] + PieceValue[MG][nextVictim];
 
       // Locate and remove the next least valuable attacker
-      nextVictim = min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers);
+      nextVictim = min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers, fromb);
       stm = ~stm;
       stmAttackers = attackers & pieces(stm);
+
+      if (   (st->blockersForKing[stm] & fromb)
+          && nextVictim != PAWN
+          && nextVictim != KING)
+          stmAttackers &= pieces(stm, KING);
 
       // Don't allow pinned pieces to attack pieces except the king
       if (   nextVictim != KING
