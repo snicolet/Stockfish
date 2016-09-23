@@ -859,6 +859,10 @@ moves_loop: // When in check search starts from here
 
       if (move == excludedMove)
           continue;
+    
+       // Check for legality
+      if (!pos.legal(move))
+          continue;
 
       // At root obey the "searchmoves" option and skip moves not listed in Root
       // Move List. As a consequence any illegal move is also skipped. In MultiPV
@@ -959,13 +963,6 @@ moves_loop: // When in check search starts from here
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
-
-      // Check for legality just before making the move
-      if (!rootNode && !pos.legal(move))
-      {
-          ss->moveCount = --moveCount;
-          continue;
-      }
 
       ss->currentMove = move;
       ss->counterMoves = &thisThread->counterMoveHistory[moved_piece][to_sq(move)];
