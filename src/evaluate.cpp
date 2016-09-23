@@ -717,7 +717,7 @@ namespace {
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
     int asymmetry = ei.pi->pawn_asymmetry();
     Bitboard b =   (shift_bb<DELTA_N>(pos.pieces(WHITE, PAWN)) & ~ei.attackedBy[BLACK][ALL_PIECES])
-                 | (shift_bb<DELTA_S>(pos.pieces(BLACK, PAWN)) & ~ei.attackedBy[WHITE][ALL_PIECES]);
+                 ^ (shift_bb<DELTA_S>(pos.pieces(BLACK, PAWN)) & ~ei.attackedBy[WHITE][ALL_PIECES]);
     int fluidity = popcount(b & ~pos.pieces());
 
     // Compute the initiative bonus for the attacking side
