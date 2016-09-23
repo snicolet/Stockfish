@@ -716,9 +716,10 @@ namespace {
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
     int asymmetry = ei.pi->pawn_asymmetry();
-    Bitboard b =   (shift_bb<DELTA_N>(pos.pieces(WHITE, PAWN)) & ~ei.attackedBy[BLACK][ALL_PIECES])
-                 ^ (shift_bb<DELTA_S>(pos.pieces(BLACK, PAWN)) & ~ei.attackedBy[WHITE][ALL_PIECES]);
-    bool fluidity = (b & ~pos.pieces());
+    
+    Bitboard b1 = (shift_bb<DELTA_N>(pos.pieces(WHITE, PAWN)) & ~ei.attackedBy[BLACK][ALL_PIECES]);
+    Bitboard b2 = (shift_bb<DELTA_S>(pos.pieces(BLACK, PAWN)) & ~ei.attackedBy[WHITE][ALL_PIECES]);
+    bool fluidity = more_than_one(b1 & ~pos.pieces()) && more_than_one(b2 & ~pos.pieces());
 
     // Compute the initiative bonus for the attacking side
     int initiative = 8 * (asymmetry + kingDistance + 2 * fluidity - 17) + 12 * pawns;
