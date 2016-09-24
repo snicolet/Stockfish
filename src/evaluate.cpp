@@ -300,7 +300,7 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
-		// Bonus for outpost squares
+        // Bonus for outpost squares
         if (Pt == BISHOP || Pt == KNIGHT || Pt == QUEEN)
         {
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
