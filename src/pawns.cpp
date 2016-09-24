@@ -186,15 +186,20 @@ namespace Pawns {
 void init()
 {
   static const int Seed[RANK_NB] = { 0, 8, 19, 13, 71, 94, 169, 324 };
+  Score score;
 
   for (int opposed = 0; opposed <= 1; ++opposed)
       for (int phalanx = 0; phalanx <= 1; ++phalanx)
           for (int apex = 0; apex <= 1; ++apex)
               for (Rank r = RANK_2; r < RANK_8; ++r)
   {
-      int v = (Seed[r] + (phalanx ? -7 + (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
+      int v = (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
       v += (apex ? v / 2 : 0);
-      Connected[opposed][phalanx][apex][r] = make_score(v, v * 5 / 8);
+
+      score = make_score(v, v * 5 / 8);
+      score += (phalanx ? make_score(-4, 4) : SCORE_ZERO);
+
+      Connected[opposed][phalanx][apex][r] = score;
   }
 }
 
