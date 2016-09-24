@@ -142,7 +142,7 @@ namespace {
     { S(43,11), S(65,20) }, // Knight
     { S(20, 3), S(29, 8) }, // Bishop
     { S(0,0)  , S(0,0)   }, // Rook
-    { S(40,10), S(50,16) }  // Queen
+    { S(20, 4), S(30, 8) }  // Queen
   };
 
   // ReachableOutpost[PieceType][supported by pawn] contains bonuses for
@@ -154,7 +154,7 @@ namespace {
     { S(21, 5), S(35, 8) }, // Knight
     { S( 8, 0), S(14, 4) }, // Bishop
     { S(0,0)  , S(0,0)   }, // Rook
-    { S(20, 2), S(32, 8) }, // Queen
+    { S(10, 2), S(18, 4) }, // Queen
   };
 
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is no
