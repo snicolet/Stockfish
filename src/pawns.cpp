@@ -207,7 +207,6 @@ void init()
   {
       int d = distance(s, SQ_D4) + distance(s, SQ_D5) + distance(s, SQ_E4) + distance(s, SQ_E5) - 6;
       d = -d + 4 * int(rank_of(s));
-
       Centrality[s] = make_score(d , -d);
   }
 }
