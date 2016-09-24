@@ -18,7 +18,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
 #include <algorithm>
 #include <cassert>
 
@@ -207,26 +206,10 @@ void init()
   for (Square s = SQ_A1; s <= SQ_H8; ++s)
   {
       int d = distance(s, SQ_D4) + distance(s, SQ_D5) + distance(s, SQ_E4) + distance(s, SQ_E5) - 6;
-      //d = d > 0 ? -d * d : d * d;  instead of d = -d;
       d = -d + 4 * int(rank_of(s));
 
       Centrality[s] = make_score(d , -d);
   }
-  
-  if (false)
-  for (Square s = SQ_H8; s >= SQ_A1; --s)
-  {
-//       std::cerr << "S("
-//                 << mg_value(Centrality[s]) 
-//                 << ","
-//                 << eg_value(Centrality[s])
-//                 << "), ";
-      std::cerr << mg_value(Centrality[s]) << "  ";
-      if (file_of(s) == FILE_A)
-         std::cerr << std::endl;
-  }
-  
-  
 }
 
 
