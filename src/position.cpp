@@ -1007,15 +1007,11 @@ Value Position::see(Move m) const {
   // If the opponent has no attackers we are finished
   stm = ~stm;
   stmAttackers = attackers & pieces(stm);
-  occupied ^= to; // For the case when captured piece is a pinner
-
-  // Don't allow pinned pieces to attack pieces except the king as long all
-  // pinners are on their original square.
-  if (!(st->pinnersForKing[stm] & ~occupied))
-      stmAttackers &= ~st->blockersForKing[stm];
 
   if (!stmAttackers)
         return swapList[0];
+
+  occupied ^= to; // For the case when captured piece is a pinner
 
   // The destination square is defended, which makes things rather more
   // difficult to compute. We proceed by building up a "swap list" containing
@@ -1037,7 +1033,8 @@ Value Position::see(Move m) const {
       stmAttackers = attackers & pieces(stm);
 
       // Don't allow pinned pieces to attack pieces except the king
-      if (   nextVictim != KING
+      if (   (slIndex & 1)
+          && nextVictim != KING
           && !(st->pinnersForKing[stm] & ~occupied))
           stmAttackers &= ~st->blockersForKing[stm];
 
