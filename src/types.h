@@ -335,7 +335,7 @@ inline Color operator~(Color c) {
 }
 
 inline Square operator~(Square s) {
-  return Square(s ^ SQ_A8); // Vertical flip SQ_A1 -> SQ_A8
+   return Square(s ^ SQ_A8); // Vertical flip SQ_A1 -> SQ_A8
 }
 
 inline Piece operator~(Piece pc) {
