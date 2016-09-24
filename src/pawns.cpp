@@ -205,7 +205,7 @@ void init()
 
   for (Square s = SQ_A1; s <= SQ_H8; ++s)
   {
-      int d = distance(s, SQ_D4) + distance(s, SQ_D5) + distance(s, SQ_E4) + distance(s, SQ_E5) - 6;
+      int d = distance(s, SQ_D4) + distance(s, SQ_D5) + distance(s, SQ_E4) + distance(s, SQ_E5) + 2;
       d = -d + 4 * int(rank_of(s));
       Centrality[s] = make_score(d , -d);
   }
