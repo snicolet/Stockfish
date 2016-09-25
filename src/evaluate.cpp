@@ -134,19 +134,27 @@ namespace {
       S(118,174), S(119,177), S(123,191), S(128,199) }
   };
 
-  // Outpost[knight/bishop][supported by pawn] contains bonuses for knights and
-  // bishops outposts, bigger if outpost piece is supported by a pawn.
-  const Score Outpost[][2] = {
-    { S(43,11), S(65,20) }, // Knights
-    { S(20, 3), S(29, 8) }  // Bishops
+  // Outpost[PieceType][supported by pawn] contains bonuses for piece outpost,
+  // bigger if outpost piece is supported by a pawn.
+  const Score Outpost[PIECE_TYPE_NB][2] = {
+    { S(0,0)  , S(0,0)   },
+    { S(0,0)  , S(0,0)   },
+    { S(43,11), S(65,20) }, // Knight
+    { S(20, 3), S(29, 8) }, // Bishop
+    { S(0,0)  , S(0,0)   }, // Rook
+    { S(30, 7), S(40,12) }  // Queen
   };
 
-  // ReachableOutpost[knight/bishop][supported by pawn] contains bonuses for
-  // knights and bishops which can reach an outpost square in one move, bigger
-  // if outpost square is supported by a pawn.
-  const Score ReachableOutpost[][2] = {
-    { S(21, 5), S(35, 8) }, // Knights
-    { S( 8, 0), S(14, 4) }  // Bishops
+  // ReachableOutpost[PieceType][supported by pawn] contains bonuses for
+  // pieces which can reach an outpost square in one move, bigger if the
+  // outpost square is supported by a pawn.
+  const Score ReachableOutpost[PIECE_TYPE_NB][2] = {
+    { S(0,0)  , S(0,0)   },
+    { S(0,0)  , S(0,0)   },
+    { S(21, 5), S(35, 8) }, // Knight
+    { S( 8, 0), S(14, 4) }, // Bishop
+    { S(0,0)  , S(0,0)   }, // Rook
+    { S(15, 2), S(25, 6) }, // Queen
   };
 
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is no
@@ -257,8 +265,8 @@ namespace {
 
     const PieceType NextPt = (Us == WHITE ? Pt : PieceType(Pt + 1));
     const Color Them = (Us == WHITE ? BLACK : WHITE);
-    const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
-                                               : Rank5BB | Rank4BB | Rank3BB);
+    const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB
+                                               : Rank5BB | Rank4BB | Rank3BB | Rank2BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     ei.attackedBy[Us][Pt] = 0;
@@ -292,19 +300,22 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
-        if (Pt == BISHOP || Pt == KNIGHT)
+        // Bonus for outpost squares
+        if (Pt == BISHOP || Pt == KNIGHT || Pt == QUEEN)
         {
-            // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
             if (bb & s)
-                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
+                score += Outpost[Pt][!!(ei.attackedBy[Us][PAWN] & s)];
             else
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
-                   score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
+                    score += ReachableOutpost[Pt][!!(ei.attackedBy[Us][PAWN] & bb)];
             }
+        }
 
+        if (Pt == BISHOP || Pt == KNIGHT)
+        {
             // Bonus when behind a pawn
             if (    relative_rank(Us, s) < RANK_5
                 && (pos.pieces(PAWN) & (s + pawn_push(Us))))
