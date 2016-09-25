@@ -134,8 +134,8 @@ namespace {
       S(118,174), S(119,177), S(123,191), S(128,199) }
   };
 
-  // Outpost[knight/bishop][protected] contains bonuses for knights and bishops
-  // outposts, bigger if outpost piece is protected by another minor or a pawn.
+  // Outpost[knight/bishop][supported by pawn] contains bonuses for knights and
+  // bishops outposts, bigger if outpost piece is supported by a pawn.
   const Score Outpost[][2] = {
     { S(43,11), S(65,20) }, // Knights
     { S(20, 3), S(29, 8) }  // Bishops
@@ -297,7 +297,7 @@ namespace {
             // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
             if (bb & s)
-                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][ALL_PIECES] & s)];
+                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
             else
             {
                 bb &= b & ~pos.pieces(Us);
