@@ -134,8 +134,8 @@ namespace {
       S(118,174), S(119,177), S(123,191), S(128,199) }
   };
 
-  // Outpost[PieceType][supported by pawn] contains bonuses for piece outpost,
-  // bigger if outpost piece is supported by a pawn.
+  // Outpost[PieceType][protected] contains bonuses for piece outpost,
+  // bigger if outpost piece is protected.
   const Score Outpost[PIECE_TYPE_NB][2] = {
     { S(0,0)  , S(0,0)   },
     { S(0,0)  , S(0,0)   },
@@ -145,9 +145,9 @@ namespace {
     { S(30, 7), S(40,12) }  // Queen
   };
 
-  // ReachableOutpost[PieceType][supported by pawn] contains bonuses for
+  // ReachableOutpost[PieceType][protected] contains bonuses for
   // pieces which can reach an outpost square in one move, bigger if the
-  // outpost square is supported by a pawn.
+  // outpost square is protected.
   const Score ReachableOutpost[PIECE_TYPE_NB][2] = {
     { S(0,0)  , S(0,0)   },
     { S(0,0)  , S(0,0)   },
@@ -265,8 +265,8 @@ namespace {
 
     const PieceType NextPt = (Us == WHITE ? Pt : PieceType(Pt + 1));
     const Color Them = (Us == WHITE ? BLACK : WHITE);
-    const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB
-                                               : Rank5BB | Rank4BB | Rank3BB | Rank2BB);
+    const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
+                                               : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     ei.attackedBy[Us][Pt] = 0;
@@ -305,12 +305,12 @@ namespace {
         {
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
             if (bb & s)
-                score += Outpost[Pt][!!(ei.attackedBy[Us][PAWN] & s)];
+                score += Outpost[Pt][!!(ei.attackedBy[Us][ALL_PIECES] & s)];
             else
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
-                    score += ReachableOutpost[Pt][!!(ei.attackedBy[Us][PAWN] & bb)];
+                    score += ReachableOutpost[Pt][!!(ei.attackedBy2[Us] & bb)];
             }
         }
 
