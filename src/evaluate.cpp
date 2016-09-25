@@ -142,7 +142,7 @@ namespace {
     { S(43,11), S(65,20) }, // Knight
     { S(20, 3), S(29, 8) }, // Bishop
     { S(0,0)  , S(0,0)   }, // Rook
-    { S(20, 4), S(30, 8) }  // Queen
+    { S(30, 7), S(40,12) }  // Queen
   };
 
   // ReachableOutpost[PieceType][supported by pawn] contains bonuses for
@@ -154,7 +154,7 @@ namespace {
     { S(21, 5), S(35, 8) }, // Knight
     { S( 8, 0), S(14, 4) }, // Bishop
     { S(0,0)  , S(0,0)   }, // Rook
-    { S(10, 2), S(18, 4) }, // Queen
+    { S(15, 2), S(25, 6) }, // Queen
   };
 
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is no
@@ -265,8 +265,8 @@ namespace {
 
     const PieceType NextPt = (Us == WHITE ? Pt : PieceType(Pt + 1));
     const Color Them = (Us == WHITE ? BLACK : WHITE);
-    const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
-                                               : Rank5BB | Rank4BB | Rank3BB);
+    const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB
+                                               : Rank5BB | Rank4BB | Rank3BB | Rank2BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     ei.attackedBy[Us][Pt] = 0;
