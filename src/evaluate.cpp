@@ -761,7 +761,7 @@ namespace {
             sf = ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
     }
 
-    return sf;
+    return ScaleFactor( sf * Eval::EndgameLove[strongSide] / 128 );
   }
 
 } // namespace
@@ -915,3 +915,5 @@ std::string Eval::trace(const Position& pos) {
 
   return ss.str();
 }
+
+int Eval::EndgameLove[COLOR_NB];
