@@ -761,7 +761,7 @@ namespace {
             sf = ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
     }
 
-    return sf;
+    return ScaleFactor(sf * 96 / 128);
   }
 
 } // namespace
