@@ -47,10 +47,12 @@ namespace {
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
 
-  // Lever bonus by rank
-  const Score Lever[RANK_NB] = {
-    S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
-    S(17, 16), S(33, 32), S(0, 0), S(0, 0)
+  // Levers bonus by unsupported flag and rank
+  const Score Lever[2][RANK_NB] = {
+    { S( 0,  0), S(-10,  0), S(-10, 10), S(-10, 20),
+      S( 6, 40), S( 22, 80), S(  0,  0), S(  0,  0) },
+    { S( 0,  0), S(-10,-30), S(-10,-30), S(-10,-20),
+      S( 6,  6), S( 22, 22), S(  0,  0), S(  0,  0) } 
   };
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
@@ -172,7 +174,7 @@ namespace {
             score -= Doubled;
 
         if (lever)
-            score += Lever[relative_rank(Us, s)];
+            score += Lever[!supported][relative_rank(Us, s)];
     }
 
     return score;
