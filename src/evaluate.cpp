@@ -141,12 +141,11 @@ namespace {
     { S(20, 3), S(29, 8) }  // Bishops
   };
 
-  // ReachableOutpost[knight/bishop][protected] contains bonuses for knights and
-  // bishops which can reach an outpost square in one move, bigger if outpost
-  // square is protected by another minor or a pawn.
-  const Score ReachableOutpost[][2] = {
-    { S(21, 5), S(35, 8) }, // Knights
-    { S( 8, 0), S(14, 4) }  // Bishops
+  // ReachableOutpost[knight/bishop] contains bonuses for knights and bishops
+  // which can reach an outpost square in one move.
+  const Score ReachableOutpost[2] = {
+     S(21, 5) , // Knights
+     S( 8, 2)   // Bishops
   };
 
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is no
@@ -303,7 +302,7 @@ namespace {
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
-                   score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy2[Us] & bb)];
+                   score += ReachableOutpost[Pt == BISHOP] * (1 + popcount(bb & ei.attackedBy2[Us]));
             }
 
             // Bonus when behind a pawn
