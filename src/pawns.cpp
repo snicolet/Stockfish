@@ -48,7 +48,7 @@ namespace {
   const Score Doubled = S(18,38);
   
   // Bonus for having pawns on both flanks
-  const Score BothFlanks = S(0, 30);
+  const Score BothFlanks = S(0, 10);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
