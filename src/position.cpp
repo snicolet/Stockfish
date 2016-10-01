@@ -1011,7 +1011,7 @@ Value Position::see(Move m) const {
 
   // Don't allow pinned pieces to attack pieces except the king as long all
   // pinners are on their original square.
-  if (!(st->pinnersForKing[stm] & ~occupied))
+  if (!(pinners_on_king(stm) & ~occupied))
       stmAttackers &= ~st->blockersForKing[stm];
 
   if (!stmAttackers)
@@ -1038,7 +1038,7 @@ Value Position::see(Move m) const {
 
       // Don't allow pinned pieces to attack pieces except the king
       if (   nextVictim != KING
-          && !(st->pinnersForKing[stm] & ~occupied))
+          && !(pinners_on_king(stm) & ~occupied))
           stmAttackers &= ~st->blockersForKing[stm];
 
       ++slIndex;
