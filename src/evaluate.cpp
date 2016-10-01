@@ -152,7 +152,7 @@ namespace {
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is no
   // friendly pawn on the rook file.
   const Score RookOnFile[2] = { S(20, 7), S(45, 20) };
-  
+
   // WeakQueen[hard/soft pin] contains penalty for our queen when she is subject
   // to a discovered attack or a pin, smaller penalty if we can strike back on
   // the pinning piece.
