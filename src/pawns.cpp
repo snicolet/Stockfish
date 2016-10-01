@@ -46,6 +46,9 @@ namespace {
 
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
+  
+  // Supported passer bonus
+  const Score SupportedPasser = S(40, 40);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
@@ -153,7 +156,11 @@ namespace {
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them.
         if (!stoppers && !(ourPawns & forward_bb(Us, s)))
+        {
             e->passedPawns[Us] |= s;
+            if (supported)
+                score += SupportedPasser;
+        }
 
         // Score this pawn
         if (!neighbours)
