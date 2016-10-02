@@ -43,12 +43,12 @@ namespace {
 
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
+  
+  // Connected passer bonus
+  const Score ConnectedPasser = S(40, 40);
 
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
-  
-  // Supported passer bonus
-  const Score SupportedPasser = S(40, 40);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
@@ -158,8 +158,8 @@ namespace {
         if (!stoppers && !(ourPawns & forward_bb(Us, s)))
         {
             e->passedPawns[Us] |= s;
-            if (supported)
-                score += SupportedPasser;
+            if (connected && relative_rank(Us, s) >= RANK_5)
+                score += ConnectedPasser;
         }
 
         // Score this pawn
