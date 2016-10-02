@@ -45,7 +45,7 @@ namespace {
   Score Connected[2][2][2][RANK_NB];
   
   // Connected passer bonus
-  const Score ConnectedPasser = S(-20, 0);
+  const Score ConnectedPasser = S(0, -20);
 
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
