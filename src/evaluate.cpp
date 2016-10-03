@@ -153,11 +153,6 @@ namespace {
   // friendly pawn on the rook file.
   const Score RookOnFile[2] = { S(20, 7), S(45, 20) };
 
-  // WeakQueen[hard/soft pin] contains penalty for our queen when she is subject
-  // to a discovered attack or a pin, smaller penalty if we can strike back on
-  // the pinning piece.
-  const Score WeakQueen[2] = { S(40, 0), S(20, 0) };
-
   // ThreatBySafePawn[PieceType] contains bonuses according to which piece
   // type is attacked by a pawn which is protected or is not attacked.
   const Score ThreatBySafePawn[PIECE_TYPE_NB] = {
@@ -199,6 +194,7 @@ namespace {
   const Score OtherCheck          = S(10, 10);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
+  const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
@@ -358,10 +354,20 @@ namespace {
 
         if (Pt == QUEEN)
         {
-            // Penalty if any relative pin or discovered attack against the queen
-            Bitboard pinners;
-            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, pinners))
-                score -= WeakQueen[!!(pinners & ei.attackedBy[Us][ALL_PIECES])];
+            // Penalty if any relative pin or discovered attack against our queen,
+            // except when we can counter attack on the spider piece.
+            Bitboard sliders = pos.pieces(Them, ROOK, BISHOP), pinners, counterAttacks;
+            if (pos.slider_blockers(sliders, s, pinners))
+            {
+               counterAttacks =   sliders
+                                & PseudoAttacks[QUEEN][s]
+                                & (  ei.attackedBy[Us][PAWN] 
+                                   | ei.attackedBy[Us][KNIGHT] 
+                                   | ei.attackedBy[Us][BISHOP] 
+                                   | ei.attackedBy[Us][ROOK]);
+               if (!counterAttacks)
+                  score -= WeakQueen;
+            }
         }
     }
 
