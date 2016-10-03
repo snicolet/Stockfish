@@ -354,19 +354,21 @@ namespace {
 
         if (Pt == QUEEN)
         {
-            // Penalty if any relative pin or discovered attack against our queen,
-            // except when we can counter attack on the spider piece.
+            // Penalty if any relative pin or discovered attack against our queen
             Bitboard sliders = pos.pieces(Them, ROOK, BISHOP), pinners, counterAttacks;
             if (pos.slider_blockers(sliders, s, pinners))
             {
-               counterAttacks =   sliders
-                                & PseudoAttacks[QUEEN][s]
-                                & (  ei.attackedBy[Us][PAWN] 
-                                   | ei.attackedBy[Us][KNIGHT] 
-                                   | ei.attackedBy[Us][BISHOP] 
-                                   | ei.attackedBy[Us][ROOK]);
-               if (!counterAttacks)
-                  score -= WeakQueen;
+                score -= WeakQueen;
+                
+                // Bonus for counter attack on the spider piece
+                counterAttacks =   sliders
+                                 & PseudoAttacks[QUEEN][s]
+                                 & (  ei.attackedBy[Us][PAWN] 
+                                    | ei.attackedBy[Us][KNIGHT] 
+                                    | ei.attackedBy[Us][BISHOP] 
+                                    | ei.attackedBy[Us][ROOK]);
+               if (counterAttacks)
+                  score += make_score(30, 30);
             }
         }
     }
