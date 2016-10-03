@@ -367,8 +367,8 @@ namespace {
                                     | ei.attackedBy[Us][KNIGHT] 
                                     | ei.attackedBy[Us][BISHOP] 
                                     | ei.attackedBy[Us][ROOK]);
-               if (counterAttacks)
-                  score += make_score(30, 30);
+                if (counterAttacks)
+                    score += make_score(30, 30);
             }
         }
     }
