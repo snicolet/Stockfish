@@ -422,8 +422,7 @@ namespace {
         kingDanger =  std::min(807, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
                     + 101 * ei.kingAdjacentZoneAttacksCount[Them]
                     + 235 * popcount(undefended)
-                    + 102 * (popcount(b) + !!ei.pinnedPieces[Us])
-                    +  64 * !!(pos.pinners_on_king(Us) & ~ei.attackedBy[Us][ALL_PIECES])
+                    + 134 * (popcount(b) + !!ei.pinnedPieces[Us])
                     - 717 * !pos.count<QUEEN>(Them)
                     -   7 * mg_value(score) / 5 - 5;
 
@@ -481,6 +480,11 @@ namespace {
         if (kingDanger > 0)
             score -= make_score(std::min(kingDanger * kingDanger / 4096,  2 * int(BishopValueMg)), 0);
     }
+
+    // Bonus if we can counter-attack on the enemy pins
+    b = pos.pinners_on_king(Us) & ei.attackedBy[Us][ALL_PIECES];
+    if (b)
+        score += make_score(30, 30);
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
     b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[Us][file_of(ksq)];
