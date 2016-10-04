@@ -165,7 +165,6 @@ void MovePicker::score<EVASIONS>() {
   const HistoryStats& history = pos.this_thread()->history;
   const FromToStats& fromTo = pos.this_thread()->fromTo;
   Color c = pos.side_to_move();
-  Value see;
 
   for (auto& m : *this)
       if (pos.capture(m))
