@@ -133,8 +133,16 @@ void MovePicker::score<CAPTURES>() {
   // badCaptures[] array, but instead of doing it now we delay until the move
   // has been picked up, saving some SEE calls in case we get a cutoff.
   for (auto& m : *this)
-      m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-               - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)));
+  {
+      Square to = to_sq(m);
+      Color stm = pos.side_to_move();
+      Square ksq = pos.square<KING>(~stm);
+      PieceType pt = type_of(pos.moved_piece(m));
+
+      m.value =  PieceValue[MG][pos.piece_on(to)]
+               - Value(200 * relative_rank(stm, to))
+               + Value(1000 * !!(pt < ROOK && (DistanceRingBB[ksq][0] & to)));
+  }
 }
 
 template<>
