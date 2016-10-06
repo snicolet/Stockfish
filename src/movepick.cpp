@@ -141,7 +141,7 @@ void MovePicker::score<CAPTURES>() {
 
       m.value =  PieceValue[MG][pos.piece_on(to)]
                - Value(200 * relative_rank(stm, to))
-               + Value(1000 * !!(pt < ROOK && (DistanceRingBB[ksq][0] & to)));
+               + Value(1000 * !!(pt == PAWN && (DistanceRingBB[ksq][0] & to)));
   }
 }
 
