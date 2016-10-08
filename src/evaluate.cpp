@@ -195,6 +195,7 @@ namespace {
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
+  const Score AdjacentBishops     = S(50,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
@@ -580,6 +581,17 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    // Bonus for good attacking bishops on adjacent diagonals
+    if (pos.count<BISHOP>(Us) >= 2)
+    {
+        b = ei.attackedBy[Us][BISHOP];
+        b &=  KingFlank[Them][file_of(pos.square<KING>(Them))]
+            & (shift<NORTH>(b) | shift<SOUTH>(b));
+
+        if (popcount(b) >= 4)
+           score += AdjacentBishops;
+    }
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
