@@ -195,7 +195,7 @@ namespace {
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
-  const Score AdjacentBishops     = S(14,  0);
+  const Score AdjacentBishops     = S(21,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
@@ -514,6 +514,7 @@ namespace {
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
+    const Bitboard TheirCamp = (Us == WHITE ? BlackCamp  : WhiteCamp);
 
     enum { Minor, Rook };
 
@@ -585,9 +586,8 @@ namespace {
     // Bonus for good attacking bishops on adjacent diagonals
     if (pos.count<BISHOP>(Us) >= 2)
     {
-        b = ei.attackedBy[Us][BISHOP];
-        b &=  KingFlank[Them][file_of(pos.square<KING>(Them))]
-            & (shift<NORTH>(b) | shift<SOUTH>(b));
+        b  = ei.attackedBy[Us][BISHOP];
+        b &= TheirCamp & (shift<NORTH>(b) | shift<SOUTH>(b));
 
         if (popcount(b) >= 4)
            score += AdjacentBishops;
