@@ -18,7 +18,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <cstring>   // For std::memset
@@ -583,7 +582,7 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
     
-    // Bonus for bishops on adjacent diagonals
+    // Bonus for good attacking bishops on adjacent diagonals
     if (pos.count<BISHOP>(Us) >= 2)
     {
         b = ei.attackedBy[Us][BISHOP];
@@ -593,16 +592,6 @@ namespace {
 
         if (popcount(b) >= 4)
            score += AdjacentBishops;
-       
-//        if (popcount(b) >= 4)
-//        {
-// //            std::cerr << pos << std::endl;
-// //            std::cerr << Bitboards::pretty(ei.attackedBy[Us][BISHOP]) << std::endl;
-// //            std::cerr << Bitboards::pretty(b) << std::endl;
-// //            std::cerr << "========================================" << std::endl;
-//            
-//        }
-       
     }
 
     if (DoTrace)
