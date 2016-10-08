@@ -581,7 +581,7 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
-    
+
     // Bonus for good attacking bishops on adjacent diagonals
     if (pos.count<BISHOP>(Us) >= 2)
     {
