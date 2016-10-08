@@ -195,7 +195,7 @@ namespace {
   const Score ThreatByHangingPawn = S(71, 61);
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
-  const Score KnightCoordination  = S(50,  0);
+  const Score KnightCoordination  = S(14,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
@@ -514,7 +514,6 @@ namespace {
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
-    const Bitboard TheirCamp = (Us == WHITE ? BlackCamp  : WhiteCamp);
 
     enum { Minor, Rook };
 
@@ -587,7 +586,8 @@ namespace {
     if (pos.count<KNIGHT>(Us) >= 2)
     {
         b = pos.pieces(Us, KNIGHT) | ei.attackedBy[Us][KNIGHT];
-        b &= TheirCamp & (shift<NORTH>(b) | shift<SOUTH>(b));
+        b &=  KingFlank[Them][file_of(pos.square<KING>(Them))]
+            & (shift<NORTH>(b) | shift<SOUTH>(b));
 
         if (popcount(b) >= 4)
            score += KnightCoordination;
