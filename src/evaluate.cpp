@@ -18,6 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <cstring>   // For std::memset
@@ -197,6 +198,7 @@ namespace {
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
+  const Score AdjacentBishops     = S(20, 20);
   const Score Unstoppable         = S( 0, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -580,6 +582,28 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+    
+    // Bonus for bishops on adjacent diagonals
+    if (pos.count<BISHOP>(Us) >= 2)
+    {
+        b = ei.attackedBy[Us][BISHOP];
+
+        b &=   KingFlank[Them][file_of(pos.square<KING>(Them))]
+             & (shift<NORTH>(b) | shift<SOUTH>(b));
+
+        if (popcount(b) >= 4)
+           score += AdjacentBishops;
+       
+//        if (popcount(b) >= 4)
+//        {
+// //            std::cerr << pos << std::endl;
+// //            std::cerr << Bitboards::pretty(ei.attackedBy[Us][BISHOP]) << std::endl;
+// //            std::cerr << Bitboards::pretty(b) << std::endl;
+// //            std::cerr << "========================================" << std::endl;
+//            
+//        }
+       
+    }
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
