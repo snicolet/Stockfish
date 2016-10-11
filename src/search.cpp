@@ -258,7 +258,7 @@ void MainThread::search() {
   Color us = rootPos.side_to_move();
   Time.init(Limits, us, rootPos.game_ply());
 
-  int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
+  int contempt = Options["Contempt"];
   DrawValue[ us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
 
@@ -596,8 +596,11 @@ namespace {
     {
         // Step 2. Check for aborted search and immediate draw
         if (Signals.stop.load(std::memory_order_relaxed) || pos.is_draw() || ss->ply >= MAX_PLY)
+        {
+            Color stm = pos.side_to_move();
             return ss->ply >= MAX_PLY && !inCheck ? evaluate(pos)
-                                                  : DrawValue[pos.side_to_move()];
+                                                  : DrawValue[stm] * (pos.count<ALL_PIECES>(stm) - 1);
+        }
 
         // Step 3. Mate distance pruning. Even if we mate at the next move our score
         // would be at best mate_in(ss->ply+1), but if alpha is already bigger because
@@ -1124,8 +1127,11 @@ moves_loop: // When in check search starts from here
     assert(moveCount || !inCheck || excludedMove || !MoveList<LEGAL>(pos).size());
 
     if (!moveCount)
+    {
+        Color stm = pos.side_to_move();
         bestValue = excludedMove ? alpha
-                   :     inCheck ? mated_in(ss->ply) : DrawValue[pos.side_to_move()];
+                   :     inCheck ? mated_in(ss->ply) : DrawValue[stm] * (pos.count<ALL_PIECES>(stm) - 1);
+    }
     else if (bestMove)
     {
         int d = depth / ONE_PLY;
