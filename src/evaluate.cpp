@@ -193,7 +193,7 @@ namespace {
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
   const Score ThreatByHangingPawn = S(71, 61);
-  const Score ThreatOnSniper      = S(35, 10);
+  const Score ThreatOnPinners     = S(35,  0);
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
@@ -355,22 +355,16 @@ namespace {
 
         if (Pt == QUEEN)
         {
-            Bitboard sliders = pos.pieces(Them, ROOK, BISHOP), pinners, counterAttacks;
+            Bitboard sliders = pos.pieces(Them, ROOK, BISHOP), pinners;
             
             // Penalty if any relative pin or discovered attack against our queen
             if (pos.slider_blockers(sliders, s, pinners))
             {
                 score -= WeakQueen;
 
-                // Bonus if we can counter-attack on the sniper
-                counterAttacks =   sliders
-                                 & PseudoAttacks[QUEEN][s]
-                                 & (  ei.attackedBy[Us][PAWN] 
-                                    | ei.attackedBy[Us][KNIGHT] 
-                                    | ei.attackedBy[Us][BISHOP] 
-                                    | ei.attackedBy[Us][ROOK]);
-                if (counterAttacks)
-                     score += ThreatOnSniper;
+                // Bonus if we can counter-attack on the enemy pinners
+                if (pinners & ei.attackedBy[Us][ALL_PIECES])
+                     score += ThreatOnPinners;
             }
         }
     }
@@ -495,10 +489,10 @@ namespace {
             score -= make_score(std::min(kingDanger * kingDanger / 4096,  2 * int(BishopValueMg)), 0);
     }
     
-    // Bonus if we can counter-attack on the enemy pins
+    // Bonus if we can counter-attack on the enemy pinners
     b = pos.pinners_on_king(Us) & ei.attackedBy[Us][ALL_PIECES];
     if (b)
-        score += ThreatOnSniper;
+        score += ThreatOnPinners;
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
     b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[Us][file_of(ksq)];
