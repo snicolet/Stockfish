@@ -57,6 +57,7 @@ namespace TB = Tablebases;
 
 using std::string;
 using Eval::evaluate;
+using Eval::rootColor;
 using namespace Search;
 
 namespace {
@@ -261,6 +262,8 @@ void MainThread::search() {
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
   DrawValue[ us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
+  
+  rootColor = rootPos.side_to_move();
 
   if (rootMoves.empty())
   {
@@ -743,7 +746,7 @@ namespace {
         &&  eval - futility_margin(depth) >= beta
         &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
         &&  pos.non_pawn_material(pos.side_to_move()))
-        return eval;
+        return (pos.side_to_move() == rootColor ? eval - futility_margin(depth) : eval);
 
     // Step 8. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode

@@ -68,6 +68,7 @@ namespace {
   }
 
   using namespace Trace;
+  using Eval::rootColor;
 
   // Struct EvalInfo contains various information computed and collected
   // by the evaluation functions.
@@ -915,3 +916,5 @@ std::string Eval::trace(const Position& pos) {
 
   return ss.str();
 }
+
+Color Eval::rootColor;
