@@ -174,7 +174,7 @@ namespace {
             score += Lever[relative_rank(Us, s)];
     }
 
-    score = make_score(( 624 * mg_value(score)) / 1024, eg_value(score));
+    score = make_score( 750 * mg_value(score) / 1024 , eg_value(score));
 
     return score;
   }
