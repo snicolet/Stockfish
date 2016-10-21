@@ -43,7 +43,7 @@ namespace {
 
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
-  
+
   // Centrality bonus for strong pawns
   Score Centrality[SQUARE_NB];
 
