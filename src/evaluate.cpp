@@ -198,6 +198,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
+  const Score PawnlessFlank       = S(20, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -493,6 +494,10 @@ namespace {
        | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
 
     score -= CloseEnemies * popcount(b);
+    
+    // Penalty when our king is on a pawnless flank
+    if (!(pos.pieces(PAWN) & (KingFlank[WHITE][file_of(ksq)] | KingFlank[BLACK][file_of(ksq)])))
+        score -= PawnlessFlank;
 
     if (DoTrace)
         Trace::add(KING, Us, score);
