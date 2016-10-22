@@ -189,6 +189,7 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
+  const Score ConnectedRook       = S(60,  0);
   const Score CloseEnemies        = S( 7,  0);
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
@@ -332,6 +333,10 @@ namespace {
 
         if (Pt == ROOK)
         {
+            // Bonus for connected rooks and queens in case of open files
+            if (ei.pi->open_files() && (b & pos.pieces(Us, ROOK, QUEEN)))
+                score += ConnectedRook;
+
             // Bonus for aligning with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
@@ -350,6 +355,8 @@ namespace {
                     && !ei.pi->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+            
+            
         }
 
         if (Pt == QUEEN)
