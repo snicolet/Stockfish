@@ -189,7 +189,7 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
-  const Score ConnectedRook       = S(60,  0);
+  const Score ConnectedRook       = S(20,  0);
   const Score CloseEnemies        = S( 7,  0);
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
@@ -333,8 +333,10 @@ namespace {
 
         if (Pt == ROOK)
         {
-            // Bonus for connected rooks and queens in case of open files
-            if (ei.pi->open_files() && (b & pos.pieces(Us, ROOK, QUEEN)))
+            // Bonus for heavy pieces batteries on open file
+            if (   ei.pi->semiopen_file(Us, file_of(s))
+                && ei.pi->semiopen_file(Them, file_of(s))
+                && (b & pos.pieces(Us, ROOK, QUEEN) & file_bb(s)))
                 score += ConnectedRook;
 
             // Bonus for aligning with enemy pawns on the same rank/file
