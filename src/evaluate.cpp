@@ -260,9 +260,9 @@ namespace {
 
     const PieceType NextPt = (Us == WHITE ? Pt : PieceType(Pt + 1));
     const Color Them = (Us == WHITE ? BLACK : WHITE);
+    const Bitboard Center = (Rank4BB | Rank5BB) & (FileDBB | FileEBB);
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
-    const Bitboard Center = (Rank4BB | Rank5BB) & (FileDBB | FileEBB);
     const Square* pl = pos.squares<Pt>(Us);
 
     ei.attackedBy[Us][Pt] = 0;
@@ -286,7 +286,7 @@ namespace {
             ei.kingAttackersWeight[Us] += KingAttackWeights[Pt];
             ei.kingAdjacentZoneAttacksCount[Us] += popcount(b & ei.attackedBy[Them][KING]);
         }
-        
+
         if (Center & (b | s) & ~ei.attackedBy[Them][PAWN])
             score += CenterControl;
 
