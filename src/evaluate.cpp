@@ -287,13 +287,13 @@ namespace {
             ei.kingAdjacentZoneAttacksCount[Us] += popcount(b & ei.attackedBy[Them][KING]);
         }
 
-        if (b & Center)
-            score += CenterControl;
-
         if (Pt == QUEEN)
             b &= ~(  ei.attackedBy[Them][KNIGHT]
                    | ei.attackedBy[Them][BISHOP]
                    | ei.attackedBy[Them][ROOK]);
+        
+        if (b & mobilityArea[Us] & Center)
+            score += CenterControl;
 
         int mob = popcount(b & mobilityArea[Us]);
 
