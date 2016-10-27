@@ -199,7 +199,7 @@ namespace {
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
-  const Score CenterControl       = S( 5,  0);
+  const Score CenterControl       = S( 5, -5);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -260,9 +260,10 @@ namespace {
 
     const PieceType NextPt = (Us == WHITE ? Pt : PieceType(Pt + 1));
     const Color Them = (Us == WHITE ? BLACK : WHITE);
-    const Bitboard Center = (Rank4BB | Rank5BB) & (FileDBB | FileEBB);
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
+    const Bitboard Center =  (Us == WHITE ? (Rank5BB | Rank6BB) & (FileDBB | FileEBB)
+                                          : (Rank4BB | Rank3BB) & (FileDBB | FileEBB));
     const Square* pl = pos.squares<Pt>(Us);
 
     ei.attackedBy[Us][Pt] = 0;
