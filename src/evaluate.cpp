@@ -200,6 +200,7 @@ namespace {
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
   const Score HinderPassedPawn    = S( 7,  0);
+  const Score HelpPassedPawn      = S( 7,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -616,6 +617,9 @@ namespace {
 
         bb = forward_bb(Us, s) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
         score -= HinderPassedPawn * popcount(bb);
+        
+        bb = forward_bb(Us, s) & ei.attackedBy[Us][ALL_PIECES];
+        score += HelpPassedPawn * popcount(bb);
 
         int r = relative_rank(Us, s) - RANK_2;
         int rr = r * (r - 1);
