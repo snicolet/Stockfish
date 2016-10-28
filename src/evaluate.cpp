@@ -617,8 +617,8 @@ namespace {
 
         bb = forward_bb(Us, s) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
         score -= HinderPassedPawn * popcount(bb);
-        
-        bb = forward_bb(Us, s) & ei.attackedBy[Us][ALL_PIECES];
+
+        bb = forward_bb(Us, s) & ei.attackedBy2[Us];
         score += HelpPassedPawn * popcount(bb);
 
         int r = relative_rank(Us, s) - RANK_2;
