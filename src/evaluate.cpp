@@ -174,8 +174,8 @@ namespace {
   // Passed[mg/eg][Rank] contains midgame and endgame bonuses for passed pawns.
   // We don't use a Score because we process the two components independently.
   const Value Passed[][RANK_NB] = {
-    { V(5), V( 5), V(31), V(73), V(166), V(252) },
-    { V(7), V(14), V(38), V(73), V(166), V(252) }
+    { V( 5), V( 5), V(31), V(73), V(166), V(252) },
+    { V(17), V(29), V(58), V(98), V(196), V(287) }
   };
 
   // PassedFile[File] contains a bonus according to the file of a passed pawn
@@ -197,7 +197,6 @@ namespace {
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
-  const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
   const Score HinderPassedPawn    = S( 7,  0);
 
@@ -841,17 +840,6 @@ Value Eval::evaluate(const Position& pos) {
   // Evaluate passed pawns, we need full attack information including king
   score +=  evaluate_passed_pawns<WHITE, DoTrace>(pos, ei)
           - evaluate_passed_pawns<BLACK, DoTrace>(pos, ei);
-
-  // If both sides have only pawns, score for potential unstoppable pawns
-  if (!pos.non_pawn_material(WHITE) && !pos.non_pawn_material(BLACK))
-  {
-      Bitboard b;
-      if ((b = ei.pi->passed_pawns(WHITE)) != 0)
-          score += Unstoppable * int(relative_rank(WHITE, frontmost_sq(WHITE, b)));
-
-      if ((b = ei.pi->passed_pawns(BLACK)) != 0)
-          score -= Unstoppable * int(relative_rank(BLACK, frontmost_sq(BLACK, b)));
-  }
 
   // Evaluate space for both sides, only during opening
   if (pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) >= 12222)
