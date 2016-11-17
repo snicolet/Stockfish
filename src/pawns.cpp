@@ -210,7 +210,7 @@ void init() {
   for (int r = RANK_1; r <= RANK_8; ++r)
       for (int f = FILE_A; f <= FILE_H; ++f)
   {
-      int x = r + std::min(f, 7-f);
+      int x = std::max(0, r + std::min(f, 7-f) - 1);
       int v = x * x;
       SupportedPasser[f][r] = make_score(v , v);
 
