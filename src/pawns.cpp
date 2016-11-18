@@ -212,7 +212,7 @@ void init() {
   {
       int x = std::max(0, r + std::min(f, 7-f) - 2);
       int v = x * x;
-      SupportedPasser[f][r] = make_score(v , 0);
+      SupportedPasser[f][r] = make_score(v / 2 , v);
 
       // std::cerr << v << " ";
       // if (f == FILE_H)
