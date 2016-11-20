@@ -18,6 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
 #include <algorithm>
 #include <cassert>
 
@@ -42,6 +43,9 @@ namespace {
 
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
+  
+  // Centrality bonus for strong pawns by passed flag
+  Score Centrality[SQUARE_NB][2];
 
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
@@ -98,7 +102,7 @@ namespace {
 
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Square s;
-    bool opposed, lever, connected, backward;
+    bool passed, opposed, lever, connected, backward;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
@@ -132,6 +136,7 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
         connected  = supported | phalanx;
+        passed     = !stoppers && !(ourPawns & forward_bb(Us, s));
 
         // A pawn is backward when it is behind all pawns of the same color on the
         // adjacent files and cannot be safely advanced.
@@ -152,7 +157,7 @@ namespace {
 
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them.
-        if (!stoppers && !(ourPawns & forward_bb(Us, s)))
+        if (passed)
             e->passedPawns[Us] |= s;
 
         // Score this pawn
@@ -164,6 +169,9 @@ namespace {
 
         else if (!supported)
             score -= Unsupported;
+        
+        if (supported)
+            score += Centrality[relative_square(Us, s)][passed];
 
         if (connected)
             score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
@@ -199,6 +207,26 @@ void init() {
       v += (apex ? v / 2 : 0);
       Connected[opposed][phalanx][apex][r] = make_score(v, v * 5 / 8);
   }
+  
+  enum { Normal, Passed };
+  
+  for (Square s = SQ_A1; s <= SQ_H8; ++s)
+  {
+      int d = distance(s, SQ_D4) + distance(s, SQ_D5) + distance(s, SQ_E4) + distance(s, SQ_E5);
+      d = (12 - d) ;
+      Centrality[s][Normal] = make_score(d , d);
+
+      int r = rank_of(s);
+      int f = file_of(s);
+
+      int x = std::max(0, r + std::min(f, 7-f) - 2);
+      int v = x * x ;
+      Centrality[s][Passed] = (Centrality[s][Normal] + make_score(v , v)) / 2;
+
+      if (0) std::cerr << mg_value(Centrality[s][Normal]) << (f == FILE_H ? "\n" : "  ");
+      if (0) std::cerr << mg_value(Centrality[s][Passed]) << (f == FILE_H ? "\n" : "  ");
+  }
+
 }
 
 
