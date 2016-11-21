@@ -136,7 +136,7 @@ namespace {
 
         // A pawn is backward when it is behind all pawns of the same color on the
         // adjacent files and cannot be safely advanced.
-        friends = neighbours & ~(shift<Down>(theirPawns & passed_pawn_mask(Them, s)));
+        friends = neighbours & ~(shift<Down>(theirPawns) & passed_pawn_mask(Them, s));
         if (!friends || lever || relative_rank(Us, s) >= RANK_5)
             backward = false;
         else
