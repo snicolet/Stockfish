@@ -93,10 +93,11 @@ namespace {
 
     const Color  Them  = (Us == WHITE ? BLACK      : WHITE);
     const Square Up    = (Us == WHITE ? NORTH      : SOUTH);
+    const Square Down  = (Us == WHITE ? SOUTH      : NORTH);
     const Square Right = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Square Left  = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
 
-    Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
+    Bitboard b, neighbours, friends, stoppers, doubled, supported, phalanx;
     Square s;
     bool opposed, lever, connected, backward;
     Score score = SCORE_ZERO;
@@ -135,19 +136,20 @@ namespace {
 
         // A pawn is backward when it is behind all pawns of the same color on the
         // adjacent files and cannot be safely advanced.
-        if (!neighbours || lever || relative_rank(Us, s) >= RANK_5)
+        friends = neighbours & ~(shift<Down>(theirPawns & passed_pawn_mask(Them, s)));
+        if (!friends || lever || relative_rank(Us, s) >= RANK_5)
             backward = false;
         else
         {
-            // Find the backmost rank with neighbours or stoppers
-            b = rank_bb(backmost_sq(Us, neighbours | stoppers));
+            // Find the backmost rank with friends or stoppers
+            b = rank_bb(backmost_sq(Us, friends | stoppers));
 
             // The pawn is backward when it cannot safely progress to that rank:
             // either there is a stopper in the way on this rank, or there is a
             // stopper on adjacent file which controls the way to that rank.
             backward = (b | shift<Up>(b & adjacent_files_bb(f))) & stoppers;
 
-            assert(!backward || !(pawn_attack_span(Them, s + Up) & neighbours));
+            assert(!backward || !(pawn_attack_span(Them, s + Up) & friends));
         }
 
         // Passed pawns will be properly scored in evaluation because we need
