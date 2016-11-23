@@ -926,7 +926,8 @@ moves_loop: // When in check search starts from here
       {
           if (   !captureOrPromotion
               && !givesCheck
-              && !pos.advanced_pawn_push(move))
+              && !pos.advanced_pawn_push(move)
+              && !pos.pawn_race(move))
           {
               // Move count based pruning
               if (moveCountPruning)

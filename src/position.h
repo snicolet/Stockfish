@@ -28,7 +28,7 @@
 
 #include "bitboard.h"
 #include "types.h"
-
+#include "misc.h"
 
 /// StateInfo struct stores information needed to restore a Position object to
 /// its previous state when we retract a move. Whenever a move is made on the
@@ -312,15 +312,14 @@ inline bool Position::advanced_pawn_push(Move m) const {
 }
 
 inline bool Position::pawn_race(Move m) const {
+
+  Color c = color_of(moved_piece(m));
+  
   if (   type_of(moved_piece(m)) == PAWN
-      && !non_pawn_material(WHITE)
-      && !non_pawn_material(BLACK))
-  {
-      Color c = color_of(moved_piece(m));
-  	  Bitboard pawns = pieces(c, PAWN);
-  	  if (pawns && rank_of(from_sq(m)) == rank_of(frontmost_sq(c, pawns)))
-  	      return true;
-  }
+      && non_pawn_material(WHITE) <= KnightValueMg
+      && non_pawn_material(BLACK) <= KnightValueMg
+      && !(pieces(c, PAWN) & in_front_bb(c, rank_of(from_sq(m)))))
+  	  return true;
 
   return false;
 }
