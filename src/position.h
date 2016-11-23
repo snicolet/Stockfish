@@ -120,6 +120,7 @@ public:
   bool capture_or_promotion(Move m) const;
   bool gives_check(Move m) const;
   bool advanced_pawn_push(Move m) const;
+  bool pawn_race(Move m) const;
   Piece moved_piece(Move m) const;
   Piece captured_piece() const;
 
@@ -308,6 +309,20 @@ inline bool Position::pawn_passed(Color c, Square s) const {
 inline bool Position::advanced_pawn_push(Move m) const {
   return   type_of(moved_piece(m)) == PAWN
         && relative_rank(sideToMove, from_sq(m)) > RANK_4;
+}
+
+inline bool Position::pawn_race(Move m) const {
+  if (   type_of(moved_piece(m)) == PAWN
+      && !non_pawn_material(WHITE)
+      && !non_pawn_material(BLACK))
+  {
+      Color c = color_of(moved_piece(m));
+  	  Bitboard pawns = pieces(c, PAWN);
+  	  if (pawns && rank_of(from_sq(m)) == rank_of(frontmost_sq(c, pawns)))
+  	      return true;
+  }
+
+  return false;
 }
 
 inline Key Position::key() const {
