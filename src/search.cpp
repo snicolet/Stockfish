@@ -1326,7 +1326,7 @@ moves_loop: // When in check search starts from here
       // Don't search moves with bad SEE values
       if (  (!InCheck || evasionPrunable)
           &&  type_of(move) != PROMOTION
-          &&  !pos.see_ge(move, Value(-300)))
+          &&  !pos.see_ge(move, Value(-350)))
           continue;
 
       // Speculative prefetch as early as possible
