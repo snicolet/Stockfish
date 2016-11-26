@@ -18,6 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
 #include <algorithm>
 #include <cassert>
 #include <cstring>   // For std::memset
@@ -28,6 +29,8 @@
 #include "evaluate.h"
 #include "material.h"
 #include "pawns.h"
+
+//using namespace std;
 
 namespace {
 
@@ -568,12 +571,29 @@ namespace {
         while (b)
             score += Threat[Rook ][type_of(pos.piece_on(pop_lsb(&b)))];
 
-        b = weak & ~ei.attackedBy[Them][ALL_PIECES];
+        b = weak & ~ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][PAWN];
         score += Hanging * popcount(b);
         
-        b &= pos.pieces(PAWN) & shift<Up>(pos.pieces(Us, PAWN)) & ~ei.attackedBy[Us][PAWN];
+        Bitboard c;
+        c = b & pos.pieces(PAWN) & shift<Up>(pos.pieces(Us, PAWN))
+              & ~(shift<Right>(pos.pieces(Us)) | shift<Left>(pos.pieces(Us)));
+        
+        b = b & pos.pieces(PAWN) & shift<Up>(pos.pieces(Us, PAWN));
         if (b)
             score += HangingBlockedPawn * int(relative_rank(Us, frontmost_sq(Us, b)));
+    
+        dbg_mean_of(b == c);
+        
+//         if (b != c)
+//         {
+//            Position p;
+//            //p = pos;
+//            std::cerr << pos << std::endl;
+//         }
+        
+       std::cerr << pos << std::endl;
+//             std::cerr << Bitboards::pretty(SquareBB[s]) << std::endl;
+//             std::cerr << "============================" << std::endl;
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
