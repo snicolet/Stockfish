@@ -494,7 +494,7 @@ namespace {
     // which are not defended by our pawns.
     b =  (Us == WHITE ? b << 4 : b >> 4)
        | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN])
-       | (b & ei.attackedBy[Them][PAWN]);
+       | (b & ei.attackedBy[Them][PAWN] & ~pos.pieces());
 
     score -= CloseEnemies * popcount(b);
 
