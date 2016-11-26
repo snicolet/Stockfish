@@ -196,7 +196,7 @@ namespace {
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(35,  0);
   const Score Hanging             = S(48, 27);
-  const Score HangingBlockedPawn  = S(10, 10);
+  const Score HangingBlockedPawn  = S( 0, 12);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
@@ -571,7 +571,7 @@ namespace {
         b = weak & ~ei.attackedBy[Them][ALL_PIECES];
         score += Hanging * popcount(b);
         
-        b &= pos.pieces(PAWN) & shift<Up>(pos.pieces(Us, PAWN));
+        b &= pos.pieces(PAWN) & shift<Up>(pos.pieces(Us, PAWN)) & ~ei.attackedBy[Us][PAWN];
         if (b)
             score += HangingBlockedPawn * int(relative_rank(Us, frontmost_sq(Us, b)));
 
