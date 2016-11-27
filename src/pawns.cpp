@@ -197,7 +197,7 @@ void init() {
   {
       int v = (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
       v += (apex ? v / 2 : 0);
-      Connected[opposed][phalanx][apex][r] = make_score(v, v * (r+1) / 8);
+      Connected[opposed][phalanx][apex][r] = make_score(v, v * r / 8);
   }
 }
 
