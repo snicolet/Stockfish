@@ -520,6 +520,7 @@ namespace {
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
+    const Bitboard Rank67BB = (Us == WHITE ? Rank6BB | Rank7BB : Rank3BB | Rank2BB);
 
     enum { Minor, Rook };
 
@@ -577,7 +578,18 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+        // Bonus for hanging pieces which we can capture
+        Bitboard defendedByKingOnly = ei.attackedBy[Them][KING] & ~ei.attackedBy2[Them];
+        b =   weak
+           & (~ei.attackedBy[Them][ALL_PIECES] | (ei.attackedBy2[Us] & defendedByKingOnly));
+        score += Hanging * popcount(b);
+
+        // Endgame bonus if this hanging piece is a blocked pawn on opponent's rank 2 or 3
+        b &=   Rank67BB
+             & pos.pieces(PAWN)
+             & shift<Up>(pos.pieces(Us, PAWN));
+        if (b)
+            score += make_score(0, 50);
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
