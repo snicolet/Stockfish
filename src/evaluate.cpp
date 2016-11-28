@@ -579,15 +579,15 @@ namespace {
         }
 
         // Bonus for hanging pieces which we can capture
-        Bitboard defendedByKingOnly = ei.attackedBy[Them][KING] & ~ei.attackedBy2[Them];
-        b =   weak
-           & (~ei.attackedBy[Them][ALL_PIECES] | (ei.attackedBy2[Us] & defendedByKingOnly));
-        score += Hanging * popcount(b);
+        score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
 
         // Endgame bonus if this hanging piece is a blocked pawn on opponent's rank 2 or 3
-        b &=   Rank67BB
-             & pos.pieces(PAWN)
-             & shift<Up>(pos.pieces(Us, PAWN));
+        Bitboard defendedByKingOnly = ei.attackedBy[Them][KING] & ~ei.attackedBy2[Them];
+        b =  weak
+           & (~ei.attackedBy[Them][ALL_PIECES] | (ei.attackedBy2[Us] & defendedByKingOnly))
+           & Rank67BB
+           & pos.pieces(PAWN)
+           & shift<Up>(pos.pieces(Us, PAWN));
         if (b)
             score += make_score(0, 50);
 
