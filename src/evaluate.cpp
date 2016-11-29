@@ -485,7 +485,7 @@ namespace {
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
     File kf = file_of(ksq);
-    b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[Us][kf];
+    b = (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them, PAWN)) & KingFlank[Us][kf];
 
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
     assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
@@ -520,6 +520,7 @@ namespace {
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
+    const Bitboard Rank67BB = (Us == WHITE ? Rank6BB | Rank7BB : Rank3BB | Rank2BB);
 
     enum { Minor, Rook };
 
@@ -577,7 +578,16 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
+        // Bonus for hanging pieces which we can capture
         score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+
+        // Endgame bonus if there are hanging blocked opponent pawn(s) on rank 6 or 7
+        Bitboard defendedByKingOnly = ei.attackedBy[Them][KING] & ~ei.attackedBy2[Them];
+        b =  weak & pos.pieces(PAWN) & Rank67BB
+           & (~ei.attackedBy[Them][ALL_PIECES] | (ei.attackedBy2[Us] & defendedByKingOnly))
+           & shift<Up>(pos.pieces(Us, PAWN));
+        if (b)
+            score += make_score(0, 50);
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
