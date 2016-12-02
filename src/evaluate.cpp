@@ -624,6 +624,7 @@ namespace {
         assert(pos.pawn_passed(Us, s));
         assert(!(pos.pieces(PAWN) & forward_bb(Us, s)));
 
+        // Malus when the path of the passed pawn is controlled by opponent
         bb = forward_bb(Us, s) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
         score -= HinderPassedPawn * popcount(bb);
 
@@ -639,6 +640,10 @@ namespace {
             // Adjust bonus based on the king's proximity
             ebonus +=  distance(pos.square<KING>(Them), blockSq) * 5 * rr
                      - distance(pos.square<KING>(Us  ), blockSq) * 2 * rr;
+
+			// Adjust bonus based on number of pieces left
+ 			int x = pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us);
+ 			mbonus += (x - 3) * 2 * rr, ebonus += (x - 3) * 2 * rr;
 
             // If blockSq is not the queening square then consider also a second push
             if (relative_rank(Us, blockSq) != RANK_8)
