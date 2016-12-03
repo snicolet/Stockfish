@@ -873,6 +873,10 @@ Value Eval::evaluate(const Position& pos) {
 
   // Evaluate scale factor for the winning side
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
+  
+  // Sqeeze
+  score = make_score(mg_value(score) * (32 - ei.pi->open_files()) / 32, 
+                     eg_value(score) );
 
   // Interpolate between a middlegame and a (scaled by 'sf') endgame score
   Value v =  mg_value(score) * int(ei.me->game_phase())
