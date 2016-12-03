@@ -868,6 +868,9 @@ Value Eval::evaluate(const Position& pos) {
       score +=  evaluate_space<WHITE>(pos, ei)
               - evaluate_space<BLACK>(pos, ei);
 
+  // Scale down midgame eval by number of open files
+  score = make_score(mg_value(score) * (32 - ei.pi->open_files()) / 32, eg_value(score));
+
   // Evaluate position potential for the winning side
   score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
 
