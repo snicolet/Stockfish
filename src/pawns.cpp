@@ -46,6 +46,9 @@ namespace {
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
 
+  // Connected passed pawn bonus
+  const Score ConnectedPassed = S(20, 10);
+
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
@@ -153,7 +156,11 @@ namespace {
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them.
         if (!stoppers && !(ourPawns & forward_bb(Us, s)))
+        {
             e->passedPawns[Us] |= s;
+            if (neighbours & DistanceRingBB[s][0])
+                score += ConnectedPassed;
+        }
 
         // Score this pawn
         if (!neighbours)
