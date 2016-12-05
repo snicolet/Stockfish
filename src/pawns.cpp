@@ -43,6 +43,9 @@ namespace {
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
 
+  // Centrality bonus for strong pawns
+  Score Centrality[SQUARE_NB];
+
   // Doubled pawn penalty
   const Score Doubled = S(18,38);
 
@@ -165,6 +168,9 @@ namespace {
         else if (!supported)
             score -= Unsupported;
 
+        if (supported)
+            score += Centrality[s];
+
         if (connected)
             score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
 
@@ -198,6 +204,13 @@ void init() {
       int v = (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
       v += (apex ? v / 2 : 0);
       Connected[opposed][phalanx][apex][r] = make_score(v, v * (r-2) / 4);
+  }
+  
+  for (Square s = SQ_A1; s <= SQ_H8; ++s)
+  {
+      int d = distance(s, SQ_D4) + distance(s, SQ_D5) + distance(s, SQ_E4) + distance(s, SQ_E5);
+      d = 24 - 2 * d;
+      Centrality[s] = make_score(d , -d);
   }
 }
 
