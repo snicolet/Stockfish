@@ -210,7 +210,7 @@ void init() {
   {
       int d = distance(s, SQ_D4) + distance(s, SQ_D5) + distance(s, SQ_E4) + distance(s, SQ_E5);
       d = 12 - d;
-      Centrality[s] = make_score( d , -d);
+      Centrality[s] = make_score( 3 * d , -3 * d);
   }
 }
 
