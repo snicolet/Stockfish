@@ -197,6 +197,7 @@ namespace {
   const Score WeakQueen           = S(50, 10);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
+  const Score PassedPawnCreation  = S(40, 40);
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
   const Score HinderPassedPawn    = S( 7,  0);
@@ -582,6 +583,11 @@ namespace {
         b = weak & ei.attackedBy[Us][KING];
         if (b)
             score += ThreatByKing[more_than_one(b)];
+
+        b =  weak & ei.pi->critical_stoppers(Them) & ~ei.attackedBy[Us][PAWN] 
+           & (~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy2[Us]);
+        if (b)
+            score += popcount(b) * PassedPawnCreation;
     }
 
     // Bonus if some pawns can safely push and attack an enemy piece
