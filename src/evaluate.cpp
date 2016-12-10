@@ -196,6 +196,7 @@ namespace {
   const Score LooseEnemies        = S( 0, 25);
   const Score WeakQueen           = S(50, 10);
   const Score Hanging             = S(48, 27);
+  const Score HangingPassedPawn   = S(40,  0);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score Unstoppable         = S( 0, 20);
   const Score PawnlessFlank       = S(20, 80);
@@ -577,7 +578,12 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+        b = weak & ~ei.attackedBy[Them][ALL_PIECES];
+        if (b)
+        {
+            score += Hanging           * popcount(b);
+            score += HangingPassedPawn * popcount(b & ei.pi->passed_pawns(Them));
+        }
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
