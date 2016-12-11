@@ -583,7 +583,6 @@ namespace {
         b =   weak
             & ~ei.attackedBy2[Them]
             &  ei.attackedBy2[Us]
-            & ~ei.attackedBy[Us][PAWN]
             & ei.pi->critical_stoppers(Them);
         if (b)
             score += PassedPawnCreation * popcount(b);
