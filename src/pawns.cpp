@@ -106,7 +106,7 @@ namespace {
     Bitboard ourPawns   = pos.pieces(Us  , PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
-    e->passedPawns[Us]   = e->pawnAttacksSpan[Us] = 0;
+    e->passedPawns[Us]   = e->stoppers[Them] = e->pawnAttacksSpan[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = shift<Right>(ourPawns) | shift<Left>(ourPawns);
@@ -154,6 +154,10 @@ namespace {
         // full attack info to evaluate them.
         if (!stoppers && !(ourPawns & forward_bb(Us, s)))
             e->passedPawns[Us] |= s;
+
+        // If we have a quasi-passed pawn then we store the stopper
+        if (stoppers && !more_than_one(stoppers))
+            e->stoppers[Them] |= stoppers;
 
         // Score this pawn
         if (!neighbours)
