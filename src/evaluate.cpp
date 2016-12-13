@@ -197,7 +197,7 @@ namespace {
   const Score WeakQueen           = S(50, 10);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
-  const Score PassedPawnThreat    = S(100,-50);
+  const Score PassedPawnThreat    = S(40,-20);
   const Score Unstoppable         = S( 0, 45);
   const Score PawnlessFlank       = S(20, 80);
   const Score HinderPassedPawn    = S( 7,  0);
@@ -584,7 +584,7 @@ namespace {
             & ~ei.attackedBy2[Them]
             &  ei.attackedBy2[Us]
             & ~ei.attackedBy[Us][PAWN]
-            & (ei.pi->critical_stoppers(Them) | ei.pi->passed_pawns(Them));
+            & ei.pi->critical_stoppers(Them);
         if (b)
             score += PassedPawnThreat;
 
