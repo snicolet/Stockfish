@@ -581,9 +581,10 @@ namespace {
         Bitboard hanging = weak & ~ei.attackedBy[Them][ALL_PIECES];
         score += Hanging * popcount(hanging);
 
-        b =   weak
+        b =    weak
+            & ~hanging
             & ~ei.attackedBy2[Them]
-            & (hanging | ei.attackedBy2[Us])
+            &  ei.attackedBy2[Us]
             & ~ei.attackedBy[Us][PAWN]
             & ei.pi->critical_stoppers(Them);
         if (b)
