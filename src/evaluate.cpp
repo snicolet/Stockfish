@@ -582,9 +582,9 @@ namespace {
         score += Hanging * popcount(hanging);
 
         b =    weak
-            &  pos.pieces(PAWN)
+            & ~hanging
             & ~ei.attackedBy2[Them]
-            & (hanging | ei.attackedBy2[Us])
+            &  ei.attackedBy2[Us]
             & ~ei.attackedBy[Us][PAWN];
         if (b)
             score += SemiHanging;
