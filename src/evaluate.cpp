@@ -578,11 +578,13 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+        Bitboard hanging = weak & ~ei.attackedBy[Them][ALL_PIECES];
+        score += Hanging * popcount(hanging);
 
         b =    weak
+            &  pos.pieces(PAWN)
             & ~ei.attackedBy2[Them]
-            &  ei.attackedBy2[Us]
+            & (hanging | ei.attackedBy2[Us])
             & ~ei.attackedBy[Us][PAWN];
         if (b)
             score += SemiHanging;
