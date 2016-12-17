@@ -746,7 +746,7 @@ namespace {
     int bonus_eg = ((eg > 0) - (eg < 0)) * std::max(initiative_eg, -abs(eg / 2));
     
     int bonus_mg = 0;
-    if (pos.opposite_bishops() && !pos.pieces(KNIGHT))
+    if (pos.opposite_bishops() && !pos.pieces(KNIGHT) && pos.pieces(QUEEN))
     {
         int initiative_mg = 100;
         bonus_mg = ((eg > 0) - (eg < 0)) * std::max(initiative_mg, -abs(eg / 2));
