@@ -747,7 +747,7 @@ namespace {
     
     int bonus_mg = 0;
     if (pos.opposite_bishops() && !pos.pieces(KNIGHT) && pos.pieces(QUEEN))
-        bonus_mg = ((eg > 0) - (eg < 0)) * 100;
+        bonus_mg = ((eg > 0) - (eg < 0)) * 50;
 
     return make_score(bonus_mg, bonus_eg);
   }
