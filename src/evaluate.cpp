@@ -619,7 +619,8 @@ namespace {
 
     // Bonus for potentially unstoppable pawn
     if (   b
-        && pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) <= 2 * KnightValueMg)
+        && pos.non_pawn_material(WHITE) <= KnightValueMg
+        && pos.non_pawn_material(BLACK) <= KnightValueMg)
         score += Unstoppable;
 
     while (b)
