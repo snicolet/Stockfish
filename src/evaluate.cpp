@@ -189,7 +189,7 @@ namespace {
   const Score BishopPawns         = S( 8, 12);
   const Score RookOnPawn          = S( 8, 24);
   const Score TrappedRook         = S(92,  0);
-  const Score CloseEnemies        = S( 6,  0);
+  const Score CloseEnemies        = S( 7,  0);
   const Score SafeCheck           = S(20, 20);
   const Score OtherCheck          = S(10, 10);
   const Score ThreatByHangingPawn = S(71, 61);
@@ -485,7 +485,8 @@ namespace {
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
     File kf = file_of(ksq);
-    b = (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them)) & KingFlank[Us][kf];
+    b =  KingFlank[Us][kf] 
+       & (ei.attackedBy[Them][ALL_PIECES] | (pos.pieces(Them) & ~ei.attackedBy[Us][ALL_PIECES]));
 
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
     assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
