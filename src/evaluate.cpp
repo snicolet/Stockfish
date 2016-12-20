@@ -485,8 +485,8 @@ namespace {
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
     File kf = file_of(ksq);
-    b =  KingFlank[Us][kf] 
-       & (ei.attackedBy[Them][ALL_PIECES] | (pos.pieces(Them) & ~ei.attackedBy[Us][ALL_PIECES]));
+    b =  KingFlank[Us][kf]
+       & (ei.attackedBy[Them][ALL_PIECES] | (pos.pieces(Them) & ~ei.attackedBy[Us][PAWN]));
 
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
     assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
