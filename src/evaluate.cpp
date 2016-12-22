@@ -810,6 +810,10 @@ Value Eval::evaluate(const Position& pos) {
   // the position object (material + piece square tables) and the material
   // imbalance. Score is computed internally from the white point of view.
   Score score = pos.psq_score() + ei.me->imbalance();
+  
+  // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
+  int random_eval = (uint64_t(pos.key()) & 15) - 8;
+  score += make_score(random_eval , 0);
 
   // Probe the pawn hash table
   ei.pi = Pawns::probe(pos);
