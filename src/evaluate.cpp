@@ -725,9 +725,13 @@ namespace {
     // ...count safe + (behind & safe) with a single popcount
     int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
     bonus = std::min(16, bonus);
-    int weight = pos.count<ALL_PIECES>(Us) - 2 * ei.pi->open_files();
 
-    return make_score(bonus * weight * weight / 18, 0);
+    int a = pos.count<ALL_PIECES>(Us);
+    int p = pos.count<PAWN>(Us);
+    int f = ei.pi->open_files();
+    int weight = a * (2 - f) + p * f;
+
+    return make_score(bonus * weight * weight / 128, 0);
   }
 
 
