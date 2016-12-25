@@ -677,7 +677,7 @@ namespace {
                 mbonus += rr + r * 2, ebonus += rr + r * 2;
         } // rr != 0
 
-        // Assign a small bonus when no pieces left (unstoppable)
+        // Assign a small bonus when they have no pieces left (unstoppable)
         if (!pos.non_pawn_material(Them))
             ebonus += 20;
 
