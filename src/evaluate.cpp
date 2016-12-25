@@ -678,8 +678,7 @@ namespace {
         } // rr != 0
 
         // Assign a small bonus when no pieces left (unstoppable)
-        if (    pos.non_pawn_material(Us) <= KnightValueMg
-            && !pos.non_pawn_material(Them))
+        if (!pos.non_pawn_material(Them))
             ebonus += 20;
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
