@@ -731,7 +731,9 @@ namespace {
     int f = ei.pi->open_files();
     int weight = a * (2 - f) + p * f;
 
-    return make_score(bonus * weight * weight / 128, 0);
+//    dbg_mean_of(weight * weight / 64);
+
+    return make_score(bonus * weight * weight / 64, 0);
   }
 
 
