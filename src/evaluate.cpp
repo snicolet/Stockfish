@@ -729,11 +729,9 @@ namespace {
     int a = pos.count<ALL_PIECES>(Us);
     int p = pos.count<PAWN>(Us);
     int f = ei.pi->open_files();
-    int weight = a * (2 - f) + p * f;
+    int weight = p + 2 * (a * (2 - f) + p * f);
 
-//    dbg_mean_of(weight * weight / 64);
-
-    return make_score(bonus * weight * weight / 64, 0);
+    return make_score(bonus * weight * weight / 350, 0);
   }
 
 
