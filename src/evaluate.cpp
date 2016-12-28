@@ -724,7 +724,7 @@ namespace {
 
     // ...count safe + (behind & safe) with a single popcount
     int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
-    bonus = std::min(16, bonus);
+    bonus = std::min(20, bonus);
 
     int a = pos.count<ALL_PIECES>(Us);
     int p = pos.count<PAWN>(Us);
