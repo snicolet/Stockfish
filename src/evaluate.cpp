@@ -702,9 +702,9 @@ namespace {
   Score evaluate_space(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
-    const Bitboard SpaceMask =
-      Us == WHITE ? (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank2BB | Rank3BB | Rank4BB)
-                  : (FileCBB | FileDBB | FileEBB | FileFBB) & (Rank7BB | Rank6BB | Rank5BB);
+    const Bitboard SpaceFiles = FileBBB | FileCBB | FileDBB | FileEBB | FileFBB | FileGBB;
+    const Bitboard SpaceMask = Us == WHITE ? SpaceFiles & (Rank2BB | Rank3BB | Rank4BB)
+                                           : SpaceFiles & (Rank7BB | Rank6BB | Rank5BB);
 
     // Find the safe squares for our pieces inside the area defined by
     // SpaceMask. A square is unsafe if it is attacked by an enemy
@@ -724,7 +724,7 @@ namespace {
 
     // ...count safe + (behind & safe) with a single popcount
     int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
-    bonus = std::min(14, bonus);
+    bonus = std::min(16, bonus);
 
     int a = pos.count<ALL_PIECES>(Us);
     int p = pos.count<PAWN>(Us);
