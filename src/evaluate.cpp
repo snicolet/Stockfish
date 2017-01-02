@@ -735,7 +735,7 @@ namespace {
     Value eg = eg_value(score);
   
     int horizontalDistance = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-    int oppositeCastling = 10 * (horizontalDistance >= 4);
+    int oppositeCastling = 10 * (horizontalDistance >= 2);
     int outflanking = horizontalDistance - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
 
