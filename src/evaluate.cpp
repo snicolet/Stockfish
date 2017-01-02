@@ -733,11 +733,11 @@ namespace {
   
     Value mg = mg_value(score);
     Value eg = eg_value(score);
-  
+
+    int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
     int horizontalDistance = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int oppositeCastling = 16 * (horizontalDistance >= 2);
     int outflanking = horizontalDistance - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-    int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
 
     // Compute the endgame initiative for the attacking side
     int initiative = 8 * (asymmetry + outflanking - 15) + 12 * pawns;
