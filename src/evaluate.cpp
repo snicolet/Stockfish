@@ -730,23 +730,24 @@ namespace {
   // position, i.e., second order bonus/malus based on the known attacking/defending
   // status of the players.
   Score evaluate_initiative(const Position& pos, int asymmetry, Score score) {
-  
+
     Value mg = mg_value(score);
     Value eg = eg_value(score);
 
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
     int horizontalDistance = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-    int oppositeCastling = 16 * (horizontalDistance >= 2);
+    int oppositeCastling = horizontalDistance >= 4;
     int outflanking = horizontalDistance - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
-    // Compute the endgame initiative for the attacking side
-    int initiative = 8 * (asymmetry + outflanking - 15) + 12 * pawns;
-    
+    // Compute the initiative for the attacking side
+    int mg_initiative = 16 * oppositeCastling + 2 * (pawns + asymmetry) - 20;
+    int eg_initiative = 8 * (asymmetry + outflanking - 15) + 12 * pawns;
+
     // Now apply the bonus: note that we find the attacking side by extracting the
-    // sign of the midgame and endgame values, and that we carefully cap the endgame
-    // bonus so that the endgame score will never be divided by more than two.
-    int mg_bonus = ((mg > 0) - (mg < 0)) * oppositeCastling;
-    int eg_bonus = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg / 2));
+    // sign of the midgame and endgame values, and that we carefully cap the initiative
+    // bonus so that the global score will never be divided by more than two.
+    int mg_bonus = ((mg > 0) - (mg < 0)) * std::max(mg_initiative, -abs(mg / 2));
+    int eg_bonus = ((eg > 0) - (eg < 0)) * std::max(eg_initiative, -abs(eg / 2));
 
     return make_score(mg_bonus, eg_bonus);
   }
