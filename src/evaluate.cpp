@@ -729,21 +729,27 @@ namespace {
   // evaluate_initiative() computes the initiative correction value for the
   // position, i.e., second order bonus/malus based on the known attacking/defending
   // status of the players.
-  Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
+  Score evaluate_initiative(const Position& pos, int asymmetry, Score score) {
 
-    int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    Value mg = mg_value(score);
+    Value eg = eg_value(score);
+
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
+    int horizontalDistance = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    int oppositeCastling = horizontalDistance >= 4;
+    int outflanking = horizontalDistance - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
-    // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 15) + 12 * pawns;
+    // Compute the initiative for the attacking side
+    int mg_initiative = 16 * oppositeCastling + 2 * (pawns + asymmetry) - 20;
+    int eg_initiative = 8 * (asymmetry + outflanking - 15) + 12 * pawns;
 
-    // Now apply the bonus: note that we find the attacking side by extracting
-    // the sign of the endgame value, and that we carefully cap the bonus so
-    // that the endgame score will never be divided by more than two.
-    int value = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg / 2));
+    // Now apply the bonus: note that we find the attacking side by extracting the
+    // sign of the midgame and endgame values, and that we carefully cap the initiative
+    // bonus so that the global score will never be divided by more than two.
+    int mg_bonus = ((mg > 0) - (mg < 0)) * std::max(mg_initiative, -abs(mg / 2));
+    int eg_bonus = ((eg > 0) - (eg < 0)) * std::max(eg_initiative, -abs(eg / 2));
 
-    return make_score(0, value);
+    return make_score(mg_bonus, eg_bonus);
   }
 
 
@@ -856,7 +862,7 @@ Value Eval::evaluate(const Position& pos) {
               - evaluate_space<BLACK>(pos, ei);
 
   // Evaluate position potential for the winning side
-  score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), eg_value(score));
+  score += evaluate_initiative(pos, ei.pi->pawn_asymmetry(), score);
 
   // Evaluate scale factor for the winning side
   ScaleFactor sf = evaluate_scale_factor(pos, ei, eg_value(score));
