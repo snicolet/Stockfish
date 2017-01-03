@@ -30,6 +30,7 @@ Value PieceValue[PHASE_NB][PIECE_NB] = {
 namespace PSQT {
 
 #define S(mg, eg) make_score(mg, eg)
+#define T(mg, eg) make_score(mg + 4, eg + 4)
 
 // Bonus[PieceType][Square / 2] contains Piece-Square scores. For each piece
 // type on a given square a (middlegame, endgame) score pair is assigned. Table
@@ -41,10 +42,10 @@ const Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
    { S(  0, 0), S(  0, 0), S(  0, 0), S( 0, 0) },
    { S(-11, 7), S(  6,-4), S(  7, 8), S( 3,-2) },
    { S(-18,-4), S( -2,-5), S( 19, 5), S(24, 4) },
-   { S(-17, 3), S( -9, 3), S( 20,-8), S(35,-3) },
-   { S( -6, 8), S(  5, 9), S(  3, 7), S(21,-6) },
-   { S( -6, 8), S( -8,-5), S( -6, 2), S(-2, 4) },
-   { S( -4, 3), S( 20,-9), S( -8, 1), S(-4,18) }
+   { T(-17, 3), T( -9, 3), T( 20,-8), T(35,-3) },
+   { T( -6, 8), T(  5, 9), T(  3, 7), T(21,-6) },
+   { T( -6, 8), T( -8,-5), T( -6, 2), T(-2, 4) },
+   { T( -4, 3), T( 20,-9), T( -8, 1), T(-4,18) }
   },
   { // Knight
    { S(-143, -97), S(-96,-82), S(-80,-46), S(-73,-14) },
@@ -52,7 +53,7 @@ const Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
    { S( -71, -50), S(-22,-39), S(  0, -8), S(  9, 28) },
    { S( -25, -41), S( 18,-25), S( 43,  7), S( 47, 38) },
    { S( -26, -46), S( 16,-25), S( 38,  2), S( 50, 41) },
-   { S( -11, -55), S( 37,-38), S( 56, -8), S( 71, 27) },
+   { S( -11, -55), S( 37,-38), S( 56, -8), S( 56, 27) },
    { S( -62, -64), S(-17,-50), S(  5,-24), S( 14, 13) },
    { S(-195,-110), S(-66,-90), S(-42,-50), S(-29,-13) }
   },
@@ -98,6 +99,7 @@ const Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
   }
 };
 
+#undef T
 #undef S
 
 Score psq[PIECE_NB][SQUARE_NB];
