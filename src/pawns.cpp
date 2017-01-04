@@ -52,12 +52,9 @@ namespace {
     S(17, 16), S(33, 32), S(0, 0), S(0, 0)
   };
 
-  // Weakness of our pawn shelter in front of the king by [distance from edge][rank]
-  const Value ShelterWeakness[][RANK_NB] = {
-    { V(100), V(20), V(10), V(46), V(82), V( 86), V( 98) },
-    { V(116), V( 4), V(28), V(87), V(94), V(108), V(104) },
-    { V(109), V( 1), V(59), V(87), V(62), V( 91), V(116) },
-    { V( 75), V(12), V(43), V(59), V(90), V( 84), V(112) }
+  // Weakness of our pawn shelter in front of the king by rank
+  const Value ShelterWeakness[RANK_NB] = {
+    V(116), V(20), V(59), V(87), V(94), V(108), V(116)
   };
 
   // Danger of enemy pawns moving toward our king by [type][distance from edge][rank]
@@ -78,7 +75,6 @@ namespace {
       { V( 0),  V(  60), V( 144), V(39), V(13) },
       { V( 0),  V(  65), V( 141), V(41), V(34) },
       { V( 0),  V(  53), V( 127), V(56), V(14) } }
-
   };
 
   // Max bonus for king safety. Corresponds to start position with all the pawns
@@ -247,7 +243,7 @@ Value Entry::shelter_storm(const Position& pos, Square ksq) {
       b  = theirPawns & file_bb(f);
       Rank rkThem = b ? relative_rank(Us, frontmost_sq(Them, b)) : RANK_1;
 
-      safety -=  ShelterWeakness[std::min(f, FILE_H - f)][rkUs]
+      safety -=  ShelterWeakness[rkUs]
                + StormDanger
                  [f == file_of(ksq) && rkThem == relative_rank(Us, ksq) + 1 ? BlockedByKing  :
                   rkUs   == RANK_1                                          ? NoFriendlyPawn :
