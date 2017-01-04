@@ -786,26 +786,29 @@ namespace {
         &&  depth >= 5 * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
-        Value rbeta = std::min(beta + 200, VALUE_INFINITE);
         Depth rdepth = depth - 4 * ONE_PLY;
 
         assert(rdepth >= ONE_PLY);
         assert((ss-1)->currentMove != MOVE_NONE);
         assert((ss-1)->currentMove != MOVE_NULL);
+        
+        for (Depth reduction = rdepth - ONE_PLY ; reduction >= DEPTH_ZERO ; reduction -= ONE_PLY)
+        {
+            Value rbeta = std::min(beta + 150 + reduction * 150, VALUE_INFINITE);
+            MovePicker mp(pos, ttMove, rbeta - ss->staticEval);
 
-        MovePicker mp(pos, ttMove, rbeta - ss->staticEval);
-
-        while ((move = mp.next_move()) != MOVE_NONE)
-            if (pos.legal(move))
-            {
-                ss->currentMove = move;
-                ss->counterMoves = &thisThread->counterMoveHistory[pos.moved_piece(move)][to_sq(move)];
-                pos.do_move(move, st);
-                value = -search<NonPV>(pos, ss+1, -rbeta, -rbeta+1, rdepth, !cutNode, false);
-                pos.undo_move(move);
-                if (value >= rbeta)
-                    return value;
-            }
+            while ((move = mp.next_move()) != MOVE_NONE)
+                if (pos.legal(move))
+                {
+                    ss->currentMove = move;
+                    ss->counterMoves = &thisThread->counterMoveHistory[pos.moved_piece(move)][to_sq(move)];
+                    pos.do_move(move, st);
+                    value = -search<NonPV>(pos, ss+1, -rbeta, -rbeta+1, rdepth - reduction, !cutNode, false);
+                    pos.undo_move(move);
+                    if (value >= rbeta)
+                        return value;
+                }
+        }
     }
 
     // Step 10. Internal iterative deepening (skipped when in check)
