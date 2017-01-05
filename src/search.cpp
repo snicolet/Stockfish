@@ -792,7 +792,8 @@ namespace {
         assert((ss-1)->currentMove != MOVE_NONE);
         assert((ss-1)->currentMove != MOVE_NULL);
         
-        for (Depth reduction = rdepth - ONE_PLY ; reduction >= DEPTH_ZERO ; reduction -= ONE_PLY)
+        Depth rMax = std::min(rdepth - ONE_PLY , ONE_PLY);
+        for (Depth reduction = rMax ; reduction >= DEPTH_ZERO ; reduction -= ONE_PLY)
         {
             Value rbeta = std::min(beta + 200 + reduction * 150, VALUE_INFINITE);
             MovePicker mp(pos, ttMove, rbeta - ss->staticEval);
