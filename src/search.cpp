@@ -742,7 +742,36 @@ namespace {
         &&  pos.non_pawn_material(pos.side_to_move()))
         return eval;
 
-    // Step 8. Null move search with verification search (is omitted in PV nodes)
+    // Step 8. ProbCut (skipped when in check)
+    // If we have a good enough capture and a reduced search returns a value
+    // much above beta, we can (almost) safely prune the previous move.
+    if (   !PvNode
+        &&  depth >= 5 * ONE_PLY
+        &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
+    {
+        Value rbeta = std::min(beta + 200, VALUE_INFINITE);
+        Depth rdepth = depth - 4 * ONE_PLY;
+
+        assert(rdepth >= ONE_PLY);
+        assert((ss-1)->currentMove != MOVE_NONE);
+        assert((ss-1)->currentMove != MOVE_NULL);
+
+        MovePicker mp(pos, ttMove, rbeta - ss->staticEval);
+
+        while ((move = mp.next_move()) != MOVE_NONE)
+            if (pos.legal(move))
+            {
+                ss->currentMove = move;
+                ss->counterMoves = &thisThread->counterMoveHistory[pos.moved_piece(move)][to_sq(move)];
+                pos.do_move(move, st);
+                value = -search<NonPV>(pos, ss+1, -rbeta, -rbeta+1, rdepth, !cutNode, false);
+                pos.undo_move(move);
+                if (value >= rbeta)
+                    return value;
+            }
+    }
+
+    // Step 9. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode
         &&  eval >= beta
         && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
@@ -777,35 +806,6 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
-    }
-
-    // Step 9. ProbCut (skipped when in check)
-    // If we have a good enough capture and a reduced search returns a value
-    // much above beta, we can (almost) safely prune the previous move.
-    if (   !PvNode
-        &&  depth >= 5 * ONE_PLY
-        &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
-    {
-        Value rbeta = std::min(beta + 200, VALUE_INFINITE);
-        Depth rdepth = depth - 4 * ONE_PLY;
-
-        assert(rdepth >= ONE_PLY);
-        assert((ss-1)->currentMove != MOVE_NONE);
-        assert((ss-1)->currentMove != MOVE_NULL);
-
-        MovePicker mp(pos, ttMove, rbeta - ss->staticEval);
-
-        while ((move = mp.next_move()) != MOVE_NONE)
-            if (pos.legal(move))
-            {
-                ss->currentMove = move;
-                ss->counterMoves = &thisThread->counterMoveHistory[pos.moved_piece(move)][to_sq(move)];
-                pos.do_move(move, st);
-                value = -search<NonPV>(pos, ss+1, -rbeta, -rbeta+1, rdepth, !cutNode, false);
-                pos.undo_move(move);
-                if (value >= rbeta)
-                    return value;
-            }
     }
 
     // Step 10. Internal iterative deepening (skipped when in check)
