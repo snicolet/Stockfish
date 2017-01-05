@@ -794,7 +794,7 @@ namespace {
         
         for (Depth reduction = rdepth - ONE_PLY ; reduction >= DEPTH_ZERO ; reduction -= ONE_PLY)
         {
-            Value rbeta = std::min(beta + 150 + reduction * 150, VALUE_INFINITE);
+            Value rbeta = std::min(beta + 200 + reduction * 150, VALUE_INFINITE);
             MovePicker mp(pos, ttMove, rbeta - ss->staticEval);
 
             while ((move = mp.next_move()) != MOVE_NONE)
