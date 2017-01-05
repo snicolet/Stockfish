@@ -309,7 +309,8 @@ Move MovePicker::next_move() {
       while (cur < endMoves)
       {
           move = pick_best(cur++, endMoves);
-          if (move != ttMove)
+          if (   move != ttMove
+              && pos.see_ge(move, Value(50)))
               return move;
       }
       if (stage == QCAPTURES_2)
