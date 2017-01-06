@@ -194,7 +194,7 @@ namespace {
   const Score TrappedRook         = S(92,  0);
   const Score WeakQueen           = S(50, 10);
   const Score OtherCheck          = S(10, 10);
-  const Score CloseEnemies        = S( 7,  0);
+  const Score CloseEnemies        = S( 8,  0);
   const Score PawnlessFlank       = S(20, 80);
   const Score LooseEnemies        = S( 0, 25);
   const Score ThreatByHangingPawn = S(71, 61);
@@ -481,8 +481,8 @@ namespace {
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
     File kf = file_of(ksq);
-    b =   (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them, PAWN)) 
-        & KingFlank[kf] & OurCamp;
+    Bitboard attackers = pos.pieces(Them);
+    b = (ei.attackedBy[Them][ALL_PIECES] | attackers) & KingFlank[kf] & OurCamp;
 
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
     assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
