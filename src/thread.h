@@ -66,6 +66,7 @@ public:
 
   Position rootPos;
   Search::RootMoves rootMoves;
+  Color rootColor;
   Depth rootDepth;
   Depth completedDepth;
   std::atomic_bool resetCalls;
