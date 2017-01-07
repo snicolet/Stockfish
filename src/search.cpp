@@ -75,6 +75,16 @@ namespace {
     return Reductions[PvNode][i][std::min(d / ONE_PLY, 63)][std::min(mn, 63)] * ONE_PLY;
   }
 
+  // PruningSafety[rootColor][pruning Alpha/Beta] : pruning safety matrix
+  const int PruningSafety[2][2] = {
+     {  0  ,  0 },  // ~rootColor : Alpha,Beta
+     {  0  ,  0 }   //  rootColor : Alpha,Beta
+  };
+  enum PruningType { Alpha, Beta };
+  template <PruningType pruning> int pruning_safety(const Position& pos) {
+      return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][pruning];
+  }
+
   // Skill structure is used to implement strength limit
   struct Skill {
     Skill(int l) : level(l) {}
@@ -256,7 +266,7 @@ template uint64_t Search::perft<true>(Position&, Depth);
 
 void MainThread::search() {
 
-  Color us = rootPos.side_to_move();
+  Color us = rootColor = rootPos.side_to_move();
   Time.init(Limits, us, rootPos.game_ply());
 
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
@@ -723,12 +733,12 @@ namespace {
     if (   !PvNode
         &&  depth < 4 * ONE_PLY
         &&  ttMove == MOVE_NONE
-        &&  eval + razor_margin[depth / ONE_PLY] <= alpha)
+        &&  eval + razor_margin[depth / ONE_PLY] + pruning_safety<Alpha>(pos) <= alpha)
     {
         if (depth <= ONE_PLY)
             return qsearch<NonPV, false>(pos, ss, alpha, alpha+1);
 
-        Value ralpha = alpha - razor_margin[depth / ONE_PLY];
+        Value ralpha = alpha - razor_margin[depth / ONE_PLY] - pruning_safety<Alpha>(pos);
         Value v = qsearch<NonPV, false>(pos, ss, ralpha, ralpha+1);
         if (v <= ralpha)
             return v;
@@ -737,7 +747,7 @@ namespace {
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !rootNode
         &&  depth < 7 * ONE_PLY
-        &&  eval - futility_margin(depth) >= beta
+        &&  eval - futility_margin(depth) - pruning_safety<Beta>(pos) >= beta
         &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
         &&  pos.non_pawn_material(pos.side_to_move()))
         return eval;
@@ -786,7 +796,7 @@ namespace {
         &&  depth >= 5 * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
-        Value rbeta = std::min(beta + 200, VALUE_INFINITE);
+        Value rbeta = std::min(beta + 200 + pruning_safety<Beta>(pos), VALUE_INFINITE);
         Depth rdepth = depth - 4 * ONE_PLY;
 
         assert(rdepth >= ONE_PLY);
@@ -931,7 +941,7 @@ moves_loop: // When in check search starts from here
               // Futility pruning: parent node
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth <= alpha)
+                  && ss->staticEval + 256 + 200 * lmrDepth + pruning_safety<Alpha>(pos) <= alpha)
                   continue;
 
               // Prune moves with negative SEE
