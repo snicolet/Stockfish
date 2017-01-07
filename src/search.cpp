@@ -75,13 +75,12 @@ namespace {
     return Reductions[PvNode][i][std::min(d / ONE_PLY, 63)][std::min(mn, 63)] * ONE_PLY;
   }
 
-  enum PruningType { Alpha, Beta };
-  
-  // PruningSafety[rootColor][pruning Alpha/Beta] : pruning safety table
+  // PruningSafety[rootColor][pruning Alpha/Beta] : pruning safety matrix
   const int PruningSafety[2][2] = {
-     {   0 ,  -50 },  // ~rootColor : Alpha,Beta
-     {   25 ,   0 }   //  rootColor : Alpha,Beta
+     { -48  , -100 },  // ~rootColor : Alpha,Beta
+     {  48  ,  100 }   //  rootColor : Alpha,Beta
   };
+  enum PruningType { Alpha, Beta };
   template <PruningType pruning> int pruning_safety(const Position& pos) {
       return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][pruning];
   }
@@ -756,7 +755,7 @@ namespace {
     // Step 8. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode
         &&  eval >= beta
-        && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) || depth >= 13 * ONE_PLY)
+        && (ss->staticEval >= beta - 35 * (depth / ONE_PLY - 6) + pruning_safety<Beta>(pos) || depth >= 13 * ONE_PLY)
         &&  pos.non_pawn_material(pos.side_to_move()))
     {
         ss->currentMove = MOVE_NULL;
@@ -822,7 +821,7 @@ namespace {
     // Step 10. Internal iterative deepening (skipped when in check)
     if (    depth >= 6 * ONE_PLY
         && !ttMove
-        && (PvNode || ss->staticEval + 256 + pruning_safety<Beta>(pos) >= beta))
+        && (PvNode || ss->staticEval + 256 >= beta))
     {
         Depth d = (3 * depth / (4 * ONE_PLY) - 2) * ONE_PLY;
         search<NT>(pos, ss, alpha, beta, d, cutNode, true);
