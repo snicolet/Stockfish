@@ -76,7 +76,7 @@ namespace {
   }
 
   // PruningSafety[rootColor][pruning Alpha/Beta] : pruning safety matrix
-  const int PruningSafety[2][2] = {
+  int PruningSafety[2][2] = {
      {  0  ,  0 },  // ~rootColor : Alpha,Beta
      {  0  ,  0 }   //  rootColor : Alpha,Beta
   };
@@ -84,6 +84,8 @@ namespace {
   template <PruningType pruning> int pruning_safety(const Position& pos) {
       return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][pruning];
   }
+  
+  TUNE(SetRange(-400, 400), PruningSafety);
 
   // Skill structure is used to implement strength limit
   struct Skill {
