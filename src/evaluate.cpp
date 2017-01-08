@@ -527,7 +527,7 @@ namespace {
         score += LooseEnemies;
     
     // Queen domination
-    b = ~ei.attackedBy2[Them] & ei.attackedBy[Them][QUEEN] & ei.attackedBy[Us][QUEEN];
+    b = pos.pieces(Them) & ~ei.attackedBy2[Them] & ei.attackedBy[Them][QUEEN] & ei.attackedBy[Us][QUEEN];
     score += QueenDomination * popcount(b);
 
     // Non-pawn enemies attacked by a pawn
