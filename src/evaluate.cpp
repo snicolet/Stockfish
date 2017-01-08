@@ -202,6 +202,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score HinderPassedPawn    = S( 7,  0);
+  const Score QueenDomination     = S(20, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -524,6 +525,10 @@ namespace {
     if (   (pos.pieces(Them) ^ pos.pieces(Them, QUEEN, KING))
         & ~(ei.attackedBy[Us][ALL_PIECES] | ei.attackedBy[Them][ALL_PIECES]))
         score += LooseEnemies;
+    
+    // Queen domination
+    b = ~ei.attackedBy2[Them] & ei.attackedBy[Them][QUEEN] & ei.attackedBy[Us][QUEEN];
+    score += QueenDomination * popcount(b);
 
     // Non-pawn enemies attacked by a pawn
     weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & ei.attackedBy[Us][PAWN];
