@@ -78,7 +78,7 @@ namespace {
   // PruningSafety[rootColor][pruning Alpha/Beta] : pruning safety matrix
   const int PruningSafety[2][2] = {
      {  0  , -100 },  // ~rootColor : Alpha,Beta
-     {  50  ,  0 }   //  rootColor : Alpha,Beta
+     {  50  ,  0  }   //  rootColor : Alpha,Beta
   };
   enum PruningType { Alpha, Beta };
   template <PruningType pruning> int pruning_safety(const Position& pos) {
