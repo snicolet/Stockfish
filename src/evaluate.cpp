@@ -674,7 +674,7 @@ namespace {
 
         // Assign a small bonus when the opponent has no pieces left
         if (!pos.non_pawn_material(Them))
-            ebonus += 20;
+            ebonus += 20 + r * 20;
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
