@@ -891,7 +891,7 @@ moves_loop: // When in check search starts from here
           && !extension
           &&  pos.legal(move))
       {
-          int x = captureOrPromotion ? 5 : 2;
+          int x = captureOrPromotion ? 10 : 2;
           Value rBeta = std::max(ttValue - x * depth / ONE_PLY, -VALUE_MATE);
           Depth d = (depth / (2 * ONE_PLY)) * ONE_PLY;
           ss->excludedMove = move;
@@ -899,7 +899,7 @@ moves_loop: // When in check search starts from here
           ss->excludedMove = MOVE_NONE;
 
           if (value < rBeta)
-              extension = ONE_PLY;
+              extension = captureOrPromotion ? 2 * ONE_PLY : ONE_PLY;
       }
 
       // Update the current move (this must be done after singular extension search)
