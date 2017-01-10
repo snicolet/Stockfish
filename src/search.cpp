@@ -898,7 +898,7 @@ moves_loop: // When in check search starts from here
           ss->excludedMove = MOVE_NONE;
 
           if (value < rBeta)
-              extension = ONE_PLY;
+              extension = pos.capture_or_promotion(move) ? 2 * ONE_PLY : ONE_PLY;
       }
 
       // Update the current move (this must be done after singular extension search)
