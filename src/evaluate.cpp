@@ -672,18 +672,14 @@ namespace {
                 mbonus += rr + r * 2, ebonus += rr + r * 2;
         } // rr != 0
 
-        // Assign a small bonus when the opponent has no pieces left
-        if (!pos.non_pawn_material(Them))
-            ebonus += 20 + r * 20;
-
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
 
     if (DoTrace)
         Trace::add(PASSED, Us, score);
 
-    // Add the scores to the middlegame and endgame eval
-    return score;
+    // Double the passed pawns evaluation if the opponent has no pieces left
+    return pos.non_pawn_material(Them) ? score : score * 2;
   }
 
 
