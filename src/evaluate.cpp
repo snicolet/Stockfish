@@ -579,13 +579,13 @@ namespace {
             score += ThreatByKing[more_than_one(b)];
 
         b = weak & pos.pieces(Them, PAWN);
-    	while (b)
-    	{
-    	   Square s = pop_lsb(&b);
-    	   for (PieceType i = KNIGHT; i <= KING; ++i)
-    		   if (ei.attackedBy[Us][i] & s)
-    	           score += WeakPawnThreat;
-    	}
+        while (b)
+        {
+            Square s = pop_lsb(&b);
+            for (PieceType i = KNIGHT; i <= KING; ++i)
+                if (ei.attackedBy[Us][i] & s)
+                    score += WeakPawnThreat;
+        }
     }
 
     // Bonus if some pawns can safely push and attack an enemy piece
