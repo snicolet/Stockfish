@@ -675,11 +675,14 @@ namespace {
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
 
+    // Raise the passed pawns evaluation when the opponent has no pieces left
+    if (!pos.non_pawn_material(Them))
+        score += score / 2;
+
     if (DoTrace)
         Trace::add(PASSED, Us, score);
 
-    // Double the passed pawns evaluation if the opponent has no pieces left
-    return pos.non_pawn_material(Them) ? score : score * 2;
+    return score;
   }
 
 
