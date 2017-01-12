@@ -194,7 +194,7 @@ namespace {
   const Score TrappedRook         = S(92,  0);
   const Score WeakQueen           = S(50, 10);
   const Score OtherCheck          = S(10, 10);
-  const Score CloseEnemies        = S( 7,  0);
+  const Score KingTropism         = S( 7,  0);
   const Score PawnlessFlank       = S(20, 80);
   const Score LooseEnemies        = S( 0, 25);
   const Score ThreatByHangingPawn = S(71, 61);
@@ -381,8 +381,8 @@ namespace {
   const Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
 
   const Bitboard KingFlank[FILE_NB] = {
-    CenterFiles >> 2, CenterFiles >> 2, CenterFiles >> 2, CenterFiles, CenterFiles,
-    CenterFiles << 2, CenterFiles << 2, CenterFiles << 2
+    CenterFiles >> 2, CenterFiles >> 2, CenterFiles >> 2, CenterFiles     , 
+    CenterFiles     , CenterFiles << 2, CenterFiles << 2, CenterFiles << 2
   };
 
   template<Color Us, bool DoTrace>
@@ -479,19 +479,24 @@ namespace {
             score -= make_score(std::min(kingDanger * kingDanger / 4096,  2 * int(BishopValueMg)), 0);
     }
 
-    // King tropism: firstly, find squares that opponent attacks in our king flank
+    // King tropism penalty: firstly, find squares that opponent attacks or occupies
+    // in our king flank.
     File kf = file_of(ksq);
-    b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
+    b = (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them)) & KingFlank[kf] & Camp;
 
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
     assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
 
-    // Secondly, add the squares which are attacked twice in that flank and
+    // Secondly, count the squares which the opponent attacks twice in that flank and
     // which are not defended by our pawns.
     b =  (Us == WHITE ? b << 4 : b >> 4)
        | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
 
-    score -= CloseEnemies * popcount(b);
+    score -= KingTropism * popcount(b);
+
+    // Bonus for each defensive piece in our king flank
+    b = pos.pieces(Us) & KingFlank[kf] & Camp;
+    score += KingTropism * popcount(b);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
