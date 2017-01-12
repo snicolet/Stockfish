@@ -494,9 +494,9 @@ namespace {
 
     score -= KingTropism * popcount(b);
 
-    // Bonus for each defensive piece in our king flank
-    b = pos.pieces(Us) & KingFlank[kf] & Camp;
-    score += KingTropism * popcount(b);
+    // Bonus for each defensive pawn in our king flank
+    b = pos.pieces(Us, PAWN) & KingFlank[kf] & Camp;
+    score += (KingTropism * 5) * popcount(b);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
