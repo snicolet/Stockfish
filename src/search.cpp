@@ -891,14 +891,18 @@ moves_loop: // When in check search starts from here
           && !extension
           &&  pos.legal(move))
       {
-          Value rBeta = std::max(ttValue - 3 * depth / ONE_PLY, -VALUE_MATE);
-          Depth d = (depth / (2 * ONE_PLY)) * ONE_PLY;
-          ss->excludedMove = move;
-          value = search<NonPV>(pos, ss, rBeta - 1, rBeta, d, cutNode, true);
-          ss->excludedMove = MOVE_NONE;
+          for (int step = 1 ; step >= 0 ; --step)
+          {
+              Value rBeta = std::max(ttValue - (2 + 16 * step) * depth / ONE_PLY, -VALUE_MATE);
+              Depth d = (depth / (2 * ONE_PLY)) * ONE_PLY;
 
-          if (value < rBeta)
-              extension = ONE_PLY;
+              ss->excludedMove = move;
+              value = search<NonPV>(pos, ss, rBeta - 1, rBeta, d, cutNode, true);
+              ss->excludedMove = MOVE_NONE;
+
+              if (value < rBeta)
+                  extension += ONE_PLY;
+          }
       }
 
       // Update the current move (this must be done after singular extension search)
