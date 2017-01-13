@@ -134,26 +134,26 @@ void MovePicker::score<CAPTURES>() {
   // badCaptures[] array, but instead of doing it now we delay until the move
   // has been picked up, saving some SEE calls in case we get a cutoff.
   
-  if (depth >= 9 * ONE_PLY)
-  {
-      Position p;
-      StateInfo st, st2;
-      p.set(pos.fen(), pos.is_chess960(), &st, pos.this_thread());
-      for (auto& m : *this)
-      {
-          m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-                   - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)));
-
-          if (pos.legal(m))
-          {
-              p.do_move(m, st2);
-              if (!p.checkers())
-                  m.value -= Eval::evaluate(p) / 2;
-              p.undo_move(m);
-          }
-      }
-  }
-  else
+//   if (0 && depth >= 9 * ONE_PLY)
+//   {
+//       Position p;
+//       StateInfo st, st2;
+//       p.set(pos.fen(), pos.is_chess960(), &st, pos.this_thread());
+//       for (auto& m : *this)
+//       {
+//           m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
+//                    - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)));
+// 
+//           if (pos.legal(m))
+//           {
+//               p.do_move(m, st2);
+//               if (!p.checkers())
+//                   m.value -= Eval::evaluate(p) / 2;
+//               p.undo_move(m);
+//           }
+//       }
+//   }
+//   else
   {
       for (auto& m : *this)
           m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
@@ -172,28 +172,28 @@ void MovePicker::score<QUIETS>() {
 
   Color c = pos.side_to_move();
 
-//   if (0 && depth >= 9 * ONE_PLY)
-//   {
-//       Position p;
-//       StateInfo st, st2;
-//       p.set(pos.fen(), pos.is_chess960(), &st, pos.this_thread());
-//       for (auto& m : *this)
-//       {
-//           m.value =  (cmh  ?  (*cmh)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
-//                    + (fmh  ?  (*fmh)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
-//                    + (fmh2 ? (*fmh2)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
-//                    + history.get(c, m);
-// 
-//           if (pos.legal(m))
-//           {
-//               p.do_move(m, st2);
-//               if (!p.checkers())
-//                   m.value -= Eval::evaluate(p) * 4;
-//               p.undo_move(m);
-//           }
-//       }
-//   }
-//   else
+  if (depth >= 9 * ONE_PLY)
+  {
+      Position p;
+      StateInfo st, st2;
+      p.set(pos.fen(), pos.is_chess960(), &st, pos.this_thread());
+      for (auto& m : *this)
+      {
+          m.value =  (cmh  ?  (*cmh)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
+                   + (fmh  ?  (*fmh)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
+                   + (fmh2 ? (*fmh2)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
+                   + history.get(c, m);
+
+          if (pos.legal(m))
+          {
+              p.do_move(m, st2);
+              if (!p.checkers())
+                  m.value -= Eval::evaluate(p) * 4;
+              p.undo_move(m);
+          }
+      }
+  }
+  else
   {
       for (auto& m : *this)
           m.value =  (cmh  ?  (*cmh)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
