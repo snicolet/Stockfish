@@ -891,7 +891,7 @@ moves_loop: // When in check search starts from here
           && !extension
           &&  pos.legal(move))
       {
-          for (int step = !captureOrPromotion ; step >= 0 ; --step)
+          for (int step = 1 ; step >= 0 ; --step)
           {
               Value rBeta = std::max(ttValue - (2 + 16 * step) * depth / ONE_PLY, -VALUE_MATE);
               Depth d = (depth / (2 * ONE_PLY)) * ONE_PLY;
