@@ -914,7 +914,7 @@ moves_loop: // When in check search starts from here
           {
               // Move count based pruning
               if (moveCountPruning)
-                  continue;
+                  newDepth = std::max(newDepth - 4 * ONE_PLY, DEPTH_ZERO);
 
               // Reduced depth of the next LMR search
               int lmrDepth = std::max(newDepth - reduction<PvNode>(improving, depth, moveCount), DEPTH_ZERO) / ONE_PLY;
