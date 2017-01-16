@@ -884,7 +884,7 @@ moves_loop: // When in check search starts from here
       // Extend good captures at shallow depth
       if (    depth >= 4 * ONE_PLY
           &&  depth <= 12 * ONE_PLY
-          &&  PvNode
+          && !PvNode
           && !rootNode
           &&  moveCount == 1
           &&  move == ttMove
