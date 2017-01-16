@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
 #include "bitboard.h"
 #include "pawns.h"
@@ -122,9 +123,6 @@ namespace {
 
         File f = file_of(s);
 
-        e->semiopenFiles[Us]   &= ~(1 << f);
-        e->pawnAttacksSpan[Us] |= pawn_attack_span(Us, s);
-
         // Flag the pawn
         opposed    = theirPawns & forward_bb(Us, s);
         stoppers   = theirPawns & passed_pawn_mask(Us, s);
@@ -175,6 +173,23 @@ namespace {
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
+
+
+        Bitboard attackSpan = pawn_attack_span(Us, s);
+        if (stoppers)
+        {
+            Square firstStopper = backmost_sq(Us, stoppers);
+            attackSpan &= (in_front_bb(Them, rank_of(firstStopper)) | rank_bb(firstStopper));
+
+//         std::cerr << pos << std::endl
+//                   << Bitboards::pretty(SquareBB[s]) << std::endl
+//                   << Bitboards::pretty(SquareBB[firstStopper]) << std::endl
+//                   << Bitboards::pretty(attackSpan) << std::endl
+//                   << Bitboards::pretty(pawn_attack_span(Us, s)) << std::endl
+//                   << "==================================================" << std::endl;
+        }
+        e->pawnAttacksSpan[Us] |= attackSpan;
+        e->semiopenFiles[Us]   &= ~(1 << f);
     }
 
     return score;
