@@ -892,11 +892,11 @@ moves_loop: // When in check search starts from here
           &&  pos.legal(move))
       {
           int x = depth / ONE_PLY;
-          int margin = 16 + x;
+          int margin = 14 * sqrt(x - 3);
           
           Value rBeta = std::max(ttValue - margin, -VALUE_MATE);
           
-          // dbg_mean_of(margin);
+          //dbg_mean_of(margin);
 
           Depth d = (depth / (2 * ONE_PLY)) * ONE_PLY;
 
