@@ -881,11 +881,13 @@ moves_loop: // When in check search starts from here
           &&  pos.see_ge(move, VALUE_ZERO))
           extension = ONE_PLY;
           
-      // Extend good captures
-      if (    depth >= 8 * ONE_PLY
-          &&  depth <= 16 * ONE_PLY
+      // Extend good captures at shallow depth
+      if (    depth >= 4 * ONE_PLY
+          &&  depth <= 12 * ONE_PLY
+          &&  PvNode
+          && !rootNode
           &&  moveCount == 1
-      //    &&  move == ttMove
+          &&  move == ttMove
           && !extension
           &&  captureOrPromotion
           &&  pos.legal(move)
