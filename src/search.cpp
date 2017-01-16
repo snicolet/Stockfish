@@ -880,6 +880,17 @@ moves_loop: // When in check search starts from here
           && !moveCountPruning
           &&  pos.see_ge(move, VALUE_ZERO))
           extension = ONE_PLY;
+          
+      // Extend good captures
+      if (    depth >= 8 * ONE_PLY
+          &&  depth <= 16 * ONE_PLY
+          &&  moveCount == 1
+      //    &&  move == ttMove
+          && !extension
+          &&  captureOrPromotion
+          &&  pos.legal(move)
+          &&  pos.see_ge(move, Value(100)))
+          extension = ONE_PLY;
 
       // Singular extension search. If all moves but one fail low on a search of
       // (alpha-s, beta-s), and just one fails high on (alpha, beta), then that move
