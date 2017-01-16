@@ -52,6 +52,9 @@ namespace {
     S(17, 16), S(33, 32), S(0, 0), S(0, 0)
   };
 
+  // Span control bonus
+  const Score Control = S(5, 0);
+
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank].
   // RANK_1 = 0 is used for files where we have no pawns, or where our pawn is behind our king.
   const Value ShelterWeakness[][RANK_NB] = {
@@ -108,7 +111,7 @@ namespace {
     Bitboard ourPawns   = pos.pieces(Us  , PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
-    e->passedPawns[Us]   = e->pawnAttacksSpan[Us] = 0;
+    e->passedPawns[Us]   = e->pawnAttacksSpan[Us] = e->pawnAttacksSpan2[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = shift<Right>(ourPawns) | shift<Left>(ourPawns);
@@ -122,8 +125,9 @@ namespace {
 
         File f = file_of(s);
 
-        e->semiopenFiles[Us]   &= ~(1 << f);
-        e->pawnAttacksSpan[Us] |= pawn_attack_span(Us, s);
+        e->semiopenFiles[Us]    &= ~(1 << f);
+        e->pawnAttacksSpan2[Us] |= e->pawnAttacksSpan[Us] & pawn_attack_span(Us, s);
+        e->pawnAttacksSpan[Us]  |= pawn_attack_span(Us, s);
 
         // Flag the pawn
         opposed    = theirPawns & forward_bb(Us, s);
@@ -176,6 +180,9 @@ namespace {
         if (lever)
             score += Lever[relative_rank(Us, s)];
     }
+
+    score += Control * (2 * popcount(e->pawnAttacksSpan[Us]));
+    score += Control * popcount(e->pawnAttacksSpan2[Us]);
 
     return score;
   }
