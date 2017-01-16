@@ -53,7 +53,7 @@ namespace {
   };
 
   // Span control bonus
-  const Score Control = S(5, 0);
+  const Score Control = S(2, 0);
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank].
   // RANK_1 = 0 is used for files where we have no pawns, or where our pawn is behind our king.
