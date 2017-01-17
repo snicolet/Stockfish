@@ -821,7 +821,7 @@ Value Eval::evaluate(const Position& pos) {
   // Initialize score by reading the incrementally updated scores included in
   // the position object (material + piece square tables) and the material
   // imbalance. Score is computed internally from the white point of view.
-  Score score = pos.psq_score() + ei.me->imbalance();
+  Score score = pos.psq_score() + ei.me->imbalance() / 2;
 
   // Probe the pawn hash table
   ei.pi = Pawns::probe(pos);
@@ -832,6 +832,8 @@ Value Eval::evaluate(const Position& pos) {
   Value lazy = lazy_eval(mg_value(score), eg_value(score));
   if (lazy)
       return pos.side_to_move() == WHITE ? lazy : -lazy;
+
+  score += ei.me->imbalance() / 2;
 
   // Initialize attack and king safety bitboards
   ei.attackedBy[WHITE][ALL_PIECES] = ei.attackedBy[BLACK][ALL_PIECES] = 0;
