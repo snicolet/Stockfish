@@ -178,8 +178,8 @@ namespace {
         Bitboard attackSpan = pawn_attack_span(Us, s);
         if (stoppers)
         {
-            Square firstStopper = backmost_sq(Us, stoppers);
-            attackSpan &= (in_front_bb(Them, rank_of(firstStopper)) | rank_bb(firstStopper));
+            Rank firstStopper = rank_of(backmost_sq(Us, stoppers));
+            attackSpan &= (in_front_bb(Them, firstStopper) | rank_bb(firstStopper));
 
 //         std::cerr << pos << std::endl
 //                   << Bitboards::pretty(SquareBB[s]) << std::endl
