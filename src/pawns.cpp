@@ -176,7 +176,6 @@ namespace {
 
 
         Bitboard attackSpan = pawn_attack_span(Us, s);
-        stoppers &= ~lever;
         if (stoppers)
         {
             Rank firstStopper = rank_of(backmost_sq(Us, stoppers));
