@@ -259,8 +259,7 @@ namespace {
                         const Bitboard* mobilityArea) {
     const PieceType NextPt = (Us == WHITE ? Pt : PieceType(Pt + 1));
     const Color Them = (Us == WHITE ? BLACK : WHITE);
-    const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
-                                               : Rank5BB | Rank4BB | Rank3BB);
+    const Bitboard OutpostRanks = Rank3BB | Rank4BB | Rank5BB | Rank6BB;
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
