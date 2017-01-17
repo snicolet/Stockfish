@@ -179,11 +179,7 @@ namespace {
         if (stoppers)
         {
             Rank stopperRank = rank_of(backmost_sq(Us, stoppers));
-            
-            if (rank_bb(stopperRank) & stoppers & adjacent_files_bb(f))
-                attackSpan &= in_front_bb(Them, stopperRank);
-            else
-                attackSpan &= (in_front_bb(Them, stopperRank) | rank_bb(stopperRank));
+            attackSpan &= (in_front_bb(Them, stopperRank) | rank_bb(stopperRank));
 
 //         if (!(rank_bb(stopperRank) & stoppers & adjacent_files_bb(f)))
 //         std::cerr << pos << std::endl
