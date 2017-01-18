@@ -813,8 +813,8 @@ Value Eval::evaluate(const Position& pos) {
 
   // We have taken into account all cheap evaluation terms.
   // If score exceeds a threshold return a lazy evaluation.
-  Value lazy = mg_value(score) - mg_value(ei.me->imbalance()) / 2;
-  if (abs(lazy) > 1500)
+  Value lazy = mg_value(score) - mg_value(ei.me->imbalance()) / 4;
+  if (abs(lazy) > 1300)
       return pos.side_to_move() == WHITE ? lazy : -lazy;
 
   // Initialize attack and king safety bitboards
