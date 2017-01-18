@@ -221,9 +221,6 @@ namespace {
   const int BishopCheck       = 588;
   const int KnightCheck       = 924;
 
-  // Threshold for lazy evaluation
-  const Value LazyEval = Value(1500);
-
   // eval_init() initializes king and attack bitboards for a given color
   // adding pawn attacks. To be done at the beginning of the evaluation.
 
@@ -783,19 +780,6 @@ namespace {
 
     return sf;
   }
-
-
-  Value lazy_eval(Value mg, Value eg) {
-
-    if (mg > LazyEval && eg > LazyEval)
-        return  LazyEval + ((mg + eg) / 2 - LazyEval) / 4;
-
-    else if (mg < -LazyEval && eg < -LazyEval)
-        return -LazyEval + ((mg + eg) / 2 + LazyEval) / 4;
-
-    return VALUE_ZERO;
-  }
-
 } // namespace
 
 
@@ -821,7 +805,7 @@ Value Eval::evaluate(const Position& pos) {
   // Initialize score by reading the incrementally updated scores included in
   // the position object (material + piece square tables) and the material
   // imbalance. Score is computed internally from the white point of view.
-  Score score = pos.psq_score() + ei.me->imbalance() / 2;
+  Score score = pos.psq_score() + ei.me->imbalance();
 
   // Probe the pawn hash table
   ei.pi = Pawns::probe(pos);
@@ -829,11 +813,9 @@ Value Eval::evaluate(const Position& pos) {
 
   // We have taken into account all cheap evaluation terms.
   // If score exceeds a threshold return a lazy evaluation.
-  Value lazy = lazy_eval(mg_value(score), eg_value(score));
-  if (lazy)
+  Value lazy = mg_value(score) - mg_value(ei.me->imbalance()) / 2;
+  if (abs(lazy) > 1500)
       return pos.side_to_move() == WHITE ? lazy : -lazy;
-
-  score += ei.me->imbalance() / 2;
 
   // Initialize attack and king safety bitboards
   ei.attackedBy[WHITE][ALL_PIECES] = ei.attackedBy[BLACK][ALL_PIECES] = 0;
