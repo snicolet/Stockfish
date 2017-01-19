@@ -251,6 +251,13 @@ namespace {
   }
 
 
+  const Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
+
+  const Bitboard KingFlank[FILE_NB] = {
+    CenterFiles >> 2, CenterFiles >> 2, CenterFiles >> 2, CenterFiles, CenterFiles,
+    CenterFiles << 2, CenterFiles << 2, CenterFiles << 2
+  };
+
   // evaluate_pieces() assigns bonuses and penalties to the pieces of a given
   // color and type.
 
@@ -302,13 +309,14 @@ namespace {
         {
             // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
+            Bitboard good = ei.attackedBy[Us][PAWN] | KingFlank[file_of(pos.square<KING>(Them))];
             if (bb & s)
-                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][ALL_PIECES] & s)];
+                score += Outpost[Pt == BISHOP][!!(good & s)];
             else
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
-                   score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][ALL_PIECES] & bb)];
+                   score += ReachableOutpost[Pt == BISHOP][!!(good & bb)];
             }
 
             // Bonus when behind a pawn
@@ -379,13 +387,6 @@ namespace {
 
 
   // evaluate_king() assigns bonuses and penalties to a king of a given color
-
-  const Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
-
-  const Bitboard KingFlank[FILE_NB] = {
-    CenterFiles >> 2, CenterFiles >> 2, CenterFiles >> 2, CenterFiles, CenterFiles,
-    CenterFiles << 2, CenterFiles << 2, CenterFiles << 2
-  };
 
   template<Color Us, bool DoTrace>
   Score evaluate_king(const Position& pos, const EvalInfo& ei) {
