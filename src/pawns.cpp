@@ -122,9 +122,6 @@ namespace {
 
         File f = file_of(s);
 
-        e->semiopenFiles[Us]   &= ~(1 << f);
-        e->pawnAttacksSpan[Us] |= pawn_attack_span(Us, s);
-
         // Flag the pawn
         opposed    = theirPawns & forward_bb(Us, s);
         stoppers   = theirPawns & passed_pawn_mask(Us, s);
@@ -175,6 +172,16 @@ namespace {
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
+
+
+        Bitboard attackSpan = pawn_attack_span(Us, s);
+        if (stoppers)
+        {
+            Rank stopRank = rank_of(backmost_sq(Us, stoppers));
+            attackSpan &= (in_front_bb(Them, stopRank) | rank_bb(stopRank));
+        }
+        e->pawnAttacksSpan[Us] |= attackSpan;
+        e->semiopenFiles[Us]   &= ~(1 << f);
     }
 
     return score;

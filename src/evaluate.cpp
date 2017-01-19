@@ -306,7 +306,7 @@ namespace {
                 score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
             else
             {
-                bb &= b & ~pos.pieces(Us);
+                bb &= b & ~pos.pieces(Us, PAWN);
                 if (bb)
                    score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
             }
