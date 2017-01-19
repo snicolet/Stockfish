@@ -309,14 +309,13 @@ namespace {
         {
             // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pi->pawn_attacks_span(Them);
-            Bitboard good = ei.attackedBy[Us][PAWN] | KingFlank[file_of(pos.square<KING>(Them))];
             if (bb & s)
-                score += Outpost[Pt == BISHOP][!!(good & s)];
+                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)];
             else
             {
-                bb &= b & ~pos.pieces(Us);
+                bb &= b & ~pos.pieces(Us, PAWN);
                 if (bb)
-                   score += ReachableOutpost[Pt == BISHOP][!!(good & bb)];
+                   score += ReachableOutpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
             }
 
             // Bonus when behind a pawn
