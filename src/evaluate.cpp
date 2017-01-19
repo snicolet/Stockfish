@@ -314,7 +314,7 @@ namespace {
                 score += Outpost[Pt == BISHOP][!!(good & s)];
             else
             {
-                bb &= b & ~pos.pieces(Us, PAWN);
+                bb &= b & ~pos.pieces(Us);
                 if (bb)
                    score += ReachableOutpost[Pt == BISHOP][!!(good & bb)];
             }
