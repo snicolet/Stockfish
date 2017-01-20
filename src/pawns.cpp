@@ -152,8 +152,8 @@ namespace {
             assert(!backward || !(pawn_attack_span(Them, s + Up) & neighbours));
         }
 
-        // Passed pawns will be properly scored in evaluation because we need
-        // full attack info to evaluate them.
+        // Passed pawns and candidate passed pawns will be properly scored 
+        // in evaluation because we need full attack info to evaluate them.
         if (  !((ourPawns | theirPawns) & forward_bb(Us, s))
             && popcount(supported) >= popcount(lever)
             && popcount(connected) >= popcount(stoppers))
