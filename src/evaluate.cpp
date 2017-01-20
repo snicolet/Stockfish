@@ -177,14 +177,14 @@ namespace {
   // Passed[mg/eg][Rank] contains midgame and endgame bonuses for passed pawns.
   // We don't use a Score because we process the two components independently.
   const Value Passed[][RANK_NB] = {
-    { V(5), V( 5), V(31), V(73), V(166), V(252) },
-    { V(7), V(14), V(38), V(73), V(166), V(252) }
+    { V(-15), V(-15), V(11), V(53), V(146), V(232) },
+    { V( -5), V(  2), V(26), V(61), V(154), V(240) }
   };
 
   // PassedFile[File] contains a bonus according to the file of a passed pawn
   const Score PassedFile[FILE_NB] = {
-    S(  9, 10), S( 2, 10), S( 1, -8), S(-20,-12),
-    S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
+    S(29, 22), S(22, 22), S(21,  4), S( 0,  0),
+    S( 0,  0), S(21,  4), S(22, 22), S(29, 22)
   };
 
   // Assorted bonuses and penalties used by evaluation
@@ -601,7 +601,8 @@ namespace {
   }
 
 
-  // evaluate_passed_pawns() evaluates the passed pawns of the given color
+  // evaluate_passed_pawns() evaluates the passed pawns and candidate passed pawns
+  // of the given color.
 
   template<Color Us, bool DoTrace>
   Score evaluate_passed_pawns(const Position& pos, const EvalInfo& ei) {
@@ -617,7 +618,6 @@ namespace {
     {
         Square s = pop_lsb(&b);
 
-        assert(pos.pawn_passed(Us, s));
         assert(!(pos.pieces(PAWN) & forward_bb(Us, s)));
 
         bb = forward_bb(Us, s) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
@@ -678,7 +678,11 @@ namespace {
         if (!pos.non_pawn_material(Them))
             ebonus += 20;
 
-        score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
+        // True passed pawns get the full bonus, candidates passed pawns only half
+        if (pos.pawn_passed(Us, s))
+            score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
+        else
+            score += make_score(mbonus / 2, ebonus / 2) + PassedFile[file_of(s)];
     }
 
     if (DoTrace)
