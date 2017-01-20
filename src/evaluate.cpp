@@ -617,7 +617,6 @@ namespace {
     {
         Square s = pop_lsb(&b);
 
-        assert(pos.pawn_passed(Us, s));
         assert(!(pos.pieces(PAWN) & forward_bb(Us, s)));
 
         bb = forward_bb(Us, s) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
