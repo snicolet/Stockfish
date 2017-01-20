@@ -678,11 +678,7 @@ namespace {
         if (!pos.non_pawn_material(Them))
             ebonus += 20;
 
-        // True passed pawns get the full bonus, candidates passed pawns only half
-        if (pos.pawn_passed(Us, s))
-            score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
-        else
-            score += make_score(mbonus / 2, ebonus / 2) + PassedFile[file_of(s)];
+        score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
 
     if (DoTrace)
