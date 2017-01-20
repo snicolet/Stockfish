@@ -154,7 +154,8 @@ namespace {
 
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them.
-        if (!stoppers && !(ourPawns & forward_bb(Us, s)))
+        if (  !((ourPawns | theirPawns) & forward_bb(Us, s))
+            && popcount(connected) >= popcount(stoppers))
             e->passedPawns[Us] |= s;
 
         // Score this pawn
