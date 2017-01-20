@@ -601,7 +601,8 @@ namespace {
   }
 
 
-  // evaluate_passed_pawns() evaluates the passed pawns of the given color
+  // evaluate_passed_pawns() evaluates the passed pawns and candidate passed pawns 
+  // of the given color.
 
   template<Color Us, bool DoTrace>
   Score evaluate_passed_pawns(const Position& pos, const EvalInfo& ei) {
@@ -677,7 +678,12 @@ namespace {
         if (!pos.non_pawn_material(Them))
             ebonus += 20;
 
-        score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
+        // True passed pawns get the full bonus, candidates passed pawns only half
+        if (pos.pawn_passed(Us, s))
+            score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
+        else
+            score += make_score(mbonus / 2, ebonus / 2) + PassedFile[file_of(s)];
+        
     }
 
     if (DoTrace)
