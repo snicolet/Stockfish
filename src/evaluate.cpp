@@ -542,18 +542,14 @@ namespace {
 
     if (weak)
     {
-        b = pos.pieces(Us, PAWN) & ( ~ei.attackedBy[Them][ALL_PIECES]
-                                    | ei.attackedBy[Us][ALL_PIECES]);
-
+        b = pos.pieces(Us, PAWN) & (~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy[Us][ALL_PIECES]);
         safeThreats = (shift<Right>(b) | shift<Left>(b)) & weak;
 
-        if (weak ^ safeThreats)
-            score += ThreatByHangingPawn;
-
-        while (safeThreats)
+        while (weak)
         {
-            Square s = pop_lsb(&safeThreats);
-            score += ThreatBySafePawn[type_of(pos.piece_on(s))];
+            Square s = pop_lsb(&weak);
+            score += (safeThreats & s) ? ThreatBySafePawn[type_of(pos.piece_on(s))]
+                                       : ThreatByHangingPawn;
             if (pawnAttacksBB[s] & pos.pieces()) 
                 score += ThreatFollowUp;
         }
