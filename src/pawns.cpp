@@ -98,9 +98,9 @@ namespace {
     const Square Right = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Square Left  = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
 
-    Bitboard b, neighbours, stoppers, doubled, supported, phalanx, connected, lever;
+    Bitboard b, neighbours, stoppers, doubled, supported, phalanx, lever;
     Square s;
-    bool opposed, backward;
+    bool opposed, connected, backward;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
