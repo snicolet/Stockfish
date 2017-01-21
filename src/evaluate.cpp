@@ -192,7 +192,7 @@ namespace {
   const Score CloseEnemies        = S( 7,  0);
   const Score PawnlessFlank       = S(20, 80);
   const Score LooseEnemies        = S( 0, 25);
-  const Score ThreatByHangingPawn = S(71, 61);
+  const Score ThreatByHangingPawn = S(61, 51);
   const Score ThreatByRank        = S(16,  3);
   const Score ThreatFollowUp      = S( 0, 20);
   const Score Hanging             = S(48, 27);
@@ -543,7 +543,7 @@ namespace {
     if (weak)
     {
         b = pos.pieces(Us, PAWN) & (~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy[Us][ALL_PIECES]);
-        safeThreats = (shift<Right>(b) | shift<Left>(b)) & weak;
+        safeThreats = weak & (shift<Right>(b) | shift<Left>(b));
 
         while (weak)
         {
