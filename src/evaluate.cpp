@@ -135,13 +135,13 @@ namespace {
       S(118,174), S(119,177), S(123,191), S(128,199) }
   };
 
-  // Outpost[knight/bishop][supported by pawn] contains bonuses for minor
-  // pieces if they can reach an outpost square, bigger if that square is
-  // supported by a pawn. If the minor piece occupies an outpost square
-  // then score is doubled.
+  // Outpost[knight/(bishop or rook)][supported by pawn] contains bonuses 
+  // for pieces if they can reach an outpost square, bigger if that square 
+  // is supported by a pawn. If the piece occupies the outpost square then
+  // the score is doubled.
   const Score Outpost[][2] = {
     { S(22, 6), S(33, 9) }, // Knight
-    { S( 9, 2), S(14, 4) }  // Bishop
+    { S( 9, 2), S(14, 4) }  // Bishop or Rook
   };
 
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is no
@@ -305,19 +305,22 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
-        if (Pt == BISHOP || Pt == KNIGHT)
+        if (Pt == BISHOP || Pt == KNIGHT || Pt == ROOK)
         {
             // Bonus for outpost squares
             bb = OutpostRanks & ~ei.pe->pawn_attacks_span(Them);
             if (bb & s)
-                score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & s)] * 2;
+                score += Outpost[Pt != KNIGHT][!!(ei.attackedBy[Us][PAWN] & s)] * 2;
             else
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
-                   score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
+                   score += Outpost[Pt != KNIGHT][!!(ei.attackedBy[Us][PAWN] & bb)];
             }
+        }
 
+        if (Pt == BISHOP || Pt == KNIGHT)
+        {
             // Bonus when behind a pawn
             if (    relative_rank(Us, s) < RANK_5
                 && (pos.pieces(PAWN) & (s + pawn_push(Us))))
