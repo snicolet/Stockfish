@@ -194,7 +194,7 @@ namespace {
   const Score LooseEnemies        = S( 0, 25);
   const Score ThreatByHangingPawn = S(61, 51);
   const Score ThreatByRank        = S(16,  3);
-  const Score ThreatFollowUp      = S( 0, 32);
+  const Score ThreatFollowUp      = S( 0, 40);
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score HinderPassedPawn    = S( 7,  0);
@@ -550,7 +550,8 @@ namespace {
             Square s = pop_lsb(&weak);
             score += (safeThreats & s) ? ThreatBySafePawn[type_of(pos.piece_on(s))]
                                        : ThreatByHangingPawn;
-            if (pawnAttacksBB[s] & pos.pieces()) 
+            if (  pos.pawn_passed(Us, s) 
+               || (pawnAttacksBB[s] & pos.pieces()))
                 score += ThreatFollowUp;
         }
     }
