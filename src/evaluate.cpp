@@ -706,7 +706,8 @@ namespace {
   template<Color Us>
   Score evaluate_space(const Position& pos, const EvalInfo& ei) {
 
-    const Color Them = (Us == WHITE ? BLACK : WHITE);
+    const Color  Them = (Us == WHITE ? BLACK : WHITE);
+    const Square Up   = (Us == WHITE ? NORTH : SOUTH);
     const Bitboard SpaceMask =
       Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
                   : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
@@ -714,8 +715,10 @@ namespace {
     // Find the safe squares for our pieces inside the area defined by
     // SpaceMask. A square is unsafe if it is attacked by an enemy
     // pawn, or if it is undefended and attacked by an enemy piece.
+    Bitboard ourPawns = pos.pieces(Us, PAWN);
     Bitboard safe =   SpaceMask
-                   & ~pos.pieces(Us, PAWN)
+                   & ~ourPawns
+                   & (~shift<Up>(ourPawns) | (ei.attackedBy2[Us] & ~pos.pieces()))
                    & ~ei.attackedBy[Them][PAWN]
                    & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
 
