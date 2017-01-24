@@ -724,8 +724,15 @@ namespace {
     behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
     behind |= (Us == WHITE ? behind >> 16 : behind << 16);
 
-    // Calculate space bonus and weight
-    int bonus = std::min(24, popcount(safe) + 2 * popcount(safe & behind));
+    // Since SpaceMask is fully on our half of the board, and in the center files...
+    assert((Us == WHITE ? safe >> 32 : safe << 32) == 0);
+    assert((behind & safe & ~CenterFiles) == 0);
+
+    // ...we can count safe + 2 * (behind & safe) with a single popcount.
+    int bonus = popcount(  (Us == WHITE ? safe << 32 : safe >> 32) 
+                         | (behind & safe)
+                         | (behind & safe) >> 4);
+    bonus = std::min(16, bonus);
     int weight = pos.count<ALL_PIECES>(Us) - 2 * ei.pe->open_files();
 
     return make_score(bonus * weight * weight / 18, 0);
