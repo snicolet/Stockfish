@@ -601,6 +601,10 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+    
+    // Double the threat bonus if the opponent has any pinned piece
+    if (ei.pinnedPieces[Them])
+       score += score;
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
