@@ -707,32 +707,41 @@ namespace {
   Score evaluate_space(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
+    const Square Up  = (Us == WHITE ? NORTH : SOUTH);
+    const Bitboard ourPawns = pos.pieces(Us, PAWN);
     const Bitboard SpaceMask =
-      Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
-                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
+      Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB | Rank5BB)
+                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB | Rank4BB);
 
     // Find the safe squares for our pieces inside the area defined by
     // SpaceMask. A square is unsafe if it is attacked by an enemy
     // pawn, or if it is undefended and attacked by an enemy piece.
     Bitboard safe =   SpaceMask
-                   & ~pos.pieces(Us, PAWN)
+                   & (~ourPawns | Rank4BB | Rank5BB)
+                   & ~pos.pieces(Them, PAWN)
+                   & (~shift<Up>(ourPawns) | (ei.attackedBy2[Us] & ~pos.pieces()))
                    & ~ei.attackedBy[Them][PAWN]
                    & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
 
     // Find all squares which are at most three squares behind some friendly pawn
-    Bitboard behind = pos.pieces(Us, PAWN);
+    Bitboard behind = ourPawns;
     behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
     behind |= (Us == WHITE ? behind >> 16 : behind << 16);
 
-    // Since SpaceMask[Us] is fully on our half of the board...
-    assert(unsigned(safe >> (Us == WHITE ? 32 : 0)) == 0);
+    // Count safe + (behind & safe) with a single popcount
+    int bonus = Us == WHITE ? popcount(safe << 24 | (behind & safe) >> 8)
+                            : popcount(safe >> 24 | (behind & safe) << 8);
+    
+    assert(bonus == (popcount(safe) + popcount(behind & safe)));
+    
+    bonus = std::min(24, bonus);
 
-    // ...count safe + (behind & safe) with a single popcount.
-    int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
-    bonus = std::min(16, bonus);
-    int weight = pos.count<ALL_PIECES>(Us) - 2 * ei.pe->open_files();
+    int a = pos.count<ALL_PIECES>(Us);
+    int p = pos.count<PAWN>(Us);
+    int f = ei.pe->open_files();
+    int weight = p + 2 * (a * (2 - f) + p * f);
 
-    return make_score(bonus * weight * weight / 18, 0);
+    return make_score(bonus * weight * weight / 350, 0);
   }
 
 
