@@ -180,8 +180,8 @@ namespace {
     // In endgame it's better to have pawns on both wings. So give a bonus according
     // to file distance between left and right outermost pawns.
     b = e->semiopenFiles[Us] ^ 0xFF;
-    if (b)
-        score += make_score(0 , 10 * int(msb(b) - lsb(b)));
+    if (more_than_one(b))
+        score += make_score(10 , 0) * int(msb(b) - lsb(b));
 
     return score;
   }
