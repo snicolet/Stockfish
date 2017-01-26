@@ -177,6 +177,12 @@ namespace {
             score += Lever[relative_rank(Us, s)];
     }
 
+    // In endgame it's better to have pawns on both wings. So give a bonus according
+    // to file distance between left and right outermost pawns.
+    b = e->semiopenFiles[Us] ^ 0xFF;
+    if (b)
+        score += make_score(0 , 5 * int(msb(b) - lsb(b)));
+
     return score;
   }
 
