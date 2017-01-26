@@ -46,6 +46,9 @@ namespace {
   // Doubled pawn penalty
   const Score Doubled = S(18, 38);
 
+  // Pawn span bonus
+  const Score PawnSpan = S(10, 0);
+
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
@@ -177,11 +180,11 @@ namespace {
             score += Lever[relative_rank(Us, s)];
     }
 
-    // In endgame it's better to have pawns on both wings. So give a bonus according
+    // In endgame it is better to have pawns on both wings. So give a bonus according
     // to file distance between left and right outermost pawns.
     b = e->semiopenFiles[Us] ^ 0xFF;
     if (more_than_one(b))
-        score += make_score(10 , 0) * int(msb(b) - lsb(b));
+        score += PawnSpan * int(msb(b) - lsb(b));
 
     return score;
   }
