@@ -181,7 +181,7 @@ namespace {
     // to file distance between left and right outermost pawns.
     b = e->semiopenFiles[Us] ^ 0xFF;
     if (b)
-        score += make_score(0 , 5 * int(msb(b) - lsb(b)));
+        score += make_score(0 , 10 * int(msb(b) - lsb(b)));
 
     return score;
   }
