@@ -191,6 +191,7 @@ namespace {
   const Score OtherCheck          = S(10, 10);
   const Score CloseEnemies        = S( 7,  0);
   const Score PawnlessFlank       = S(20, 80);
+  const Score SpaceBind           = S(30, 30);
   const Score LooseEnemies        = S( 0, 25);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score ThreatByRank        = S(16,  3);
@@ -401,6 +402,8 @@ namespace {
     const Square Up     = (Us == WHITE ? NORTH : SOUTH);
     const Bitboard Camp = (Us == WHITE ? ~Bitboard(0) ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    const Bitboard CenterSquares = (Rank4BB | Rank5BB) & (FileDBB | FileEBB);
+    const Bitboard Fourth = (Us == WHITE ? Rank4BB : Rank5BB);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard undefended, b, b1, b2, safe, other;
@@ -506,6 +509,12 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
+
+    // Space advantage on the king flank or in the center
+    b = pos.pieces(Them, PAWN);
+    if (   more_than_one(b & Fourth & KingFlank[kf])
+        || more_than_one(b & CenterSquares))
+        score -= SpaceBind;
 
     if (DoTrace)
         Trace::add(KING, Us, score);
