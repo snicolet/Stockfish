@@ -176,8 +176,8 @@ namespace {
     { V(7), V(14), V(38), V(73), V(166), V(252) }
   };
 
-  // PassedFile[File] contains a bonus according to the file of a passed pawn
-  const Score PassedFile[FILE_NB] = {
+  // Flanker[File] contains a bonus according to the file of a hanging or passed pawn
+  const Score Flanker[FILE_NB] = {
     S(  9, 10), S( 2, 10), S( 1, -8), S(-20,-12),
     S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
   };
@@ -581,7 +581,12 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+        b = weak & ~ei.attackedBy[Them][ALL_PIECES];
+        score += Hanging * popcount(b);
+
+        b &= pos.pieces(Them, PAWN);
+        while (b)
+            score += Flanker[file_of(pop_lsb(&b))];
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
@@ -686,7 +691,7 @@ namespace {
         if (!pos.non_pawn_material(Them))
             ebonus += 20;
 
-        score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
+        score += make_score(mbonus, ebonus) + Flanker[file_of(s)];
     }
 
     if (DoTrace)
