@@ -188,7 +188,7 @@ namespace {
   const Score TrappedRook         = S(92,  0);
   const Score WeakQueen           = S(50, 10);
   const Score OtherCheck          = S(10, 10);
-  const Score Fork                = S(20, 20);
+  const Score Fork                = S(30, 30);
   const Score CloseEnemies        = S( 7,  0);
   const Score PawnlessFlank       = S(20, 80);
   const Score LooseEnemies        = S( 0, 25);
@@ -478,19 +478,18 @@ namespace {
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
         if (b & safe)
         {
-            // Look for safe knight checks forking queen, rooks, or vulnerable bishops and pawns
+            kingDanger += KnightCheck;
+
+            // Look for knight checks forking queen, rooks, or vulnerable pawns and bishops
             checks = b & safe;
             targets  = pos.pieces(Us, QUEEN, ROOK);
-            targets |=    pos.pieces(Us, BISHOP, PAWN) 
+            targets |=    pos.pieces(Us, PAWN, BISHOP) 
                         & (  ~ei.attackedBy[Us][ALL_PIECES] 
-                          | (~ei.attackedBy[Us][PAWN] & ~ei.attackedBy2[Us] & ei.attackedBy[Them][ALL_PIECES]));
+                          | (~ei.attackedBy[Us][PAWN] & ei.attackedBy[Them][ALL_PIECES]));
 
             do
-            {
-                kingDanger += KnightCheck;
                 if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
                     score -= Fork;
-            }
             while (checks);
         }
 
