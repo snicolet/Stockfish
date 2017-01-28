@@ -478,9 +478,7 @@ namespace {
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
         if (b & safe)
         {
-            kingDanger += KnightCheck;
-
-            // Look for knight checks forking queen, rooks, or vulnerable bishops and pawns
+            // Look for safe knight checks forking queen, rooks, or vulnerable bishops and pawns
             checks = b & safe;
             targets  = pos.pieces(Us, QUEEN, ROOK);
             targets |=    pos.pieces(Us, BISHOP, PAWN) 
@@ -488,8 +486,11 @@ namespace {
                           | (~ei.attackedBy[Us][PAWN] & ~ei.attackedBy2[Us] & ei.attackedBy[Them][ALL_PIECES]));
 
             do
+            {
+                kingDanger += KnightCheck;
                 if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
                     score -= Fork;
+            }
             while (checks);
         }
 
