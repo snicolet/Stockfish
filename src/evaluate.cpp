@@ -188,7 +188,6 @@ namespace {
   const Score TrappedRook         = S(92,  0);
   const Score WeakQueen           = S(50, 10);
   const Score OtherCheck          = S(10, 10);
-  const Score Fork                = S(30, 30);
   const Score CloseEnemies        = S( 7,  0);
   const Score PawnlessFlank       = S(20, 80);
   const Score LooseEnemies        = S( 0, 25);
@@ -215,6 +214,7 @@ namespace {
   const int RookCheck         = 688;
   const int BishopCheck       = 588;
   const int KnightCheck       = 924;
+  const int Fork              = 350;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -481,15 +481,15 @@ namespace {
             kingDanger += KnightCheck;
 
             // Look for knight checks forking queen, rooks, or vulnerable pawns and bishops
-            checks = b & safe;
             targets  = pos.pieces(Us, QUEEN, ROOK);
             targets |=    pos.pieces(Us, PAWN, BISHOP) 
                         & (  ~ei.attackedBy[Us][ALL_PIECES] 
                           | (~ei.attackedBy[Us][PAWN] & ei.attackedBy[Them][ALL_PIECES]));
 
+            checks = b & safe;
             do
                 if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
-                    score -= Fork;
+                    kingDanger += Fork;
             while (checks);
         }
 
