@@ -189,6 +189,7 @@ namespace {
   const Score TrappedRook         = S(92,  0);
   const Score WeakQueen           = S(50, 10);
   const Score OtherCheck          = S(10, 10);
+  const Score Fork                = S(20, 20);
   const Score CloseEnemies        = S( 7,  0);
   const Score PawnlessFlank       = S(20, 80);
   const Score LooseEnemies        = S( 0, 25);
@@ -403,7 +404,7 @@ namespace {
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard undefended, b, b1, b2, safe, other;
+    Bitboard undefended, b, b1, b2, safe, other, checks, targets;
     int kingDanger;
 
     // King shelter and enemy pawns storm
@@ -479,7 +480,20 @@ namespace {
         // Enemy knights safe and other checks
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
         if (b & safe)
+        {
             kingDanger += KnightCheck;
+ 
+            // Look for knight checks forking queen, rooks, or vulnerable bishops and pawns
+            checks = b & safe;
+            targets = pos.pieces(Us, QUEEN, ROOK);
+            targets |=    pos.pieces(Us, BISHOP, PAWN) 
+                        & (  ~ei.attackedBy[Us][ALL_PIECES] 
+                          | (~ei.attackedBy[Us][PAWN] & ei.attackedBy[Them][ALL_PIECES]));
+            do
+                if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
+                    score -= Fork;
+            while (checks);
+        }
 
         else if (b & other)
             score -= OtherCheck;
