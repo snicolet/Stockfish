@@ -214,6 +214,7 @@ namespace {
   const int RookCheck         = 688;
   const int BishopCheck       = 588;
   const int KnightCheck       = 924;
+  const int DiscoveredCheck   = 700;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -480,6 +481,10 @@ namespace {
 
         else if (b & other)
             score -= OtherCheck;
+
+        // Discovered checks
+        if (pos.discovered_check_candidates(Them))
+            kingDanger += DiscoveredCheck;
 
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
