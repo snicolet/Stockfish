@@ -312,7 +312,7 @@ namespace {
             {
                 bb &= b & ~pos.pieces(Us);
                 if (bb)
-                   score += Outpost[Pt == BISHOP][!!(ei.attackedBy[Us][PAWN] & bb)];
+                   score += Outpost[Pt == BISHOP][!!(ei.attackedBy2[Us] & bb)];
             }
 
             // Bonus when behind a pawn
