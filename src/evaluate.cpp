@@ -484,13 +484,13 @@ namespace {
 
         // Penalty when the opponent takes material by discovered check, 
         // like in the windmill combinaison
-		b = pos.discovered_check_candidates(Them);
-		while (b)
-		{
-			Square s = pop_lsb(&b);
-			if (pos.attacks_from(pos.piece_on(s), s) & pos.pieces(Us))
-				kingDanger += Windmill;
-		}
+        b = pos.discovered_check_candidates(Them);
+        while (b)
+        {
+            Square s = pop_lsb(&b);
+            if (pos.attacks_from(pos.piece_on(s), s) & pos.pieces(Us))
+                kingDanger += Windmill;
+        }
 
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
