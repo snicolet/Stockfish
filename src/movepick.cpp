@@ -132,9 +132,28 @@ void MovePicker::score<CAPTURES>() {
   // In the main search we want to push captures with negative SEE values to the
   // badCaptures[] array, but instead of doing it now we delay until the move
   // has been picked up, saving some SEE calls in case we get a cutoff.
+
+  Bitboard attackedByPawn[] = { pos.pawn_attacks<WHITE>(), pos.pawn_attacks<BLACK>() };
+  Color c = pos.side_to_move();
+
   for (auto& m : *this)
+  {
       m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-               - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)));
+               - Value(200 * relative_rank(c, to_sq(m)));
+
+      if (1 && (attackedByPawn[~c] & from_sq(m)))
+          m.value += PieceValue[MG][pos.piece_on(from_sq(m))] / 2;
+
+      if (1 && (attackedByPawn[c] & from_sq(m)))
+          m.value -= PieceValue[MG][pos.piece_on(from_sq(m))] / 2;
+
+      if (0 && (attackedByPawn[~c] & to_sq(m)))
+          m.value -= PieceValue[MG][pos.piece_on(to_sq(m))] / 2;
+
+      if (1 && (attackedByPawn[c] & to_sq(m)))
+          m.value += PieceValue[MG][pos.piece_on(to_sq(m))] / 2;
+
+  }
 }
 
 template<>
