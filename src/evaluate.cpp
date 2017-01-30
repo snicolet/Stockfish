@@ -438,7 +438,8 @@ namespace {
         kingDanger += QueenContactCheck * popcount(b & ei.attackedBy2[Them]);
 
         // Analyse the safe enemy's checks which are possible on next move
-        safe  = ~(ei.attackedBy[Us][ALL_PIECES] | pos.pieces(Them));
+        safe  = ~pos.pieces(Them);
+        safe &= (~ei.attackedBy[Us][ALL_PIECES] | (undefended & ei.attackedBy2[Them]));
 
         b1 = pos.attacks_from<ROOK  >(ksq);
         b2 = pos.attacks_from<BISHOP>(ksq);
