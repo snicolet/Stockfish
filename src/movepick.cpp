@@ -146,13 +146,28 @@ void MovePicker::score<QUIETS>() {
   const CounterMoveStats* fmh = (ss-2)->counterMoves;
   const CounterMoveStats* fmh2 = (ss-4)->counterMoves;
 
+  Bitboard attackedByPawn[] = { pos.pawn_attacks<WHITE>(), pos.pawn_attacks<BLACK>() };
   Color c = pos.side_to_move();
 
   for (auto& m : *this)
+  {
       m.value =  (cmh  ?  (*cmh)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
                + (fmh  ?  (*fmh)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
                + (fmh2 ? (*fmh2)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
                + history.get(c, m);
+
+      if (0 && (attackedByPawn[~c] & from_sq(m)))
+          m.value += 100;
+
+      if (0 && (attackedByPawn[c] & from_sq(m)))
+          m.value -= 100;
+
+      if (1 && (attackedByPawn[~c] & to_sq(m)))
+          m.value -= 100;
+
+      if (0 && (attackedByPawn[c] & to_sq(m)))
+          m.value += 100;
+  }
 }
 
 template<>

@@ -126,6 +126,7 @@ public:
   // Piece specific
   bool pawn_passed(Color c, Square s) const;
   bool opposite_bishops() const;
+  template<Color> Bitboard pawn_attacks() const;
 
   // Doing and undoing moves
   void do_move(Move m, StateInfo& newSt);
@@ -346,6 +347,13 @@ inline bool Position::opposite_bishops() const {
   return   pieceCount[W_BISHOP] == 1
         && pieceCount[B_BISHOP] == 1
         && opposite_colors(square<BISHOP>(WHITE), square<BISHOP>(BLACK));
+}
+
+template<Color c>
+inline Bitboard Position::pawn_attacks() const {
+  Bitboard pawns = pieces(c, PAWN);
+  return c == WHITE ? (shift<NORTH_WEST>(pawns) | shift<NORTH_EAST>(pawns))
+                    : (shift<SOUTH_WEST>(pawns) | shift<SOUTH_EAST>(pawns));
 }
 
 inline bool Position::is_chess960() const {
