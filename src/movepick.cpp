@@ -150,24 +150,11 @@ void MovePicker::score<QUIETS>() {
   Color c = pos.side_to_move();
 
   for (auto& m : *this)
-  {
       m.value =  (cmh  ?  (*cmh)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
                + (fmh  ?  (*fmh)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
                + (fmh2 ? (*fmh2)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
+               + (attackedByPawn[~c] & to_sq(m) ?         -100 : VALUE_ZERO)
                + history.get(c, m);
-
-      if (0 && (attackedByPawn[~c] & from_sq(m)))
-          m.value += 100;
-
-      if (0 && (attackedByPawn[c] & from_sq(m)))
-          m.value -= 100;
-
-      if (1 && (attackedByPawn[~c] & to_sq(m)))
-          m.value -= 100;
-
-      if (0 && (attackedByPawn[c] & to_sq(m)))
-          m.value += 100;
-  }
 }
 
 template<>
