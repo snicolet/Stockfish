@@ -138,21 +138,14 @@ void MovePicker::score<CAPTURES>() {
 
   for (auto& m : *this)
   {
-      m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
+      Value valueTo   = PieceValue[MG][pos.piece_on(to_sq(m))];
+      Value valueFrom = PieceValue[MG][pos.piece_on(from_sq(m))];
+
+      m.value =  valueTo
+               + (attackedByPawn[~c] & from_sq(m) ? valueFrom / 2 : VALUE_ZERO)
+               - (attackedByPawn[ c] & from_sq(m) ? valueFrom / 2 : VALUE_ZERO)
+               + (attackedByPawn[ c] & to_sq(m)   ? valueTo   / 2 : VALUE_ZERO)
                - Value(200 * relative_rank(c, to_sq(m)));
-
-      if (1 && (attackedByPawn[~c] & from_sq(m)))
-          m.value += PieceValue[MG][pos.piece_on(from_sq(m))] / 2;
-
-      if (1 && (attackedByPawn[c] & from_sq(m)))
-          m.value -= PieceValue[MG][pos.piece_on(from_sq(m))] / 2;
-
-      if (0 && (attackedByPawn[~c] & to_sq(m)))
-          m.value -= PieceValue[MG][pos.piece_on(to_sq(m))] / 2;
-
-      if (1 && (attackedByPawn[c] & to_sq(m)))
-          m.value += PieceValue[MG][pos.piece_on(to_sq(m))] / 2;
-
   }
 }
 
