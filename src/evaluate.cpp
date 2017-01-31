@@ -213,6 +213,8 @@ namespace {
   const int RookCheck         = 688;
   const int BishopCheck       = 588;
   const int KnightCheck       = 924;
+  const int DiscoveredCheck   = 100;
+  const int Windmill          = 500;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -399,7 +401,7 @@ namespace {
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard undefended, b, b1, b2, safe, other;
+    Bitboard undefended, b, b1, b2, bb, safe, other;
     int kingDanger;
 
     // King shelter and enemy pawns storm
@@ -473,6 +475,16 @@ namespace {
 
         else if (b & other)
             score -= OtherCheck;
+
+        // Penalty for discovered checks, bigger when the opponent can take material
+        // like in the windmill combinaison
+        b = pos.discovered_check_candidates(Them);
+        while (b)
+        {
+            Square s = pop_lsb(&b);
+            bb = pos.attacks_from(pos.piece_on(s), s) & pos.pieces(Us);
+            kingDanger += bb ? Windmill : DiscoveredCheck;
+        }
 
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
