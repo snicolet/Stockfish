@@ -209,10 +209,26 @@ namespace {
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 78, 56, 45, 11 };
 
   // Penalties for enemy's safe checks
-  const int QueenCheck        = 745;
-  const int RookCheck         = 688;
-  const int BishopCheck       = 588;
-  const int KnightCheck       = 924;
+  int QueenCheck        = 745;
+  int RookCheck         = 688;
+  int BishopCheck       = 588;
+  int KnightCheck       = 924;
+  
+  int KD_A = 807;
+  int KD_B = 101;
+  int KD_C = 235;
+  int KD_D = 134;
+  int KD_E = 717;
+  
+  TUNE(QueenCheck);
+  TUNE(RookCheck);
+  TUNE(BishopCheck);
+  TUNE(KnightCheck);
+  TUNE(KD_A);
+  TUNE(KD_B);
+  TUNE(KD_C);
+  TUNE(KD_D);
+  TUNE(KD_E);
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -422,11 +438,11 @@ namespace {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and undefended squares around our king and the quality of
         // the pawn shelter (current 'score' value).
-        kingDanger =  std::min(807, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
-                    + 101 * ei.kingAdjacentZoneAttacksCount[Them]
-                    + 235 * popcount(undefended)
-                    + 134 * (popcount(b) + !!pos.pinned_pieces(Us))
-                    - 717 * !pos.count<QUEEN>(Them)
+        kingDanger =  std::min(KD_A, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
+                    + KD_B * ei.kingAdjacentZoneAttacksCount[Them]
+                    + KD_C * popcount(undefended)
+                    + KD_D * (popcount(b) + !!pos.pinned_pieces(Us))
+                    - KD_E * !pos.count<QUEEN>(Them)
                     -   7 * mg_value(score) / 5 - 5;
 
         // Analyse the safe enemy's checks which are possible on next move
