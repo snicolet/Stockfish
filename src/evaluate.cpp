@@ -481,7 +481,9 @@ namespace {
         while (b)
         {
             Square s = pop_lsb(&b);
-            if (pos.attacks_from(pos.piece_on(s), s) & pos.pieces(Us))
+            if (  pos.attacks_from(pos.piece_on(s), s) 
+                & (~ei.attackedBy[Us][KING] | ei.attackedBy2[Them])
+                & pos.pieces(Us))
                 kingDanger += Windmill;
         }
 
