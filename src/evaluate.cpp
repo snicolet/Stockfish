@@ -213,6 +213,7 @@ namespace {
   const int RookCheck         = 688;
   const int BishopCheck       = 588;
   const int KnightCheck       = 924;
+  const int Windmill          = 400;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -473,6 +474,16 @@ namespace {
 
         else if (b & other)
             score -= OtherCheck;
+
+        // Penalty when the opponent takes material by discovered check,
+        // like in the windmill combinaison.
+        b = pos.discovered_check_candidates(Them);
+        while (b)
+        {
+            Square s = pop_lsb(&b);
+            if (pos.attacks_from(pos.piece_on(s), s) & pos.pieces(Us))
+                kingDanger += Windmill;
+        }
 
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
