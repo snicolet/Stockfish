@@ -188,6 +188,7 @@ namespace {
   const Score TrappedRook         = S(92,  0);
   const Score WeakQueen           = S(50, 10);
   const Score OtherCheck          = S(10, 10);
+  const Score Fork                = S(20, 20);
   const Score CloseEnemies        = S( 7,  0);
   const Score PawnlessFlank       = S(20, 80);
   const Score LooseEnemies        = S( 0, 25);
@@ -213,7 +214,6 @@ namespace {
   const int RookCheck         = 688;
   const int BishopCheck       = 588;
   const int KnightCheck       = 924;
-  const int Fork              = 500;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -443,15 +443,12 @@ namespace {
         {
             kingDanger += QueenCheck;
 
-            targets =   (pos.pieces(Us) ^ pos.pieces(Us,KING)) 
-                     & ~ei.attackedBy[Us][ALL_PIECES] 
+            targets =   (pos.pieces(Us) ^ pos.pieces(Us, KING))
+                     & ~ei.attackedBy[Us][ALL_PIECES]
                      & ~ei.attackedBy[Them][ALL_PIECES];
             while (checks)
-            {
-            	Square s = pop_lsb(&checks);
-            	if (pos.attacks_from(make_piece(Them, QUEEN), s) & targets)
-                    kingDanger += Fork;
-            }
+            	if (pos.attacks_from(make_piece(Them, QUEEN), pop_lsb(&checks)) & targets)
+                    score -= Fork;
         }
 
         // For minors and rooks, also consider the square safe if attacked twice,
@@ -482,8 +479,19 @@ namespace {
 
         // Enemy knights safe and other checks
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
-        if (b & safe)
+        checks = b & safe;
+        if (checks)
+        {
             kingDanger += KnightCheck;
+
+            targets = pos.pieces(Us, QUEEN, ROOK);
+            targets |=    pos.pieces(Us, BISHOP, PAWN)
+                        & (  ~ei.attackedBy[Us][ALL_PIECES]
+                          | (~ei.attackedBy[Us][PAWN] & ei.attackedBy[Them][ALL_PIECES]));
+            while (checks)
+                if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
+                    score -= Fork;
+        }
 
         else if (b & other)
             score -= OtherCheck;
