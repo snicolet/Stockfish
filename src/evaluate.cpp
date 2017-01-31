@@ -213,6 +213,7 @@ namespace {
   const int RookCheck         = 688;
   const int BishopCheck       = 588;
   const int KnightCheck       = 924;
+  const int Fork              = 500;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -399,7 +400,7 @@ namespace {
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard undefended, b, b1, b2, safe, other;
+    Bitboard undefended, b, b1, b2, safe, other, checks, targets;
     int kingDanger;
 
     // King shelter and enemy pawns storm
@@ -437,8 +438,21 @@ namespace {
         b2 = pos.attacks_from<BISHOP>(ksq);
 
         // Enemy queen safe checks
-        if ((b1 | b2) & ei.attackedBy[Them][QUEEN] & safe)
+        checks = (b1 | b2) & ei.attackedBy[Them][QUEEN] & safe;
+        if (checks)
+        {
             kingDanger += QueenCheck;
+
+            targets =   (pos.pieces(Us) ^ pos.pieces(Us,KING)) 
+                     & ~ei.attackedBy[Us][ALL_PIECES] 
+                     & ~ei.attackedBy[Them][ALL_PIECES];
+            while (checks)
+            {
+            	Square s = pop_lsb(&checks);
+            	if (pos.attacks_from(make_piece(Them, QUEEN), s) & targets)
+                    kingDanger += Fork;
+            }
+        }
 
         // For minors and rooks, also consider the square safe if attacked twice,
         // and only defended by our queen.
