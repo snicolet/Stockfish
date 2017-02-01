@@ -213,7 +213,7 @@ namespace {
   const int RookCheck         = 706;
   const int BishopCheck       = 560;
   const int KnightCheck       = 910;
-  int Windmill          = 500;
+  int Windmill          = 50;
   
   TUNE(Windmill);
 
@@ -484,7 +484,7 @@ namespace {
         {
             Square s = pop_lsb(&b);
             if (pos.attacks_from(pos.piece_on(s), s) & pos.pieces(Us))
-                kingDanger += Windmill;
+                kingDanger += 10 * Windmill;
         }
 
         // Transform the kingDanger units into a Score, and substract it from the evaluation
