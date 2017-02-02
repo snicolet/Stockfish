@@ -213,7 +213,7 @@ namespace {
   const int RookCheck         = 706;
   const int BishopCheck       = 560;
   const int KnightCheck       = 910;
-  const int Windmill          = 500;
+  const int Windmill          = 521;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
