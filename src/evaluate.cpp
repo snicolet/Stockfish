@@ -439,7 +439,7 @@ namespace {
         // Enemy queen safe checks
         checks = (b1 | b2) & ei.attackedBy[Them][QUEEN] & safe;
         if (checks)
-            kingDanger += QueenCheck + 64 * (!!(checks & pos.pieces(Us)));
+            kingDanger += QueenCheck + 128 * (!!(checks & pos.pieces(Us)));
 
         // For minors and rooks, also consider the square safe if attacked twice,
         // and only defended by our queen.
@@ -456,7 +456,7 @@ namespace {
         // Enemy rooks safe and other checks
         checks = b1 & ei.attackedBy[Them][ROOK] & safe;
         if (checks)
-            kingDanger += RookCheck + 64 * (!!(checks & pos.pieces(Us)));
+            kingDanger += RookCheck + 128 * (!!(checks & pos.pieces(Us)));
 
         else if (b1 & ei.attackedBy[Them][ROOK] & other)
             score -= OtherCheck;
@@ -464,7 +464,7 @@ namespace {
         // Enemy bishops safe and other checks
         checks = b2 & ei.attackedBy[Them][BISHOP] & safe;
         if (checks)
-            kingDanger += BishopCheck + 64 * (!!(checks & pos.pieces(Us)));
+            kingDanger += BishopCheck + 128 * (!!(checks & pos.pieces(Us)));
 
         else if (b2 & ei.attackedBy[Them][BISHOP] & other)
             score -= OtherCheck;
@@ -473,7 +473,7 @@ namespace {
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
         checks = b & safe;
         if (checks)
-            kingDanger += KnightCheck + 64 * (!!(checks & pos.pieces(Us)));
+            kingDanger += KnightCheck + 128 * (!!(checks & pos.pieces(Us)));
 
         else if (b & other)
             score -= OtherCheck;
