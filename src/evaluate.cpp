@@ -209,10 +209,10 @@ namespace {
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 78, 56, 45, 11 };
 
   // Penalties for enemy's safe checks
-  const int QueenCheck        = 745;
-  const int RookCheck         = 688;
-  const int BishopCheck       = 588;
-  const int KnightCheck       = 924;
+  const int QueenCheck        = 751;
+  const int RookCheck         = 706;
+  const int BishopCheck       = 560;
+  const int KnightCheck       = 910;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -399,7 +399,7 @@ namespace {
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard undefended, b, b1, b2, safe, other;
+    Bitboard undefended, b, b1, b2, safe, other, checks;
     int kingDanger;
 
     // King shelter and enemy pawns storm
@@ -422,11 +422,11 @@ namespace {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and undefended squares around our king and the quality of
         // the pawn shelter (current 'score' value).
-        kingDanger =  std::min(807, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
-                    + 101 * ei.kingAdjacentZoneAttacksCount[Them]
-                    + 235 * popcount(undefended)
-                    + 134 * (popcount(b) + !!pos.pinned_pieces(Us))
-                    - 717 * !pos.count<QUEEN>(Them)
+        kingDanger =  std::min(810, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
+                    + 100 * ei.kingAdjacentZoneAttacksCount[Them]
+                    + 236 * popcount(undefended)
+                    + 139 * (popcount(b) + !!pos.pinned_pieces(Us))
+                    - 725 * !pos.count<QUEEN>(Them)
                     -   7 * mg_value(score) / 5 - 5;
 
         // Analyse the safe enemy's checks which are possible on next move
@@ -437,8 +437,9 @@ namespace {
         b2 = pos.attacks_from<BISHOP>(ksq);
 
         // Enemy queen safe checks
-        if ((b1 | b2) & ei.attackedBy[Them][QUEEN] & safe)
-            kingDanger += QueenCheck;
+        checks = (b1 | b2) & ei.attackedBy[Them][QUEEN] & safe;
+        if (checks)
+            kingDanger += QueenCheck + 64 * (!!(checks & pos.pieces(Us)));
 
         // For minors and rooks, also consider the square safe if attacked twice,
         // and only defended by our queen.
@@ -453,23 +454,26 @@ namespace {
                   | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
 
         // Enemy rooks safe and other checks
-        if (b1 & ei.attackedBy[Them][ROOK] & safe)
-            kingDanger += RookCheck;
+        checks = b1 & ei.attackedBy[Them][ROOK] & safe;
+        if (checks)
+            kingDanger += RookCheck + 64 * (!!(checks & pos.pieces(Us)));
 
         else if (b1 & ei.attackedBy[Them][ROOK] & other)
             score -= OtherCheck;
 
         // Enemy bishops safe and other checks
-        if (b2 & ei.attackedBy[Them][BISHOP] & safe)
-            kingDanger += BishopCheck;
+        checks = b2 & ei.attackedBy[Them][BISHOP] & safe;
+        if (checks)
+            kingDanger += BishopCheck + 64 * (!!(checks & pos.pieces(Us)));
 
         else if (b2 & ei.attackedBy[Them][BISHOP] & other)
             score -= OtherCheck;
 
         // Enemy knights safe and other checks
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
-        if (b & safe)
-            kingDanger += KnightCheck;
+        checks = b & safe;
+        if (checks)
+            kingDanger += KnightCheck + 64 * (!!(checks & pos.pieces(Us)));
 
         else if (b & other)
             score -= OtherCheck;
