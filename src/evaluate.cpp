@@ -362,7 +362,7 @@ namespace {
         if (Pt == QUEEN)
         {
             // Penalty if any relative pin or discovered attack against our queen,
-            // doubled if it is a pin which is likely to loose material
+            // doubled if it is a pin which is likely to loose material.
             Bitboard pinners;
             b = pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, pinners);
             if (b)
