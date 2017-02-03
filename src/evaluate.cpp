@@ -399,7 +399,7 @@ namespace {
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard undefended, b, b1, b2, safe, other;
+    Bitboard undefended, b, b1, b2, safe, other, checks;
     int kingDanger;
 
     // King shelter and enemy pawns storm
@@ -437,8 +437,9 @@ namespace {
         b2 = pos.attacks_from<BISHOP>(ksq);
 
         // Enemy queen safe checks
-        if ((b1 | b2) & ei.attackedBy[Them][QUEEN] & safe)
-            kingDanger += QueenCheck;
+        checks = (b1 | b2) & ei.attackedBy[Them][QUEEN] & safe;
+        if (checks)
+            kingDanger += QueenCheck + 32 * (!!(checks & pos.pieces(Us)));
 
         // For minors and rooks, also consider the square safe if attacked twice,
         // and only defended by our queen.
@@ -453,23 +454,26 @@ namespace {
                   | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
 
         // Enemy rooks safe and other checks
-        if (b1 & ei.attackedBy[Them][ROOK] & safe)
-            kingDanger += RookCheck;
+        checks = b1 & ei.attackedBy[Them][ROOK] & safe;
+        if (checks)
+            kingDanger += RookCheck + 32 * (!!(checks & pos.pieces(Us)));
 
         else if (b1 & ei.attackedBy[Them][ROOK] & other)
             score -= OtherCheck;
 
         // Enemy bishops safe and other checks
-        if (b2 & ei.attackedBy[Them][BISHOP] & safe)
-            kingDanger += BishopCheck;
+        checks = b2 & ei.attackedBy[Them][BISHOP] & safe;
+        if (checks)
+            kingDanger += BishopCheck + 32 * (!!(checks & pos.pieces(Us)));
 
         else if (b2 & ei.attackedBy[Them][BISHOP] & other)
             score -= OtherCheck;
 
         // Enemy knights safe and other checks
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
-        if (b & safe)
-            kingDanger += KnightCheck;
+        checks = b & safe;
+        if (checks)
+            kingDanger += KnightCheck + 32 * (!!(checks & pos.pieces(Us)));
 
         else if (b & other)
             score -= OtherCheck;
