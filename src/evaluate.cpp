@@ -595,9 +595,12 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
-    
+
     // Entry points in the opponent camp
-    b = ei.attackedBy2[Us] & ~ei.attackedBy[Them][PAWN] & OpponentCamp;
+    b =  ~pos.pieces() 
+       & ei.attackedBy2[Us] 
+       & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them])
+       & OpponentCamp;
     score += EntryPoints * popcount(b);
 
     if (DoTrace)
