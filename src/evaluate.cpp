@@ -196,6 +196,7 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score HinderPassedPawn    = S( 7,  0);
+  const Score Windmill            = S(21, 21);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -209,11 +210,10 @@ namespace {
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 78, 56, 45, 11 };
 
   // Penalties for enemy's safe checks
-  const int QueenCheck        = 751;
-  const int RookCheck         = 706;
-  const int BishopCheck       = 560;
-  const int KnightCheck       = 910;
-  const int Windmill          = 521;
+  const int QueenCheck        = 745;
+  const int RookCheck         = 688;
+  const int BishopCheck       = 588;
+  const int KnightCheck       = 924;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -402,6 +402,7 @@ namespace {
     const Square ksq = pos.square<KING>(Us);
     Bitboard undefended, b, b1, b2, safe, other;
     int kingDanger;
+    Square s;
 
     // King shelter and enemy pawns storm
     Score score = ei.pe->king_safety<Us>(pos, ksq);
@@ -423,11 +424,11 @@ namespace {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and undefended squares around our king and the quality of
         // the pawn shelter (current 'score' value).
-        kingDanger =  std::min(810, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
-                    + 100 * ei.kingAdjacentZoneAttacksCount[Them]
-                    + 236 * popcount(undefended)
-                    + 139 * (popcount(b) + !!pos.pinned_pieces(Us))
-                    - 725 * !pos.count<QUEEN>(Them)
+        kingDanger =  std::min(807, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
+                    + 101 * ei.kingAdjacentZoneAttacksCount[Them]
+                    + 235 * popcount(undefended)
+                    + 134 * (popcount(b) + !!pos.pinned_pieces(Us))
+                    - 717 * !pos.count<QUEEN>(Them)
                     -   7 * mg_value(score) / 5 - 5;
 
         // Analyse the safe enemy's checks which are possible on next move
@@ -475,16 +476,6 @@ namespace {
         else if (b & other)
             score -= OtherCheck;
 
-        // Penalty when the opponent takes material by discovered check,
-        // like in the windmill combinaison.
-        b = pos.discovered_check_candidates(Them);
-        while (b)
-        {
-            Square s = pop_lsb(&b);
-            if (pos.attacks_from(pos.piece_on(s), s) & pos.pieces(Us))
-                kingDanger += Windmill;
-        }
-
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
             score -= make_score(std::min(kingDanger * kingDanger / 4096,  2 * int(BishopValueMg)), 0);
@@ -507,6 +498,13 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
+    
+    // Penalty when the opponent takes material by discovered check,
+    // like in the windmill combinaison.
+    b = pos.discovered_check_candidates(Them);
+    while (b && ((s = pop_lsb(&b))))
+        if (pos.attacks_from(pos.piece_on(s), s) & pos.pieces(Us))
+            score -= Windmill;
 
     if (DoTrace)
         Trace::add(KING, Us, score);
