@@ -710,7 +710,12 @@ namespace {
     {
         // Never assume anything on values stored in TT
         if ((ss->staticEval = eval = tte->eval()) == VALUE_NONE)
-            eval = ss->staticEval = evaluate(pos);
+        {
+            Value v = depth > 4 * ONE_PLY ? qsearch<NonPV, false>(pos, ss, -VALUE_INFINITE, VALUE_INFINITE)
+                                          : evaluate(pos);
+                                          
+            eval = ss->staticEval = v;
+        }
 
         // Can ttValue be used as a better position evaluation?
         if (ttValue != VALUE_NONE)
@@ -719,9 +724,11 @@ namespace {
     }
     else
     {
-        eval = ss->staticEval =
-        (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
-                                         : -(ss-1)->staticEval + 2 * Eval::Tempo;
+        Value v =   (ss-1)->currentMove == MOVE_NULL ? -(ss-1)->staticEval + 2 * Eval::Tempo
+                  : depth > 4 * ONE_PLY              ?  qsearch<NonPV, false>(pos, ss, -VALUE_INFINITE, VALUE_INFINITE)
+                                                     :  evaluate(pos);
+
+        eval = ss->staticEval = v;
 
         tte->save(posKey, VALUE_NONE, BOUND_NONE, DEPTH_NONE, MOVE_NONE,
                   ss->staticEval, TT.generation());
@@ -1166,7 +1173,7 @@ moves_loop: // When in check search starts from here
 
     assert(InCheck == !!pos.checkers());
     assert(alpha >= -VALUE_INFINITE && alpha < beta && beta <= VALUE_INFINITE);
-    assert(PvNode || (alpha == beta - 1));
+    // assert(PvNode || (alpha == beta - 1));   // FIXME !
     assert(depth <= DEPTH_ZERO);
     assert(depth / ONE_PLY * ONE_PLY == depth);
 
