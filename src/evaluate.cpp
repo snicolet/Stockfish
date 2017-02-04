@@ -600,7 +600,7 @@ namespace {
                       &  OpponentCamp
                       &  ei.attackedBy2[Us] 
                       & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]));
-    score += make_score(x * (x - 1), 0);
+    score += make_score(x * (x - 1) / 2, 0);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
