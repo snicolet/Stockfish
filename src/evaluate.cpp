@@ -596,11 +596,11 @@ namespace {
     score += ThreatByPawnPush * popcount(b);
 
     // Entry points in the opponent camp
-    int x = popcount(   ~pos.pieces(Us)
+    int x = popcount(   ~pos.pieces()
                       &  OpponentCamp
                       &  ei.attackedBy2[Us]
                       & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]));
-    score += make_score(x * (x - 1), 0);
+    score += make_score(2 * x * (x - 1), 0);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
