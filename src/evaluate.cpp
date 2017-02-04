@@ -365,11 +365,15 @@ namespace {
             // doubled if it is a pin which is likely to loose material.
             Bitboard pinners;
             b = pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, pinners);
+
             if (b)
+            {
                 score -= WeakQueen;
-            if (    (b & pos.pieces(Us) & ei.attackedBy2[Them])
-                && !(pinners & ei.attackedBy[Us][ALL_PIECES]))
-                score -= WeakQueen;
+
+                if (    (b & pos.pieces(Us) & ei.attackedBy2[Them] & ~ei.attackedBy2[Us])
+                    && !(pinners & ei.attackedBy[Us][ALL_PIECES]))
+                    score -= WeakQueen;
+            }
         }
     }
 
