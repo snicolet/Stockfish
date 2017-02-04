@@ -370,11 +370,11 @@ namespace {
 
     if (DoTrace)
         Trace::add(Pt, Us, score);
-    
+
     if (Pt != NextPt)
     {
         ei.mobilityArea[Us]   &= (~ei.attackedBy2[Them] | ei.attackedBy[Us][ALL_PIECES]);
-    	ei.mobilityArea[Them] &= (~ei.attackedBy2[Us]   | ei.attackedBy[Them][ALL_PIECES]);
+        ei.mobilityArea[Them] &= (~ei.attackedBy2[Us]   | ei.attackedBy[Them][ALL_PIECES]);
     }
 
     // Recursively call evaluate_pieces() of next piece type until KING is excluded
