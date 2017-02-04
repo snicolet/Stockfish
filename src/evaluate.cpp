@@ -196,7 +196,6 @@ namespace {
   const Score Hanging             = S(48, 27);
   const Score ThreatByPawnPush    = S(38, 22);
   const Score HinderPassedPawn    = S( 7,  0);
-  const Score EntryPoints         = S( 4,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -597,11 +596,11 @@ namespace {
     score += ThreatByPawnPush * popcount(b);
 
     // Entry points in the opponent camp
-    b =  ~pos.pieces() 
-       & ei.attackedBy2[Us] 
-       & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them])
-       & OpponentCamp;
-    score += EntryPoints * popcount(b);
+    int x = popcount(   ~pos.pieces()
+                      &  OpponentCamp
+                      &  ei.attackedBy2[Us] 
+                      & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]));
+    score += make_score(x * (x - 1), 0);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
