@@ -601,8 +601,9 @@ namespace {
            | ei.attackedBy[Us][ROOK]   | ei.attackedBy[Us][QUEEN]);
     bb =   ei.attackedBy2[Us] 
         & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]);
-            
+
     int x = popcount(~pos.pieces() & OpponentCamp & (b | bb));
+    x = std::min(5, x);
     score += make_score(2 * x * (x - 1), 0);
 
     if (DoTrace)
