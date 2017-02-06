@@ -722,15 +722,13 @@ namespace {
 
     // ...count safe + (behind & safe) with a single popcount.
     int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
+    bonus = std::min(16, bonus);
 
     // Entry points in the opponent camp
-    int x = popcount(   ~pos.pieces()
-                      &  OpponentCamp
-                      &  ei.attackedBy2[Us]
-                      & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]));
-    bonus += x;
-
-    bonus = std::min(16, bonus);
+    bonus += popcount(   ~pos.pieces()
+                       &  OpponentCamp
+                       &  ei.attackedBy2[Us]
+                       & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]));
 
     int weight = pos.count<ALL_PIECES>(Us) - 2 * ei.pe->open_files();
 
