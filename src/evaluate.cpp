@@ -700,6 +700,9 @@ namespace {
     const Bitboard SpaceMask =
       Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
                   : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
+    const Bitboard OpponentCamp = 
+      Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                  : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB;
 
     // Find the safe squares for our pieces inside the area defined by
     // SpaceMask. A square is unsafe if it is attacked by an enemy
@@ -719,7 +722,16 @@ namespace {
 
     // ...count safe + (behind & safe) with a single popcount.
     int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
+
+    // Entry points in the opponent camp
+    int x = popcount(   ~pos.pieces()
+                      &  OpponentCamp
+                      &  ei.attackedBy2[Us]
+                      & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]));
+    bonus += x;
+
     bonus = std::min(16, bonus);
+
     int weight = pos.count<ALL_PIECES>(Us) - 2 * ei.pe->open_files();
 
     return make_score(bonus * weight * weight / 18, 0);
