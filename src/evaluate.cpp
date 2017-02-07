@@ -669,7 +669,7 @@ namespace {
 
         // Assign a small bonus when the opponent has no pieces left
         if (!pos.non_pawn_material(Them))
-            ebonus += 40;
+            ebonus += 60;
 
         // Scale down bonus for candidate passers which need more than one pawn
         // push to become passed.
