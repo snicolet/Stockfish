@@ -209,10 +209,10 @@ namespace {
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 78, 56, 45, 11 };
 
   // Penalties for enemy's safe checks
-  const int QueenCheck        = 745;
-  const int RookCheck         = 688;
-  const int BishopCheck       = 588;
-  const int KnightCheck       = 924;
+  const int QueenCheck        = 751;
+  const int RookCheck         = 706;
+  const int BishopCheck       = 560;
+  const int KnightCheck       = 910;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -417,11 +417,11 @@ namespace {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and undefended squares around our king and the quality of
         // the pawn shelter (current 'score' value).
-        kingDanger =  std::min(807, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
-                    + 101 * ei.kingAdjacentZoneAttacksCount[Them]
-                    + 235 * popcount(undefended)
-                    + 134 * (popcount(b) + !!pos.pinned_pieces(Us))
-                    - 717 * !pos.count<QUEEN>(Them)
+        kingDanger =  std::min(810, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
+                    + 100 * ei.kingAdjacentZoneAttacksCount[Them]
+                    + 236 * popcount(undefended)
+                    + 139 * (popcount(b) + !!pos.pinned_pieces(Us))
+                    - 725 * !pos.count<QUEEN>(Them)
                     -   7 * mg_value(score) / 5 - 5;
 
         // Analyse the safe enemy's checks which are possible on next move
@@ -666,10 +666,6 @@ namespace {
             else if (pos.pieces(Us) & blockSq)
                 mbonus += rr + r * 2, ebonus += rr + r * 2;
         } // rr != 0
-
-        // Assign a small bonus when the opponent has no pieces left
-        if (!pos.non_pawn_material(Them))
-            ebonus += 20;
 
         // Scale down bonus for candidate passers which need more than one pawn
         // push to become passed.
