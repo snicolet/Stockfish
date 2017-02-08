@@ -677,11 +677,11 @@ namespace {
         if (!pos.non_pawn_material(Them))
         {
             Square queeningSq = make_square(file_of(s), QueeningRank);
-            int tempi = (pos.side_to_move() == Us) + !!(ei.attackedBy[Us][KING] & queeningSq);
+            int tempi = (pos.side_to_move() == Us);
             int d = distance(pos.square<KING>(Them), queeningSq) - 1 - distance(s, queeningSq) + tempi;
             
             if (d > 0)
-                ebonus += d * 32;
+                ebonus += d * 64;
         }
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
