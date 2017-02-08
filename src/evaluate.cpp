@@ -601,6 +601,7 @@ namespace {
   Score evaluate_passer_pawns(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
+    const Rank QueeningRank = (Us == WHITE ? RANK_8 : RANK_1);
 
     Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
     Score score = SCORE_ZERO;
@@ -671,6 +672,17 @@ namespace {
         // push to become passed.
         if (!pos.pawn_passed(Us, s + pawn_push(Us)))
             mbonus /= 2, ebonus /= 2;
+
+        // Rule of the square for unstoppable pawns
+        if (!pos.non_pawn_material(Them))
+        {
+            Square queeningSq = make_square(file_of(s), QueeningRank);
+            int tempi = (pos.side_to_move() == Us) + !!(ei.attackedBy[Us][KING] & queeningSq);
+            int d = distance(pos.square<KING>(Them), queeningSq) - 1 - distance(s, queeningSq) + tempi;
+            
+            if (d > 0)
+                ebonus += d * 32;
+        }
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
