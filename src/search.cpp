@@ -80,6 +80,10 @@ namespace {
     int d = depth / ONE_PLY ;
     return Value(d * d + 2 * d - 2);
   }
+  
+  Depth iid_depth(Depth depth) {
+    return (3 * depth / (4 * ONE_PLY) - 2) * ONE_PLY;
+  }
 
   // Skill structure is used to implement strength limit
   struct Skill {
@@ -821,11 +825,10 @@ namespace {
 
     // Step 10. Internal iterative deepening (skipped when in check)
     if (    depth >= 6 * ONE_PLY
-        && !ttMove
+        && (!ttMove || (ttHit && tte->depth() < iid_depth(depth)))
         && (PvNode || ss->staticEval + 256 >= beta))
     {
-        Depth d = (3 * depth / (4 * ONE_PLY) - 2) * ONE_PLY;
-        search<NT>(pos, ss, alpha, beta, d, cutNode, true);
+        search<NT>(pos, ss, alpha, beta, iid_depth(depth), cutNode, true);
 
         tte = TT.probe(posKey, ttHit);
         ttMove = ttHit ? tte->move() : MOVE_NONE;
