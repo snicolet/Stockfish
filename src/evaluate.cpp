@@ -677,9 +677,9 @@ namespace {
         if (!pos.non_pawn_material(Them))
         {
             Square queeningSq = make_square(file_of(s), QueeningRank);
-            int tempi = (pos.side_to_move() == Us) + !!(ei.attackedBy[Us][KING] & queeningSq);
+            int tempi = !!(ei.attackedBy[Us][KING] & queeningSq);
             int d = distance(pos.square<KING>(Them), queeningSq) - 1 - distance(s, queeningSq) + tempi;
-            ebonus += (d > 0 ? 40 : 0);
+            ebonus += (d > 0 ? 32 * d * d : 0);
         }
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
