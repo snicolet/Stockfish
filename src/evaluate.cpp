@@ -673,16 +673,14 @@ namespace {
         if (!pos.pawn_passed(Us, s + pawn_push(Us)))
             mbonus /= 2, ebonus /= 2;
 
-        // Rule of the square for unstoppable pawns
+        // Rule of the square for unstoppable passed pawns
         if (!pos.non_pawn_material(Them))
         {
             Square queeningSq = make_square(file_of(s), QueeningRank);
-            int tempi = (pos.side_to_move() == Us);
-            int d = distance(pos.square<KING>(Them), queeningSq) - 1 - distance(s, queeningSq) + tempi;
-            
-            if (d > 0)
-                ebonus += d * 64;
-        }
+		    int tempi = (pos.side_to_move() == Us) + !!(ei.attackedBy[Us][KING] & queeningSq);
+		    int d = distance(pos.square<KING>(Them), queeningSq) - 1 - distance(s, queeningSq) + tempi;
+			ebonus += (d > 0 ? 40 : 0);
+		}
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
