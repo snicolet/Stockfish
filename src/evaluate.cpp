@@ -425,7 +425,7 @@ namespace {
                     -   7 * mg_value(score) / 5 - 5;
 
         // Analyse the safe enemy's checks which are possible on next move
-        safe  = ~pos.pieces(Them);
+        safe  = ~pos.pieces(Them, PAWN);
         safe &= ~ei.attackedBy[Us][ALL_PIECES] | (undefended & ei.attackedBy2[Them]);
 
         b1 = pos.attacks_from<ROOK  >(ksq);
