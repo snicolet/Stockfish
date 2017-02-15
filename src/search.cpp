@@ -895,6 +895,15 @@ moves_loop: // When in check search starts from here
           &&  pos.see_ge(move, VALUE_ZERO))
           extension = ONE_PLY;
 
+      // Extend winning captures
+      if (   PvNode
+          && !extension
+          && captureOrPromotion
+          && depth > 4 * ONE_PLY
+          && pos.see_ge(move, Value(500))
+          && pos.legal(move))
+          extension = ONE_PLY;
+
       // Singular extension search. If all moves but one fail low on a search of
       // (alpha-s, beta-s), and just one fails high on (alpha, beta), then that move
       // is singular and should be extended. To verify this we do a reduced search
