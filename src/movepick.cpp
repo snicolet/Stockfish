@@ -134,7 +134,7 @@ void MovePicker::score<CAPTURES>() {
   for (auto& m : *this)
       m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
                - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)))
-               - Value(600 * (to_sq(m) == lastMoveSquare));
+               + Value(600 * (to_sq(m) == lastMoveSquare));
 }
 
 template<>
