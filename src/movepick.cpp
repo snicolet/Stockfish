@@ -66,8 +66,8 @@ namespace {
 /// search captures, promotions, and some checks) and how important good move
 /// ordering is at the current node.
 
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s, Square r)
-           : pos(p), ss(s), depth(d), lastMoveSquare(r) {
+MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s, Square l)
+           : pos(p), ss(s), depth(d), lastMoveSquare(l) {
 
   assert(d > DEPTH_ZERO);
 
@@ -79,8 +79,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s, S
   stage += (ttMove == MOVE_NONE);
 }
 
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square r)
-           : pos(p), lastMoveSquare(r) {
+MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square l)
+           : pos(p), lastMoveSquare(l) {
 
   assert(d <= DEPTH_ZERO);
 
