@@ -67,7 +67,7 @@ namespace {
 /// ordering is at the current node.
 
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s, Square r)
-           : pos(p), ss(s), depth(d), recaptureSquare(r) {
+           : pos(p), ss(s), depth(d), lastMoveSquare(r) {
 
   assert(d > DEPTH_ZERO);
 
@@ -80,7 +80,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s, S
 }
 
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square r)
-           : pos(p), recaptureSquare(r) {
+           : pos(p), lastMoveSquare(r) {
 
   assert(d <= DEPTH_ZERO);
 
@@ -104,7 +104,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square r)
 }
 
 MovePicker::MovePicker(const Position& p, Move ttm, Value th)
-           : pos(p), recaptureSquare(SQ_NONE), threshold(th) {
+           : pos(p), lastMoveSquare(SQ_NONE), threshold(th) {
 
   assert(!pos.checkers());
 
@@ -134,7 +134,7 @@ void MovePicker::score<CAPTURES>() {
   for (auto& m : *this)
       m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
                - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)))
-               - Value(600 * (to_sq(m) == recaptureSquare));
+               - Value(600 * (to_sq(m) == lastMoveSquare));
 }
 
 template<>
@@ -334,7 +334,7 @@ Move MovePicker::next_move() {
       while (cur < endMoves)
       {
           move = pick_best(cur++, endMoves);
-          if (to_sq(move) == recaptureSquare)
+          if (to_sq(move) == lastMoveSquare)
               return move;
       }
       break;
