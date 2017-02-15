@@ -66,12 +66,12 @@ namespace {
 /// search captures, promotions, and some checks) and how important good move
 /// ordering is at the current node.
 
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s, Square l)
-           : pos(p), ss(s), depth(d), lastMoveSquare(l) {
+MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s)
+           : pos(p), ss(s), depth(d) {
 
   assert(d > DEPTH_ZERO);
 
-  Square prevSq = to_sq((ss-1)->currentMove);
+  prevSq = to_sq((ss-1)->currentMove);
   countermove = pos.this_thread()->counterMoves[pos.piece_on(prevSq)][prevSq];
 
   stage = pos.checkers() ? EVASION : MAIN_SEARCH;
@@ -79,8 +79,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s, S
   stage += (ttMove == MOVE_NONE);
 }
 
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square l)
-           : pos(p), lastMoveSquare(l) {
+MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square s)
+           : pos(p), prevSq(s) {
 
   assert(d <= DEPTH_ZERO);
 
@@ -104,7 +104,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square l)
 }
 
 MovePicker::MovePicker(const Position& p, Move ttm, Value th)
-           : pos(p), lastMoveSquare(SQ_NONE), threshold(th) {
+           : pos(p), prevSq(SQ_NONE), threshold(th) {
 
   assert(!pos.checkers());
 
@@ -134,7 +134,7 @@ void MovePicker::score<CAPTURES>() {
   for (auto& m : *this)
       m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
                - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)))
-               - Value(600 * (to_sq(m) == lastMoveSquare));
+               - Value(600 * (to_sq(m) == prevSq));
 }
 
 template<>
@@ -334,7 +334,7 @@ Move MovePicker::next_move() {
       while (cur < endMoves)
       {
           move = pick_best(cur++, endMoves);
-          if (to_sq(move) == lastMoveSquare)
+          if (to_sq(move) == prevSq)
               return move;
       }
       break;
