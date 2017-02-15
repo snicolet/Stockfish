@@ -66,8 +66,8 @@ namespace {
 /// search captures, promotions, and some checks) and how important good move
 /// ordering is at the current node.
 
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s)
-           : pos(p), ss(s), depth(d) {
+MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s, Square r)
+           : pos(p), ss(s), depth(d), recaptureSquare(r) {
 
   assert(d > DEPTH_ZERO);
 
@@ -79,8 +79,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s)
   stage += (ttMove == MOVE_NONE);
 }
 
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square s)
-           : pos(p) {
+MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square r)
+           : pos(p), recaptureSquare(r) {
 
   assert(d <= DEPTH_ZERO);
 
@@ -96,7 +96,6 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square s)
   else
   {
       stage = QSEARCH_RECAPTURES;
-      recaptureSquare = s;
       return;
   }
 
@@ -105,7 +104,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square s)
 }
 
 MovePicker::MovePicker(const Position& p, Move ttm, Value th)
-           : pos(p), threshold(th) {
+           : pos(p), recaptureSquare(SQ_NONE), threshold(th) {
 
   assert(!pos.checkers());
 
@@ -134,7 +133,8 @@ void MovePicker::score<CAPTURES>() {
   // has been picked up, saving some SEE calls in case we get a cutoff.
   for (auto& m : *this)
       m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-               - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)));
+               - Value(200 * relative_rank(pos.side_to_move(), to_sq(m)))
+               - Value(200 * (to_sq(m) == recaptureSquare));
 }
 
 template<>
