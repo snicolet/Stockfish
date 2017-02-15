@@ -733,10 +733,11 @@ namespace {
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     int pawns = pos.count<PAWN>(WHITE) + pos.count<PAWN>(BLACK);
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
-    bool imbalance = (pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK));
+    int imbalance =  (pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK))
+                    - pos.opposite_bishops();
 
     // Compute the initiative bonus for the attacking side
-    int initiative =   8 * (asymmetry + kingDistance + 2 * (bothFlanks + imbalance) - 18) 
+    int initiative =   8 * (asymmetry + kingDistance + 2 * bothFlanks + 2 * imbalance - 17) 
                     + 12 * pawns;
 
     // Now apply the bonus: note that we find the attacking side by extracting
