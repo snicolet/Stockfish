@@ -299,10 +299,10 @@ namespace {
 		{
              // Bonus for knight protecting king
              Square ksq = pos.square<KING>(Us);
-             int protection = 64; 
+             int protection = 32; 
              for (int d = 0 ; d < 8 ; d++)
                  if (DistanceRingBB[ksq][d] & b)
-                     protection -= 16;
+                     protection -= 4 * d;
 
              score += make_score(protection, 0);
         }
