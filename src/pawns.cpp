@@ -206,7 +206,12 @@ void init() {
   {
       int v = (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
       v += (apex ? v / 2 : 0);
-      Connected[opposed][phalanx][apex][r] = make_score(v, v * (r-2) / 4);
+
+      Score score = make_score(v, v * (r-2) / 4);
+      if (phalanx)
+         score += make_score(-6 , 0);
+
+      Connected[opposed][phalanx][apex][r] = score;
   }
 }
 
