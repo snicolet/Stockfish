@@ -295,6 +295,18 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
+		if (Pt == KNIGHT)
+		{
+             // Bonus for knight protecting king
+             Square ksq = pos.square<KING>(Us);
+             int protection = 64; 
+             for (int d = 0 ; d < 8 ; d++)
+                 if (DistanceRingBB[ksq][d] & b)
+                     protection -= 16;
+
+             score += make_score(protection, 0);
+        }
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus for outpost squares
