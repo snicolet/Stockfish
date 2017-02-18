@@ -297,10 +297,7 @@ namespace {
 
         // Bonus for knight protecting king
         if (Pt == KNIGHT)
-        {
-            int d = EuclidianDistance[s][pos.square<KING>(Us)];
-            score += make_score( 26 - d / 16 , 0);
-        }
+            score += make_score( 26 - EuclidianDistance[s][pos.square<KING>(Us)] / 16 , 0);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
