@@ -181,9 +181,10 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
   };
 
-  // ProximityBonus[distance] contains a bonus for the distance of a knight from a king
-  const Score ProximityBonus[8] = {
-    S(0, 0), S(15, 0), S(4, 0), S(-3, 0), S(-8, 0), S(-12, 0), S(-17, 0), S(-22, 0)
+  // KnightProtection[distance] contains a bonus for the protection of a king
+  // by a knight, according to the distance.
+  const Score KnightProtection[8] = {
+    S(25, 0), S(15, 0), S(4, 0), S(-3, 0), S(-8, 0), S(-12, 0), S(-17, 0), S(-22, 0)
   };
 
   // Assorted bonuses and penalties used by evaluation
@@ -300,12 +301,9 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
-        // Bonus for knight protecting our king and attacking enemy king
+        // Bonus for knight protecting king
         if (Pt == KNIGHT)
-        {
-            score += ProximityBonus[distance(s, pos.square<KING>(Us))];
-            score += ProximityBonus[distance(s, pos.square<KING>(Them))] * 2;
-        }
+            score += KnightProtection[distance(s, pos.square<KING>(Us))];
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
