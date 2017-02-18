@@ -395,7 +395,7 @@ namespace {
   };
 
   template<Color Us, bool DoTrace>
-  Score evaluate_king(const Position& pos, const EvalInfo& ei) {
+  Score evaluate_king(const Position& pos, EvalInfo& ei) {
 
     const Color Them    = (Us == WHITE ? BLACK : WHITE);
     const Square Up     = (Us == WHITE ? NORTH : SOUTH);
@@ -403,7 +403,7 @@ namespace {
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard undefended, b, b1, b2, safe, other;
+    Bitboard undefended, b, b1, b2, checks, safe, other;
     int kingDanger;
 
     // King shelter and enemy pawns storm
@@ -472,8 +472,14 @@ namespace {
 
         // Enemy knights safe and other checks
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
-        if (b & safe)
+        
+        if ((checks = b & safe))
+        {
             kingDanger += KnightCheck;
+            
+            while (checks)
+                ei.attackedBy[Them][ALL_PIECES] |= ei.attackedBy[Them][KNIGHT] |= pos.attacks_from<KNIGHT>(pop_lsb(&checks));
+        }
 
         else if (b & other)
             score -= OtherCheck;
