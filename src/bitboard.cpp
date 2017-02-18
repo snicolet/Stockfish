@@ -19,12 +19,14 @@
 */
 
 #include <algorithm>
+#include "math.h"
 
 #include "bitboard.h"
 #include "misc.h"
 
 uint8_t PopCnt16[1 << 16];
 int SquareDistance[SQUARE_NB][SQUARE_NB];
+int EuclidianDistance[SQUARE_NB][SQUARE_NB];
 
 Bitboard  RookMasks  [SQUARE_NB];
 Bitboard  RookMagics [SQUARE_NB];
@@ -189,6 +191,8 @@ void Bitboards::init() {
           {
               SquareDistance[s1][s2] = std::max(distance<File>(s1, s2), distance<Rank>(s1, s2));
               DistanceRingBB[s1][SquareDistance[s1][s2] - 1] |= s2;
+              EuclidianDistance[s1][s2] = 128 * sqrt(  distance<File>(s1, s2) * distance<File>(s1, s2) 
+                                                     + distance<Rank>(s1, s2) * distance<Rank>(s1, s2));
           }
 
   int steps[][9] = { {}, { 7, 9 }, { 17, 15, 10, 6, -6, -10, -15, -17 },
