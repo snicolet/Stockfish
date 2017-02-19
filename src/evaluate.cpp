@@ -467,29 +467,32 @@ namespace {
 
         else if (b & other)
             score -= OtherCheck;
+            
+        // King tropism: firstly, find squares that opponent attacks in our king flank
+        File kf = file_of(ksq);
+        b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
+
+        assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
+        assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
+
+        // Secondly, add the squares which are attacked twice in that flank and
+        // which are not defended by our pawns.
+        b =  (Us == WHITE ? b << 4 : b >> 4)
+           | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
+
+        int kingTropism = 5;
+        kingDanger += kingTropism * popcount(b);
 
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
             score -= make_score(std::min(kingDanger * kingDanger / 4096,  2 * int(BishopValueMg)), 0);
     }
 
-    // King tropism: firstly, find squares that opponent attacks in our king flank
-    File kf = file_of(ksq);
-    b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
-
-    assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
-    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
-
-    // Secondly, add the squares which are attacked twice in that flank and
-    // which are not defended by our pawns.
-    b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
-
-    score -= CloseEnemies * popcount(b);
-
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
+        
+    dbg_mean_of(abs(mg_value(score)));
 
     if (DoTrace)
         Trace::add(KING, Us, score);
