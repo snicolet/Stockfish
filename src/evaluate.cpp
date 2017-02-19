@@ -491,6 +491,10 @@ namespace {
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
 
+    // Opposite bishops favor the attacking player in middlegame
+    if (pos.opposite_bishops())
+        score += make_score(mg_value(score) / 2 , 0);
+
     if (DoTrace)
         Trace::add(KING, Us, score);
 
