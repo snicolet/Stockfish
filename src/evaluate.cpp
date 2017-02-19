@@ -295,6 +295,9 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt][mob];
 
+        if (Pt == QUEEN)  // All pieces have been examined
+           score += make_score(popcount(ei.attackedBy[Us][ALL_PIECES]), 0);
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus for outpost squares
