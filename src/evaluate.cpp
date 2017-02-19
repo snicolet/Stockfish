@@ -181,6 +181,12 @@ namespace {
     S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
   };
 
+  // KnightProtection[distance] contains a bonus for the protection of a king
+  // by a knight, according to the distance.
+  Score KnightProtection[8] = {
+    S(25, 0), S(15, 0), S(4, 0), S(-3, 0), S(-8, 0), S(-12, 0), S(-17, 0), S(-22, 0)
+  };
+
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S(16,  0);
   const Score BishopPawns         = S( 8, 12);
@@ -203,6 +209,8 @@ namespace {
 
   #undef S
   #undef V
+  
+  TUNE(SetRange(-100, 100), KnightProtection); 
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 78, 56, 45, 11 };
@@ -294,6 +302,10 @@ namespace {
         int mob = popcount(b & ei.mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt][mob];
+
+        // Bonus for knight protecting king
+        if (Pt == KNIGHT)
+            score += KnightProtection[distance(s, pos.square<KING>(Us))];
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
