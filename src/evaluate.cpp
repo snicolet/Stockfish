@@ -188,7 +188,6 @@ namespace {
   const Score TrappedRook         = S(92,  0);
   const Score WeakQueen           = S(50, 10);
   const Score OtherCheck          = S(10, 10);
-  const Score CloseEnemies        = S( 7,  0);
   const Score PawnlessFlank       = S(20, 80);
   const Score ThreatByHangingPawn = S(71, 61);
   const Score ThreatByRank        = S(16,  3);
@@ -207,11 +206,12 @@ namespace {
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 78, 56, 45, 11 };
 
-  // Penalties for enemy's safe checks
+  // Penalties for enemy's safe checks (in kingDanger units)
   const int QueenCheck        = 745;
   const int RookCheck         = 688;
   const int BishopCheck       = 588;
   const int KnightCheck       = 924;
+  const int CloseEnemies      =   4;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -469,8 +469,7 @@ namespace {
             score -= OtherCheck;
             
         // King tropism: firstly, find squares that opponent attacks in our king flank
-        File kf = file_of(ksq);
-        b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
+        b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
 
         assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
         assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
@@ -480,8 +479,7 @@ namespace {
         b =  (Us == WHITE ? b << 4 : b >> 4)
            | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
 
-        int kingTropism = 5;
-        kingDanger += kingTropism * popcount(b);
+        kingDanger += CloseEnemies * popcount(b);
 
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
@@ -489,10 +487,8 @@ namespace {
     }
 
     // Penalty when our king is on a pawnless flank
-    if (!(pos.pieces(PAWN) & KingFlank[kf]))
+    if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
-        
-    dbg_mean_of(abs(mg_value(score)));
 
     if (DoTrace)
         Trace::add(KING, Us, score);
