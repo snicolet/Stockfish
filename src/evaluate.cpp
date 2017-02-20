@@ -519,11 +519,11 @@ namespace {
     Score score = SCORE_ZERO;
 
     // Entry points in the opponent camp
-    int x = popcount(   ~pos.pieces()
+    int x = popcount(   ~pos.pieces(Us)
                       &  OpponentCamp
                       &  ei.attackedBy2[Us]
                       & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]));
-    score += make_score(x * (x - 1), 0);
+    score += make_score(2 * x * (x - 1), 0);
 
     // Non-pawn enemies attacked by a pawn
     weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & ei.attackedBy[Us][PAWN];
