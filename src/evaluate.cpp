@@ -519,7 +519,7 @@ namespace {
     Score score = SCORE_ZERO;
 
     // Entry points in the opponent camp
-    int x = popcount(   ~pos.pieces(Us)
+    int x = popcount(   ~pos.pieces()
                       &  OpponentCamp
                       &  ei.attackedBy2[Us]
                       & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]));
