@@ -487,9 +487,9 @@ namespace {
     assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
 
     // Secondly, add the squares which are attacked twice in that flank and
-    // which we do not protect strongly.
+    // which are not defended by our pawns.
     b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & ei.attackedBy2[Them] & ~ei.stronglyProtectedBy[Us]);
+       | (b & ei.stronglyProtectedBy[Them] & ~ei.attackedBy[Us][PAWN]);
 
     score -= CloseEnemies * popcount(b);
 
