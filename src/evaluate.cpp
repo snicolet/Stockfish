@@ -86,6 +86,11 @@ namespace {
     // pawn or squares attacked by 2 pawns are not explicitly added.
     Bitboard attackedBy2[COLOR_NB];
 
+    // stronglyProtectedBy[color] are the squares strongly controlled by a  
+    // given player, either because that player attacks the square with a pawn   
+    // or because that player attacks the square twice and the opponent doesn't.
+    Bitboard stronglyProtectedBy[COLOR_NB];
+
     // kingRing[color] is the zone around the king which is considered
     // by the king safety evaluation. This consists of the squares directly
     // adjacent to the king, and the three (or two, for a king on an edge file)
@@ -482,9 +487,9 @@ namespace {
     assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
 
     // Secondly, add the squares which are attacked twice in that flank and
-    // which are not defended by our pawns.
+    // which we do not protect strongly.
     b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
+       | (b & ei.attackedBy2[Them] & ~ei.stronglyProtectedBy[Us]);
 
     score -= CloseEnemies * popcount(b);
 
@@ -532,12 +537,13 @@ namespace {
             score += ThreatBySafePawn[type_of(pos.piece_on(pop_lsb(&safeThreats)))];
     }
 
-    // Non-pawn enemies defended by a pawn
-    defended = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & ei.attackedBy[Them][PAWN];
+    // Non-pawn enemies strongly protected
+    defended =  (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) 
+              &  ei.stronglyProtectedBy[Them];
 
-    // Enemies not defended by a pawn and under our attack
+    // Enemies not strongly protected and under our attack
     weak =   pos.pieces(Them)
-          & ~ei.attackedBy[Them][PAWN]
+          & ~ei.stronglyProtectedBy[Them]
           &  ei.attackedBy[Us][ALL_PIECES];
 
     // Add a bonus according to the kind of attacking pieces
@@ -816,6 +822,11 @@ Value Eval::evaluate(const Position& pos) {
   // Evaluate all pieces but king and pawns
   score += evaluate_pieces<DoTrace>(pos, ei, mobility);
   score += mobility[WHITE] - mobility[BLACK];
+
+  ei.stronglyProtectedBy[WHITE] =   ei.attackedBy[WHITE][PAWN] 
+                                  | (ei.attackedBy2[WHITE] & ~ei.attackedBy2[BLACK]);
+  ei.stronglyProtectedBy[BLACK] =   ei.attackedBy[BLACK][PAWN] 
+                                  | (ei.attackedBy2[BLACK] & ~ei.attackedBy2[WHITE]);
 
   // Evaluate kings after all other pieces because we need full attack
   // information when computing the king safety evaluation.
