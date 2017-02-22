@@ -214,7 +214,7 @@ void init() {
       v += (apex ? v / 2 : 0);
       Connected[opposed][phalanx][apex][r] = make_score(v, v * (r-2) / 4);
   }
-  
+
   for (Square s = SQ_A1; s <= SQ_H8; ++s)
   {
       int d = distance(s, SQ_D4) + distance(s, SQ_D5) + distance(s, SQ_E4) + distance(s, SQ_E5);
