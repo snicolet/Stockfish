@@ -532,13 +532,16 @@ namespace {
             score += ThreatBySafePawn[type_of(pos.piece_on(pop_lsb(&safeThreats)))];
     }
 
+    // Squares strongly protected by the opponent, either because they attack the
+    // square with a pawn, or because they attack the square twice and we don't.
     stronglyProtected =  ei.attackedBy[Them][PAWN] 
                        | (ei.attackedBy2[Them] & ~ei.attackedBy2[Us]);
 
-    // Non-pawn enemies strongly defended
-    defended = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & stronglyProtected;
+    // Non-pawn enemies strongly protected
+    defended =  (pos.pieces(Them) ^ pos.pieces(Them, PAWN))
+              & stronglyProtected;
 
-    // Enemies not strongly defended and under our attack
+    // Enemies not strongly protected and under our attack
     weak =   pos.pieces(Them)
           & ~stronglyProtected
           &  ei.attackedBy[Us][ALL_PIECES];
