@@ -449,7 +449,7 @@ namespace {
         // Some other potential checks are also analysed, even from squares
         // currently occupied by the opponent own pieces, as long as the square
         // is not attacked by our pawns, and is not occupied by a blocked pawn.
-        other = ~(   ei.attackedBy[Us][PAWN]
+        other = ~(   ei.stronglyProtectedBy[Us]
                   | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
 
         // Enemy rooks safe and other checks
@@ -489,7 +489,7 @@ namespace {
     // Secondly, add the squares which are attacked twice in that flank and
     // which are not defended by our pawns.
     b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & ei.stronglyProtectedBy[Them] & ~ei.attackedBy[Us][PAWN]);
+       | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
 
     score -= CloseEnemies * popcount(b);
 
