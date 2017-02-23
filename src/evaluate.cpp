@@ -823,10 +823,8 @@ Value Eval::evaluate(const Position& pos) {
   score += evaluate_pieces<DoTrace>(pos, ei, mobility);
   score += mobility[WHITE] - mobility[BLACK];
 
-  ei.stronglyProtectedBy[WHITE] =   ei.attackedBy[WHITE][PAWN] 
-                                  | (ei.attackedBy2[WHITE] & ~ei.attackedBy2[BLACK]);
-  ei.stronglyProtectedBy[BLACK] =   ei.attackedBy[BLACK][PAWN] 
-                                  | (ei.attackedBy2[BLACK] & ~ei.attackedBy2[WHITE]);
+  ei.stronglyProtectedBy[WHITE] = ei.attackedBy[WHITE][PAWN] | (ei.attackedBy2[WHITE] & ~ei.attackedBy2[BLACK]);
+  ei.stronglyProtectedBy[BLACK] = ei.attackedBy[BLACK][PAWN] | (ei.attackedBy2[BLACK] & ~ei.attackedBy2[WHITE]);
 
   // Evaluate kings after all other pieces because we need full attack
   // information when computing the king safety evaluation.
