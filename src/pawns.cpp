@@ -18,6 +18,9 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
+#include <iomanip>  // for std::setw()
+#include <string>
 #include <algorithm>
 #include <cassert>
 
@@ -42,6 +45,9 @@ namespace {
 
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
+
+  // Supported passed pawn bonus, by file and rank
+  Score SupportedPassed[FILE_NB][RANK_NB];
 
   // Doubled pawn penalty
   const Score Doubled = S(18, 38);
@@ -162,7 +168,12 @@ namespace {
             && !(ourPawns & forward_bb(Us, s))
             && popcount(supported) >= popcount(lever)
             && popcount(phalanx)   >= popcount(leverPush))
+        {
             e->passedPawns[Us] |= s;
+
+            if (supported && !stoppers)
+                score += SupportedPassed[f][relative_rank(Us, s)];
+        }
 
         // Score this pawn
         if (!neighbours)
@@ -207,6 +218,17 @@ void init() {
       int v = (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
       v += (apex ? v / 2 : 0);
       Connected[opposed][phalanx][apex][r] = make_score(v, v * (r-2) / 4);
+  }
+
+  for (int r = RANK_1; r <= RANK_8; ++r)
+    for (int f = FILE_A; f <= FILE_H; ++f)
+  {
+      int x = std::max(0, r + std::min(f, 7-f) - 2);
+      SupportedPassed[f][r] = make_score(x * x , 7 * r);
+
+      // std::cerr << std::setw(8) 
+      //           << std::to_string(x * x) + "," + std::to_string(7 * r) 
+      //           << (f == FILE_H ? "\n" : " ");
   }
 }
 
