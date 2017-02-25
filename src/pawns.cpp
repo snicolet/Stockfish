@@ -224,10 +224,10 @@ void init() {
     for (int f = FILE_A; f <= FILE_H; ++f)
   {
       int x = std::max(0, r + std::min(f, 7-f) - 2);
-      SupportedPassed[f][r] = make_score(x * x , 7 * r);
+      SupportedPassed[f][r] = make_score(x * x / 2 , 3 * r);
 
       // std::cerr << std::setw(8) 
-      //           << std::to_string(x * x) + "," + std::to_string(7 * r) 
+      //           << std::to_string(x * x / 2) + "," + std::to_string(3 * r) 
       //           << (f == FILE_H ? "\n" : " ");
   }
 }
