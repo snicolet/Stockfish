@@ -976,8 +976,7 @@ moves_loop: // When in check search starts from here
       // Step 15. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
-          &&  moveCount > 1
-          && (!captureOrPromotion || moveCountPruning))
+          &&  moveCount > 1)
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
