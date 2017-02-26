@@ -727,6 +727,15 @@ namespace {
                   ss->staticEval, TT.generation());
     }
 
+    // Update cutnode heuristically
+    if (   !PvNode
+        && abs(eval) < VALUE_KNOWN_WIN
+        && abs(beta) < VALUE_KNOWN_WIN)
+    {
+        cutNode |= (eval > beta  + 100);
+        cutNode &= (eval > alpha - 100);
+    }
+
     if (skipEarlyPruning)
         goto moves_loop;
 
@@ -992,7 +1001,7 @@ moves_loop: // When in check search starts from here
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
               // hence break make_move().
-              if (   type_of(move) == NORMAL
+              else if (   type_of(move) == NORMAL
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move)),  VALUE_ZERO))
                   r -= 2 * ONE_PLY;
 
