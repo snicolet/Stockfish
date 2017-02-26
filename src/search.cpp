@@ -994,7 +994,7 @@ moves_loop: // When in check search starts from here
               // hence break make_move().
               if (   type_of(move) == NORMAL
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move)),  VALUE_ZERO))
-                  r -= ONE_PLY;
+                  r -= 2 * ONE_PLY;
 
               ss->history =  (cmh  ? (*cmh )[moved_piece][to_sq(move)] : VALUE_ZERO)
                            + (fmh  ? (*fmh )[moved_piece][to_sq(move)] : VALUE_ZERO)
