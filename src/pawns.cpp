@@ -52,6 +52,8 @@ namespace {
     S(17, 16), S(33, 32), S(0, 0), S(0, 0)
   };
 
+  const Score SpaceOnBothWings = S(50, 0);
+
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank].
   // RANK_1 = 0 is used for files where we have no pawns or our pawn is behind our king.
   const Value ShelterWeakness[][RANK_NB] = {
@@ -97,6 +99,7 @@ namespace {
     const Square Up    = (Us == WHITE ? NORTH      : SOUTH);
     const Square Right = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Square Left  = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
+    const Bitboard TRank5 = (Us == WHITE ? Rank5BB : Rank4BB);
 
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Bitboard lever, leverPush, connected;
@@ -183,6 +186,12 @@ namespace {
         if (lever)
             score += Lever[relative_rank(Us, s)];
     }
+
+    // Space advantage on both wings: add bonus for a pawn pair on 5th rank with distance 3 like a5/d5
+    b = ourPawns & TRank5;
+    if (   more_than_one(b)
+        && (shift<EAST>(shift<EAST>(b)) & shift<WEST>(b)))
+        score += SpaceOnBothWings;
 
     return score;
   }
