@@ -52,7 +52,7 @@ namespace {
     S(17, 16), S(33, 32), S(0, 0), S(0, 0)
   };
 
-  const Score SpaceOnBothWings = S(50, 0);
+  const Score SpaceOnBothWings = S(25, 0);
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank].
   // RANK_1 = 0 is used for files where we have no pawns or our pawn is behind our king.
@@ -187,10 +187,9 @@ namespace {
             score += Lever[relative_rank(Us, s)];
     }
 
-    // Space advantage on both wings: add bonus for a pawn pair on 5th rank with distance 3 like a5/d5
+    // Space advantage on both wings: bonus for a pawn pair on 5th rank with distance >= 3
     b = ourPawns & TRank5;
-    if (   more_than_one(b)
-        && (shift<EAST>(shift<EAST>(b)) & shift<WEST>(b)))
+    if (more_than_one(b) &&  msb(b) - lsb(b) >= 3)
         score += SpaceOnBothWings;
 
     return score;

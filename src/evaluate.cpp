@@ -180,7 +180,7 @@ namespace {
     S(  9, 10), S( 2, 10), S( 1, -8), S(-20,-12),
     S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
   };
-  
+
   // Protector[PieceType][distance] contains a protecting bonus for our king,
   // indexed by piece type and distance between the piece and the king.
   const Score Protector[PIECE_TYPE_NB][8] = {
@@ -304,7 +304,7 @@ namespace {
         int mob = popcount(b & ei.mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt][mob];
-        
+
         // Bonus for this piece as a king protector
         score += Protector[Pt][distance(s, pos.square<KING>(Us))];
 
