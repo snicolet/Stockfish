@@ -913,10 +913,10 @@ moves_loop: // When in check search starts from here
               int lmrDepth = std::max(newDepth - reduction<PvNode>(improving, depth, moveCount), DEPTH_ZERO) / ONE_PLY;
 
               // Countermoves based pruning
-              if (   lmrDepth < 3
-                  && ((*cmh )[moved_piece][to_sq(move)] < VALUE_ZERO  || !(ss-1)->is_ok())
-                  && ((*fmh )[moved_piece][to_sq(move)] < VALUE_ZERO  || !(ss-2)->is_ok())
-                  && ((*fmh2)[moved_piece][to_sq(move)] < VALUE_ZERO  || !(ss-4)->is_ok() || ((ss-1)->is_ok() && (ss-2)->is_ok())))
+              if (      lmrDepth < 3
+                  && (  (*cmh )[moved_piece][to_sq(move)]
+                      + (*fmh )[moved_piece][to_sq(move)]
+                      + (*fmh2)[moved_piece][to_sq(move)] < VALUE_ZERO))
                   continue;
 
               // Futility pruning: parent node

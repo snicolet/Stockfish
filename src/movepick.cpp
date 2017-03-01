@@ -149,8 +149,8 @@ void MovePicker::score<QUIETS>() {
   Color c = pos.side_to_move();
 
   for (auto& m : *this)
-      m.value =  (*cmh) [pos.moved_piece(m)][to_sq(m)]
-               + (*fmh) [pos.moved_piece(m)][to_sq(m)]
+      m.value =  (*cmh )[pos.moved_piece(m)][to_sq(m)]
+               + (*fmh )[pos.moved_piece(m)][to_sq(m)]
                + (*fmh2)[pos.moved_piece(m)][to_sq(m)]
                + history.get(c, m);
 }
