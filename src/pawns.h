@@ -76,6 +76,8 @@ struct Entry {
   int pawnsOnSquares[COLOR_NB][COLOR_NB]; // [color][light/dark squares]
   int asymmetry;
   int openFiles;
+
+  uint8_t padding[8];  // so that sizeof(Pawns::Entry) == 128
 };
 
 typedef HashTable<Entry, 16384> Table;
