@@ -46,6 +46,8 @@ struct Stack {
   Value staticEval;
   Value history;
   int moveCount;
+
+  inline bool is_ok() { return ::is_ok(currentMove); }
 };
 
 

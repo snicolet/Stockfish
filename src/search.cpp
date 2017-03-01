@@ -334,6 +334,8 @@ void Thread::search() {
   MainThread* mainThread = (this == Threads.main() ? Threads.main() : nullptr);
 
   std::memset(ss-4, 0, 7 * sizeof(Stack));
+  for (int i = -4 ; i < 0 ; ++i) 
+     (ss+i)->counterMoves = &this->counterMoveHistory[NO_PIECE][SQ_NONE]; // use as sentinel
 
   bestValue = delta = alpha = -VALUE_INFINITE;
   beta = VALUE_INFINITE;
@@ -601,7 +603,7 @@ namespace {
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
     ss->currentMove = (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    ss->counterMoves = nullptr;
+    ss->counterMoves = &thisThread->counterMoveHistory[NO_PIECE][SQ_NONE];
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
@@ -738,7 +740,7 @@ namespace {
         &&  pos.non_pawn_material(pos.side_to_move()))
     {
         ss->currentMove = MOVE_NULL;
-        ss->counterMoves = nullptr;
+        ss->counterMoves = &thisThread->counterMoveHistory[NO_PIECE][SQ_NONE];
 
         assert(eval - beta >= 0);
 
@@ -779,8 +781,7 @@ namespace {
         Depth rdepth = depth - 4 * ONE_PLY;
 
         assert(rdepth >= ONE_PLY);
-        assert((ss-1)->currentMove != MOVE_NONE);
-        assert((ss-1)->currentMove != MOVE_NULL);
+        assert((ss-1)->is_ok());
 
         MovePicker mp(pos, ttMove, rbeta - ss->staticEval);
 
@@ -913,9 +914,9 @@ moves_loop: // When in check search starts from here
 
               // Countermoves based pruning
               if (   lmrDepth < 3
-                  && (!cmh  || (*cmh )[moved_piece][to_sq(move)] < VALUE_ZERO)
-                  && (!fmh  || (*fmh )[moved_piece][to_sq(move)] < VALUE_ZERO)
-                  && (!fmh2 || (*fmh2)[moved_piece][to_sq(move)] < VALUE_ZERO || (cmh && fmh)))
+                  && ((*cmh )[moved_piece][to_sq(move)] < VALUE_ZERO  || !(ss-1)->is_ok())
+                  && ((*fmh )[moved_piece][to_sq(move)] < VALUE_ZERO  || !(ss-2)->is_ok())
+                  && ((*fmh2)[moved_piece][to_sq(move)] < VALUE_ZERO  || !(ss-4)->is_ok() || ((ss-1)->is_ok() && (ss-2)->is_ok())))
                   continue;
 
               // Futility pruning: parent node
@@ -975,9 +976,9 @@ moves_loop: // When in check search starts from here
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move)),  VALUE_ZERO))
                   r -= 2 * ONE_PLY;
 
-              ss->history =  (cmh  ? (*cmh )[moved_piece][to_sq(move)] : VALUE_ZERO)
-                           + (fmh  ? (*fmh )[moved_piece][to_sq(move)] : VALUE_ZERO)
-                           + (fmh2 ? (*fmh2)[moved_piece][to_sq(move)] : VALUE_ZERO)
+              ss->history =  (*cmh )[moved_piece][to_sq(move)]
+                           + (*fmh )[moved_piece][to_sq(move)]
+                           + (*fmh2)[moved_piece][to_sq(move)]
                            + thisThread->history.get(~pos.side_to_move(), move)
                            - 4000; // Correction factor
 
@@ -1120,7 +1121,7 @@ moves_loop: // When in check search starts from here
     // Bonus for prior countermove that caused the fail low
     else if (    depth >= 3 * ONE_PLY
              && !pos.captured_piece()
-             && is_ok((ss-1)->currentMove))
+             && (ss-1)->is_ok())
         update_cm_stats(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
     tte->save(posKey, value_to_tt(bestValue, ss->ply),
@@ -1380,18 +1381,14 @@ moves_loop: // When in check search starts from here
 
   void update_cm_stats(Stack* ss, Piece pc, Square s, Value bonus) {
 
-    CounterMoveStats* cmh  = (ss-1)->counterMoves;
-    CounterMoveStats* fmh1 = (ss-2)->counterMoves;
-    CounterMoveStats* fmh2 = (ss-4)->counterMoves;
+    if ((ss-1)->is_ok())
+        (ss-1)->counterMoves->update(pc, s, bonus);
 
-    if (cmh)
-        cmh->update(pc, s, bonus);
+    if ((ss-2)->is_ok())
+        (ss-2)->counterMoves->update(pc, s, bonus);
 
-    if (fmh1)
-        fmh1->update(pc, s, bonus);
-
-    if (fmh2)
-        fmh2->update(pc, s, bonus);
+    if ((ss-4)->is_ok())
+        (ss-4)->counterMoves->update(pc, s, bonus);
   }
 
 
@@ -1411,7 +1408,7 @@ moves_loop: // When in check search starts from here
     thisThread->history.update(c, move, bonus);
     update_cm_stats(ss, pos.moved_piece(move), to_sq(move), bonus);
 
-    if ((ss-1)->counterMoves)
+    if ((ss-1)->is_ok())
     {
         Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves.update(pos.piece_on(prevSq), prevSq, move);
