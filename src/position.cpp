@@ -827,7 +827,13 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
 
       // Update pawn hash key and prefetch access to pawnsTable
       st->pawnKey ^= Zobrist::psq[pc][from] ^ Zobrist::psq[pc][to];
-      prefetch(thisThread->pawnsTable[st->pawnKey]);
+      prefetch2(thisThread->pawnsTable[st->pawnKey]);
+
+      // To verify that each Pawns::Entry is 128 bytes
+      // dbg_mean_of( sizeof(Pawns::Entry) );
+
+      // To verify that each cell of the pawnsTable is 128-bytes aligned
+      // dbg_mean_of( long(thisThread->pawnsTable[st->pawnKey]) % 128 );
 
       // Reset rule 50 draw counter
       st->rule50 = 0;
