@@ -902,6 +902,7 @@ moves_loop: // When in check search starts from here
       {
           if (   !captureOrPromotion
               && !givesCheck
+              && !inCheck
               && !pos.advanced_pawn_push(move))
           {
               // Move count based pruning
@@ -920,7 +921,6 @@ moves_loop: // When in check search starts from here
 
               // Futility pruning: parent node
               if (   lmrDepth < 7
-                  && !inCheck
                   && ss->staticEval + 256 + 200 * lmrDepth <= alpha)
                   continue;
 
@@ -929,10 +929,11 @@ moves_loop: // When in check search starts from here
                   && !pos.see_ge(move, Value(-35 * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (    depth < 7 * ONE_PLY
-                   && !extension
-                   && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
-                  continue;
+
+          if (    depth < 7 * ONE_PLY
+			   && !extension
+			   && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
+               continue;
       }
 
       // Speculative prefetch as early as possible
