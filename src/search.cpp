@@ -931,8 +931,8 @@ moves_loop: // When in check search starts from here
           }
 
           if (    depth < 7 * ONE_PLY
-			   && !extension
-			   && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
+               && !extension
+               && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
                continue;
       }
 
