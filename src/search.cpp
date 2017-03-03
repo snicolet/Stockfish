@@ -158,6 +158,7 @@ namespace {
   Value value_from_tt(Value v, int ply);
   void update_pv(Move* pv, Move move, Move* childPv);
   void update_cm_stats(Stack* ss, Piece pc, Square s, Value bonus);
+  void update_killers(Stack* ss, Move move);
   void update_stats(const Position& pos, Stack* ss, Move move, Move* quiets, int quietsCnt, Value bonus);
   void check_time();
 
@@ -1108,6 +1109,8 @@ moves_loop: // When in check search starts from here
                    :     inCheck ? mated_in(ss->ply) : DrawValue[pos.side_to_move()];
     else if (bestMove)
     {
+        // Update killers
+        update_killers(ss, bestMove);
 
         // Quiet best move: update move sorting heuristics
         if (!pos.capture_or_promotion(bestMove))
@@ -1395,16 +1398,21 @@ moves_loop: // When in check search starts from here
   }
 
 
-  // update_stats() updates move sorting heuristics when a new quiet best move is found
+  // update_killers() update killers (even captures) for this stack level
 
-  void update_stats(const Position& pos, Stack* ss, Move move,
-                    Move* quiets, int quietsCnt, Value bonus) {
+  void update_killers(Stack* ss, Move move) {
 
     if (ss->killers[0] != move)
     {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
     }
+  }
+
+  // update_stats() updates move sorting heuristics when a new quiet best move is found
+
+  void update_stats(const Position& pos, Stack* ss, Move move,
+                    Move* quiets, int quietsCnt, Value bonus) {
 
     Color c = pos.side_to_move();
     Thread* thisThread = pos.this_thread();

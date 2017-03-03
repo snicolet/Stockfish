@@ -169,6 +169,15 @@ void MovePicker::score<EVASIONS>() {
           m.value = history.get(c, m);
 }
 
+/// score_killers() : help the killer moves get a better rank
+
+void MovePicker::score_killers() {
+
+  for (auto& m : *this)
+      m.value += Value(1000 * (m.move == ss->killers[0]))
+               + Value( 500 * (m.move == ss->killers[1]));
+}
+
 
 /// next_move() is the most important method of the MovePicker class. It returns
 /// a new pseudo legal move every time it is called, until there are no more moves
@@ -190,6 +199,7 @@ Move MovePicker::next_move() {
       endBadCaptures = cur = moves;
       endMoves = generate<CAPTURES>(pos, cur);
       score<CAPTURES>();
+      score_killers();
       ++stage;
 
   case GOOD_CAPTURES:
@@ -198,7 +208,7 @@ Move MovePicker::next_move() {
           move = pick_best(cur++, endMoves);
           if (move != ttMove)
           {
-              if (pos.see_ge(move, VALUE_ZERO))
+              if (pos.see_ge(move, Value(-100)))
                   return move;
 
               // Losing capture, move it to the beginning of the array
