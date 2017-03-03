@@ -602,7 +602,7 @@ namespace {
 
     ss->currentMove = (ss+1)->excludedMove = bestMove = MOVE_NONE;
     ss->counterMoves = nullptr;
-    (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+1)->killers[0] = (ss+1)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
     // Step 4. Transposition table lookup. We don't want the score of a partial
