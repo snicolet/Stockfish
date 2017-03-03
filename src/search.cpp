@@ -630,7 +630,10 @@ namespace {
             if (ttValue >= beta)
             {
                 if (!pos.capture_or_promotion(ttMove))
+                {
+                    update_killers(ss, ttMove);
                     update_stats(pos, ss, ttMove, nullptr, 0, stat_bonus(depth));
+                }
 
                 // Extra penalty for a quiet TT move in previous ply when it gets refuted
                 if ((ss-1)->moveCount == 1 && !pos.captured_piece())
