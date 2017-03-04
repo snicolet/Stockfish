@@ -902,7 +902,7 @@ moves_loop: // When in check search starts from here
       {
           if (   !captureOrPromotion
               && !givesCheck
-              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(pos.side_to_move()) >= 2400))
+              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(pos.side_to_move()) >= 2600))
           {
               // Move count based pruning
               if (moveCountPruning)
