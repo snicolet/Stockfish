@@ -105,7 +105,6 @@ public:
 
 private:
   template<GenType> void score();
-  void score_killers();
   ExtMove* begin() { return cur; }
   ExtMove* end() { return endMoves; }
 
