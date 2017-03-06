@@ -522,6 +522,9 @@ namespace {
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
+    const Bitboard OpponentCamp = 
+        (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                     : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
 
     Bitboard b, weak, defended, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
@@ -598,6 +601,13 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    // Entry points in the opponent camp
+    int x = popcount(   ~pos.pieces()
+                      &  OpponentCamp
+                      &  ei.attackedBy2[Us]
+                      & ~(ei.attackedBy[Them][PAWN] | ei.attackedBy2[Them]));
+    score += make_score(2 * x * (x - 1), 0);
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
