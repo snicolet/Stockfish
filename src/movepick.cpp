@@ -256,9 +256,9 @@ Move MovePicker::next_move() {
               && move != ss->killers[1]
               && move != countermove)
           {
-          	  if (pos.see_ge(move, VALUE_ZERO))
+              if (pos.see_ge(move, VALUE_ZERO))
                   return move;
-              
+
               // Losing quiet move, move it to the beginning of the array
               *endBadMoves++ = move;
           }
