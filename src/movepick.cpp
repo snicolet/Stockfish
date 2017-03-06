@@ -26,7 +26,7 @@
 namespace {
 
   enum Stages {
-    MAIN_SEARCH, CAPTURES_INIT, GOOD_CAPTURES, KILLERS, COUNTERMOVE, QUIET_INIT, QUIET, BAD_CAPTURES,
+    MAIN_SEARCH, CAPTURES_INIT, GOOD_CAPTURES, KILLERS, COUNTERMOVE, QUIET_INIT, QUIET, BAD_MOVES,
     EVASION, EVASIONS_INIT, ALL_EVASIONS,
     PROBCUT, PROBCUT_INIT, PROBCUT_CAPTURES,
     QSEARCH_WITH_CHECKS, QCAPTURES_1_INIT, QCAPTURES_1, QCHECKS,
@@ -187,7 +187,7 @@ Move MovePicker::next_move() {
       return ttMove;
 
   case CAPTURES_INIT:
-      endBadCaptures = cur = moves;
+      endBadMoves = cur = moves;
       endMoves = generate<CAPTURES>(pos, cur);
       score<CAPTURES>();
       ++stage;
@@ -202,7 +202,7 @@ Move MovePicker::next_move() {
                   return move;
 
               // Losing capture, move it to the beginning of the array
-              *endBadCaptures++ = move;
+              *endBadMoves++ = move;
           }
       }
 
@@ -235,7 +235,7 @@ Move MovePicker::next_move() {
           return move;
 
   case QUIET_INIT:
-      cur = endBadCaptures;
+      cur = endBadMoves;
       endMoves = generate<QUIETS>(pos, cur);
       score<QUIETS>();
       if (depth < 3 * ONE_PLY)
@@ -255,13 +255,20 @@ Move MovePicker::next_move() {
               && move != ss->killers[0]
               && move != ss->killers[1]
               && move != countermove)
-              return move;
+          {
+          	  if (pos.see_ge(move, VALUE_ZERO))
+                  return move;
+              
+              // Losing quiet move, move it to the beginning of the array
+              *endBadMoves++ = move;
+          }
       }
       ++stage;
       cur = moves; // Point to beginning of bad captures
 
-  case BAD_CAPTURES:
-      if (cur < endBadCaptures)
+  case BAD_MOVES:
+      // Bad captures and bad quiet moves
+      if (cur < endBadMoves)
           return *cur++;
       break;
 
