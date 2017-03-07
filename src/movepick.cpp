@@ -156,7 +156,7 @@ void MovePicker::score<QUIETS>() {
                + history.get(c, m);
 
       if (m.value == 0 && pos.see_ge(m, VALUE_ZERO))
-          m.value += 100;
+          m.value += 10000;
   }
 }
 
