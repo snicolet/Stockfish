@@ -68,6 +68,7 @@ namespace {
   }
 
   using namespace Trace;
+  using Eval::DrawValue;
 
   // Struct EvalInfo contains various information computed and collected
   // by the evaluation functions.
@@ -749,7 +750,9 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
-    int value = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg));
+
+    int draw = DrawValue[WHITE];
+    int value = ((eg > draw) - (eg < draw)) * std::max(initiative, -abs(eg));
 
     return make_score(0, value);
   }
@@ -919,3 +922,5 @@ std::string Eval::trace(const Position& pos) {
 
   return ss.str();
 }
+
+Value Eval::DrawValue[COLOR_NB];
