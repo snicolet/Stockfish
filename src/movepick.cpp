@@ -152,11 +152,12 @@ void MovePicker::score<QUIETS>() {
   {
       m.value =  (cmh  ?  (*cmh)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
                + (fmh  ?  (*fmh)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
-               + (fmh2 ? (*fmh2)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO)
-               + history.get(c, m);
+               + (fmh2 ? (*fmh2)[pos.moved_piece(m)][to_sq(m)] : VALUE_ZERO);
 
       if (m.value == 0 && pos.see_ge(m, VALUE_ZERO))
-          m.value += 10000;
+          m.value += 100;
+    
+      m.value += history.get(c, m);
   }
 }
 
