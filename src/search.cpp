@@ -309,7 +309,7 @@ void MainThread::search() {
   std::cout << sync_endl;
 }
 
-// Sizes and phases of the skip-blocks, used for distributing search depths across the threads.
+// Sizes and phases of the skip-blocks, used for distributing search depths across the threads
 static int skipsize[20] = {1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4};
 static int phase   [20] = {0, 1, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 6, 7};
 
@@ -325,8 +325,8 @@ void Thread::search() {
   MainThread* mainThread = (this == Threads.main() ? Threads.main() : nullptr);
 
   std::memset(ss-4, 0, 7 * sizeof(Stack));
-  for(int i = -4; i < 0; i++) 
-     (ss+i)->counterMoves = &this->counterMoveHistory[NO_PIECE][0]; // use as sentinel.
+  for (int i = -4; i < 0; i++)
+     (ss+i)->counterMoves = &this->counterMoveHistory[NO_PIECE][0]; // use as sentinel
 
   bestValue = delta = alpha = -VALUE_INFINITE;
   beta = VALUE_INFINITE;
@@ -358,7 +358,7 @@ void Thread::search() {
          && !Signals.stop
          && (!Limits.depth || Threads.main()->rootDepth / ONE_PLY <= Limits.depth))
   {
-      // skip half of the plies in blocks depending on game ply and helper index.
+      // skip half of the plies in blocks depending on game ply and helper index
       if (idx && ((rootDepth / ONE_PLY + rootPos.game_ply() + phase[hIdx]) / skipsize[hIdx]) % 2)
           continue;
 
