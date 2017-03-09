@@ -178,9 +178,45 @@ void MovePicker::score<EVASIONS>() {
 Move MovePicker::next_move() {
 
   Move move;
+  
+  static void* dispatch_table[] = {
+    &&_MAIN_SEARCH, &&_CAPTURES_INIT, &&_GOOD_CAPTURES, &&_KILLERS, &&_COUNTERMOVE, &&_QUIET_INIT, &&_QUIET, &&_BAD_CAPTURES,
+    &&_EVASION, &&_EVASIONS_INIT, &&_ALL_EVASIONS,
+    &&_PROBCUT, &&_PROBCUT_INIT, &&_PROBCUT_CAPTURES,
+    &&_QSEARCH_WITH_CHECKS, &&_QCAPTURES_1_INIT, &&_QCAPTURES_1, &&_QCHECKS,
+    &&_QSEARCH_NO_CHECKS, &&_QCAPTURES_2_INIT, &&_QCAPTURES_2,
+    &&_QSEARCH_RECAPTURES, &&_QRECAPTURES
+  };
+
+  #define DISPATCH(stage) goto *dispatch_table[stage]
+  
+  
+  _MAIN_SEARCH: _EVASION: _QSEARCH_WITH_CHECKS:
+  _QSEARCH_NO_CHECKS: _PROBCUT:
+  _CAPTURES_INIT:
+  _GOOD_CAPTURES:
+  _KILLERS:
+  _COUNTERMOVE:
+  _QUIET_INIT:
+  _QUIET:
+  _BAD_CAPTURES:
+  _EVASIONS_INIT:
+  _ALL_EVASIONS:
+  _PROBCUT_INIT:
+  _PROBCUT_CAPTURES:
+  _QCAPTURES_1_INIT: _QCAPTURES_2_INIT:
+  _QCAPTURES_1: _QCAPTURES_2:
+  _QCHECKS:
+  _QSEARCH_RECAPTURES:
+  _QRECAPTURES:
+  
+  
+  
+  
 
   switch (stage) {
 
+  
   case MAIN_SEARCH: case EVASION: case QSEARCH_WITH_CHECKS:
   case QSEARCH_NO_CHECKS: case PROBCUT:
       ++stage;
@@ -263,7 +299,7 @@ Move MovePicker::next_move() {
   case BAD_CAPTURES:
       if (cur < endBadCaptures)
           return *cur++;
-      break;
+      return MOVE_NONE;
 
   case EVASIONS_INIT:
       cur = moves;
@@ -278,7 +314,7 @@ Move MovePicker::next_move() {
           if (move != ttMove)
               return move;
       }
-      break;
+      return MOVE_NONE;
 
   case PROBCUT_INIT:
       cur = moves;
@@ -294,7 +330,7 @@ Move MovePicker::next_move() {
               && pos.see_ge(move, threshold))
               return move;
       }
-      break;
+      return MOVE_NONE;
 
   case QCAPTURES_1_INIT: case QCAPTURES_2_INIT:
       cur = moves;
@@ -310,7 +346,7 @@ Move MovePicker::next_move() {
               return move;
       }
       if (stage == QCAPTURES_2)
-          break;
+          return MOVE_NONE;
       cur = moves;
       endMoves = generate<QUIET_CHECKS>(pos, cur);
       ++stage;
@@ -322,7 +358,7 @@ Move MovePicker::next_move() {
           if (move != ttMove)
               return move;
       }
-      break;
+      return MOVE_NONE;
 
   case QSEARCH_RECAPTURES:
       cur = moves;
@@ -337,7 +373,7 @@ Move MovePicker::next_move() {
           if (to_sq(move) == recaptureSquare)
               return move;
       }
-      break;
+      return MOVE_NONE;
 
   default:
       assert(false);
