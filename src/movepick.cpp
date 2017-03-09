@@ -152,7 +152,8 @@ void MovePicker::score<QUIETS>() {
       m.value =   (*cmh)[pos.moved_piece(m)][to_sq(m)]
                +  (*fmh)[pos.moved_piece(m)][to_sq(m)]
                + (*fmh2)[pos.moved_piece(m)][to_sq(m)]
-               + history.get(c, m);
+               + history.get(c, m)
+               + Value(uint64_t(pos.key()) & 15);
 }
 
 template<>
