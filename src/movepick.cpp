@@ -188,47 +188,23 @@ Move MovePicker::next_move() {
     &&_QSEARCH_RECAPTURES, &&_QRECAPTURES
   };
 
-  #define DISPATCH(stage) goto *dispatch_table[stage]
+  #define SWITCH(stage) goto *dispatch_table[stage];
   
+
+  SWITCH (stage) {
   
   _MAIN_SEARCH: _EVASION: _QSEARCH_WITH_CHECKS:
   _QSEARCH_NO_CHECKS: _PROBCUT:
-  _CAPTURES_INIT:
-  _GOOD_CAPTURES:
-  _KILLERS:
-  _COUNTERMOVE:
-  _QUIET_INIT:
-  _QUIET:
-  _BAD_CAPTURES:
-  _EVASIONS_INIT:
-  _ALL_EVASIONS:
-  _PROBCUT_INIT:
-  _PROBCUT_CAPTURES:
-  _QCAPTURES_1_INIT: _QCAPTURES_2_INIT:
-  _QCAPTURES_1: _QCAPTURES_2:
-  _QCHECKS:
-  _QSEARCH_RECAPTURES:
-  _QRECAPTURES:
-  
-  
-  
-  
-
-  switch (stage) {
-
-  
-  case MAIN_SEARCH: case EVASION: case QSEARCH_WITH_CHECKS:
-  case QSEARCH_NO_CHECKS: case PROBCUT:
       ++stage;
       return ttMove;
 
-  case CAPTURES_INIT:
+  _CAPTURES_INIT:
       endBadCaptures = cur = moves;
       endMoves = generate<CAPTURES>(pos, cur);
       score<CAPTURES>();
       ++stage;
 
-  case GOOD_CAPTURES:
+  _GOOD_CAPTURES:
       while (cur < endMoves)
       {
           move = pick_best(cur++, endMoves);
@@ -250,7 +226,7 @@ Move MovePicker::next_move() {
           && !pos.capture(move))
           return move;
 
-  case KILLERS:
+  _KILLERS:
       ++stage;
       move = ss->killers[1]; // Second killer move
       if (    move != MOVE_NONE
@@ -259,7 +235,7 @@ Move MovePicker::next_move() {
           && !pos.capture(move))
           return move;
 
-  case COUNTERMOVE:
+  _COUNTERMOVE:
       ++stage;
       move = countermove;
       if (    move != MOVE_NONE
@@ -270,7 +246,7 @@ Move MovePicker::next_move() {
           && !pos.capture(move))
           return move;
 
-  case QUIET_INIT:
+  _QUIET_INIT:
       cur = endBadCaptures;
       endMoves = generate<QUIETS>(pos, cur);
       score<QUIETS>();
@@ -283,7 +259,7 @@ Move MovePicker::next_move() {
           insertion_sort(cur, endMoves);
       ++stage;
 
-  case QUIET:
+  _QUIET:
       while (cur < endMoves)
       {
           move = *cur++;
@@ -296,18 +272,18 @@ Move MovePicker::next_move() {
       ++stage;
       cur = moves; // Point to beginning of bad captures
 
-  case BAD_CAPTURES:
+  _BAD_CAPTURES:
       if (cur < endBadCaptures)
           return *cur++;
       return MOVE_NONE;
 
-  case EVASIONS_INIT:
+  _EVASIONS_INIT:
       cur = moves;
       endMoves = generate<EVASIONS>(pos, cur);
       score<EVASIONS>();
       ++stage;
 
-  case ALL_EVASIONS:
+  _ALL_EVASIONS:
       while (cur < endMoves)
       {
           move = pick_best(cur++, endMoves);
@@ -316,13 +292,13 @@ Move MovePicker::next_move() {
       }
       return MOVE_NONE;
 
-  case PROBCUT_INIT:
+  _PROBCUT_INIT:
       cur = moves;
       endMoves = generate<CAPTURES>(pos, cur);
       score<CAPTURES>();
       ++stage;
 
-  case PROBCUT_CAPTURES:
+  _PROBCUT_CAPTURES:
       while (cur < endMoves)
       {
           move = pick_best(cur++, endMoves);
@@ -332,13 +308,13 @@ Move MovePicker::next_move() {
       }
       return MOVE_NONE;
 
-  case QCAPTURES_1_INIT: case QCAPTURES_2_INIT:
+  _QCAPTURES_1_INIT: _QCAPTURES_2_INIT:
       cur = moves;
       endMoves = generate<CAPTURES>(pos, cur);
       score<CAPTURES>();
       ++stage;
 
-  case QCAPTURES_1: case QCAPTURES_2:
+  _QCAPTURES_1: _QCAPTURES_2:
       while (cur < endMoves)
       {
           move = pick_best(cur++, endMoves);
@@ -351,7 +327,7 @@ Move MovePicker::next_move() {
       endMoves = generate<QUIET_CHECKS>(pos, cur);
       ++stage;
 
-  case QCHECKS:
+  _QCHECKS:
       while (cur < endMoves)
       {
           move = cur++->move;
@@ -360,13 +336,13 @@ Move MovePicker::next_move() {
       }
       return MOVE_NONE;
 
-  case QSEARCH_RECAPTURES:
+  _QSEARCH_RECAPTURES:
       cur = moves;
       endMoves = generate<CAPTURES>(pos, cur);
       score<CAPTURES>();
       ++stage;
 
-  case QRECAPTURES:
+  _QRECAPTURES:
       while (cur < endMoves)
       {
           move = pick_best(cur++, endMoves);
@@ -375,9 +351,6 @@ Move MovePicker::next_move() {
       }
       return MOVE_NONE;
 
-  default:
-      assert(false);
   }
 
-  return MOVE_NONE;
 }
