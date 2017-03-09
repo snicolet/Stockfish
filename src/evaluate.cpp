@@ -750,9 +750,7 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
-
-    int draw = DrawValue[WHITE];
-    int value = ((eg > draw) - (eg < draw)) * std::max(initiative, -abs(eg));
+    int value = ((eg > DrawValue[WHITE]) - (eg < DrawValue[WHITE])) * std::max(initiative, -abs(eg));
 
     return make_score(0, value);
   }
