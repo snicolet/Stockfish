@@ -249,9 +249,11 @@ Move MovePicker::next_move() {
       ++stage;
 
   case QUIET:
-      while (   cur < endMoves
-             && cur->value >= threshold)
+      while (cur < endMoves)
       {
+          if (cur->value < threshold)
+              return MOVE_NONE;  // skip bad quiets and bad captures
+
           move = *cur++;
           if (   move != ttMove
               && move != ss->killers[0]
