@@ -102,7 +102,7 @@ public:
   MovePicker(const Position&, Move, Depth, Search::Stack*);
 
   Move next_move();
-  
+
   Value threshold;
 
 private:

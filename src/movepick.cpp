@@ -260,10 +260,7 @@ Move MovePicker::next_move() {
               return move;
       }
       ++stage;
-      if (threshold < VALUE_ZERO)
-          cur = moves; // Point to beginning of bad captures
-      else
-          return MOVE_NONE;
+      cur = moves; // Point to beginning of bad captures
 
   case BAD_CAPTURES:
       if (cur < endBadCaptures)
