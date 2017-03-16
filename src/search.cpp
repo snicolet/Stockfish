@@ -905,12 +905,11 @@ moves_loop: // When in check search starts from here
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material() >= 5000))
           {
+              mp.threshold = moveCountPruning ? VALUE_ZERO : Value(-10000 * depth);
+
               // Move count based pruning
               if (moveCountPruning)
-              {
-                  mp.threshold = Value(quietCount * 10);
                   continue;
-              }
 
               // Reduced depth of the next LMR search
               int lmrDepth = std::max(newDepth - reduction<PvNode>(improving, depth, moveCount), DEPTH_ZERO) / ONE_PLY;
