@@ -102,6 +102,8 @@ public:
   MovePicker(const Position&, Move, Depth, Search::Stack*);
 
   Move next_move();
+  
+  Value threshold;
 
 private:
   template<GenType> void score();
@@ -114,7 +116,6 @@ private:
   Depth depth;
   Move ttMove;
   Square recaptureSquare;
-  Value threshold;
   int stage;
   ExtMove *cur, *endMoves, *endBadCaptures;
   ExtMove moves[MAX_MOVES];
