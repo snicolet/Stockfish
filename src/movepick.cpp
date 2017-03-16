@@ -77,6 +77,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Search::Stack* s)
   stage = pos.checkers() ? EVASION : MAIN_SEARCH;
   ttMove = ttm && pos.pseudo_legal(ttm) ? ttm : MOVE_NONE;
   stage += (ttMove == MOVE_NONE);
+  threshold = -HistoryStats::Max;
 }
 
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square s)
@@ -105,7 +106,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square s)
 }
 
 MovePicker::MovePicker(const Position& p, Move ttm, Value th)
-           : pos(p), threshold(th) {
+           : threshold(th), pos(p) {
 
   assert(!pos.checkers());
 
@@ -248,7 +249,8 @@ Move MovePicker::next_move() {
       ++stage;
 
   case QUIET:
-      while (cur < endMoves)
+      while (   cur < endMoves
+             && cur->value >= threshold)
       {
           move = *cur++;
           if (   move != ttMove

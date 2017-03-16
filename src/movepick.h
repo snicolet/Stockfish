@@ -103,6 +103,8 @@ public:
 
   Move next_move();
 
+  Value threshold;
+
 private:
   template<GenType> void score();
   ExtMove* begin() { return cur; }
@@ -114,7 +116,6 @@ private:
   Depth depth;
   Move ttMove;
   Square recaptureSquare;
-  Value threshold;
   int stage;
   ExtMove *cur, *endMoves, *endBadCaptures;
   ExtMove moves[MAX_MOVES];
