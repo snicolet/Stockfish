@@ -99,7 +99,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square s)
       recaptureSquare = s;
   }
 
-  ttMove = ttm && pos.pseudo_legal(ttm) && d >= DEPTH_QS_RECAPTURES ? ttm : MOVE_NONE;
+  ttMove = ttm && pos.pseudo_legal(ttm) && d > DEPTH_QS_NO_HASH ? ttm : MOVE_NONE;
   stage += (ttMove == MOVE_NONE);
 }
 
