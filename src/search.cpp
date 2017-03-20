@@ -937,7 +937,7 @@ moves_loop: // When in check search starts from here
                    && !extension
                    && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
                {
-                  if (moveCountPruning && depth < 2) break; else continue;
+                  if (captureOrPromotion && moveCountPruning && depth < 2) break; else continue;
                }
       }
 
