@@ -936,7 +936,11 @@ moves_loop: // When in check search starts from here
           else if (    depth < 7 * ONE_PLY
                    && !extension
                    && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
+              {
+                  if (moveCountPruning && depth < 2)
+                     break;
                   continue;
+              }
       }
 
       // Speculative prefetch as early as possible
