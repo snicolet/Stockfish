@@ -865,8 +865,8 @@ moves_loop: // When in check search starts from here
                   ? pos.check_squares(type_of(pos.piece_on(from_sq(move)))) & to_sq(move)
                   : pos.gives_check(move);
 
-      moveCountPruning =   depth < 16 * ONE_PLY
-                        && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
+      skipQuiets = moveCountPruning =   depth < 16 * ONE_PLY
+                                     && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
 
       // Step 12. Extensions
       // Extend checks
@@ -907,10 +907,8 @@ moves_loop: // When in check search starts from here
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material() >= 5000))
           {
               // Move count based pruning
-              if (moveCountPruning) {
-                  skipQuiets = true;
+              if (moveCountPruning)
                   continue;
-              }
 
               // Reduced depth of the next LMR search
               int lmrDepth = std::max(newDepth - reduction<PvNode>(improving, depth, moveCount), DEPTH_ZERO) / ONE_PLY;
@@ -933,7 +931,7 @@ moves_loop: // When in check search starts from here
                   && !pos.see_ge(move, Value(-35 * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (    depth < 8 * ONE_PLY
+          else if (    depth < 7 * ONE_PLY
                    && !extension
                    && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
                   continue;
