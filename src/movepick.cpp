@@ -167,8 +167,7 @@ void MovePicker::score<EVASIONS>() {
                    - Value(type_of(pos.moved_piece(m))) + HistoryStats::Max;
       else
           m.value =  history.get(c, m) 
-                   - 20 * type_of(pos.moved_piece(m))
-                   + 120 * (type_of(pos.moved_piece(m)) == KING);
+                   - 20 * type_of(pos.moved_piece(m));
 }
 
 
