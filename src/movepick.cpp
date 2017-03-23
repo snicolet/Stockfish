@@ -163,11 +163,9 @@ void MovePicker::score<EVASIONS>() {
 
   for (auto& m : *this)
       if (pos.capture(m))
-          m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-                   - Value(type_of(pos.moved_piece(m))) + HistoryStats::Max;
+          m.value = 8 * Value(type_of(pos.piece_on(to_sq(m))) - type_of(pos.moved_piece(m)));
       else
-          m.value =  history.get(c, m) 
-                   - 20 * type_of(pos.moved_piece(m));
+          m.value = history.get(c, m) - 20;
 }
 
 
