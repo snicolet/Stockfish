@@ -62,6 +62,13 @@ std::ostream& operator<<(std::ostream&, SyncCout);
 #define sync_endl std::endl << IO_UNLOCK
 
 
+/// div_to_nearest(a, b) : rounding the division of a by b to the nearest quotient
+inline int div_to_nearest(int a, int b) {
+  assert(b > 0);
+  return a < 0 ? (a - b/2 + 1) / b : (a + b/2) / b; 
+}
+
+
 /// xorshift64star Pseudo-Random Number Generator
 /// This class is based on original code written and dedicated
 /// to the public domain by Sebastiano Vigna (2014).
