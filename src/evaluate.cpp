@@ -856,7 +856,7 @@ Value Eval::evaluate(const Position& pos) {
 
   v = Value(div_to_nearest(v, PHASE_MIDGAME));
 
-  v = 16 * Value(div_to_nearest(v, 16));
+  v = 8 * Value(div_to_nearest(v, 8));
 
   // In case of tracing add all remaining individual evaluation terms
   if (DoTrace)
