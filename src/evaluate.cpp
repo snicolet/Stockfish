@@ -349,7 +349,7 @@ namespace {
 
             // Bonus when on an open or semi-open file
             if (   ei.pe->semiopen_file(Us, file_of(s))
-                && !(file_bb(s) & ei.attackedBy[Them][PAWN] & (pos.pieces(Them) ^ pos.pieces(KING, QUEEN))))
+                && !(file_bb(s) & ei.attackedBy[Them][PAWN] & pos.pieces(Them, PAWN)))
                 score += RookOnFile[!!ei.pe->semiopen_file(Them, file_of(s))]
                                    [!!(file_bb(s) & pos.pieces(Us, QUEEN))];
 
