@@ -142,8 +142,8 @@ namespace {
     { S( 9, 2), S(14, 4) }  // Bishop
   };
 
-  // RookOnFile[semiopen/open][queen too] contains bonuses for each rook when
-  // there is no friendly pawn on the rook file, bigger if queen on file too.
+  // RookOnFile[semiopen/open][connected] contains bonuses for each rook when there
+  // is no friendly pawn on the rook file, bigger if rook is connected to another major.
   const Score RookOnFile[][2] = { 
      { S(20,  7), S(25, 10) }, //semi open
      { S(45, 20), S(60, 30) }  //open
@@ -351,7 +351,7 @@ namespace {
             if (   ei.pe->semiopen_file(Us, file_of(s))
                 && !(file_bb(s) & ei.attackedBy[Them][PAWN] & pos.pieces(Them, PAWN)))
                 score += RookOnFile[!!ei.pe->semiopen_file(Them, file_of(s))]
-                                   [!!(file_bb(s) & pos.pieces(Us, QUEEN))];
+                                   [!!(PseudoAttacks[ROOK][s] & pos.pieces(Us, ROOK, QUEEN))];
 
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
