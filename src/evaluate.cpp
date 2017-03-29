@@ -426,7 +426,7 @@ namespace {
         kingDanger =  std::min(807, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
                     + 101 * ei.kingAdjacentZoneAttacksCount[Them]
                     + 235 * popcount(undefended)
-                    + 134 * (popcount(b) + !!pos.pinned_pieces(Us))
+                    + 134 * (popcount(b) + !!pos.blockers(Us))
                     - 717 * !pos.count<QUEEN>(Them)
                     -   7 * mg_value(score) / 5 - 5;
 
