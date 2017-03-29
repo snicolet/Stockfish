@@ -554,6 +554,11 @@ namespace {
     bestValue = -VALUE_INFINITE;
     ss->ply = (ss-1)->ply + 1;
 
+    if (ss->ply == 3)
+    {
+        dbg_mean_of((ss)->ply);
+    }
+
     // Check for the available remaining time
     if (thisThread->resetCalls.load(std::memory_order_relaxed))
     {
