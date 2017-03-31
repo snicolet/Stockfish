@@ -183,6 +183,9 @@ namespace {
     { S(0, 0), S( 3,-5), S( 2,-5), S(-4, 0), S( -9,-6),  S(-4, 7), S(-13,-7), S(-10, -7) }  // Queen
   };
 
+  // Hanging[] contains bonus for enemy hanging pieces
+  const Score Hanging[2] = { S(48, 27), S(24, 13) };
+
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
@@ -195,7 +198,6 @@ namespace {
   const Score ThreatByHangingPawn = S( 71, 61);
   const Score ThreatBySafePawn    = S(182,175);
   const Score ThreatByRank        = S( 16,  3);
-  const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
 
@@ -572,7 +574,8 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+        score += Hanging[0] * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+        score += Hanging[1] * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES] & ~pos.pieces(Them, PAWN));
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
