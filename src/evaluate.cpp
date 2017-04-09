@@ -190,7 +190,6 @@ namespace {
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
   const Score OtherCheck          = S( 10, 10);
-  const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
   const Score ThreatByHangingPawn = S( 71, 61);
   const Score ThreatBySafePawn    = S(182,175);
@@ -215,6 +214,7 @@ namespace {
   const int RookCheck         = 688;
   const int BishopCheck       = 588;
   const int KnightCheck       = 924;
+  const int CloseEnemies      = 6;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -401,7 +401,7 @@ namespace {
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard undefended, b, b1, b2, safe, other;
-    int kingDanger;
+    int kingDanger = 0;
 
     // King shelter and enemy pawns storm
     Score score = ei.pe->king_safety<Us>(pos, ksq);
@@ -474,10 +474,6 @@ namespace {
 
         else if (b & other)
             score -= OtherCheck;
-
-        // Transform the kingDanger units into a Score, and substract it from the evaluation
-        if (kingDanger > 0)
-            score -= make_score(kingDanger * kingDanger / 4096, 0);
     }
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
@@ -492,7 +488,11 @@ namespace {
     b =  (Us == WHITE ? b << 4 : b >> 4)
        | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
 
-    score -= CloseEnemies * popcount(b);
+    kingDanger += CloseEnemies * popcount(b);
+
+    // Transform the kingDanger units into a Score, and substract it from the evaluation
+    if (kingDanger > 0)
+        score -= make_score(kingDanger * kingDanger / 4096, 0);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
