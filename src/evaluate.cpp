@@ -214,7 +214,7 @@ namespace {
   const int RookCheck         = 688;
   const int BishopCheck       = 588;
   const int KnightCheck       = 924;
-  const int CloseEnemies      = 6;
+  const int CloseEnemies      = 7;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
