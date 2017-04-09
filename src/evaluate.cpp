@@ -214,7 +214,7 @@ namespace {
   const int RookCheck         = 688;
   const int BishopCheck       = 588;
   const int KnightCheck       = 924;
-  const int CloseEnemies      = 5;
+  const int CloseEnemies      = 6;
 
   // Threshold for lazy evaluation
   const Value LazyThreshold = Value(1500);
@@ -401,7 +401,7 @@ namespace {
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard undefended, b, b1, b2, safe, other;
-    int kingDanger;
+    int kingDanger = 0;
 
     // King shelter and enemy pawns storm
     Score score = ei.pe->king_safety<Us>(pos, ksq);
@@ -474,24 +474,24 @@ namespace {
 
         else if (b & other)
             score -= OtherCheck;
-
-        // King tropism: firstly, find squares that opponent attacks in our king flank
-        b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
-
-        assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
-        assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
-
-        // Secondly, add the squares which are attacked twice in that flank and
-        // which are not defended by our pawns.
-        b =  (Us == WHITE ? b << 4 : b >> 4)
-           | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
-
-        kingDanger += CloseEnemies * popcount(b);
-
-        // Transform the kingDanger units into a Score, and substract it from the evaluation
-        if (kingDanger > 0)
-            score -= make_score(kingDanger * kingDanger / 4096, 0);
     }
+
+    // King tropism: firstly, find squares that opponent attacks in our king flank
+    b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
+
+    assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
+    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
+
+    // Secondly, add the squares which are attacked twice in that flank and
+    // which are not defended by our pawns.
+    b =  (Us == WHITE ? b << 4 : b >> 4)
+       | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
+
+    kingDanger += CloseEnemies * popcount(b);
+
+    // Transform the kingDanger units into a Score, and substract it from the evaluation
+    if (kingDanger > 0)
+        score -= make_score(kingDanger * kingDanger / 4096, 0);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
