@@ -196,6 +196,7 @@ namespace {
   const Score ThreatBySafePawn    = S(182,175);
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
+  const Score WeakSquare          = S(  5,  5);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
 
@@ -517,6 +518,9 @@ namespace {
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
+    const Bitboard OpponentCamp =
+              Us == WHITE ? Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                          : Rank4BB | Rank3BB | Rank2BB | Rank1BB;
 
     Bitboard b, weak, defended, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
@@ -572,7 +576,13 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        score += Hanging * popcount(weak & ~ei.attackedBy[Them][ALL_PIECES]);
+        // Bonus for each attacked enemy square which is undefended,
+        // or which is only defended by queen or king and attacked twice.
+        b  = ~ei.attackedBy[Them][ALL_PIECES] & ei.attackedBy[Us][ALL_PIECES];
+        b |= (ei.attackedBy[Them][QUEEN] | ei.attackedBy[Them][KING]) & ~ei.attackedBy2[Them] & ei.attackedBy2[Us];
+
+        score += Hanging    * popcount(b & pos.pieces(Them));
+        score += WeakSquare * popcount(b & OpponentCamp);
 
         b = weak & ei.attackedBy[Us][KING];
         if (b)
