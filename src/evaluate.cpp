@@ -196,7 +196,7 @@ namespace {
   const Score ThreatBySafePawn    = S(182,175);
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
-  const Score WeakSquare          = S(  5,  5);
+  const Score WeakSquare          = S(  4,  0);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
 
@@ -579,15 +579,15 @@ namespace {
         b = weak & ei.attackedBy[Us][KING];
         if (b)
             score += ThreatByKing[more_than_one(b)];
+
+        // Bonus for each attacked enemy square which is undefended,
+        // or which is only defended by queen or king and attacked twice.
+        b  = ~ei.attackedBy[Them][ALL_PIECES] & ei.attackedBy[Us][ALL_PIECES];
+        b |= (ei.attackedBy[Them][QUEEN] | ei.attackedBy[Them][KING]) & ~ei.attackedBy2[Them] & ei.attackedBy2[Us];
+
+        score += Hanging    * popcount(b & pos.pieces(Them));
+        score += WeakSquare * popcount(b & OpponentCamp);
     }
-
-    // Bonus for each attacked enemy square which is undefended,
-    // or which is only defended by queen or king and attacked twice.
-    b  = ~ei.attackedBy[Them][ALL_PIECES] & ei.attackedBy[Us][ALL_PIECES];
-    b |= (ei.attackedBy[Them][QUEEN] | ei.attackedBy[Them][KING]) & ~ei.attackedBy2[Them] & ei.attackedBy2[Us];
-
-    score += Hanging    * popcount(b & pos.pieces(Them));
-    score += WeakSquare * popcount(b & OpponentCamp);
 
     // Bonus if some pawns can safely push and attack an enemy piece
     b = pos.pieces(Us, PAWN) & ~TRank7BB;
