@@ -576,18 +576,18 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        // Bonus for each attacked enemy square which is undefended,
-        // or which is only defended by queen or king and attacked twice.
-        b  = ~ei.attackedBy[Them][ALL_PIECES] & ei.attackedBy[Us][ALL_PIECES];
-        b |= (ei.attackedBy[Them][QUEEN] | ei.attackedBy[Them][KING]) & ~ei.attackedBy2[Them] & ei.attackedBy2[Us];
-
-        score += Hanging    * popcount(b & pos.pieces(Them));
-        score += WeakSquare * popcount(b & OpponentCamp);
-
         b = weak & ei.attackedBy[Us][KING];
         if (b)
             score += ThreatByKing[more_than_one(b)];
     }
+
+    // Bonus for each attacked enemy square which is undefended,
+    // or which is only defended by queen or king and attacked twice.
+    b  = ~ei.attackedBy[Them][ALL_PIECES] & ei.attackedBy[Us][ALL_PIECES];
+    b |= (ei.attackedBy[Them][QUEEN] | ei.attackedBy[Them][KING]) & ~ei.attackedBy2[Them] & ei.attackedBy2[Us];
+
+    score += Hanging    * popcount(b & pos.pieces(Them));
+    score += WeakSquare * popcount(b & OpponentCamp);
 
     // Bonus if some pawns can safely push and attack an enemy piece
     b = pos.pieces(Us, PAWN) & ~TRank7BB;
