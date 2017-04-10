@@ -177,7 +177,7 @@ namespace {
         if (connected)
             score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
 
-        if (doubled & !supported)
+        if (doubled && !supported)
             score -= Doubled;
 
         if (lever)
