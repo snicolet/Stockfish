@@ -190,7 +190,6 @@ namespace {
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
   const Score OtherCheck          = S( 10, 10);
-  const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
   const Score ThreatByHangingPawn = S( 71, 61);
   const Score ThreatBySafePawn    = S(182,175);
@@ -492,7 +491,7 @@ namespace {
     b =  (Us == WHITE ? b << 4 : b >> 4)
        | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
 
-    score -= CloseEnemies * popcount(b);
+    score -= make_score((pos.count<PAWN>(Us) - 1) * popcount(b), 0);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
