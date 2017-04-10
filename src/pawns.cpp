@@ -95,7 +95,7 @@ namespace {
     const Square Right = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Square Left  = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
 
-    Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
+    Bitboard b, neighbours, stoppers, supported, phalanx;
     Bitboard lever, leverPush, connected;
     Square s;
     bool opposed, backward;
@@ -128,7 +128,6 @@ namespace {
         stoppers   = theirPawns & passed_pawn_mask(Us, s);
         lever      = theirPawns & pawnAttacksBB[s];
         leverPush  = theirPawns & pawnAttacksBB[s + Up];
-        doubled    = ourPawns   & (s - Up);
         neighbours = ourPawns   & adjacent_files_bb(f);
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
