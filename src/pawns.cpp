@@ -131,7 +131,7 @@ namespace {
         stoppers   = theirPawns & passed_pawn_mask(Us, s);
         lever      = theirPawns & pawnAttacksBB[s];
         leverPush  = theirPawns & pawnAttacksBB[s + Up];
-        doubled    = ourPawns   & (s - Up);
+        doubled    = ourPawns   & forward_bb(Them, s);
         neighbours = ourPawns   & adjacent_files_bb(f);
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
