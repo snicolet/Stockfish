@@ -63,9 +63,18 @@ namespace {
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV };
 
-  // Sizes and phases of the skip-blocks, used for distributing search depths across the threads
+  // Sizes and phases of the skip-blocks, used for distributing moves to search across the threads
+  const int LAZY_SMP_DEPTH = 4;
   const int skipSize[]  = { 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4 };
   const int skipPhase[] = { 0, 1, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 6, 7 };
+
+  // Helper function: each helper thread will search about half of the tree
+  bool skip_move(Thread* th) {
+      assert(th->idx > 0);
+
+      int i = (th->idx - 1) % 20;
+      return (bool)(((++th->lazyCnt + skipPhase[i]) / skipSize[i]) % 2);
+  }
 
   // Razoring and futility margin based on depth
   const int razor_margin[4] = { 483, 570, 603, 554 };
@@ -280,24 +289,8 @@ void MainThread::search() {
       if (th != this)
           th->wait_for_search_finished();
 
-  // Check if there are threads with a better score than main thread
+  // We only return the pv from the main thread
   Thread* bestThread = this;
-  if (   !this->easyMovePlayed
-      &&  Options["MultiPV"] == 1
-      && !Limits.depth
-      && !Skill(Options["Skill Level"]).enabled()
-      &&  rootMoves[0].pv[0] != MOVE_NONE)
-  {
-      for (Thread* th : Threads)
-      {
-          Depth depthDiff = th->completedDepth - bestThread->completedDepth;
-          Value scoreDiff = th->rootMoves[0].score - bestThread->rootMoves[0].score;
-
-          if (scoreDiff > 0 && depthDiff >= 0)
-              bestThread = th;
-      }
-  }
-
   previousScore = bestThread->rootMoves[0].score;
 
   // Send new PV when needed
@@ -356,13 +349,8 @@ void Thread::search() {
          && !Signals.stop
          && (!Limits.depth || Threads.main()->rootDepth / ONE_PLY <= Limits.depth))
   {
-      // Distribute search depths across the threads
-      if (idx)
-      {
-          int i = (idx - 1) % 20;
-          if (((rootDepth / ONE_PLY + rootPos.game_ply() + skipPhase[i]) / skipSize[i]) % 2)
-              continue;
-      }
+      // Reset lazy counter for this thread
+      lazyCnt = 0;
 
       // Age out PV variability metric
       if (mainThread)
@@ -544,12 +532,12 @@ namespace {
     bool ttHit, inCheck, givesCheck, singularExtensionNode, improving;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets;
     Piece moved_piece;
-    int moveCount, quietCount;
+    int moveCount, quietCount, skippedCount;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     inCheck = pos.checkers();
-    moveCount = quietCount =  ss->moveCount = 0;
+    moveCount = quietCount = skippedCount =  ss->moveCount = 0;
     ss->history = VALUE_ZERO;
     bestValue = -VALUE_INFINITE;
     ss->ply = (ss-1)->ply + 1;
@@ -1004,6 +992,17 @@ moves_loop: // When in check search starts from here
       else
           doFullDepthSearch = !PvNode || moveCount > 1;
 
+      // Helper threads "skip" about half the moves when the distance to the
+      // root is 3 or 4. Skipped moves are searched with a reduced depth.
+      if (   thisThread->idx
+          && (ss->ply == LAZY_SMP_DEPTH - 1 || ss->ply == LAZY_SMP_DEPTH)
+          && newDepth >= ONE_PLY
+          && skip_move(thisThread))
+      {
+          newDepth = std::max(newDepth - 2 * ONE_PLY, DEPTH_ZERO);
+          ++skippedCount;
+      }
+
       // Step 16. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
           value = newDepth <   ONE_PLY ?
@@ -1111,7 +1110,6 @@ moves_loop: // When in check search starts from here
                    :     inCheck ? mated_in(ss->ply) : DrawValue[pos.side_to_move()];
     else if (bestMove)
     {
-
         // Quiet best move: update move sorting heuristics
         if (!pos.capture_or_promotion(bestMove))
             update_stats(pos, ss, bestMove, quietsSearched, quietCount, stat_bonus(depth));
@@ -1126,7 +1124,12 @@ moves_loop: // When in check search starts from here
              && cm_ok)
         update_cm_stats(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
-    if(!excludedMove)
+    // Helper threads must not write in the transposition table if they have 
+    // skipped some moves at distance <= 4 from the root.
+    bool unsafeValue =    thisThread->idx
+                       && (ss->ply < LAZY_SMP_DEPTH || (ss->ply == LAZY_SMP_DEPTH && skippedCount));
+
+    if (!excludedMove && !unsafeValue)
         tte->save(posKey, value_to_tt(bestValue, ss->ply),
                       bestValue >= beta ? BOUND_LOWER :
                       PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
