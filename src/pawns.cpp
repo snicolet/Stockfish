@@ -43,6 +43,12 @@ namespace {
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
 
+  // Doubled pawn penalty
+  const Score Doubled = S(18, 38);
+
+  // Supported doubled pawn bonus
+  const Score SupportedDoubled = S(15, 0);
+
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
@@ -95,7 +101,7 @@ namespace {
     const Square Right = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Square Left  = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
 
-    Bitboard b, neighbours, stoppers, supported, phalanx;
+    Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Bitboard lever, leverPush, connected;
     Square s;
     bool opposed, backward;
@@ -128,6 +134,7 @@ namespace {
         stoppers   = theirPawns & passed_pawn_mask(Us, s);
         lever      = theirPawns & pawnAttacksBB[s];
         leverPush  = theirPawns & pawnAttacksBB[s + Up];
+        doubled    = ourPawns   & (s - Up);
         neighbours = ourPawns   & adjacent_files_bb(f);
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
@@ -172,6 +179,9 @@ namespace {
 
         if (connected)
             score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
+
+        if (doubled)
+           score += supported ? SupportedDoubled : -Doubled;
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
