@@ -741,9 +741,9 @@ namespace {
                        || more_than_one(pos.pieces(BLACK, PAWN) & WhiteCamp);
 
     // Compute the initiative bonus for the attacking side
-    int initiative =   8 * (asymmetry + kingDistance - 17) 
-                    + 12 *  pos.count<PAWN>() 
-                    + 16 * (bothFlanks + advanced);
+    int initiative =   8 * (asymmetry + kingDistance + advanced - 17)
+                    + 12 * pos.count<PAWN>()
+                    + 16 * bothFlanks;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
