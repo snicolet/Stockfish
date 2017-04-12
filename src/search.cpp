@@ -64,7 +64,7 @@ namespace {
   enum NodeType { NonPV, PV };
 
   // Sizes and phases of the skip-blocks, used for distributing moves to search across the threads
-  const int LAZY_SMP_DEPTH = 4;
+  const int LAZY_SMP_DEPTH = 3;
   const int skipSize[]  = { 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4 };
   const int skipPhase[] = { 0, 1, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 6, 7 };
 
@@ -1009,7 +1009,7 @@ moves_loop: // When in check search starts from here
           doFullDepthSearch = !PvNode || moveCount > 1;
 
       // Helper threads "skip" about half the moves when the distance to the
-      // root is 3 or 4. Skipped moves are searched with a reduced depth.
+      // root is 2 or 3. Skipped moves are searched with a reduced depth.
       if (   thisThread->idx
           && (ss->ply == LAZY_SMP_DEPTH - 1 || ss->ply == LAZY_SMP_DEPTH)
           && newDepth >= ONE_PLY
