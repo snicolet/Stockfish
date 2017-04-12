@@ -1124,12 +1124,7 @@ moves_loop: // When in check search starts from here
              && cm_ok)
         update_cm_stats(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
-    // Helper threads must not write in the transposition table if they have 
-    // skipped some moves at distance <= 4 from the root.
-    bool unsafeValue =    thisThread->idx
-                       && (ss->ply < LAZY_SMP_DEPTH || (ss->ply == LAZY_SMP_DEPTH && skippedCount));
-
-    if (!excludedMove && !unsafeValue)
+    if (!excludedMove)
         tte->save(posKey, value_to_tt(bestValue, ss->ply),
                       bestValue >= beta ? BOUND_LOWER :
                       PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
