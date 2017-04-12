@@ -68,7 +68,7 @@ namespace {
   const int skipSize[]  = { 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4 };
   const int skipPhase[] = { 0, 1, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 6, 7 };
 
-  // Helper function: each helper thread will search about half of the tree
+  // Helper function: each helper thread will reduce about half of the tree
   bool skip_move(Thread* th) {
       assert(th->idx > 0);
 
@@ -289,10 +289,8 @@ void MainThread::search() {
       if (th != this)
           th->wait_for_search_finished();
 
-  // We only return the pv from the main thread
+  // Check if there are threads with a better score than main thread
   Thread* bestThread = this;
-  
-  /*
   if (   !this->easyMovePlayed
       &&  Options["MultiPV"] == 1
       && !Limits.depth
@@ -308,7 +306,6 @@ void MainThread::search() {
               bestThread = th;
       }
   }
-  */
 
   previousScore = bestThread->rootMoves[0].score;
 
@@ -556,7 +553,7 @@ namespace {
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     inCheck = pos.checkers();
-    moveCount = quietCount = ss->moveCount = 0;
+    moveCount = quietCount =  ss->moveCount = 0;
     ss->history = VALUE_ZERO;
     bestValue = -VALUE_INFINITE;
     ss->ply = (ss-1)->ply + 1;
