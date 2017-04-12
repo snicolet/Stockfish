@@ -291,6 +291,25 @@ void MainThread::search() {
 
   // We only return the pv from the main thread
   Thread* bestThread = this;
+  
+  /*
+  if (   !this->easyMovePlayed
+      &&  Options["MultiPV"] == 1
+      && !Limits.depth
+      && !Skill(Options["Skill Level"]).enabled()
+      &&  rootMoves[0].pv[0] != MOVE_NONE)
+  {
+      for (Thread* th : Threads)
+      {
+          Depth depthDiff = th->completedDepth - bestThread->completedDepth;
+          Value scoreDiff = th->rootMoves[0].score - bestThread->rootMoves[0].score;
+
+          if (scoreDiff > 0 && depthDiff >= 0)
+              bestThread = th;
+      }
+  }
+  */
+
   previousScore = bestThread->rootMoves[0].score;
 
   // Send new PV when needed
@@ -532,12 +551,12 @@ namespace {
     bool ttHit, inCheck, givesCheck, singularExtensionNode, improving;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets;
     Piece moved_piece;
-    int moveCount, quietCount, skippedCount;
+    int moveCount, quietCount;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     inCheck = pos.checkers();
-    moveCount = quietCount = skippedCount =  ss->moveCount = 0;
+    moveCount = quietCount = ss->moveCount = 0;
     ss->history = VALUE_ZERO;
     bestValue = -VALUE_INFINITE;
     ss->ply = (ss-1)->ply + 1;
@@ -998,10 +1017,7 @@ moves_loop: // When in check search starts from here
           && (ss->ply == LAZY_SMP_DEPTH - 1 || ss->ply == LAZY_SMP_DEPTH)
           && newDepth >= ONE_PLY
           && skip_move(thisThread))
-      {
           newDepth = std::max(newDepth - 2 * ONE_PLY, DEPTH_ZERO);
-          ++skippedCount;
-      }
 
       // Step 16. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
