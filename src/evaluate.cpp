@@ -731,13 +731,19 @@ namespace {
   // position, i.e., second order bonus/malus based on the known attacking/defending
   // status of the players.
   Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
+    const Bitboard WhiteCamp = Rank4BB | Rank3BB | Rank2BB | Rank1BB;
+    const Bitboard BlackCamp = Rank5BB | Rank6BB | Rank7BB | Rank8BB;
 
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-    bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
+    bool bothFlanks  = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
+    bool advanced    =    more_than_one(pos.pieces(WHITE, PAWN) & BlackCamp)
+                       || more_than_one(pos.pieces(BLACK, PAWN) & WhiteCamp);
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 17) + 12 * pos.count<PAWN>() + 16 * bothFlanks;
+    int initiative =   8 * (asymmetry + kingDistance - 17) 
+                    + 12 *  pos.count<PAWN>() 
+                    + 16 * (bothFlanks + advanced);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
