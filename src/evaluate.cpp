@@ -383,6 +383,8 @@ namespace {
 
   // evaluate_king() assigns bonuses and penalties to a king of a given color
 
+  const Bitboard WhiteCamp   = Rank1BB | Rank2BB | Rank3BB | Rank4BB;
+  const Bitboard BlackCamp   = Rank8BB | Rank7BB | Rank6BB | Rank5BB;
   const Bitboard QueenSide   = FileABB | FileBBB | FileCBB | FileDBB;
   const Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
   const Bitboard KingSide    = FileEBB | FileFBB | FileGBB | FileHBB;
@@ -731,8 +733,6 @@ namespace {
   // position, i.e., second order bonus/malus based on the known attacking/defending
   // status of the players.
   Score evaluate_initiative(const Position& pos, int asymmetry, Value eg) {
-    const Bitboard WhiteCamp = Rank4BB | Rank3BB | Rank2BB | Rank1BB;
-    const Bitboard BlackCamp = Rank5BB | Rank6BB | Rank7BB | Rank8BB;
 
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
