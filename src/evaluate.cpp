@@ -739,9 +739,9 @@ namespace {
                     + (pos.count<BISHOP>(WHITE) != pos.count<BISHOP>(BLACK));
 
     // Compute the initiative bonus for the attacking side
-    int initiative =    8 * (asymmetry + kingDistance - 15) 
+    int initiative =    8 * (asymmetry + kingDistance - imbalance - 16) 
                      + 12 * pos.count<PAWN>()
-                     + 16 * (bothFlanks - imbalance);
+                     + 16 * bothFlanks;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
@@ -772,13 +772,14 @@ namespace {
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
-            return ScaleFactor(46);
+            return ScaleFactor(40 + pos.count<PAWN>());
         }
+
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
-        else if (    abs(eg) <= BishopValueEg
-                 &&  pos.count<PAWN>(strongSide) <= 2
-                 && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
+        if (    abs(eg) <= BishopValueEg
+            &&  pos.count<PAWN>(strongSide) <= 2
+            && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
     }
 
