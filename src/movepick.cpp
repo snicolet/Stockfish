@@ -34,20 +34,6 @@ namespace {
     QSEARCH_RECAPTURES, QRECAPTURES
   };
 
-  // Our insertion sort, which is guaranteed to be stable, as it should be
-  void insertion_sort(ExtMove* begin, ExtMove* end)
-  {
-    ExtMove tmp, *p, *q;
-
-    for (p = begin + 1; p < end; ++p)
-    {
-        tmp = *p;
-        for (q = p; q != begin && *(q-1) < tmp; --q)
-            *q = *(q-1);
-        *q = tmp;
-    }
-  }
-
   // pick_best() finds the best move in the range (begin, end) and moves it to
   // the front. It's faster than sorting all the moves in advance when there
   // are few moves, e.g., the possible captures.
@@ -238,13 +224,8 @@ Move MovePicker::next_move(bool skipQuiets) {
       cur = endBadCaptures;
       endMoves = generate<QUIETS>(pos, cur);
       score<QUIETS>();
-      if (depth < 3 * ONE_PLY)
-      {
-          ExtMove* goodQuiet = std::partition(cur, endMoves, [](const ExtMove& m)
-                                             { return m.value > VALUE_ZERO; });
-          insertion_sort(cur, goodQuiet);
-      } else
-          insertion_sort(cur, endMoves);
+      std::partial_sort(cur, cur + (endMoves-cur+1)/2, endMoves, 
+                        [](const ExtMove& a, const ExtMove& b)  { return a.value > b.value; });
       ++stage;
 
   case QUIET:
