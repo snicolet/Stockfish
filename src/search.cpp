@@ -1012,9 +1012,8 @@ moves_loop: // When in check search starts from here
       // root is 2 or 3. Skipped moves are searched with a reduced depth.
       if (   thisThread->idx
           && (ss->ply == LAZY_SMP_DEPTH - 1 || ss->ply == LAZY_SMP_DEPTH)
-          && newDepth >= ONE_PLY
-          && skip_move(thisThread))
-          newDepth = std::max(newDepth - 2 * ONE_PLY, DEPTH_ZERO);
+          && newDepth >= ONE_PLY)
+          newDepth = skip_move(thisThread) ? newDepth - ONE_PLY : newDepth + ONE_PLY;
 
       // Step 16. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
