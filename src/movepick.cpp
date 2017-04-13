@@ -224,15 +224,17 @@ Move MovePicker::next_move(bool skipQuiets) {
       cur = endBadCaptures;
       endMoves = generate<QUIETS>(pos, cur);
       score<QUIETS>();
-      std::partial_sort(cur, cur + (endMoves-cur+1)/2, endMoves, 
-                        [](const ExtMove& a, const ExtMove& b)  { return a.value > b.value; });
       ++stage;
 
   case QUIET:
-      while (    cur < endMoves
-             && (!skipQuiets || cur->value >= VALUE_ZERO))
+      while (cur < endMoves)
       {
-          move = *cur++;
+          move = (cur - endBadCaptures < 10) ? pick_best(cur, endMoves) : *cur;
+
+          if (skipQuiets && cur->value < VALUE_ZERO)
+              break;
+
+          ++cur;
 
           if (   move != ttMove
               && move != ss->killers[0]
