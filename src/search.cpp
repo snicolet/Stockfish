@@ -64,7 +64,7 @@ namespace {
   enum NodeType { NonPV, PV };
 
   // Sizes and phases of the skip-blocks, used for distributing moves to search across the threads
-  const int LAZY_SMP_DEPTH = 4;
+  const int LAZY_SMP_DEPTH = 5;
   const int skipSize[]  = { 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4 };
   const int skipPhase[] = { 0, 1, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 6, 7 };
 
@@ -1009,11 +1009,13 @@ moves_loop: // When in check search starts from here
           doFullDepthSearch = !PvNode || moveCount > 1;
 
       // Helper threads "skip" about half the moves when the distance to the
-      // root is 2 or 3. Skipped moves are searched with a reduced depth.
+      // root is 4 or 5. Skipped moves are searched with a reduced depth.
       if (   thisThread->idx
-          && (ss->ply == LAZY_SMP_DEPTH - 1 || ss->ply == LAZY_SMP_DEPTH)
-          && newDepth >= ONE_PLY)
-          newDepth = skip_move(thisThread) ? newDepth - ONE_PLY : newDepth + ONE_PLY;
+          && ss->ply <= LAZY_SMP_DEPTH
+          && ss->ply >= LAZY_SMP_DEPTH - 1
+          && newDepth >= ONE_PLY
+          && skip_move(thisThread))
+          newDepth -= 2 * ONE_PLY;
 
       // Step 16. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
