@@ -772,7 +772,7 @@ namespace {
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
-            return ScaleFactor(40 + pos.count<PAWN>());
+            return ScaleFactor(46);
         }
 
         // Endings where weaker side can place his king in front of the opponent's
