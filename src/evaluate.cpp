@@ -184,7 +184,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties used by evaluation
-  const Score MinorBehindPawn     = S( 16,  0);
+  const Score MinorBehindPawn     = S( 14,  0);
   const Score BishopPawns         = S(  8, 12);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
@@ -192,6 +192,7 @@ namespace {
   const Score OtherCheck          = S( 10, 10);
   const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
+  const Score Majority            = S( 21,  0);
   const Score ThreatByHangingPawn = S( 71, 61);
   const Score ThreatBySafePawn    = S(182,175);
   const Score ThreatByRank        = S( 16,  3);
@@ -481,8 +482,8 @@ namespace {
     }
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
-    File kf = file_of(ksq);
-    b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
+    Bitboard kingFlank = KingFlank[file_of(ksq)];
+    b = ei.attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
 
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
     assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
@@ -495,8 +496,12 @@ namespace {
     score -= CloseEnemies * popcount(b);
 
     // Penalty when our king is on a pawnless flank
-    if (!(pos.pieces(PAWN) & KingFlank[kf]))
+    if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
+
+    // Penalty when the opponent has a pawn majority on the flank of our king
+    if (popcount(pos.pieces(Them, PAWN) & kingFlank) > popcount(pos.pieces(Us, PAWN) & kingFlank))
+        score -= Majority;
 
     if (DoTrace)
         Trace::add(KING, Us, score);
