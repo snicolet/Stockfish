@@ -47,7 +47,7 @@ namespace {
   const Score Doubled = S(18, 38);
 
   // Mobile pawn bonus
-  const Score PawnMobility = S(10, 10);
+  const Score PawnMobility = S(0, 20);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
