@@ -197,7 +197,7 @@ namespace {
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
-  const Score PawnMobility        = S(  0, 20);
+  const Score PawnMobility        = S( 10, 10);
   const Score HinderPassedPawn    = S(  7,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -585,7 +585,7 @@ namespace {
     b = shift<Up>(b | (shift<Up>(b & TRank2BB) & ~pos.pieces()));
     b &= ~pos.pieces();
 
-    Bitboard pawnMoves = b & (~ei.attackedBy2[Them] | ei.attackedBy2[Us]);
+    Bitboard pawnMoves = b & ~stronglyProtected;
     score += PawnMobility * popcount(pawnMoves);
 
     // Bonus for safe pushes that attack an enemy piece
