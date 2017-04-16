@@ -46,6 +46,9 @@ namespace {
   // Doubled pawn penalty
   const Score Doubled = S(18, 38);
 
+  // Mobile pawn bonus
+  const Score PawnMobility = S(10, 10);
+
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
     S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
@@ -97,14 +100,17 @@ namespace {
     const Square Up    = (Us == WHITE ? NORTH      : SOUTH);
     const Square Right = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Square Left  = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
+    const Square DownRight = (Them == WHITE ? NORTH_EAST : SOUTH_WEST);
+    const Square DownLeft  = (Them == WHITE ? NORTH_WEST : SOUTH_EAST);
 
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
-    Bitboard lever, leverPush, connected;
+    Bitboard lever, leverPush, connected, blockers;
     Square s;
-    bool opposed, backward;
+    bool opposed, backward, blocked;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
     const Bitboard* pawnAttacksBB = StepAttacksBB[make_piece(Us, PAWN)];
+    Bitboard bind[2];
 
     Bitboard ourPawns   = pos.pieces(Us  , PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
@@ -115,6 +121,11 @@ namespace {
     e->pawnAttacks[Us]   = shift<Right>(ourPawns) | shift<Left>(ourPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
+
+    bind[Us]   = shift<Right>(ourPawns) & shift<Left>(ourPawns);
+    bind[Them] = shift<DownRight>(theirPawns) & shift<DownLeft>(theirPawns);
+
+    blockers = theirPawns | (bind[Them] & ~bind[Us]);
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -132,6 +143,7 @@ namespace {
         lever      = theirPawns & pawnAttacksBB[s];
         leverPush  = theirPawns & pawnAttacksBB[s + Up];
         doubled    = ourPawns   & (s + Up);
+        blocked    = blockers   & (s + Up);
         neighbours = ourPawns   & adjacent_files_bb(f);
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
@@ -182,6 +194,9 @@ namespace {
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
+
+        if (!blocked)
+            score += PawnMobility;
     }
 
     return score;
