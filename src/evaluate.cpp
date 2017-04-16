@@ -197,6 +197,7 @@ namespace {
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
+  const Score PawnMobility        = S(  0, 20);
   const Score HinderPassedPawn    = S(  7,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -579,12 +580,16 @@ namespace {
             score += ThreatByKing[more_than_one(b)];
     }
 
-    // Bonus if some pawns can safely push and attack an enemy piece
+    // Bonus for each pawn which is not blocked
     b = pos.pieces(Us, PAWN) & ~TRank7BB;
     b = shift<Up>(b | (shift<Up>(b & TRank2BB) & ~pos.pieces()));
+    b &= ~pos.pieces();
 
-    b &=  ~pos.pieces()
-        & ~ei.attackedBy[Them][PAWN]
+    Bitboard pawnMoves = b & (~ei.attackedBy2[Them] | ei.attackedBy2[Us]);
+    score += PawnMobility * popcount(pawnMoves);
+
+    // Bonus for safe pushes that attack an enemy piece
+    b &=  ~ei.attackedBy[Them][PAWN]
         & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
 
     b =  (shift<Left>(b) | shift<Right>(b))
