@@ -125,7 +125,7 @@ namespace {
     bind[Us]   = shift<Right>(ourPawns) & shift<Left>(ourPawns);
     bind[Them] = shift<DownRight>(theirPawns) & shift<DownLeft>(theirPawns);
 
-    blockers = theirPawns | (bind[Them] & ~bind[Us]);
+    blockers = ourPawns | theirPawns | (bind[Them] & ~bind[Us]);
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
