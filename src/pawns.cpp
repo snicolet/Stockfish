@@ -53,7 +53,7 @@ namespace {
   };
 
   // SupportedLever bonus
-  const Score SupportedLever = S(0, 20);
+  const Score SupportedLever = S(0, 16);
 
   // Weakness of our pawn shelter in front of the king by [distance from edge][rank].
   // RANK_1 = 0 is used for files where we have no pawns or our pawn is behind our king.
