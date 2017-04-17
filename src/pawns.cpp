@@ -48,7 +48,7 @@ namespace {
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
-    S( 0,  0), S( 0,  0), S(0, 0), S(0, 0),
+    S( 0,  0), S( 0,  0), S(0, 0), S(8, 8),
     S(17, 16), S(33, 32), S(0, 0), S(0, 0)
   };
 
