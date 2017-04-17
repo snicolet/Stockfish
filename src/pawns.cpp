@@ -180,7 +180,7 @@ namespace {
         if (doubled && !supported)
            score -= Doubled;
 
-        if (lever)
+        if (lever | leverPush)
             score += Lever[relative_rank(Us, s)];
     }
 
