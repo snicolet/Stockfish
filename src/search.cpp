@@ -1080,9 +1080,18 @@ moves_loop: // When in check search starts from here
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
               {
                   alpha = value;
+
                   if (!excludedMove)
-                     tte->save(posKey, value_to_tt(bestValue, ss->ply), BOUND_LOWER,
+                  {
+                     Bound bound =    ttHit 
+                                   && tte->depth() >= depth 
+                                   && ttValue != VALUE_NONE
+                                   && tte->bound() & BOUND_UPPER
+                                   && ttValue <= bestValue ? BOUND_EXACT : BOUND_LOWER;
+
+                     tte->save(posKey, value_to_tt(bestValue, ss->ply), bound,
                                depth, bestMove, ss->staticEval, TT.generation());
+                  }
               }
               else
               {
@@ -1131,7 +1140,7 @@ moves_loop: // When in check search starts from here
              && cm_ok)
         update_cm_stats(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
-    if(!excludedMove)
+    if (!excludedMove)
         tte->save(posKey, value_to_tt(bestValue, ss->ply),
                       bestValue >= beta ? BOUND_LOWER :
                       PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
