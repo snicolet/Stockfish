@@ -1083,14 +1083,14 @@ moves_loop: // When in check search starts from here
 
                   if (!excludedMove)
                   {
-                     Bound bound =    ttHit 
-                                   && tte->depth() >= depth 
-                                   && ttValue != VALUE_NONE
-                                   && tte->bound() & BOUND_UPPER
-                                   && ttValue <= bestValue ? BOUND_EXACT : BOUND_LOWER;
+                      Bound bound =    ttHit
+                                    && tte->depth() >= depth
+                                    && ttValue != VALUE_NONE
+                                    && tte->bound() & BOUND_UPPER
+                                    && ttValue <= bestValue ? BOUND_EXACT : BOUND_LOWER;
 
-                     tte->save(posKey, value_to_tt(bestValue, ss->ply), bound,
-                               depth, bestMove, ss->staticEval, TT.generation());
+                      tte->save(posKey, value_to_tt(bestValue, ss->ply), bound,
+                                depth, bestMove, ss->staticEval, TT.generation());
                   }
               }
               else
