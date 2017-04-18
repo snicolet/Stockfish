@@ -44,7 +44,7 @@ namespace {
   Score Connected[2][2][2][RANK_NB];
 
   // Doubled pawn penalty by isolated flag
-  const Score Doubled[2] = { S(23, 43), S(33, 53) };
+  const Score Doubled[2] = { S(13, 33), S(23, 43) };
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
