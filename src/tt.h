@@ -62,6 +62,18 @@ struct TTEntry {
                 || (delta_depth > -6  && delta_bound >  0);
              /* || g != (genBound8 & 0xFC); // Matching non-zero keys are already refreshed by probe() */
 
+        // Preserve exact score at higher depth for the same position
+        if (   write 
+            && bound() == BOUND_EXACT
+            && b       == BOUND_EXACT
+            && delta_depth < 0)
+        {
+            d = Depth(depth8 * int(ONE_PLY));
+            v = Value(value16);
+            if (move16)
+               m = Move(move16);
+        }
+        
         // Preserve any existing move for the same position
         if (!m) m = Move(move16);
     }

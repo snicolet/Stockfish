@@ -1078,7 +1078,21 @@ moves_loop: // When in check search starts from here
                   update_pv(ss->pv, move, (ss+1)->pv);
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
+              {
                   alpha = value;
+
+                  if (!excludedMove)
+                  {
+                      Bound bound =    ttHit
+                                    && tte->depth() >= depth
+                                    && ttValue != VALUE_NONE
+                                    && tte->bound() & BOUND_UPPER
+                                    && ttValue <= bestValue ? BOUND_EXACT : BOUND_LOWER;
+
+                      tte->save(posKey, value_to_tt(bestValue, ss->ply), bound,
+                                depth, bestMove, ss->staticEval, TT.generation());
+                  }
+              }
               else
               {
                   assert(value >= beta); // Fail high
