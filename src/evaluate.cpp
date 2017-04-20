@@ -481,8 +481,8 @@ namespace {
     }
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
-    File kf = file_of(ksq);
-    b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
+    Bitboard kingFlank = KingFlank[file_of(ksq)];
+    b = ei.attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
 
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
     assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
@@ -494,8 +494,13 @@ namespace {
 
     score -= CloseEnemies * popcount(b);
 
+    // Increase king safety score in case of opposite castling
+    int d = distance<File>(ksq, pos.square<KING>(Them));
+    if (d)
+        score += make_score(mg_value(score) * d / 8, 0);
+
     // Penalty when our king is on a pawnless flank
-    if (!(pos.pieces(PAWN) & KingFlank[kf]))
+    if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
 
     if (DoTrace)
