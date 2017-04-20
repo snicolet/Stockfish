@@ -57,12 +57,12 @@ struct TTEntry {
                           bound() == BOUND_EXACT ? -1 :
                           b       == BOUND_EXACT ? +1 : 0;
 
-        write =    (delta_depth >= 0  && delta_bound >= 0)
+        write =    (delta_depth >= -1 && delta_bound >= 0)
                 || (delta_depth >  0)
-                || (delta_depth > -2  && delta_bound >= 0)
                 || (delta_depth > -6  && delta_bound >  0);
              /* || g != (genBound8 & 0xFC); // Matching non-zero keys are already refreshed by probe() */
 
+        // Preserve exact score at higher depth for the same position
         /*
         if (   write 
             && bound() == BOUND_EXACT
