@@ -812,6 +812,10 @@ Value Eval::evaluate(const Position& pos) {
   ei.pe = Pawns::probe(pos);
   score += ei.pe->pawns_score();
 
+  // Scale down material and pawn scores in case of opposite castling
+  int d = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+  score -= make_score(mg_value(score) * d * d / 64, 0);
+
   // Early exit if score is high
   v = (mg_value(score) + eg_value(score)) / 2;
   if (abs(v) > LazyThreshold)
