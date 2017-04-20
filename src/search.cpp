@@ -1081,7 +1081,7 @@ moves_loop: // When in check search starts from here
               {
                   alpha = value;
 
-                  if (!excludedMove)
+                  if (false && !excludedMove)
                   {
                       Bound bound =    ttHit
                                     && tte->depth() >= depth
