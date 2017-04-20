@@ -50,11 +50,24 @@ struct TTEntry {
     if (m || (k >> 48) != key16)
         move16 = (uint16_t)m;
 
-    // Don't overwrite more valuable entries
-    if (  (k >> 48) != key16
-        || d / ONE_PLY > depth8 - 4
-     /* || g != (genBound8 & 0xFC) // Matching non-zero keys are already refreshed by probe() */
-        || b == BOUND_EXACT)
+    bool write;
+    if ((k >> 48) != key16)
+        write = true;
+    else
+    {
+        int delta_depth = (d / ONE_PLY) - depth8;
+        int delta_bound = bound() == b           ?  0 :
+                          bound() == BOUND_EXACT ? -1 :
+                          b       == BOUND_EXACT ? +1 : 0;
+
+        // The writing policy: we try not to overwrite more valuable bounds
+        write =    (delta_depth >= 0  && delta_bound >= 0)
+                || (delta_depth >  0)
+                || (delta_depth > -3  && delta_bound > 0);
+             /* || g != (genBound8 & 0xFC); // Matching non-zero keys are already refreshed by probe() */
+    }
+
+    if (write)
     {
         key16     = (uint16_t)(k >> 48);
         value16   = (int16_t)v;
