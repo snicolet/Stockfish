@@ -43,8 +43,8 @@ namespace {
   // Connected pawn bonus by opposed, phalanx, twice supported and rank
   Score Connected[2][2][2][RANK_NB];
 
-  // Doubled pawn penalty
-  const Score Doubled = S(18, 38);
+  // Doubled pawn penalty by isolated flag
+  const Score Doubled[2] = { S(17, 39), S(37, 65) };
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
@@ -178,7 +178,7 @@ namespace {
             score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
 
         if (doubled && !supported)
-           score -= Doubled;
+           score -= Doubled[!neighbours];
 
         if (lever)
             score += Lever[relative_rank(Us, s)];
