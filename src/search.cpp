@@ -1083,13 +1083,18 @@ moves_loop: // When in check search starts from here
 
                   if (!excludedMove)
                   {
+                      Value hashValue = bestValue;
                       Bound bound =    ttHit
                                     && tte->depth() >= depth
                                     && ttValue != VALUE_NONE
+                                    && ttValue > -VALUE_MATE_IN_MAX_PLY
+                                    && ttValue <  VALUE_MATE_IN_MAX_PLY
                                     && tte->bound() & BOUND_UPPER
-                                    && ttValue <= bestValue ? BOUND_EXACT : BOUND_LOWER;
+                                    && ttValue <= hashValue ? BOUND_EXACT : BOUND_LOWER;
+                      if (bound == BOUND_EXACT)
+                          hashValue = ttValue;
 
-                      tte->save(posKey, value_to_tt(bestValue, ss->ply), bound,
+                      tte->save(posKey, value_to_tt(hashValue, ss->ply), bound,
                                 depth, bestMove, ss->staticEval, TT.generation());
                   }
               }
