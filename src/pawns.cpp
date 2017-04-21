@@ -44,7 +44,7 @@ namespace {
   Score Connected[2][2][2][RANK_NB];
 
   // Doubled pawn penalty by isolated flag
-  const Score Doubled[2] = { S(17, 39), S(37, 65) };
+  const Score Doubled[2] = { S(17, 39), S(37, 39) };
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
@@ -108,6 +108,7 @@ namespace {
 
     Bitboard ourPawns   = pos.pieces(Us  , PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
+    Bitboard ourFuzzyPawns = ourPawns | shift<Up>(ourPawns);
 
     e->passedPawns[Us]   = e->pawnAttacksSpan[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
@@ -131,7 +132,7 @@ namespace {
         stoppers   = theirPawns & passed_pawn_mask(Us, s);
         lever      = theirPawns & pawnAttacksBB[s];
         leverPush  = theirPawns & pawnAttacksBB[s + Up];
-        doubled    = ourPawns   & (s - Up);
+        doubled    = ourFuzzyPawns & (s - Up);
         neighbours = ourPawns   & adjacent_files_bb(f);
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
