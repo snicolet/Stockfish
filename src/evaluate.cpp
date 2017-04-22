@@ -812,6 +812,10 @@ Value Eval::evaluate(const Position& pos) {
   ei.pe = Pawns::probe(pos);
   score += ei.pe->pawns_score();
 
+  int d = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+  if (d > 2)
+     score += ei.pe->pawns_score();
+
   // Early exit if score is high
   v = (mg_value(score) + eg_value(score)) / 2;
   if (abs(v) > LazyThreshold)
