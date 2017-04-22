@@ -738,7 +738,7 @@ namespace {
                     + (pos.count<BISHOP>(WHITE) != pos.count<BISHOP>(BLACK));
 
     // Compute the initiative bonus for the attacking side
-    int initiative =    8 * (asymmetry + kingDistance - imbalance - 17)
+    int initiative =    8 * (asymmetry + kingDistance - imbalance - 16)
                      + 25 * pos.count<PAWN>() / 2
                      + 16 * bothFlanks;
 
