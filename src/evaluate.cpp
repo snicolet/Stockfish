@@ -419,7 +419,6 @@ namespace {
        | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
 
     kingTropism = 7 * popcount(b);
-    score -= make_score(kingTropism, 0);
 
     // Main king safety evaluation
     if (ei.kingAttackersCount[Them])
@@ -442,7 +441,8 @@ namespace {
                     + 190 * popcount(undefended)
                     + 142 * (popcount(b) + !!pos.pinned_pieces(Us))
                     - 810 * !pos.count<QUEEN>(Them)
-                    -   2 * kingTropism;
+                    -   3 * mg_value(score) / 5
+                    -       kingTropism;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
@@ -493,6 +493,8 @@ namespace {
         if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, 0);
     }
+
+    score -= make_score(kingTropism, 0);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
