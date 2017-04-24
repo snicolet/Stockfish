@@ -402,10 +402,24 @@ namespace {
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard undefended, b, b1, b2, safe, other;
-    int kingDanger;
+    int kingDanger, kingTropism;
 
     // King shelter and enemy pawns storm
     Score score = ei.pe->king_safety<Us>(pos, ksq);
+
+    // King tropism: firstly, find squares that opponent attacks in our king flank
+    b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
+
+    assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
+    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
+
+    // Secondly, add the squares which are attacked twice in that flank and
+    // which are not defended by our pawns.
+    b =  (Us == WHITE ? b << 4 : b >> 4)
+       | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
+
+    kingTropism = 7 * popcount(b);
+    score -= make_score(kingTropism, 0);
 
     // Main king safety evaluation
     if (ei.kingAttackersCount[Them])
@@ -422,14 +436,13 @@ namespace {
         // Initialize the 'kingDanger' variable, which will be transformed
         // later into a king danger score. The initial value is based on the
         // number and types of the enemy's attacking pieces, the number of
-        // attacked and undefended squares around our king and the quality of
-        // the pawn shelter (current 'score' value).
+        // attacked and undefended squares around our king.
         kingDanger =  std::min(820, ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them])
                     + 103 * ei.kingAdjacentZoneAttacksCount[Them]
                     + 190 * popcount(undefended)
                     + 142 * (popcount(b) + !!pos.pinned_pieces(Us))
                     - 810 * !pos.count<QUEEN>(Them)
-                    -   6 * mg_value(score) / 5 - 5;
+                    -   2 * kingTropism;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
@@ -481,22 +494,8 @@ namespace {
             score -= make_score(kingDanger * kingDanger / 4096, 0);
     }
 
-    // King tropism: firstly, find squares that opponent attacks in our king flank
-    File kf = file_of(ksq);
-    b = ei.attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
-
-    assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
-    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
-
-    // Secondly, add the squares which are attacked twice in that flank and
-    // which are not defended by our pawns.
-    b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & ei.attackedBy2[Them] & ~ei.attackedBy[Us][PAWN]);
-
-    score -= CloseEnemies * popcount(b);
-
     // Penalty when our king is on a pawnless flank
-    if (!(pos.pieces(PAWN) & KingFlank[kf]))
+    if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
 
     if (DoTrace)
