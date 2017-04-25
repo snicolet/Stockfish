@@ -198,6 +198,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
+  const Score PassedPawnPhalanx   = S( 30, 30);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -680,9 +681,9 @@ namespace {
             mbonus /= 2, ebonus /= 2;
 
         // Phalanx of passed pawns
-        if (   relative_rank(Us, s) >= RANK_5
-            && (ei.pe->passed_pawns(Us) & pawn_attack_span(Us, s - pawn_push(Us))))
-            ebonus += ebonus / 4;
+        if (   relative_rank(Us, s) >= RANK_4
+            && (ei.pe->passed_pawns(Us) & StepAttacksBB[make_piece(Us, PAWN)][s]))
+            mbonus += mbonus / 4, ebonus += ebonus / 4;
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
