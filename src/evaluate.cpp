@@ -680,7 +680,7 @@ namespace {
             mbonus /= 2, ebonus /= 2;
 
         // Phalanx of passed pawns
-        if (   relative_rank(Us, s) >= RANK_4
+        if (   relative_rank(Us, s) >= RANK_5
             && (ei.pe->passed_pawns(Us) & StepAttacksBB[make_piece(Us, PAWN)][s]))
             mbonus += mbonus / 4, ebonus += ebonus / 4;
 
