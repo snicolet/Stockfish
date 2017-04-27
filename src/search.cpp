@@ -809,7 +809,7 @@ namespace {
         && (PvNode || ss->staticEval + 256 >= beta))
     {
         Depth d = (3 * depth / (4 * ONE_PLY) - 2) * ONE_PLY;
-        int margin = alpha > -VALUE_KNOWN_WIN ? -20 : 0;
+        int margin = beta < VALUE_KNOWN_WIN ? 20 : 0;
         search<NT>(pos, ss, alpha + margin, beta + margin, d, cutNode, true);
 
         tte = TT.probe(posKey, ttHit);
