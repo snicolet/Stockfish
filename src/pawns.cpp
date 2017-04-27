@@ -109,7 +109,7 @@ namespace {
     Bitboard ourPawns   = pos.pieces(Us  , PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
-    e->passedPawns[Us]   = e->pawnAttacksSpan[Us] = 0;
+    e->passedPawns[Us] = e->candidatePassedPawns[Us] = e->pawnAttacksSpan[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = shift<Right>(ourPawns) | shift<Left>(ourPawns);
@@ -162,7 +162,12 @@ namespace {
             && !(ourPawns & forward_bb(Us, s))
             && popcount(supported) >= popcount(lever)
             && popcount(phalanx)   >= popcount(leverPush))
-            e->passedPawns[Us] |= s;
+        {
+            if (stoppers)
+                e->candidatePassedPawns[Us] |= s;
+            else
+                e->passedPawns[Us] |= s;
+        }
 
         // Score this pawn
         if (!neighbours)

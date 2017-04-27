@@ -612,7 +612,7 @@ namespace {
     Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
     Score score = SCORE_ZERO;
 
-    b = ei.pe->passed_pawns(Us);
+    b = ei.pe->passed_pawns(Us) | ei.pe->candidate_passed_pawns(Us);
 
     while (b)
     {
@@ -678,6 +678,11 @@ namespace {
         // pawn push to become passed.
         if (!pos.pawn_passed(Us, s + pawn_push(Us)))
             mbonus /= 2, ebonus /= 2;
+
+         // Phalanx of passed pawns
+         else if (   relative_rank(Us, s) >= RANK_4
+                  && (ei.pe->passed_pawns(Us) & pos.attacks_from<PAWN>(s, Us)))
+                  mbonus += mbonus / 4, ebonus += ebonus / 4;
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
