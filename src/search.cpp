@@ -893,9 +893,11 @@ moves_loop: // When in check search starts from here
           if (value < rBeta)
               extension = ONE_PLY;
       }
-      else if (    givesCheck
-               && !moveCountPruning
-               &&  pos.see_ge(move, VALUE_ZERO))
+
+      if (    givesCheck
+          && !extension
+          && !moveCountPruning
+          &&  pos.see_ge(move, VALUE_ZERO))
           extension = ONE_PLY;
 
       // Calculate new depth for this move
