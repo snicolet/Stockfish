@@ -155,6 +155,18 @@ namespace {
   void update_cm_stats(Stack* ss, Piece pc, Square s, int bonus);
   void update_stats(const Position& pos, Stack* ss, Move move, Move* quiets, int quietsCnt, int bonus);
   void check_time();
+  
+  bool duplicate_moves(std::vector <Move> generatedMoves)
+  {   
+      // Check for duplicates
+      int N = generatedMoves.size();
+      for (int i = 0 ; i < N ; i++)
+         for (int j = 0 ; j < N ; j++)
+            if (i != j && generatedMoves[i] == generatedMoves[j])
+               return true;
+      
+      return false;
+  }
 
 } // namespace
 
@@ -552,6 +564,7 @@ namespace {
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets;
     Piece moved_piece;
     int moveCount, quietCount;
+    std::vector <Move> generatedMoves;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -881,7 +894,7 @@ moves_loop: // When in check search starts from here
       // on all the other moves but the ttMove and if the result is lower than
       // ttValue minus a margin then we extend the ttMove.
       if (    singularExtensionNode
-          &&  move == ttMove
+          //&&  move == ttMove
           &&  pos.legal(move))
       {
           Value rBeta = std::max(ttValue - 2 * depth / ONE_PLY, -VALUE_MATE);
@@ -956,6 +969,8 @@ moves_loop: // When in check search starts from here
       // Update the current move (this must be done after singular extension search)
       ss->currentMove = move;
       ss->counterMoves = &thisThread->counterMoveHistory[moved_piece][to_sq(move)];
+
+      generatedMoves.push_back(move);
 
       // Step 14. Make the move
       pos.do_move(move, st, givesCheck);
@@ -1138,6 +1153,10 @@ moves_loop: // When in check search starts from here
                   depth, bestMove, ss->staticEval, TT.generation());
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
+    
+    if (!rootNode)
+        if (duplicate_moves(generatedMoves))
+           dbg_mean_of(1);
 
     return bestValue;
   }
