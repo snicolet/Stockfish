@@ -809,10 +809,15 @@ namespace {
         && (PvNode || ss->staticEval + 256 >= beta))
     {
         Depth d = (3 * depth / (4 * ONE_PLY) - 2) * ONE_PLY;
-        search<NT>(pos, ss, alpha, beta, d, cutNode, true);
+        int margin = alpha > -VALUE_KNOWN_WIN ? -20 : 0;
+        search<NT>(pos, ss, alpha + margin, beta + margin, d, cutNode, true);
 
         tte = TT.probe(posKey, ttHit);
-        ttMove = ttHit ? tte->move() : MOVE_NONE;
+        if (ttHit)
+        {
+            ttMove = tte->move();
+            ttValue = value_from_tt(tte->value(), ss->ply);
+        }
     }
 
 moves_loop: // When in check search starts from here
