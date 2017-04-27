@@ -877,17 +877,17 @@ moves_loop: // When in check search starts from here
 
       // Singular extension search. If all moves but one fail low on a search of
       // (alpha-s, beta-s), and just one fails high on (alpha, beta), then that move
-      // is singular and should be extended. To verify this we do a reduced search
-      // on all the other moves but the ttMove and if the result is lower than
-      // ttValue minus a margin then we extend the ttMove.
+      // is singular and should be extended. To approximate this we do a reduced search
+      // on all the other moves but the current move and if the result is lower than
+      // ttValue minus a margin then we extend the current move.
       if (    singularExtensionNode
-          &&  move == ttMove
+          &&  moveCount <= 5
           &&  pos.legal(move))
       {
-          Value rBeta = std::max(ttValue - 2 * depth / ONE_PLY, -VALUE_MATE);
+          Value rBeta = std::max(ttValue - 2 * depth / ONE_PLY - 5, -VALUE_MATE);
           Depth d = (depth / (2 * ONE_PLY)) * ONE_PLY;
           ss->excludedMove = move;
-          value = search<NonPV>(pos, ss, rBeta - 1, rBeta, d, cutNode, true);
+          value = search<NonPV>(pos, ss, rBeta - 1, rBeta, d, cutNode, false);
           ss->excludedMove = MOVE_NONE;
 
           if (value < rBeta)
