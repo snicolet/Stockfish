@@ -101,7 +101,7 @@ namespace {
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Bitboard lever, leverPush, connected;
     Square s;
-    bool opposed, backward;
+    bool opposed, backward, passed;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
 
@@ -154,14 +154,18 @@ namespace {
         }
 
         // Passed pawns will be properly scored in evaluation because we need
-        // full attack info to evaluate them. Include also not passed pawns
-        // which could become passed after one or two pawn pushes when are
-        // not attacked more times than defended.
+        // full attack info to evaluate them. We include candidate passed pawns
+        // which could become passed after one or two pawn pushes, during which
+        // they would not be attacked more times than defended.
+        passed = false;
         if (   !(stoppers ^ lever ^ leverPush)
             && !(ourPawns & forward_bb(Us, s))
             && popcount(supported) >= popcount(lever)
             && popcount(phalanx)   >= popcount(leverPush))
-            e->passedPawns[Us] |= s;
+            {
+                passed = true;
+                e->passedPawns[Us] |= s;
+            }
 
         // Score this pawn
         if (!neighbours)
@@ -174,7 +178,7 @@ namespace {
             score -= Unsupported;
 
         if (connected)
-            score += Connected[opposed][!!phalanx][more_than_one(supported)][relative_rank(Us, s)];
+            score += Connected[opposed][!!phalanx][passed || more_than_one(supported)][relative_rank(Us, s)];
 
         if (doubled && !supported)
            score -= Doubled;
@@ -196,7 +200,7 @@ namespace Pawns {
 
 void init() {
 
-  static const int Seed[RANK_NB] = { 0, 8, 19, 13, 71, 94, 169, 324 };
+  static const int Seed[RANK_NB] = { 0, 8, 19, 13, 71, 94, 169, 324};
 
   for (int opposed = 0; opposed <= 1; ++opposed)
       for (int phalanx = 0; phalanx <= 1; ++phalanx)
