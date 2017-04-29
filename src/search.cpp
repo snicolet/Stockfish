@@ -1162,7 +1162,7 @@ moves_loop: // When in check search starts from here
     TTEntry* tte;
     Key posKey;
     Move ttMove, move, bestMove;
-    Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
+    Value bestValue, value, ttValue, oldAlpha;
     bool ttHit, givesCheck, evasionPrunable;
     Depth ttDepth;
 
@@ -1207,7 +1207,7 @@ moves_loop: // When in check search starts from here
     if (InCheck)
     {
         ss->staticEval = VALUE_NONE;
-        bestValue = futilityBase = -VALUE_INFINITE;
+        bestValue = -VALUE_INFINITE;
     }
     else
     {
@@ -1239,8 +1239,6 @@ moves_loop: // When in check search starts from here
 
         if (PvNode && bestValue > alpha)
             alpha = bestValue;
-
-        futilityBase = bestValue + 128;
     }
 
     // Initialize a MovePicker object for the current position, and prepare
@@ -1253,33 +1251,6 @@ moves_loop: // When in check search starts from here
     while ((move = mp.next_move()) != MOVE_NONE)
     {
       assert(is_ok(move));
-
-      givesCheck =  type_of(move) == NORMAL && !pos.discovered_check_candidates()
-                  ? pos.check_squares(type_of(pos.piece_on(from_sq(move)))) & to_sq(move)
-                  : pos.gives_check(move);
-
-      // Futility pruning
-      if (   !InCheck
-          && !givesCheck
-          &&  futilityBase > -VALUE_KNOWN_WIN
-          && !pos.advanced_pawn_push(move))
-      {
-          assert(type_of(move) != ENPASSANT); // Due to !pos.advanced_pawn_push
-
-          futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
-
-          if (futilityValue <= alpha)
-          {
-              bestValue = std::max(bestValue, futilityValue);
-              continue;
-          }
-
-          if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
-          {
-              bestValue = std::max(bestValue, futilityBase);
-              continue;
-          }
-      }
 
       // Detect non-capture evasions that are candidates to be pruned
       evasionPrunable =    InCheck
@@ -1301,6 +1272,10 @@ moves_loop: // When in check search starts from here
           continue;
 
       ss->currentMove = move;
+
+      givesCheck =  type_of(move) == NORMAL && !pos.discovered_check_candidates()
+                  ? pos.check_squares(type_of(pos.piece_on(from_sq(move)))) & to_sq(move)
+                  : pos.gives_check(move);
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
