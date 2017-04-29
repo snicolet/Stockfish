@@ -178,7 +178,7 @@ namespace {
             score -= Unsupported;
 
         if (connected)
-            score += Connected[opposed][!!phalanx][passed || more_than_one(supported)][relative_rank(Us, s)];
+            score += Connected[opposed][!!phalanx || passed][more_than_one(supported)][relative_rank(Us, s)];
 
         if (doubled && !supported)
            score -= Doubled;
