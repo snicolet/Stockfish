@@ -1191,6 +1191,10 @@ moves_loop: // When in check search starts from here
 
     // Transposition table lookup
     posKey = pos.key();
+    
+    if (!InCheck && depth <= DEPTH_QS_RECAPTURES)
+       posKey ^= Key(to_sq((ss-1)->currentMove));   // because we will only generate recaptures
+    
     tte = TT.probe(posKey, ttHit);
     ttMove = ttHit ? tte->move() : MOVE_NONE;
     ttValue = ttHit ? value_from_tt(tte->value(), ss->ply) : VALUE_NONE;
