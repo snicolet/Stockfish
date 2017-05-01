@@ -1184,9 +1184,9 @@ moves_loop: // When in check search starts from here
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
     // Fix the type of TT entry depth that we are going to use
-    ttDepth = InCheck                  ?   0 * ONE_PLY :
-              depth >= DEPTH_QS_CHECKS ?  -8 * ONE_PLY 
-                                       : -16 * ONE_PLY ;
+    ttDepth = InCheck                     ?   0 * ONE_PLY :
+              depth > DEPTH_QS_RECAPTURES ?  -8 * ONE_PLY 
+                                          : -16 * ONE_PLY ;
 
     // Transposition table lookup
     posKey = pos.key();
