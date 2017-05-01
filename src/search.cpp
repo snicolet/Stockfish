@@ -1183,11 +1183,10 @@ moves_loop: // When in check search starts from here
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
-    // Decide whether or not to include checks: this fixes also the type of
-    // TT entry depth that we are going to use. Note that in qsearch we use
-    // only two types of depth in TT: DEPTH_QS_CHECKS or DEPTH_QS_NO_CHECKS.
-    ttDepth = InCheck || depth >= DEPTH_QS_CHECKS ? DEPTH_QS_CHECKS
-                                                  : DEPTH_QS_NO_CHECKS;
+    // Fix the type of TT entry depth that we are going to use
+    ttDepth = InCheck                  ?   0 * ONE_PLY :
+              depth >= DEPTH_QS_CHECKS ?  -8 * ONE_PLY 
+                                       : -16 * ONE_PLY ;
 
     // Transposition table lookup
     posKey = pos.key();
