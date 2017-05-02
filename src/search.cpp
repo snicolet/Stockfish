@@ -651,6 +651,16 @@ namespace {
         return ttValue;
     }
 
+    // At PV nodes shrink alpha-beta window with TT bounds
+    if (   PvNode
+        && ttHit
+        && tte->depth() == depth
+        && ttValue != VALUE_NONE // Possible in case of TT access race
+        && ttValue > alpha
+        && ttValue <= beta
+        && (tte->bound() & BOUND_LOWER))
+        alpha = ttValue - 1;
+
     // Step 4a. Tablebase probe
     if (!rootNode && TB::Cardinality)
     {
