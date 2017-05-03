@@ -197,6 +197,7 @@ namespace {
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
+  const Score KnightCoordination  = S(  5,  5);
   const Score HinderPassedPawn    = S(  7,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -593,6 +594,15 @@ namespace {
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    // Bonus for good knight coordination
+    if (pos.count<KNIGHT>(Us) >= 2)
+    {
+        b  = pos.pieces(Us, KNIGHT) | ei.attackedBy[Us][KNIGHT];
+        b &= (shift<NORTH>(b) | shift<SOUTH>(b)) & KingFlank[file_of(pos.square<KING>(Us))];
+
+        score += KnightCoordination * (popcount(b) - 3);
+    }
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
