@@ -656,10 +656,10 @@ namespace {
         && ttHit
         && tte->depth() == depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
-        && ttValue > alpha + 50
+        && (tte->bound() & BOUND_LOWER)
         && ttValue < beta
-        && (tte->bound() & BOUND_LOWER))
-        alpha = ttValue - 51;
+        && ttValue >= alpha + 50)
+        alpha = ttValue - 50;
 
     // Step 4a. Tablebase probe
     if (!rootNode && TB::Cardinality)
