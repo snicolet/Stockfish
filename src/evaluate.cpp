@@ -170,8 +170,8 @@ namespace {
 
   // PassedFile[File] contains a bonus according to the file of a passed pawn
   const Score PassedFile[FILE_NB] = {
-    S(  9, 18), S( 2, 10), S( 1, -8), S(-20,-12),
-    S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 18)
+    S(  9, 26), S( 2, 10), S( 1, -8), S(-20,-12),
+    S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 26)
   };
 
   // Protector[PieceType-2][distance] contains a protecting bonus for our king,
