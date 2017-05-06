@@ -170,8 +170,8 @@ namespace {
 
   // PassedFile[File] contains a bonus according to the file of a passed pawn
   const Score PassedFile[FILE_NB] = {
-    S(  9, 10), S( 2, 10), S( 1, -8), S(-20,-12),
-    S(-20,-12), S( 1, -8), S( 2, 10), S(  9, 10)
+    S( 19, 10), S( 2, 10), S( 1, -8), S(-20,-12),
+    S(-20,-12), S( 1, -8), S( 2, 10), S( 19, 10)
   };
 
   // Protector[PieceType-2][distance] contains a protecting bonus for our king,
@@ -680,6 +680,9 @@ namespace {
             mbonus /= 2, ebonus /= 2;
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
+
+        if (!pos.non_pawn_material(Them))
+            score += (PassedFile[file_of(s)] - PassedFile[FILE_D]);
     }
 
     if (DoTrace)
