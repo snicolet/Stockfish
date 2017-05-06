@@ -1258,7 +1258,9 @@ moves_loop: // When in check search starts from here
                   ? pos.check_squares(type_of(pos.piece_on(from_sq(move)))) & to_sq(move)
                   : pos.gives_check(move);
 
-      inCheckPrunable = InCheck && bestValue <= VALUE_MATED_IN_MAX_PLY;
+      inCheckPrunable =    InCheck 
+                        && bestValue <= VALUE_MATED_IN_MAX_PLY
+                        && depth != DEPTH_ZERO;
 
       // Futility pruning
       if (   !inCheckPrunable
