@@ -680,9 +680,6 @@ namespace {
             mbonus /= 2, ebonus /= 2;
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
-
-        if (!pos.non_pawn_material(Them))
-            score += (PassedFile[file_of(s)] - PassedFile[FILE_D]);
     }
 
     if (DoTrace)
