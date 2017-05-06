@@ -1163,7 +1163,7 @@ moves_loop: // When in check search starts from here
     Key posKey;
     Move ttMove, move, bestMove;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
-    bool ttHit, givesCheck, evasionPrunable;
+    bool ttHit, givesCheck, inCheckPrunable;
     Depth ttDepth;
 
     if (PvNode)
@@ -1258,8 +1258,10 @@ moves_loop: // When in check search starts from here
                   ? pos.check_squares(type_of(pos.piece_on(from_sq(move)))) & to_sq(move)
                   : pos.gives_check(move);
 
+      inCheckPrunable = InCheck && bestValue <= VALUE_MATED_IN_MAX_PLY;
+
       // Futility pruning
-      if (   !InCheck
+      if (   !inCheckPrunable
           && !givesCheck
           &&  futilityBase > -VALUE_KNOWN_WIN
           && !pos.advanced_pawn_push(move))
@@ -1281,16 +1283,11 @@ moves_loop: // When in check search starts from here
           }
       }
 
-      // Detect non-capture evasions that are candidates to be pruned
-      evasionPrunable =    InCheck
-                       &&  depth != DEPTH_ZERO
-                       &&  bestValue > VALUE_MATED_IN_MAX_PLY
-                       && !pos.capture(move);
-
-      // Don't search moves with negative SEE values
-      if (  (!InCheck || evasionPrunable)
+      // Pruning moves with losing SEE values
+      if (   !inCheckPrunable
+          && !givesCheck
           &&  type_of(move) != PROMOTION
-          &&  !pos.see_ge(move, VALUE_ZERO))
+          && !pos.see_ge(move, VALUE_ZERO))
           continue;
 
       // Speculative prefetch as early as possible
