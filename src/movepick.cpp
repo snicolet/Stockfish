@@ -31,7 +31,7 @@ namespace {
     PROBCUT, PROBCUT_INIT, PROBCUT_CAPTURES,
     QSEARCH_WITH_CHECKS, QCAPTURES_1_INIT, QCAPTURES_1, QCHECKS,
     QSEARCH_NO_CHECKS, QCAPTURES_2_INIT, QCAPTURES_2,
-    QSEARCH_RECAPTURES, QRECAPTURES
+    QSEARCH_RECAPTURES, QRECAPTURES_INIT, QRECAPTURES
   };
 
   // partial_insertion_sort() sorts moves in descending order up to and including
@@ -102,7 +102,6 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Square s)
   {
       stage = QSEARCH_RECAPTURES;
       recaptureSquare = s;
-      return;
   }
 
   ttMove = ttm && pos.pseudo_legal(ttm) ? ttm : MOVE_NONE;
@@ -187,7 +186,7 @@ Move MovePicker::next_move(bool skipQuiets) {
   switch (stage) {
 
   case MAIN_SEARCH: case EVASION: case QSEARCH_WITH_CHECKS:
-  case QSEARCH_NO_CHECKS: case PROBCUT:
+  case QSEARCH_NO_CHECKS: case QSEARCH_RECAPTURES: case PROBCUT:
       ++stage;
       return ttMove;
 
@@ -335,7 +334,7 @@ Move MovePicker::next_move(bool skipQuiets) {
       }
       break;
 
-  case QSEARCH_RECAPTURES:
+  case QRECAPTURES_INIT:
       cur = moves;
       endMoves = generate<CAPTURES>(pos, cur);
       score<CAPTURES>();
@@ -346,7 +345,7 @@ Move MovePicker::next_move(bool skipQuiets) {
       while (cur < endMoves)
       {
           move = pick_best(cur++, endMoves);
-          if (to_sq(move) == recaptureSquare)
+          if (to_sq(move) == recaptureSquare && move != ttMove)
               return move;
       }
       break;
