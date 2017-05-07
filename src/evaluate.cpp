@@ -682,7 +682,7 @@ namespace {
         // Phalanx of passed pawns
         else if (   relative_rank(Us, s) >= RANK_4
                  && (ei.pe->passed_pawns(Us) & pos.attacks_from<PAWN>(s, Us)))
-                 mbonus += mbonus / 8, ebonus += ebonus / 8;
+                 mbonus += mbonus / 5, ebonus += ebonus / 3;
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
