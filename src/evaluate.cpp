@@ -587,6 +587,8 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
 
+    score += make_score(0, eg_value(score) / 4);
+
     if (DoTrace)
         Trace::add(THREAT, Us, score);
 
