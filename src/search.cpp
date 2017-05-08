@@ -1183,11 +1183,8 @@ moves_loop: // When in check search starts from here
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
-    // Decide whether or not to include checks: this fixes also the type of
-    // TT entry depth that we are going to use. Note that in qsearch we use
-    // only two types of depth in TT: DEPTH_QS_CHECKS or DEPTH_QS_NO_CHECKS.
-    ttDepth = InCheck || depth >= DEPTH_QS_CHECKS ? DEPTH_QS_CHECKS
-                                                  : DEPTH_QS_NO_CHECKS;
+    // We fix the type of TT entry depth that we are going to use
+    ttDepth = (InCheck || depth >= -1 * ONE_PLY) ? DEPTH_ZERO : -1 * ONE_PLY;
 
     // Transposition table lookup
     posKey = pos.key();
@@ -1245,7 +1242,7 @@ moves_loop: // When in check search starts from here
 
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
-    // queen promotions and checks (only if depth >= DEPTH_QS_CHECKS) will
+    // queen promotions and checks (only if depth > DEPTH_QS_NO_CHECKS) will
     // be generated.
     MovePicker mp(pos, ttMove, depth, to_sq((ss-1)->currentMove));
 
