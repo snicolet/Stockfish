@@ -1150,6 +1150,7 @@ moves_loop: // When in check search starts from here
   Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
     const bool PvNode = NT == PV;
+    const Depth ttDepth = -1 * ONE_PLY;
 
     assert(InCheck == !!pos.checkers());
     assert(alpha >= -VALUE_INFINITE && alpha < beta && beta <= VALUE_INFINITE);
@@ -1164,7 +1165,6 @@ moves_loop: // When in check search starts from here
     Move ttMove, move, bestMove;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
     bool ttHit, givesCheck, evasionPrunable;
-    Depth ttDepth;
 
     if (PvNode)
     {
@@ -1182,9 +1182,6 @@ moves_loop: // When in check search starts from here
                                               : DrawValue[pos.side_to_move()];
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
-
-    // We fix the type of TT entry depth that we are going to use
-    ttDepth = (InCheck || depth >= -1 * ONE_PLY) ? DEPTH_ZERO : -1 * ONE_PLY;
 
     // Transposition table lookup
     posKey = pos.key();
