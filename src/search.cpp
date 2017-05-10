@@ -1150,7 +1150,7 @@ moves_loop: // When in check search starts from here
   Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
     const bool PvNode = NT == PV;
-    const Depth ttDepth = -1 * ONE_PLY;
+    const Depth ttDepth = -2 * ONE_PLY;
 
     assert(InCheck == !!pos.checkers());
     assert(alpha >= -VALUE_INFINITE && alpha < beta && beta <= VALUE_INFINITE);
