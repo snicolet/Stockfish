@@ -191,6 +191,7 @@ namespace {
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
+  const Score Overprotection      = S( 20,  0);
   const Score HinderPassedPawn    = S(  7,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -573,6 +574,13 @@ namespace {
         if (b)
             score += ThreatByKing[more_than_one(b)];
     }
+
+    // Small bonus for overprotecting our weak pawns
+    b =    pos.pieces(Us, PAWN)
+        & ~ei.attackedBy[Us][PAWN]
+        &  ei.attackedBy2[Us]
+        & ~ei.attackedBy2[Them];
+    score += Overprotection * popcount(b);
 
     // Bonus if some pawns can safely push and attack an enemy piece
     b = pos.pieces(Us, PAWN) & ~TRank7BB;
