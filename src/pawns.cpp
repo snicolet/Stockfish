@@ -170,10 +170,10 @@ namespace {
             while (b)
                 if (!more_than_one(theirPawns & PawnAttacks[Us][pop_lsb(&b)]))
                     e->passedPawns[Us] |= s;
-        }
 
-        if (e->passedPawns[Us] & s)
-            e->asymmetry++;
+            if (e->passedPawns[Us] & s)
+                e->asymmetry++;
+        }
 
         // Score this pawn
         if (!neighbours)
