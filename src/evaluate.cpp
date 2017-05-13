@@ -423,7 +423,12 @@ namespace {
                     + 201 * popcount(undefended)
                     + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
                     - 848 * !pos.count<QUEEN>(Them)
-                    -  28 * mg_value(score) / 25 - 5;
+                    -  28 * mg_value(score) / 25 
+                    +  45;
+
+        // King luft
+        int luft = popcount(DistanceRingBB[ksq][0] & ~pos.pieces());
+        kingDanger -= 4 * luft * luft;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
