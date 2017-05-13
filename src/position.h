@@ -98,6 +98,7 @@ public:
   int can_castle(Color c) const;
   int can_castle(CastlingRight cr) const;
   bool castling_impeded(CastlingRight cr) const;
+  bool opposite_castling() const;
   Square castling_rook_square(CastlingRight cr) const;
 
   // Checking
@@ -265,6 +266,10 @@ inline int Position::can_castle(Color c) const {
 
 inline bool Position::castling_impeded(CastlingRight cr) const {
   return byTypeBB[ALL_PIECES] & castlingPath[cr];
+}
+
+inline bool Position::opposite_castling() const {
+  return distance<File>(square<KING>(WHITE), square<KING>(BLACK)) >= 4;
 }
 
 inline Square Position::castling_rook_square(CastlingRight cr) const {
