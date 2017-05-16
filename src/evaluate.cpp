@@ -239,18 +239,12 @@ namespace {
     ei.attackedBy2[Us]            = b & ei.attackedBy[Us][PAWN];
     ei.attackedBy[Us][ALL_PIECES] = b | ei.attackedBy[Us][PAWN];
 
-    // Init our king safety tables only if we are going to use them
-    if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
-    {
-        ei.kingRing[Us] = b;
-        if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
-            ei.kingRing[Us] |= shift<Up>(b);
+    ei.kingRing[Us] = b;
+    if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
+        ei.kingRing[Us] |= shift<Up>(b);
 
-        ei.kingAttackersCount[Them] = popcount(b & ei.pe->pawn_attacks(Them));
-        ei.kingAdjacentZoneAttacksCount[Them] = ei.kingAttackersWeight[Them] = 0;
-    }
-    else
-        ei.kingRing[Us] = ei.kingAttackersCount[Them] = 0;
+    ei.kingAttackersCount[Them] = popcount(b & ei.pe->pawn_attacks(Them));
+    ei.kingAdjacentZoneAttacksCount[Them] = ei.kingAttackersWeight[Them] = 0;
   }
 
 
