@@ -473,7 +473,7 @@ namespace {
         {
             kingDanger += KnightCheck;
 
-            // Knight forking king and (queen, rooks, bishops or pawns)
+            // Look for Knight forking King and (Queen, Rooks, Bishops or Pawns)
             Bitboard checks = b & safe;
             Bitboard targets =   pos.pieces(Us, QUEEN, ROOK)
                               | (pos.pieces(Us, BISHOP, PAWN) & ~ei.attackedBy[Us][PAWN]);
