@@ -192,6 +192,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
+  const Score Fork                = S( 30, 30);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -405,7 +406,7 @@ namespace {
     Score score = ei.pe->king_safety<Us>(pos, ksq);
 
     // Main king safety evaluation
-    if (ei.kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
+    if (ei.kingAttackersCount[Them])
     {
         // Find the attacked squares which are defended only by our king...
         undefended =   ei.attackedBy[Them][ALL_PIECES]
@@ -469,7 +470,18 @@ namespace {
         // Enemy knights safe and other checks
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
         if (b & safe)
+        {
             kingDanger += KnightCheck;
+
+            // Knight forking king and (queen, rooks, bishops or pawns)
+            Bitboard checks = b & safe;
+            Bitboard targets =   pos.pieces(Us, QUEEN, ROOK)
+                              | (pos.pieces(Us, BISHOP, PAWN) & ~ei.attackedBy[Us][PAWN]);
+            do
+                if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
+                    score -= Fork;
+            while (checks);
+        }
 
         else if (b & other)
             score -= OtherCheck;
