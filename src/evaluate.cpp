@@ -192,7 +192,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
-  const Score Fork                = S( 30, 30);
+  const Score Fork                = S( 50, 50);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -476,7 +476,7 @@ namespace {
             // Look for knight checks forking Queen, Rooks, Bishops or Pawns
             Bitboard checks = b & safe;
             Bitboard targets =   pos.pieces(Us, QUEEN, ROOK)
-                              | (pos.pieces(Us, BISHOP, PAWN) & ~ei.attackedBy[Us][PAWN]);
+                              | (pos.pieces(Us, BISHOP, PAWN) & ~ei.attackedBy[Us][ALL_PIECES]);
             do
                 if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
                     score -= Fork;
