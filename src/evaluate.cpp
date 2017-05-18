@@ -406,7 +406,8 @@ namespace {
     Score score = ei.pe->king_safety<Us>(pos, ksq);
 
     // Main king safety evaluation
-    if (ei.kingAttackersCount[Them])
+    if (   (pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT])
+        ||  ei.kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
     {
         // Find the attacked squares which are defended only by our king...
         undefended =   ei.attackedBy[Them][ALL_PIECES]
@@ -476,7 +477,7 @@ namespace {
             // Look for knight checks forking Queen, Rooks, Bishops or Pawns
             Bitboard checks = b & safe;
             Bitboard targets =   pos.pieces(Us, QUEEN, ROOK)
-                              | (pos.pieces(Us, BISHOP, PAWN) & ~ei.attackedBy[Us][ALL_PIECES]);
+                              | (pos.pieces(Us, BISHOP, PAWN) & ~ei.attackedBy[Us][PAWN]);
             do
                 if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
                     score -= Fork;
