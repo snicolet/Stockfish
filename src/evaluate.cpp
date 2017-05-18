@@ -480,7 +480,7 @@ namespace {
             // Look for knight checks forking Queen, Rooks, Bishops or Pawns
             Bitboard checks = b & safe;
             Bitboard targets =   pos.pieces(Us, QUEEN, ROOK)
-                              | (pos.pieces(Us, BISHOP, PAWN) & ~ei.attackedBy[Us][PAWN]);
+                              | (pos.pieces(Us, BISHOP, PAWN) & ~ei.attackedBy[Us][ALL_PIECES]);
             do
                 if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
                     score -= Fork;
