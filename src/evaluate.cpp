@@ -404,6 +404,10 @@ namespace {
     // King shelter and enemy pawns storm
     Score score = ei.pe->king_safety<Us>(pos, ksq);
 
+    kingDanger =  143 * !!pos.pinned_pieces(Us)
+                -   9 * mg_value(score) / 8
+                + 40;
+
     // Main king safety evaluation
     if (ei.kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
     {
@@ -421,13 +425,11 @@ namespace {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and undefended squares around our king and the quality of
         // the pawn shelter (current 'score' value).
-        kingDanger =        ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]
-                    + 102 * ei.kingAdjacentZoneAttacksCount[Them]
-                    + 201 * popcount(undefended)
-                    + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
-                    - 848 * !pos.count<QUEEN>(Them)
-                    -   9 * mg_value(score) / 8
-                    +  40;
+        kingDanger +=        ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]
+                     + 102 * ei.kingAdjacentZoneAttacksCount[Them]
+                     + 201 * popcount(undefended)
+                     + 143 * popcount(b)
+                     - 848 * !pos.count<QUEEN>(Them);
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
@@ -473,11 +475,11 @@ namespace {
 
         else if (b & other)
             score -= OtherCheck;
-
-        // Transform the kingDanger units into a Score, and substract it from the evaluation
-        if (kingDanger > 0)
-            score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
     }
+
+    // Transform the kingDanger units into a Score, and substract it from the evaluation
+    if (kingDanger > 0)
+        score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
     File kf = file_of(ksq);
