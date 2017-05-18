@@ -247,10 +247,11 @@ namespace {
             ei.kingRing[Us] |= shift<Up>(b);
 
         ei.kingAttackersCount[Them] = popcount(b & ei.pe->pawn_attacks(Them));
-        ei.kingAdjacentZoneAttacksCount[Them] = ei.kingAttackersWeight[Them] = 0;
     }
     else
         ei.kingRing[Us] = ei.kingAttackersCount[Them] = 0;
+
+    ei.kingAdjacentZoneAttacksCount[Them] = ei.kingAttackersWeight[Them] = 0;
   }
 
 
@@ -405,7 +406,8 @@ namespace {
     Score score = ei.pe->king_safety<Us>(pos, ksq);
 
     // Main king safety evaluation
-    if (ei.kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
+    if (   ei.kingAdjacentZoneAttacksCount[Them] > 0
+        && ei.kingAttackersCount[Them] + pos.count<QUEEN>(Them) > 1 )
     {
         // Find the attacked squares which are defended only by our king...
         undefended =   ei.attackedBy[Them][ALL_PIECES]
