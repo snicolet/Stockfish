@@ -23,7 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-
+#include <iostream>
 #include "bitboard.h"
 #include "evaluate.h"
 #include "material.h"
@@ -224,16 +224,19 @@ namespace {
     const Square Up   = (Us == WHITE ? NORTH : SOUTH);
     const Square Down = (Us == WHITE ? SOUTH : NORTH);
     const Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB: Rank7BB | Rank6BB);
+    const Bitboard Corners  = (Rank1BB | Rank8BB) & (FileABB | FileHBB);
+
+    const Square ksq = pos.square<KING>(Us);
 
     // Find our pawns on the first two ranks, and those which are blocked
     Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
 
     // Squares occupied by those pawns, by our king, or controlled by enemy pawns
     // are excluded from the mobility area.
-    ei.mobilityArea[Us] = ~(b | pos.square<KING>(Us) | ei.pe->pawn_attacks(Them));
+    ei.mobilityArea[Us] = ~(b | ksq | ei.pe->pawn_attacks(Them));
 
     // Initialise the attack bitboards with the king and pawn information
-    b = ei.attackedBy[Us][KING] = pos.attacks_from<KING>(pos.square<KING>(Us));
+    b = ei.attackedBy[Us][KING] = pos.attacks_from<KING>(ksq);
     ei.attackedBy[Us][PAWN] = ei.pe->pawn_attacks(Us);
 
     ei.attackedBy2[Us]            = b & ei.attackedBy[Us][PAWN];
@@ -243,8 +246,12 @@ namespace {
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
     {
         ei.kingRing[Us] = b;
-        if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
+
+        if (relative_rank(Us, ksq) == RANK_1)
             ei.kingRing[Us] |= shift<Up>(b);
+
+        if (Corners & ksq)
+            ei.kingRing[Us] |= DistanceRingBB[ksq][1];
 
         ei.kingAttackersCount[Them] = popcount(b & ei.pe->pawn_attacks(Them));
         ei.kingAdjacentZoneAttacksCount[Them] = ei.kingAttackersWeight[Them] = 0;
