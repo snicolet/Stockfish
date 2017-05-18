@@ -621,6 +621,17 @@ namespace {
     ttMove =  rootNode ? thisThread->rootMoves[thisThread->PVIdx].pv[0]
             : ttHit    ? tte->move() : MOVE_NONE;
 
+    // Test if a found ttMove is illegal. In this case we had a hash collision
+    // with another position or the tt entry is corrupted -- later is quite possible
+    // in multi-threaded search because no locking is used for access. In both cases
+    // we have a sure case where the found tt entry can not be trusted, so we ignore it.
+    if (ttMove && !pos.pseudo_legal(ttMove))
+    {
+        ttHit = false;
+        ttMove = MOVE_NONE;
+        ttValue = VALUE_NONE;
+    }
+
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ttHit
