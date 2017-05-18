@@ -407,7 +407,7 @@ namespace {
 
     // Main king safety evaluation
     if (   ei.kingAdjacentZoneAttacksCount[Them] > 0
-        && ei.kingAttackersCount[Them] + pos.count<QUEEN>(Them) > 1 )
+        || ei.kingAttackersCount[Them] + pos.count<QUEEN>(Them) >= 2 )
     {
         // Find the attacked squares which are defended only by our king...
         undefended =   ei.attackedBy[Them][ALL_PIECES]
