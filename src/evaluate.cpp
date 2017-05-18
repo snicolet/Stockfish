@@ -192,6 +192,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
+  const Score Fork                = S( 50, 50);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -240,7 +241,7 @@ namespace {
     ei.attackedBy[Us][ALL_PIECES] = b | ei.attackedBy[Us][PAWN];
 
     // Init our king safety tables only if we are going to use them
-    if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
+    if (pos.non_pawn_material(Them) >= KnightValueMg + KnightValueMg)
     {
         ei.kingRing[Us] = b;
         if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
@@ -250,7 +251,10 @@ namespace {
         ei.kingAdjacentZoneAttacksCount[Them] = ei.kingAttackersWeight[Them] = 0;
     }
     else
+    {
         ei.kingRing[Us] = ei.kingAttackersCount[Them] = 0;
+        ei.kingAdjacentZoneAttacksCount[Them] = ei.kingAttackersWeight[Them] = 0;
+    }
   }
 
 
@@ -405,7 +409,8 @@ namespace {
     Score score = ei.pe->king_safety<Us>(pos, ksq);
 
     // Main king safety evaluation
-    if (ei.kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
+    if (   (pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT])
+        ||  ei.kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
     {
         // Find the attacked squares which are defended only by our king...
         undefended =   ei.attackedBy[Them][ALL_PIECES]
@@ -469,7 +474,18 @@ namespace {
         // Enemy knights safe and other checks
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
         if (b & safe)
+        {
             kingDanger += KnightCheck;
+
+            // Look for knight checks forking Queen, Rooks, Bishops or Pawns
+            Bitboard checks = b & safe;
+            Bitboard targets =   pos.pieces(Us, QUEEN, ROOK)
+                              | (pos.pieces(Us, BISHOP, PAWN) & ~ei.attackedBy[Us][PAWN]);
+            do
+                if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
+                    score -= Fork;
+            while (checks);
+        }
 
         else if (b & other)
             score -= OtherCheck;
