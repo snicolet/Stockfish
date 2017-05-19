@@ -825,7 +825,7 @@ Value Eval::evaluate(const Position& pos) {
   score += mobility[WHITE] - mobility[BLACK];
 
   // Stochastic mobility, after http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
-  score += make_score(pos.key() & 15, 0);
+  score += make_score(pos.key() & 15, pos.key() & 15);
 
   // Evaluate kings after all other pieces because we need full attack
   // information when computing the king safety evaluation.
