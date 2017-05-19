@@ -824,9 +824,6 @@ Value Eval::evaluate(const Position& pos) {
   score += evaluate_pieces<DoTrace>(pos, ei, mobility);
   score += mobility[WHITE] - mobility[BLACK];
 
-  // Stochastic mobility, after http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
-  score += make_score(pos.key() & 15, pos.key() & 15);
-
   // Evaluate kings after all other pieces because we need full attack
   // information when computing the king safety evaluation.
   score +=  evaluate_king<WHITE, DoTrace>(pos, ei)
@@ -870,7 +867,12 @@ Value Eval::evaluate(const Position& pos) {
       Trace::add(TOTAL, score);
   }
 
-  return (pos.side_to_move() == WHITE ? v : -v) + Eval::Tempo; // Side to move point of view
+  int x = pos.key() & 63;
+  int stochasticMobility = x * x / 128 - 10;
+
+  return  (pos.side_to_move() == WHITE ? v : -v)   // Side to move point of view
+        + stochasticMobility
+        + Eval::Tempo;
 }
 
 // Explicit template instantiations
