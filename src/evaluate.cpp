@@ -94,6 +94,10 @@ namespace {
     // f7, g7, h7, f6, g6 and h6.
     Bitboard kingRing[COLOR_NB];
 
+    // kingDefendersCount[color] is the number of pieces of the given color
+    // which attack a square in the kingRing of the own king.
+    int kingDefendersCount[COLOR_NB];
+
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
     int kingAttackersCount[COLOR_NB];
@@ -225,15 +229,17 @@ namespace {
     const Square Down = (Us == WHITE ? SOUTH : NORTH);
     const Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB: Rank7BB | Rank6BB);
 
+    const Square ksq = pos.square<KING>(Us);
+
     // Find our pawns on the first two ranks, and those which are blocked
     Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
 
     // Squares occupied by those pawns, by our king, or controlled by enemy pawns
     // are excluded from the mobility area.
-    ei.mobilityArea[Us] = ~(b | pos.square<KING>(Us) | ei.pe->pawn_attacks(Them));
+    ei.mobilityArea[Us] = ~(b | ksq | ei.pe->pawn_attacks(Them));
 
     // Initialise the attack bitboards with the king and pawn information
-    b = ei.attackedBy[Us][KING] = pos.attacks_from<KING>(pos.square<KING>(Us));
+    b = ei.attackedBy[Us][KING] = pos.attacks_from<KING>(ksq);
     ei.attackedBy[Us][PAWN] = ei.pe->pawn_attacks(Us);
 
     ei.attackedBy2[Us]            = b & ei.attackedBy[Us][PAWN];
@@ -243,14 +249,16 @@ namespace {
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
     {
         ei.kingRing[Us] = b;
-        if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
+        if (relative_rank(Us, ksq) == RANK_1)
             ei.kingRing[Us] |= shift<Up>(b);
 
         ei.kingAttackersCount[Them] = popcount(b & ei.pe->pawn_attacks(Them));
+        ei.kingDefendersCount[Us]   = popcount(b & pos.pieces(Us, PAWN) & in_front_bb(Us, rank_of(ksq)));
+
         ei.kingAdjacentZoneAttacksCount[Them] = ei.kingAttackersWeight[Them] = 0;
     }
     else
-        ei.kingRing[Us] = ei.kingAttackersCount[Them] = 0;
+        ei.kingRing[Us] = ei.kingAttackersCount[Them] = ei.kingDefendersCount[Us] = 0;
   }
 
 
@@ -291,6 +299,9 @@ namespace {
             ei.kingAttackersWeight[Us] += KingAttackWeights[Pt];
             ei.kingAdjacentZoneAttacksCount[Us] += popcount(b & ei.attackedBy[Them][KING]);
         }
+
+        if (b & ei.kingRing[Us])
+            ei.kingDefendersCount[Us]++;
 
         int mob = popcount(b & ei.mobilityArea[Us]);
 
@@ -476,7 +487,11 @@ namespace {
 
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
+        {
+            // Scale king danger according to the assault ratio
+            kingDanger = kingDanger * (32 + ei.kingAttackersCount[Them]) / (32 + ei.kingDefendersCount[Us]);
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+        }
     }
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
