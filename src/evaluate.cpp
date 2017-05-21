@@ -240,7 +240,9 @@ namespace {
     ei.attackedBy[Us][ALL_PIECES] = b | ei.attackedBy[Us][PAWN];
 
     // Init our king safety tables only if we are going to use them
-    if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
+    if (   pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg
+        || pos.discovered_check_candidates(Them)
+        || pos.pinned_pieces(Us))
     {
         ei.kingRing[Us] = b;
         if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
@@ -404,7 +406,9 @@ namespace {
     Score score = ei.pe->king_safety<Us>(pos, ksq);
 
     // Main king safety evaluation
-    if (ei.kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
+    if (   ei.kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them))
+        || pos.discovered_check_candidates(Them)
+        || pos.pinned_pieces(Us))
     {
         // Find the attacked squares which are defended only by our king
         undefended =   ei.attackedBy[Them][ALL_PIECES]
@@ -433,7 +437,7 @@ namespace {
         kingDanger =        ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]
                     + 102 * ei.kingAdjacentZoneAttacksCount[Them]
                     + 201 * popcount(undefended)
-                    + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
+                    + 143 * (popcount(b | dc) + !!pos.pinned_pieces(Us))
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
                     +  40;
@@ -456,10 +460,8 @@ namespace {
                & ei.attackedBy[Us][QUEEN];
 
         // Some other potential checks are also analysed, as long as the square
-        // is not protected by our pawns (except for our losing a queen).
+        // is not protected by our pawns.
         other  = ~pos.pieces(Them) & ~ei.attackedBy[Us][PAWN];
-        other |= pos.pieces(Us, QUEEN);
-        other |= dc;
 
         // Enemy rooks safe and other checks
         if (b1 & ei.attackedBy[Them][ROOK] & safe)
