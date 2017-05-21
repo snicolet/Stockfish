@@ -413,10 +413,11 @@ namespace {
 
         // Find some safe discovered checks candidates
         Bitboard sliders = pos.pieces(Them, QUEEN, ROOK) | pos.pieces(Them, BISHOP);
-        if (!(   sliders
-              &  PseudoAttacks[QUEEN][ksq]
-              & ~pos.discovered_check_candidates(Them)
-              &  ei.attackedBy[Us][ALL_PIECES]))
+        if (    pos.discovered_check_candidates(Them)
+            && !(   sliders
+                 &  PseudoAttacks[QUEEN][ksq]
+                 & ~pos.discovered_check_candidates(Them)
+                 &  ei.attackedBy[Us][ALL_PIECES]))
             dc =   pos.discovered_check_candidates(Them)
                 & (~(pos.pieces(Them, PAWN) & file_bb(ksq)) | ei.attackedBy[Us][PAWN]);
 
@@ -440,7 +441,6 @@ namespace {
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
         safe &= ~ei.attackedBy[Us][ALL_PIECES] | (undefended & ei.attackedBy2[Them]);
-        safe |= dc;
 
         b1 = pos.attacks_from<ROOK  >(ksq);
         b2 = pos.attacks_from<BISHOP>(ksq);
@@ -459,6 +459,7 @@ namespace {
         // is not protected by our pawns (except for our losing a queen).
         other  = ~pos.pieces(Them) & ~ei.attackedBy[Us][PAWN];
         other |= pos.pieces(Us, QUEEN);
+        other |= dc;
 
         // Enemy rooks safe and other checks
         if (b1 & ei.attackedBy[Them][ROOK] & safe)
