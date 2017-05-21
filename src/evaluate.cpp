@@ -458,9 +458,8 @@ namespace {
                & ei.attackedBy[Us][QUEEN];
 
         // Some other potential checks are also analysed, as long as the square
-        // is not protected by our pawns (except for our losing a queen).
+        // is not protected by our pawns.
         other  = ~pos.pieces(Them) & ~ei.attackedBy[Us][PAWN];
-        other |= pos.pieces(Us, QUEEN);
 
         // Enemy rooks safe and other checks
         if (b1 & ei.attackedBy[Them][ROOK] & safe)
