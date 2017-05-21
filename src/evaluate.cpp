@@ -407,12 +407,24 @@ namespace {
     // Main king safety evaluation
     if (ei.kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
     {
-        // Find the attacked squares which are defended only by our king...
+        // Find the attacked squares which are defended only by our king
         undefended =   ei.attackedBy[Them][ALL_PIECES]
                     &  ei.attackedBy[Us][KING]
                     & ~ei.attackedBy2[Us];
 
-        // ... and those which are not defended at all in the larger king ring
+        // Find some safe discovered checks candidates
+        Bitboard dc = 0;
+        Bitboard sliders = pos.pieces(Them, QUEEN, ROOK) | pos.pieces(Them, BISHOP);
+        if (!(   sliders
+              &  PseudoAttacks[QUEEN][ksq]
+              & ~pos.discovered_check_candidates(Them)
+              &  ei.attackedBy[Us][ALL_PIECES]))
+            dc =   pos.discovered_check_candidates(Them)
+                & (~pos.pieces(Them, PAWN) | ei.attackedBy[Us][PAWN]);
+
+        other = dc;
+
+        // Find the squares which are not defended at all in the larger king ring
         b =  ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]
            & ei.kingRing[Us] & ~pos.pieces(Them);
 
@@ -449,8 +461,8 @@ namespace {
         // Some other potential checks are also analysed, even from squares
         // currently occupied by the opponent own pieces, as long as the square
         // is not attacked by our pawns, and is not occupied by a blocked pawn.
-        other = ~(   ei.attackedBy[Us][PAWN]
-                  | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
+        other |= ~(   ei.attackedBy[Us][PAWN]
+                   | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
 
         // Enemy rooks safe and other checks
         if (b1 & ei.attackedBy[Them][ROOK] & safe)
