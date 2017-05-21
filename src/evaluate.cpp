@@ -183,7 +183,6 @@ namespace {
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
-  const Score OtherCheck          = S( 10, 10);
   const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
   const Score ThreatByHangingPawn = S( 71, 61);
@@ -209,6 +208,7 @@ namespace {
   const int RookCheck   = 880;
   const int BishopCheck = 435;
   const int KnightCheck = 790;
+  const int OtherCheck  = 160;
 
   // Threshold for lazy and space evaluation
   const Value LazyThreshold  = Value(1500);
@@ -449,22 +449,22 @@ namespace {
         // Some other potential checks are also analysed, even from squares
         // currently occupied by the opponent own pieces, as long as the square
         // is not attacked by our pawns, and is not occupied by a blocked pawn.
-        other = ~(   ei.attackedBy[Us][PAWN]
-                  | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
+        other = ~(  ei.attackedBy[Us][PAWN]
+                  ^ (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
 
         // Enemy rooks safe and other checks
         if (b1 & ei.attackedBy[Them][ROOK] & safe)
             kingDanger += RookCheck;
 
         else if (b1 & ei.attackedBy[Them][ROOK] & other)
-            score -= OtherCheck;
+            kingDanger += OtherCheck;
 
         // Enemy bishops safe and other checks
         if (b2 & ei.attackedBy[Them][BISHOP] & safe)
             kingDanger += BishopCheck;
 
         else if (b2 & ei.attackedBy[Them][BISHOP] & other)
-            score -= OtherCheck;
+            kingDanger += OtherCheck;
 
         // Enemy knights safe and other checks
         b = pos.attacks_from<KNIGHT>(ksq) & ei.attackedBy[Them][KNIGHT];
@@ -472,7 +472,7 @@ namespace {
             kingDanger += KnightCheck;
 
         else if (b & other)
-            score -= OtherCheck;
+            kingDanger += OtherCheck;
 
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
