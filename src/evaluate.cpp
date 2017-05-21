@@ -458,10 +458,10 @@ namespace {
                & ~(ei.attackedBy2[Us] | pos.pieces(Them))
                & ei.attackedBy[Us][QUEEN];
 
-        // Some other potential checks are also analysed, even from squares
-        // currently occupied by the opponent own pieces, as long as the square
-        // is not attacked by our pawns, and is not occupied by a blocked pawn.
-        other = ~pos.pieces(Them) & ~ei.attackedBy[Us][PAWN];
+        // Some other potential checks are also analysed, as long as the square
+        // is not protected by our pawns (except for our losing a queen).
+        other  = ~pos.pieces(Them) & ~ei.attackedBy[Us][PAWN];
+        other |= pos.pieces(Us, QUEEN);
 
         // Enemy rooks safe and other checks
         if (b1 & ei.attackedBy[Them][ROOK] & safe)
