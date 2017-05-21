@@ -393,7 +393,6 @@ namespace {
   Score evaluate_king(const Position& pos, const EvalInfo& ei) {
 
     const Color Them    = (Us == WHITE ? BLACK : WHITE);
-    const Square Up     = (Us == WHITE ? NORTH : SOUTH);
     const Bitboard Camp = (Us == WHITE ? ~Bitboard(0) ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
