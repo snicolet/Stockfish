@@ -398,7 +398,7 @@ namespace {
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard undefended, b, b1, b2, safe, other, dc = 0;
+    Bitboard kingDefended, undefended, b, b1, b2, safe, other, dc = 0;
     int kingDanger;
 
     // King shelter and enemy pawns storm
@@ -408,10 +408,16 @@ namespace {
     if (   ei.kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them))
         || pos.discovered_check_candidates(Them))
     {
-        // Find the attacked squares which are defended only by our king
-        undefended =   ei.attackedBy[Them][ALL_PIECES]
-                    &  ei.attackedBy[Us][KING]
-                    & ~ei.attackedBy2[Us];
+        // Find the squares which are defended only by our king
+        kingDefended =   ei.attackedBy[Them][ALL_PIECES]
+                      &  ei.attackedBy[Us][KING]
+                      & ~ei.attackedBy2[Us];
+
+        // Find the squares which are not defended at all in the larger king ring
+        undefended =   ei.attackedBy[Them][ALL_PIECES] 
+                    & ~ei.attackedBy[Us][ALL_PIECES]
+                    &  ei.kingRing[Us]
+                    & ~pos.pieces(Them);
 
         // Find some safe discovered checks candidates
         if (    pos.discovered_check_candidates(Them)
@@ -422,10 +428,6 @@ namespace {
             dc =   pos.discovered_check_candidates(Them)
                 & (~(pos.pieces(Them, PAWN) & file_bb(ksq)) | ei.attackedBy[Us][PAWN]);
 
-        // Find the squares which are not defended at all in the larger king ring
-        b =  ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]
-           & ei.kingRing[Us] & ~pos.pieces(Them);
-
         // Initialize the 'kingDanger' variable, which will be transformed
         // later into a king danger score. The initial value is based on the
         // number and types of the enemy's attacking pieces, the number of
@@ -433,21 +435,24 @@ namespace {
         // the pawn shelter (current 'score' value).
         kingDanger =        ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]
                     + 102 * ei.kingAdjacentZoneAttacksCount[Them]
-                    + 201 * popcount(undefended)
-                    + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
+                    + 201 * popcount(kingDefended)
+                    + 143 * (popcount(undefended) + !!pos.pinned_pieces(Us))
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
                     +  40;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
-        safe &= ~ei.attackedBy[Us][ALL_PIECES] | (undefended & ei.attackedBy2[Them]);
+        safe &= ~ei.attackedBy[Us][ALL_PIECES] | (kingDefended & ei.attackedBy2[Them]);
 
         b1 = pos.attacks_from<ROOK  >(ksq);
         b2 = pos.attacks_from<BISHOP>(ksq);
 
         // Enemy queen safe checks
         if ((b1 | b2) & ei.attackedBy[Them][QUEEN] & safe)
+            kingDanger += QueenCheck;
+
+        else if ((b1 | b2) & ei.attackedBy[Them][QUEEN] & dc)
             kingDanger += QueenCheck;
 
         // For minors and rooks, also consider the square safe if attacked twice,
@@ -459,20 +464,19 @@ namespace {
         // Some other potential checks are also analysed, as long as the square
         // is not protected by our pawns.
         other  = ~pos.pieces(Them) & ~ei.attackedBy[Us][PAWN];
-        other |= dc;
 
         // Enemy rooks safe and other checks
         if (b1 & ei.attackedBy[Them][ROOK] & safe)
             kingDanger += RookCheck;
 
-        else if (b1 & ei.attackedBy[Them][ROOK] & other)
+        else if (b1 & ei.attackedBy[Them][ROOK] & (other | dc))
             score -= OtherCheck;
 
         // Enemy bishops safe and other checks
         if (b2 & ei.attackedBy[Them][BISHOP] & safe)
             kingDanger += BishopCheck;
 
-        else if (b2 & ei.attackedBy[Them][BISHOP] & other)
+        else if (b2 & ei.attackedBy[Them][BISHOP] & (other | dc))
             score -= OtherCheck;
 
         // Enemy knights safe and other checks
