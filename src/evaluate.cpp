@@ -453,7 +453,7 @@ namespace {
             kingDanger += QueenCheck;
 
         else if ((b1 | b2) & ei.attackedBy[Them][QUEEN] & dc)
-            kingDanger += QueenCheck;
+            score -= OtherCheck;
 
         // For minors and rooks, also consider the square safe if attacked twice,
         // and only defended by our queen.
