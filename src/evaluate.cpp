@@ -416,25 +416,6 @@ namespace {
         b =  ei.attackedBy[Them][ALL_PIECES] & ~ei.attackedBy[Us][ALL_PIECES]
            & ei.kingRing[Us] & ~pos.pieces(Them);
 
-        /*
-        int A = -848 * !pos.count<QUEEN>(Them);
-        int B = pos.non_pawn_material(Them);
-        int C = pos.non_pawn_material(Them) - 5886;
-        int D = (pos.non_pawn_material(Them) - 5848) * 3 / 8;
-        int E = pos.non_pawn_material(Them) * 3 / 8 - 2193;
-        */
-        
-        //dbg_mean_of( D == E );
-        //dbg_mean_of(abs(D - E));
-        //dbg_mean_of(abs(A - E));
-        //if (!pos.count<QUEEN>(Them)) dbg_mean_of(E);
-        //if (pos.count<QUEEN>(Them)) dbg_mean_of(E);
-        //if (A == 0) dbg_mean_of(B);
-        //if (A > 500 ) dbg_mean_of(B);
-        //dbg_mean_of( (A == 0) == (B < 100) );
-        
-        
-
         // Initialize the 'kingDanger' variable, which will be transformed
         // later into a king danger score. The initial value is based on the
         // number and types of the enemy's attacking pieces, the number of
