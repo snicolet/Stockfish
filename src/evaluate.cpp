@@ -426,6 +426,7 @@ namespace {
                     + 201 * popcount(undefended)
                     + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
                     +       pos.non_pawn_material(Them) / 64
+                    - 600 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
                     - 40;
 
