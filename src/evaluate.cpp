@@ -241,8 +241,7 @@ namespace {
 
     // Init our king safety tables only if we are going to use them
     if (   pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg
-        || pos.discovered_check_candidates(Them)
-        || pos.pinned_pieces(Us))
+        || pos.discovered_check_candidates(Them))
     {
         ei.kingRing[Us] = b;
         if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
@@ -407,8 +406,7 @@ namespace {
 
     // Main king safety evaluation
     if (   ei.kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them))
-        || pos.discovered_check_candidates(Them)
-        || pos.pinned_pieces(Us))
+        || pos.discovered_check_candidates(Them))
     {
         // Find the attacked squares which are defended only by our king
         undefended =   ei.attackedBy[Them][ALL_PIECES]
@@ -416,9 +414,8 @@ namespace {
                     & ~ei.attackedBy2[Us];
 
         // Find some safe discovered checks candidates
-        Bitboard sliders = pos.pieces(Them, QUEEN, ROOK) | pos.pieces(Them, BISHOP);
         if (    pos.discovered_check_candidates(Them)
-            && !(   sliders
+            && !(   (pos.pieces(Them, BISHOP, ROOK) | pos.pieces(Them, QUEEN))
                  &  PseudoAttacks[QUEEN][ksq]
                  & ~pos.discovered_check_candidates(Them)
                  &  ei.attackedBy[Us][ALL_PIECES]))
@@ -437,7 +434,7 @@ namespace {
         kingDanger =        ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]
                     + 102 * ei.kingAdjacentZoneAttacksCount[Them]
                     + 201 * popcount(undefended)
-                    + 143 * (popcount(b | dc) + !!pos.pinned_pieces(Us))
+                    + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
                     +  40;
@@ -462,6 +459,7 @@ namespace {
         // Some other potential checks are also analysed, as long as the square
         // is not protected by our pawns.
         other  = ~pos.pieces(Them) & ~ei.attackedBy[Us][PAWN];
+        other |= dc;
 
         // Enemy rooks safe and other checks
         if (b1 & ei.attackedBy[Them][ROOK] & safe)
