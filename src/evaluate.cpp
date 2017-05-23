@@ -390,8 +390,8 @@ namespace {
   };
   
   
-  int kd_A = 848;
-  int kd_B = -2;
+  int kd_A = 839;
+  int kd_B = -90;
   
   TUNE(SetRange(-2000, 2000), kd_A, kd_B);
 
@@ -432,7 +432,7 @@ namespace {
                     + 201 * popcount(undefended)
                     + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
                     - kd_A * !pos.count<QUEEN>(Them)
-                    +       pos.non_pawn_material(Them) / 128
+                    +       pos.non_pawn_material(Them) / 64
                     -   9 * mg_value(score) / 8
                     + kd_B ;
 
