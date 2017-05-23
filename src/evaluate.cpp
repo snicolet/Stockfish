@@ -391,7 +391,9 @@ namespace {
   
   
   int kd_A = 848;
-  int kd_B = -2;  
+  int kd_B = -2;
+  
+  TUNE(SetRange(-2000, 2000), kd_A, kd_B);
 
   template<Color Us, bool DoTrace>
   Score evaluate_king(const Position& pos, const EvalInfo& ei) {
