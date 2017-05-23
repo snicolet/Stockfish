@@ -388,6 +388,10 @@ namespace {
   const Bitboard KingFlank[FILE_NB] = {
     QueenSide, QueenSide, QueenSide, CenterFiles, CenterFiles, KingSide, KingSide, KingSide
   };
+  
+  
+  int kd_A = 848;
+  int kd_B = -2;  
 
   template<Color Us, bool DoTrace>
   Score evaluate_king(const Position& pos, const EvalInfo& ei) {
@@ -425,10 +429,10 @@ namespace {
                     + 102 * ei.kingAdjacentZoneAttacksCount[Them]
                     + 201 * popcount(undefended)
                     + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
-                    - 848 * !pos.count<QUEEN>(Them)
+                    - kd_A * !pos.count<QUEEN>(Them)
                     +       pos.non_pawn_material(Them) / 128
                     -   9 * mg_value(score) / 8
-                    -   2;
+                    + kd_B ;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
