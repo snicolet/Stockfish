@@ -59,28 +59,28 @@ const Piece Pieces[] = { W_PAWN, W_KNIGHT, W_BISHOP, W_ROOK, W_QUEEN, W_KING,
 // valuable attacker for the side to move, remove the attacker we just found
 // from the bitboards and scan for new X-ray attacks behind it.
 
-template<int Pt>
-PieceType min_attacker(const Bitboard* bb, Square to, Bitboard stmAttackers,
+template<int Pt = PAWN>
+PieceType min_attacker(const Bitboard* bb, int offset, Square to, Bitboard stmAttackers,
                        Bitboard& occupied, Bitboard& attackers) {
 
-  Bitboard b = stmAttackers & bb[Pt];
+  Bitboard b = stmAttackers & bb[Pt + offset];
   if (!b)
-      return min_attacker<Pt + 1>(bb, to, stmAttackers, occupied, attackers);
+      return min_attacker<Pt + 1>(bb, offset, to, stmAttackers, occupied, attackers);
 
   occupied ^= b & ~(b - 1);
 
   if (Pt == PAWN || Pt == BISHOP || Pt == QUEEN)
-      attackers |= attacks_bb<BISHOP>(to, occupied) & (bb[BISHOP] | bb[QUEEN]);
+      attackers |= attacks_bb<BISHOP>(to, occupied) & (bb[W_BISHOP] | bb[W_QUEEN] | bb[B_BISHOP] | bb[B_QUEEN]);
 
   if (Pt == ROOK || Pt == QUEEN)
-      attackers |= attacks_bb<ROOK>(to, occupied) & (bb[ROOK] | bb[QUEEN]);
+      attackers |= attacks_bb<ROOK>(to, occupied) & (bb[W_ROOK] | bb[W_QUEEN] | bb[B_ROOK] | bb[B_QUEEN]);
 
   attackers &= occupied; // After X-ray that may add already processed pieces
   return (PieceType)Pt;
 }
 
 template<>
-PieceType min_attacker<KING>(const Bitboard*, Square, Bitboard, Bitboard&, Bitboard&) {
+PieceType min_attacker<KING>(const Bitboard*, int, Square, Bitboard, Bitboard&, Bitboard&) {
   return KING; // No need to update bitboards: it is the last cycle
 }
 
@@ -1061,7 +1061,7 @@ bool Position::see_ge(Move m, Value v) const {
           return relativeStm;
 
       // Locate and remove the next least valuable attacker
-      nextVictim = min_attacker<PAWN>(byTypeBB, to, stmAttackers, occupied, attackers);
+      nextVictim = min_attacker<PAWN>(byPieceBB, 8 * stm, to, stmAttackers, occupied, attackers);
 
       if (nextVictim == KING)
           return relativeStm == bool(attackers & pieces(~stm));
@@ -1197,7 +1197,7 @@ bool Position::pos_is_ok(int* failedStep) const {
       if (step == Lists)
           for (Piece pc : Pieces)
           {
-              if (pieceCount[pc] != popcount(pieces(color_of(pc), type_of(pc))))
+              if (pieceCount[pc] != popcount(pieces(pc)))
                   return false;
 
               for (int i = 0; i < pieceCount[pc]; ++i)
