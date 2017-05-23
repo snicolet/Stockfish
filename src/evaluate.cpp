@@ -425,10 +425,10 @@ namespace {
                     + 102 * ei.kingAdjacentZoneAttacksCount[Them]
                     + 201 * popcount(undefended)
                     + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
-                    - 863 * !pos.count<QUEEN>(Them)
-                    +       pos.non_pawn_material(Them) / 64
+                    - 414 * !pos.count<QUEEN>(Them)
+                    +       pos.non_pawn_material(Them) / 4
                     -   9 * mg_value(score) / 8
-                    - 121;
+                    - 1550;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
