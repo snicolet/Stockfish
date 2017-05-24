@@ -378,6 +378,10 @@ namespace {
   template<>
   Score evaluate_pieces< true, WHITE, KING>(const Position&, EvalInfo&, Score*) { return SCORE_ZERO; }
 
+  int kd_A = 848;
+  int kd_B = -40;
+
+  TUNE(SetRange(-2000, 2000), kd_A, kd_B);
 
   // evaluate_king() assigns bonuses and penalties to a king of a given color
 
@@ -425,10 +429,10 @@ namespace {
                     + 102 * ei.kingAdjacentZoneAttacksCount[Them]
                     + 201 * popcount(undefended)
                     + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
-                    - 848 * !pos.count<QUEEN>(Them)
+                    - kd_A * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
                     +   8 * pos.count<ALL_PIECES>(Them)
-                    -  40;
+                    + kd_B;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
