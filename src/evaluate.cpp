@@ -21,7 +21,6 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>   // For std::memset
-#include <cmath>
 #include <iomanip>
 #include <sstream>
 
