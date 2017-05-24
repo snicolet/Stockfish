@@ -379,7 +379,7 @@ namespace {
   Score evaluate_pieces< true, WHITE, KING>(const Position&, EvalInfo&, Score*) { return SCORE_ZERO; }
 
   int kd_A = 848;
-  int kd_B = -40;
+  int kd_B = 0;
 
   TUNE(SetRange(-2000, 2000), kd_A, kd_B);
 
@@ -431,7 +431,7 @@ namespace {
                     + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
                     - kd_A * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
-                    +   8 * pos.count<ALL_PIECES>(Them)
+                    +   4 * pos.count<ALL_PIECES>(Them)
                     + kd_B;
 
         // Analyse the safe enemy's checks which are possible on next move
