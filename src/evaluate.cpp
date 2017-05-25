@@ -736,9 +736,9 @@ namespace {
     int pawns = pos.count<PAWN>();
 
     // Compute the initiative bonus for the attacking side
-    int initiative =    8 * (asymmetry + kingDistance - 15) 
-                     +      pawns * pawns
-                     + 16 * bothFlanks;
+    int initiative =  pawns * pawns 
+                    + 8 * (asymmetry + kingDistance - 15) 
+                    + 16 * bothFlanks;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
