@@ -426,9 +426,9 @@ namespace {
                     + 201 * popcount(undefended)
                     + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
                     - 848 * !pos.count<QUEEN>(Them)
-                    +   4 * pos.count<ALL_PIECES>(Them)
                     -   9 * mg_value(score) / 8
-                    -  20;
+                    +   4 * pos.count<ALL_PIECES>(Them)
+                    -  10;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
