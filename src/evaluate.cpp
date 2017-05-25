@@ -428,7 +428,7 @@ namespace {
                     - 848 * !pos.count<QUEEN>(Them)
                     +   4 * pos.count<ALL_PIECES>(Them)
                     -   9 * mg_value(score) / 8
-                    +  20;
+                    -  20;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
