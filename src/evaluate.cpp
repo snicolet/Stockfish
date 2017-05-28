@@ -427,7 +427,7 @@ namespace {
                     + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
-                    +  40;
+                    +   4 * pos.count<ALL_PIECES>(Them);
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
@@ -733,9 +733,13 @@ namespace {
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
+    int imbalance =   (pos.count<KNIGHT>(WHITE) != pos.count<KNIGHT>(BLACK))
+                    + (pos.count<BISHOP>(WHITE) != pos.count<BISHOP>(BLACK));
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 17) + 12 * pos.count<PAWN>() + 16 * bothFlanks;
+    int initiative =    8 * (asymmetry + kingDistance - imbalance - 16)
+                     + 12 * pos.count<PAWN>()
+                     + 16 * bothFlanks;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
