@@ -56,6 +56,7 @@ namespace TB = Tablebases;
 
 using std::string;
 using Eval::evaluate;
+using Eval::rootColor;
 using namespace Search;
 
 namespace {
@@ -243,6 +244,7 @@ template uint64_t Search::perft<true>(Position&, Depth);
 void MainThread::search() {
 
   Color us = rootPos.side_to_move();
+  Eval::rootColor = us;
   Time.init(Limits, us, rootPos.game_ply());
 
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns

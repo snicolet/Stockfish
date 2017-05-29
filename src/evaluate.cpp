@@ -430,6 +430,8 @@ namespace {
                     -   9 * mg_value(score) / 8
                     - 105;
 
+        kingDanger += (Us == Eval::rootColor ? -20 : 20);
+
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
         safe &= ~ei.attackedBy[Us][ALL_PIECES] | (undefended & ei.attackedBy2[Them]);
@@ -911,3 +913,5 @@ std::string Eval::trace(const Position& pos) {
 
   return ss.str();
 }
+
+Color Eval::rootColor;
