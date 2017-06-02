@@ -126,6 +126,7 @@ public:
 
   // Piece specific
   bool pawn_passed(Color c, Square s) const;
+  bool attacked_queen(Color c) const;
   bool opposite_bishops() const;
 
   // Doing and undoing moves
@@ -310,6 +311,13 @@ inline Bitboard Position::check_squares(PieceType pt) const {
 
 inline bool Position::pawn_passed(Color c, Square s) const {
   return !(pieces(~c, PAWN) & passed_pawn_mask(c, s));
+}
+
+inline bool Position::attacked_queen(Color c) const {
+  assert(count<QUEEN>(c) == 1);
+  assert(piece_on(square<QUEEN>(c)) == make_piece(c, QUEEN));
+  
+  return attackers_to(square<QUEEN>(c)) & (pieces(~c) ^ pieces(~c, QUEEN));
 }
 
 inline bool Position::advanced_pawn_push(Move m) const {
