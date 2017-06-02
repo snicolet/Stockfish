@@ -971,7 +971,7 @@ moves_loop: // When in check search starts from here
           &&  pos.count<QUEEN>(BLACK) == 1
           &&  pos.attacked_queen(~pos.side_to_move())
           && !pos.attacked_queen( pos.side_to_move()))
-         newDepth = std::max(newDepth - ONE_PLY, DEPTH_ZERO);
+         newDepth = std::max(newDepth - 2 * ONE_PLY, DEPTH_ZERO);
 
       // Late move reduction (LMR), if the move fails high it will be re-searched at full depth
       if (    depth >= 3 * ONE_PLY
