@@ -315,8 +315,6 @@ inline bool Position::pawn_passed(Color c, Square s) const {
 
 inline bool Position::attacked_queen(Color c) const {
   assert(count<QUEEN>(c) == 1);
-  assert(piece_on(square<QUEEN>(c)) == make_piece(c, QUEEN));
-  
   return attackers_to(square<QUEEN>(c)) & (pieces(~c) ^ pieces(~c, QUEEN));
 }
 
