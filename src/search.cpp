@@ -962,8 +962,9 @@ moves_loop: // When in check search starts from here
       // Step 14. Make the move
       pos.do_move(move, st, givesCheck);
 
-      // Step 15. Reductions
-      // Reduce moves that leave the queen en-prise
+      // Step 15. Queen loss reduction and Late move reduction
+
+      // Reduce moves that leave the queen en prise
       if (    depth >= 3 * ONE_PLY
           &&  depth <= 15 * ONE_PLY
           &&  moveCount > 1
@@ -973,7 +974,7 @@ moves_loop: // When in check search starts from here
           && !pos.attacked_queen( pos.side_to_move()))
          newDepth = std::max(newDepth - 3 * ONE_PLY, DEPTH_ZERO);
 
-      // Late move reduction (LMR), if the move fails high it will be re-searched at full depth
+      // Late move reduction: if the move fails high it will be re-searched at full depth
       if (    depth >= 3 * ONE_PLY
           &&  moveCount > 1
           && (!captureOrPromotion || moveCountPruning))
