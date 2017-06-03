@@ -426,9 +426,9 @@ namespace {
                     + 102 * ei.kingAdjacentZoneAttacksCount[Them]
                     + 201 * popcount(kingDefended)
                     + 143 * (popcount(undefended) + !!pos.pinned_pieces(Us))
-                    - 948 * !pos.count<QUEEN>(Them)
+                    - 898 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
-                    +   8 * pos.count<ALL_PIECES>(Them);
+                    +   4 * pos.count<ALL_PIECES>(Them);
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
