@@ -98,6 +98,11 @@ Endgames::Endgames() {
   add<KRKN>("KRKN");
   add<KQKP>("KQKP");
   add<KQKR>("KQKR");
+  add<KQQKQ>("KQQKQ");
+  add<KQQKR>("KQQKR");
+  add<KQRKR>("KQRKR");
+  add<KQQKQQ>("KQQKQQ");
+  add<KQRKQR>("KQRKQR");
 
   add<KNPK>("KNPK");
   add<KNPKB>("KNPKB");
@@ -322,6 +327,56 @@ Value Endgame<KQKR>::operator()(const Position& pos) const {
   return strongSide == pos.side_to_move() ? result : -result;
 }
 
+/// KQQ vs KQ.  This is a win for the stronger side
+template<>
+Value Endgame<KQQKQ>::operator()(const Position& pos) const {
+
+  assert(verify_material(pos, strongSide, 2 * QueenValueMg, 0));
+  assert(verify_material(pos, weakSide, QueenValueMg, 0));
+
+  return strongSide == pos.side_to_move() ? VALUE_KNOWN_WIN : -VALUE_KNOWN_WIN;
+}
+
+/// KQQ vs KR.  This is a win for the stronger side
+template<>
+Value Endgame<KQQKR>::operator()(const Position& pos) const {
+
+  assert(verify_material(pos, strongSide, 2 * QueenValueMg, 0));
+  assert(verify_material(pos, weakSide, RookValue, 0));
+
+  return strongSide == pos.side_to_move() ? VALUE_KNOWN_WIN : -VALUE_KNOWN_WIN;
+}
+
+/// KQR vs KR.  This is a win for the stronger side
+template<>
+Value Endgame<KQRKR>::operator()(const Position& pos) const {
+
+  assert(verify_material(pos, strongSide, QueenValueMg + RookValueMg, 0));
+  assert(verify_material(pos, weakSide, RookValue, 0));
+
+  return strongSide == pos.side_to_move() ? VALUE_KNOWN_WIN : -VALUE_KNOWN_WIN;
+}
+
+
+/// KQQ vs KQQ.  This is a win for the side to move in 83% of the cases
+template<>
+Value Endgame<KQQKQQ>::operator()(const Position& pos) const {
+
+  assert(verify_material(pos, strongSide, 2 * QueenValueMg, 0));
+  assert(verify_material(pos, weakSide,   2 * QueenValueMg, 0));
+
+  return VALUE_KNOWN_WIN / 2 + PushToEdges[~pos.side_to_move()];
+}
+
+/// KQR vs KQR.  This is also a win for the side to move in 83% of the cases
+template<>
+Value Endgame<KQRKQR>::operator()(const Position& pos) const {
+
+  assert(verify_material(pos, strongSide, QueenValueMg + RookValueMg, 0));
+  assert(verify_material(pos, weakSide,   QueenValueMg + RookValueMg, 0));
+
+  return VALUE_KNOWN_WIN / 2 + PushToEdges[~pos.side_to_move()];
+}
 
 /// Some cases of trivial draws
 template<> Value Endgame<KNNK>::operator()(const Position&) const { return VALUE_DRAW; }

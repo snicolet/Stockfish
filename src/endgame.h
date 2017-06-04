@@ -46,6 +46,11 @@ enum EndgameType {
   KRKN,  // KR vs KN
   KQKP,  // KQ vs KP
   KQKR,  // KQ vs KR
+  KQQKQ, // KQQ vs KQ
+  KQQKR, // KQQ vs KR
+  KQRKR, // KQR vs KR
+  KQQKQQ,// KQQ vs KQQ
+  KQRKQR,// KQR vs KQR
 
 
   // Scaling functions
