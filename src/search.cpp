@@ -967,12 +967,12 @@ moves_loop: // When in check search starts from here
       // Reduce moves that leave the queen en prise
       if (    depth >= 3 * ONE_PLY
           &&  depth <= 15 * ONE_PLY
-          &&  moveCount > (PvNode ? 0 : 2)
+          &&  moveCount > 1
           &&  pos.count<QUEEN>(WHITE) == 1
           &&  pos.count<QUEEN>(BLACK) == 1
           &&  pos.attacked_queen(~pos.side_to_move())
           && !pos.attacked_queen( pos.side_to_move()))
-         newDepth = std::max(newDepth - 3 * ONE_PLY, DEPTH_ZERO);
+         newDepth = std::max(newDepth - 2 * ONE_PLY, DEPTH_ZERO);
 
       // Late move reduction, if the move fails high it will be re-searched at full depth
       if (    depth >= 3 * ONE_PLY
