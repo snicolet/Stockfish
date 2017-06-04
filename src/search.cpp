@@ -734,7 +734,7 @@ namespace {
     if (   !rootNode
         &&  depth < 7 * ONE_PLY
         &&  eval - futility_margin(depth) >= beta
-        &&  abs(eval) < VALUE_MATE_IN_MAX_PLY
+        &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
         &&  pos.non_pawn_material(pos.side_to_move()))
         return eval;
 
