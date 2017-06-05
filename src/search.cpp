@@ -70,7 +70,7 @@ namespace {
   // Razoring and futility margin based on depth
   // razor_margin[0] is unused as long as depth >= ONE_PLY in search
   const int razor_margin[] = { 0, 570, 603, 554 };
-  Value futility_margin(Depth d) { return Value(170 * d / ONE_PLY); }
+  Value futility_margin(Depth d) { return Value(150 * d / ONE_PLY); }
 
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
@@ -735,7 +735,7 @@ namespace {
         &&  depth < 7 * ONE_PLY
         &&  eval - futility_margin(depth) >= beta
         &&  abs(eval) < VALUE_MATE_IN_MAX_PLY
-        &&  pos.non_pawn_material(pos.side_to_move()))
+        &&  pos.non_pawn_material() >= RookValueMg + RookValueMg)
         return eval;
 
     // Step 8. Null move search with verification search (is omitted in PV nodes)
