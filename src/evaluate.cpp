@@ -300,6 +300,12 @@ namespace {
         // Bonus for this piece as a king protector
         score += KingProtector[Pt - 2] * distance(s, pos.square<KING>(Us));
 
+        // Knight without a way back
+        if (   Pt == KNIGHT
+            && relative_rank(Us, s) >= RANK_4
+            && !(b & ~pos.pieces(Us) & ~ei.attackedBy[Them][PAWN] & in_front_bb(Them, rank_of(s))))
+            score -= NoWayBack;
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus for outpost squares
@@ -321,12 +327,6 @@ namespace {
             // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
                 score -= BishopPawns * ei.pe->pawns_on_same_color_squares(Us, s);
-
-            // Knight without a way back
-            if (   Pt == KNIGHT
-                && relative_rank(Us, s) >= RANK_4
-                && !(b & ~pos.pieces(Us) & ~ei.attackedBy[Them][PAWN] & forward_bb(Them, s)))
-                score -= NoWayBack;
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
