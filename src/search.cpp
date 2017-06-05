@@ -732,7 +732,7 @@ namespace {
 
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !rootNode
-        &&  depth < 6 * ONE_PLY
+        &&  depth < 7 * ONE_PLY
         &&  eval - futility_margin(depth) >= beta
         &&  abs(eval) < VALUE_MATE_IN_MAX_PLY
         &&  pos.non_pawn_material(pos.side_to_move()))
