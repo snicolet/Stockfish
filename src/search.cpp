@@ -735,8 +735,8 @@ namespace {
         &&  depth < 7 * ONE_PLY
         &&  eval - futility_margin(depth) >= beta
         &&  abs(eval) < VALUE_MATE_IN_MAX_PLY
-        &&  pos.non_pawn_material() >= RookValueMg + RookValueMg)
-        return eval;
+        &&  pos.non_pawn_material(pos.side_to_move()))
+        return eval - futility_margin(depth);
 
     // Step 8. Null move search with verification search (is omitted in PV nodes)
     if (   !PvNode
