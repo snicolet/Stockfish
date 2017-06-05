@@ -606,6 +606,7 @@ namespace {
   Score evaluate_passer_pawns(const Position& pos, const EvalInfo& ei) {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
+    const Square Up  = (Us == WHITE ? NORTH : SOUTH);
 
     Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
     Score score = SCORE_ZERO;
@@ -616,7 +617,7 @@ namespace {
     {
         Square s = pop_lsb(&b);
 
-        assert(!(pos.pieces(Them, PAWN) & forward_bb(Us, s + pawn_push(Us))));
+        assert(!(pos.pieces(Them, PAWN) & forward_bb(Us, s + Up)));
 
         bb = forward_bb(Us, s) & (ei.attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
         score -= HinderPassedPawn * popcount(bb);
@@ -628,7 +629,7 @@ namespace {
 
         if (rr)
         {
-            Square blockSq = s + pawn_push(Us);
+            Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
             ebonus +=  distance(pos.square<KING>(Them), blockSq) * 5 * rr
@@ -636,7 +637,7 @@ namespace {
 
             // If blockSq is not the queening square then consider also a second push
             if (relative_rank(Us, blockSq) != RANK_8)
-                ebonus -= distance(pos.square<KING>(Us), blockSq + pawn_push(Us)) * rr;
+                ebonus -= distance(pos.square<KING>(Us), blockSq + Up) * rr;
 
             // If the pawn is free to advance, then increase the bonus
             if (pos.empty(blockSq))
@@ -672,9 +673,12 @@ namespace {
                 mbonus += rr + r * 2, ebonus += rr + r * 2;
         } // rr != 0
 
-        // Scale down bonus for candidate passers which need more than one
-        // pawn push to become passed or have a pawn in front of them.
-        if (!pos.pawn_passed(Us, s + pawn_push(Us)) || (pos.pieces(PAWN) & forward_bb(Us, s)))
+        // Scale down bonus for passers and candidate passers which are weaker,
+        // either because the pawn needs more than one push to become passed,
+        // has a pawn in front of it or is currently under attack.
+        if (   !pos.pawn_passed(Us, s + Up) 
+            || (pos.pieces(PAWN) & forward_bb(Us, s))
+            || (ei.attackedBy2[Them] & s))
             mbonus /= 2, ebonus /= 2;
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
