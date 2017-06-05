@@ -180,6 +180,7 @@ namespace {
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
+  const Score NoWayBack           = S( 20,  0);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
@@ -320,6 +321,12 @@ namespace {
             // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
                 score -= BishopPawns * ei.pe->pawns_on_same_color_squares(Us, s);
+
+            // Knight without a way back
+            if (   Pt == KNIGHT
+                && relative_rank(Us, s) >= RANK_4
+                && !(b & ~pos.pieces(Us) & ~ei.attackedBy[Them][PAWN] & forward_bb(Them, s)))
+                score -= NoWayBack;
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
