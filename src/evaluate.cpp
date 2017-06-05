@@ -677,9 +677,11 @@ namespace {
         // either because the pawn needs more than one push to become passed,
         // has a pawn in front of it or is currently under attack.
         if (   !pos.pawn_passed(Us, s + Up) 
-            || (pos.pieces(PAWN) & forward_bb(Us, s))
-            || ((ei.attackedBy2[Them] & ~ei.attackedBy[PAWN][Us]) & s))
+            || (pos.pieces(PAWN) & forward_bb(Us, s)))
             mbonus /= 2, ebonus /= 2;
+
+        else if ((ei.attackedBy2[Them] & ~ei.attackedBy2[Us] & ~ei.attackedBy[PAWN][Us]) & s)
+            mbonus /= 2;
 
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
