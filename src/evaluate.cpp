@@ -274,6 +274,9 @@ namespace {
 
     while ((s = *pl++) != SQ_NONE)
     {
+        // Bonus for this piece as a king protector
+        score += KingProtector[Pt - 2] * distance(s, pos.square<KING>(Us));
+
         // Find attacked squares, including x-ray attacks for bishops and rooks
         b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Us, QUEEN))
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(Us, ROOK, QUEEN))
@@ -293,11 +296,11 @@ namespace {
         }
 
         int mob = popcount(b & ei.mobilityArea[Us]);
+        Score mobilityScore = MobilityBonus[Pt - 2][mob];
 
-        mobility[Us] += MobilityBonus[Pt - 2][mob];
-
-        // Bonus for this piece as a king protector
-        score += KingProtector[Pt - 2] * distance(s, pos.square<KING>(Us));
+        mobility[Us] += mobilityScore;
+        if (mg_value(mobilityScore) < 0)
+           mobility[Us] += (mobilityScore * (int(RANK_8) - int(relative_rank(Us, s)))) / 8;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
