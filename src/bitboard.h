@@ -154,17 +154,17 @@ inline Bitboard between_bb(Square s1, Square s2) {
 
 
 /// in_front_bb() returns a bitboard representing all the squares on all the ranks
-/// in front of the given one, from the point of view of the given color. For
-/// instance, in_front_bb(BLACK, RANK_3) will return the squares on ranks 1 and 2.
+/// in front of the given square, from the point of view of the given color. For
+/// instance, in_front_bb(BLACK, SQ_F3) will return the squares on ranks 1 and 2.
 
-inline Bitboard in_front_bb(Color c, Rank r) {
-  return InFrontBB[c][r];
+inline Bitboard in_front_bb(Color c, Square s) {
+  return InFrontBB[c][rank_of(s)];
 }
 
 
 /// forward_bb() returns a bitboard representing all the squares along the line
 /// in front of the given one, from the point of view of the given color:
-///        ForwardBB[c][s] = in_front_bb(c, rank_of(s)) & file_bb(s)
+///        ForwardBB[c][s] = in_front_bb(c, s) & file_bb(s)
 
 inline Bitboard forward_bb(Color c, Square s) {
   return ForwardBB[c][s];
@@ -174,7 +174,7 @@ inline Bitboard forward_bb(Color c, Square s) {
 /// pawn_attack_span() returns a bitboard representing all the squares that can be
 /// attacked by a pawn of the given color when it moves along its file, starting
 /// from the given square:
-///       PawnAttackSpan[c][s] = in_front_bb(c, rank_of(s)) & adjacent_files_bb(s);
+///       PawnAttackSpan[c][s] = in_front_bb(c, s) & adjacent_files_bb(s);
 
 inline Bitboard pawn_attack_span(Color c, Square s) {
   return PawnAttackSpan[c][s];
