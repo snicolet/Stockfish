@@ -180,7 +180,7 @@ namespace {
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
-  const Score NoWayBack           = S( 14,  0);
+  const Score NoWayBack           = S( 21,  0);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
@@ -302,9 +302,8 @@ namespace {
 
         // Knight without a way back
         if (   Pt == KNIGHT
-            && relative_rank(Us, s) >= RANK_4
-            && !(b & ~pos.pieces(Us) & ~ei.attackedBy[Them][PAWN] & in_front_bb(Them, rank_of(s)))
-            && !(b & (pos.pieces(Them) ^ pos.pieces(Them, PAWN))))
+            && relative_rank(Us, s) >= RANK_3
+            && !(b & ~pos.pieces(Us) & ~ei.attackedBy[Them][PAWN] & in_front_bb(Them, rank_of(s))))
             score -= NoWayBack;
 
         if (Pt == BISHOP || Pt == KNIGHT)
