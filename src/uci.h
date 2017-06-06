@@ -67,7 +67,7 @@ private:
 
 void init(OptionsMap&);
 void loop(int argc, char* argv[]);
-std::string value(Value v);
+std::string value(const Position& pos, Value v);
 std::string square(Square s);
 std::string move(Move m, bool chess960);
 std::string pv(const Position& pos, Depth depth, Value alpha, Value beta);

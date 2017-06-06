@@ -180,8 +180,8 @@ enum Value : int {
   VALUE_INFINITE  = 32001,
   VALUE_NONE      = 32002,
 
-  VALUE_MATE_IN_MAX_PLY  =  VALUE_MATE - 2 * MAX_PLY,
-  VALUE_MATED_IN_MAX_PLY = -VALUE_MATE + 2 * MAX_PLY,
+  VALUE_MATE_IN_MAX_PLY  =  VALUE_MATE - 2 * 1000,
+  VALUE_MATED_IN_MAX_PLY = -VALUE_MATE + 2 * 1000,
 
   PawnValueMg   = 188,   PawnValueEg   = 248,
   KnightValueMg = 764,   KnightValueEg = 848,
