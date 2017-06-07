@@ -180,6 +180,7 @@ namespace {
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
+  const Score BishopLongDiagonal  = S( 25,  0);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
@@ -264,6 +265,7 @@ namespace {
     const PieceType NextPt = (Us == WHITE ? Pt : PieceType(Pt + 1));
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
+    const Bitboard LongDiagonal[2] = { LineBB[SQ_A1][SQ_H8] , LineBB[SQ_H1][SQ_A8] };
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -317,9 +319,19 @@ namespace {
                 && (pos.pieces(PAWN) & (s + pawn_push(Us))))
                 score += MinorBehindPawn;
 
-            // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
+            {
+                // Penalty for pawns on the same color square as the bishop
                 score -= BishopPawns * ei.pe->pawns_on_same_color_squares(Us, s);
+
+                // Bonus for bishop attacking on a long diagonal
+                for (Bitboard d : LongDiagonal)
+                    if (   (d & s)
+                        && more_than_one(d & ei.kingRing[Them])
+                        && !(d & pos.pieces(Us, PAWN))
+                        && !more_than_one(d & pos.pieces(Them, PAWN)))
+                       score += BishopLongDiagonal;
+            }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
