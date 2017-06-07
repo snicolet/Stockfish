@@ -515,7 +515,6 @@ namespace {
     const Square Left       = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
-    const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
 
     Bitboard b, weak, defended, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
@@ -579,15 +578,18 @@ namespace {
     }
 
     // Bonus if some pawns can safely push and attack an enemy piece
-    b = pos.pieces(Us, PAWN) & ~TRank7BB;
-    b = shift<Up>(b | (shift<Up>(b & TRank2BB) & ~pos.pieces()));
+    b = pos.pieces(Us, PAWN);
+    b = shift<Up>(b | (shift<Up>(b & TRank2BB) & ~pos.pieces())) & ~pos.pieces();
 
-    b &=  ~pos.pieces()
-        & ~ei.attackedBy[Them][PAWN]
-        & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
+    b &=  ~ei.attackedBy[Them][PAWN]
+        | (ei.attackedBy[Us][PAWN] & ei.attackedBy2[Us] & ~ei.attackedBy2[Them]);
+    b &=  ~ei.attackedBy[Them][ALL_PIECES]
+        | ei.attackedBy[Us][ALL_PIECES];
+    b &=  ~ei.attackedBy2[Them]
+        | (ei.attackedBy2[Us] & ei.attackedBy[Us][PAWN]);
 
     b =  (shift<Left>(b) | shift<Right>(b))
-       &  pos.pieces(Them)
+       & (pos.pieces(Them) ^ pos.pieces(Them, PAWN))
        & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
