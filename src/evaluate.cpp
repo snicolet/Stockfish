@@ -177,13 +177,10 @@ namespace {
   // KingProtector[PieceType-2] contains a bonus according to distance from king
   const Score KingProtector[] = { S(-3, -5), S(-4, -3), S(-3, 0), S(-1, 1) };
 
-  // BishopLongDiagonal[normal/on king] contains a bonus for a bishop on a long
-  // diagonal, bigger if the diagonal is towards the opponent king ring.
-  const Score BishopLongDiagonal[] = { S(15, 0) , S(30, 0) };
-
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
+  const Score LongDiagonalBishop  = S( 60,  0);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
@@ -326,12 +323,12 @@ namespace {
                 // Penalty for pawns on the same color square as the bishop
                 score -= BishopPawns * ei.pe->pawns_on_same_color_squares(Us, s);
 
-                // Bonus for bishop attacking on a long diagonal
+                // Bonus for bishop on a long diagonal
                 const Bitboard d = (DarkSquares & s) ? LineBB[SQ_A1][SQ_H8] : LineBB[SQ_H1][SQ_A8];
                 if (   (d & s)
                     && !(d & pos.pieces(Us, PAWN))
                     && !more_than_one(d & pos.pieces(Them, PAWN)))
-                    score += BishopLongDiagonal[more_than_one(d & ei.kingRing[Them])];
+                    score += LongDiagonalBishop;
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
