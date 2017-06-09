@@ -176,6 +176,11 @@ namespace {
 
   // KingProtector[PieceType-2] contains a bonus according to distance from king
   const Score KingProtector[] = { S(-3, -5), S(-4, -3), S(-3, 0), S(-1, 1) };
+  
+  // ThreatBySafePawn[side to move/not side to move] contains a bonus for each
+  // threat to capture an opponent piece with a safe pawn, bigger for the side
+  // to move.
+  const Score ThreatBySafePawn[] = { S(282, 275), S(182, 175) };
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
@@ -187,7 +192,6 @@ namespace {
   const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
   const Score ThreatByHangingPawn = S( 71, 61);
-  const Score ThreatBySafePawn    = S(182,175);
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
@@ -515,7 +519,6 @@ namespace {
     const Square Left       = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
-    const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
 
     Bitboard b, weak, defended, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
@@ -525,12 +528,18 @@ namespace {
 
     if (weak)
     {
-        b = pos.pieces(Us, PAWN) & ( ~ei.attackedBy[Them][ALL_PIECES]
-                                    | ei.attackedBy[Us][ALL_PIECES]);
+        b  = pos.pieces(Us, PAWN);
+        if (Us != pos.side_to_move())
+        {
+            b &=  ~ei.attackedBy[Them][ALL_PIECES]
+                |  ei.attackedBy[Us][ALL_PIECES];
+            b &=  ~ei.attackedBy[Them][PAWN] 
+                | (ei.attackedBy[Us][PAWN] & ~ei.attackedBy2[Them]);
+        }
 
         safeThreats = (shift<Right>(b) | shift<Left>(b)) & weak;
 
-        score += ThreatBySafePawn * popcount(safeThreats);
+        score += ThreatBySafePawn[Us != pos.side_to_move()] * popcount(safeThreats);
 
         if (weak ^ safeThreats)
             score += ThreatByHangingPawn;
@@ -579,12 +588,12 @@ namespace {
     }
 
     // Bonus if some pawns can safely push and attack an enemy piece
-    b = pos.pieces(Us, PAWN) & ~TRank7BB;
-    b = shift<Up>(b | (shift<Up>(b & TRank2BB) & ~pos.pieces()));
+    b = pos.pieces(Us, PAWN);
+    b = shift<Up>(b | (shift<Up>(b & TRank2BB) & ~pos.pieces())) & ~pos.pieces();
 
-    b &=  ~pos.pieces()
-        & ~ei.attackedBy[Them][PAWN]
-        & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
+    b &=  ~ei.attackedBy[Them][PAWN];
+    b &=  ~ei.attackedBy[Them][ALL_PIECES]
+        |  ei.attackedBy[Us][ALL_PIECES];
 
     b =  (shift<Left>(b) | shift<Right>(b))
        &  pos.pieces(Them)
