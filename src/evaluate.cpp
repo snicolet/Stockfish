@@ -180,7 +180,7 @@ namespace {
   // ThreatBySafePawn[side to move/not side to move] contains a bonus for each
   // threat to capture an opponent piece with a safe pawn, bigger for the side
   // to move.
-  const Score ThreatBySafePawn[] = { S(282, 275), S(182, 175) };
+  const Score ThreatBySafePawn[] = { S(232, 225), S(132, 125) };
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
