@@ -161,6 +161,10 @@ namespace {
   // pawns or pieces which are not pawn-defended.
   const Score ThreatByKing[] = { S(3, 62), S(9, 138) };
 
+  // ThreatBySafePawn[side to move/not side to move] contains a bonus for threats
+  // to capture an opponent piece with a safe pawn, bigger for the side to move.
+  const Score ThreatBySafePawn[] = { S(232, 225), S(132, 125) };
+
   // Passed[mg/eg][Rank] contains midgame and endgame bonuses for passed pawns.
   // We don't use a Score because we process the two components independently.
   const Value Passed[][RANK_NB] = {
@@ -176,11 +180,6 @@ namespace {
 
   // KingProtector[PieceType-2] contains a bonus according to distance from king
   const Score KingProtector[] = { S(-3, -5), S(-4, -3), S(-3, 0), S(-1, 1) };
-  
-  // ThreatBySafePawn[side to move/not side to move] contains a bonus for each
-  // threat to capture an opponent piece with a safe pawn, bigger for the side
-  // to move.
-  const Score ThreatBySafePawn[] = { S(232, 225), S(132, 125) };
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
@@ -531,10 +530,8 @@ namespace {
         b  = pos.pieces(Us, PAWN);
         if (Us != pos.side_to_move())
         {
-            b &=  ~ei.attackedBy[Them][ALL_PIECES]
-                |  ei.attackedBy[Us][ALL_PIECES];
-            b &=  ~ei.attackedBy[Them][PAWN] 
-                | (ei.attackedBy[Us][PAWN] & ~ei.attackedBy2[Them]);
+            b &= ~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy[Us][ALL_PIECES];
+            b &= ~ei.attackedBy[Them][PAWN] | (ei.attackedBy[Us][PAWN] & ~ei.attackedBy2[Them]);
         }
 
         safeThreats = (shift<Right>(b) | shift<Left>(b)) & weak;
@@ -591,9 +588,8 @@ namespace {
     b = pos.pieces(Us, PAWN);
     b = shift<Up>(b | (shift<Up>(b & TRank2BB) & ~pos.pieces())) & ~pos.pieces();
 
-    b &=  ~ei.attackedBy[Them][PAWN];
-    b &=  ~ei.attackedBy[Them][ALL_PIECES]
-        |  ei.attackedBy[Us][ALL_PIECES];
+    b &= ~ei.attackedBy[Them][PAWN];
+    b &= ~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy[Us][ALL_PIECES];
 
     b =  (shift<Left>(b) | shift<Right>(b))
        &  pos.pieces(Them)
