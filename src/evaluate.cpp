@@ -163,7 +163,7 @@ namespace {
 
   // ThreatBySafePawn[side to move/not side to move] contains a bonus for threats
   // to capture an opponent piece with a safe pawn, bigger for the side to move.
-  const Score ThreatBySafePawn[] = { S(232, 225), S(132, 125) };
+  const Score ThreatBySafePawn[] = { S(182, 175), S(82, 75) };
 
   // Passed[mg/eg][Rank] contains midgame and endgame bonuses for passed pawns.
   // We don't use a Score because we process the two components independently.
