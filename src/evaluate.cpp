@@ -532,7 +532,7 @@ namespace {
         {
             b &= ~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy[Us][ALL_PIECES];
             b &= ~ei.attackedBy[Them][PAWN] | (ei.attackedBy[Us][PAWN] & ~ei.attackedBy2[Them]);
-            b &= ~ei.attackedBy2[Them] | (ei.attackedBy2[Us] & ei.attackedBy[Us][PAWN]);
+            // b &= ~ei.attackedBy2[Them] | (ei.attackedBy2[Us] & ei.attackedBy[Us][PAWN]);
         }
 
         safeThreats = (shift<Right>(b) | shift<Left>(b)) & weak;
