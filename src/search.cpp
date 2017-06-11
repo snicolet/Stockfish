@@ -68,9 +68,9 @@ namespace {
   const int skipPhase[] = { 0, 1, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 6, 7 };
 
   // Razoring and futility margin based on depth
-  // razor_margin[0] is unused as long as depth >= ONE_PLY in search
+  // They are strictly positive because depth >= ONE_PLY in search
   const int razor_margin[] = { 0, 570, 603, 554 };
-  Value futility_margin(Depth d) { return Value(150 * d / ONE_PLY); }
+  Value futility_margin(Depth d) { return Value(145 * d / ONE_PLY - 37); }
 
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
@@ -733,8 +733,7 @@ namespace {
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !rootNode
         &&  depth < 7 * ONE_PLY
-        &&  eval - beta >= futility_margin(depth)
-        &&  eval - beta < 4000
+        &&  eval - futility_margin(depth) >= beta
         &&  abs(eval) < VALUE_MATE_IN_MAX_PLY
         &&  pos.non_pawn_material(pos.side_to_move()))
         return eval;
