@@ -70,7 +70,7 @@ namespace {
   // Razoring and futility margin based on depth
   // They are strictly positive because depth >= ONE_PLY in search
   const int razor_margin[] = { 0, 570, 603, 554 };
-  Value futility_margin(Depth d) { return Value(145 * d / ONE_PLY - 37); }
+  Value futility_margin(Depth d) { return Value(135 * d / ONE_PLY - 20); }
 
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
