@@ -230,7 +230,7 @@ namespace {
 
     // Squares occupied by those pawns, by our king, or controlled by enemy pawns
     // are excluded from the mobility area.
-    ei.mobilityArea[Us] = ~(b | pos.square<KING>(Us) | ei.pe->pawn_attacks(Them));
+    ei.mobilityArea[Us] = ~(b | pos.square<KING>(Us) | pos.pinned_pieces(Us) | ei.pe->pawn_attacks(Them));
 
     // Initialise the attack bitboards with the king and pawn information
     b = ei.attackedBy[Us][KING] = pos.attacks_from<KING>(pos.square<KING>(Us));
