@@ -421,15 +421,14 @@ namespace {
         // number and types of the enemy's attacking pieces, the number of
         // attacked and undefended squares around our king and the quality of
         // the pawn shelter (current 'score' value).
-        int x = pos.count<ALL_PIECES>(Them);
-
         kingDanger =        ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]
                     + 102 * ei.kingAdjacentZoneAttacksCount[Them]
-                    + (201 + x) * popcount(undefended)
-                    + (143 + x) * (popcount(b) + !!pos.pinned_pieces(Us))
+                    + 201 * popcount(undefended)
+                    + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
                     - 948 * !pos.count<QUEEN>(Them)
-                    -   9 * mg_value(score) / 8
-                    +   4 * x;
+                    -  11 * mg_value(score) / 8
+                    +   4 * pos.count<ALL_PIECES>(Them)
+                    +  24;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
