@@ -419,12 +419,6 @@ namespace {
                     &  ei.kingRing[Us]
                     & ~pos.pieces(Them);
 
-        // Find our pieces in the king ring which are attacked twice but weakly defended
-        weak =   pos.pieces(Us)
-              &  ei.kingRing[Us]
-              &  ei.attackedBy2[Them]
-              & ~ei.attackedBy2[Us];
-
         // Initialize the 'kingDanger' variable, which will be transformed
         // later into a king danger score. The initial value is based on the
         // number and types of the enemy's attacking pieces, the number of
@@ -434,9 +428,9 @@ namespace {
                     + 102 * ei.kingAdjacentZoneAttacksCount[Them]
                     + 201 * popcount(kingDefended)
                     + 143 * (popcount(undefended) + !!pos.pinned_pieces(Us))
-                    +   4 * pos.count<ALL_PIECES>(Them)
                     - 948 * !pos.count<QUEEN>(Them)
-                    -   9 * mg_value(score) / 8;
+                    -   9 * mg_value(score) / 8
+                    +   4 * pos.count<ALL_PIECES>(Them);
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
@@ -449,20 +443,25 @@ namespace {
         if ((b1 | b2) & ei.attackedBy[Them][QUEEN] & safe)
             kingDanger += QueenCheck;
 
+        // Find our pieces which are attacked twice but weakly defended
+        weak =   pos.pieces(Us)
+              & ~ei.attackedBy[Us][PAWN]
+              &  ei.attackedBy2[Them]
+              & ~ei.attackedBy2[Us];
+
         // For minors and rooks, also consider the square safe if attacked twice,
         // and only defended by our queen.
         safe |=  ei.attackedBy2[Them]
                & ~(ei.attackedBy2[Us] | pos.pieces(Them))
                & ei.attackedBy[Us][QUEEN];
 
+        safe |= weak;
+
         // Some other potential checks are also analysed, even from squares
         // currently occupied by the opponent own pieces, as long as the square
         // is not attacked by our pawns, and is not occupied by a blocked pawn.
         other = ~(   ei.attackedBy[Us][PAWN]
                   | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
-
-        // Also consider weak pieces around our king
-        other |= weak;
 
         // Enemy rooks safe and other checks
         if (b1 & ei.attackedBy[Them][ROOK] & safe)
