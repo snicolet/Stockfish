@@ -398,7 +398,8 @@ namespace {
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard undefended, hanging, b, b1, b2, safe, other;
+    Bitboard kingDefended, undefended, weak;
+    Bitboard b, b1, b2, safe, other;
     int kingDanger;
 
     // King shelter and enemy pawns storm
@@ -408,22 +409,21 @@ namespace {
     if (ei.kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
     {
         // Find the attacked squares which are defended only by our king
-        undefended =   ei.attackedBy[Them][ALL_PIECES]
-                    &  ei.attackedBy[Us][KING]
-                    & ~ei.attackedBy2[Us];
+        kingDefended =   ei.attackedBy[Them][ALL_PIECES]
+                      &  ei.attackedBy[Us][KING]
+                      & ~ei.attackedBy2[Us];
 
         // Find the squares which are not defended at all in the larger king ring
-        undefended |=   ei.attackedBy[Them][ALL_PIECES] 
-                     & ~ei.attackedBy[Us][ALL_PIECES]
-                     &  ei.kingRing[Us]
-                     & ~pos.pieces(Them);
+        undefended =   ei.attackedBy[Them][ALL_PIECES] 
+                    & ~ei.attackedBy[Us][ALL_PIECES]
+                    &  ei.kingRing[Us]
+                    & ~pos.pieces(Them);
 
         // Find our pieces around our king which are attacked twice but weakly defended
-        hanging =   pos.pieces(Us)
-                  & ei.kingRing[Us]
-                  & ei.attackedBy2[Them]
-                  & ~ei.attackedBy2[Us]
-                  & ~ei.attackedBy[Us][PAWN];
+        weak =   pos.pieces(Us)
+              &  ei.kingRing[Us]
+              &  ei.attackedBy2[Them]
+              & ~ei.attackedBy2[Us];
 
         // Initialize the 'kingDanger' variable, which will be transformed
         // later into a king danger score. The initial value is based on the
@@ -432,15 +432,15 @@ namespace {
         // the pawn shelter (current 'score' value).
         kingDanger =        ei.kingAttackersCount[Them] * ei.kingAttackersWeight[Them]
                     + 102 * ei.kingAdjacentZoneAttacksCount[Them]
-                    + 190 * popcount(undefended)
-                    + 143 * (popcount(hanging) + !!pos.pinned_pieces(Us))
+                    + 201 * popcount(kingDefended)
+                    + 143 * (popcount(undefended) + !!pos.pinned_pieces(Us))
                     +   4 * pos.count<ALL_PIECES>(Them)
                     - 948 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
-        safe &= ~ei.attackedBy[Us][ALL_PIECES] | (undefended & ei.attackedBy2[Them]);
+        safe &= ~ei.attackedBy[Us][ALL_PIECES] | (kingDefended & ei.attackedBy2[Them]);
 
         b1 = pos.attacks_from<ROOK  >(ksq);
         b2 = pos.attacks_from<BISHOP>(ksq);
@@ -454,6 +454,7 @@ namespace {
         safe |=  ei.attackedBy2[Them]
                & ~(ei.attackedBy2[Us] | pos.pieces(Them))
                & ei.attackedBy[Us][QUEEN];
+        safe |= weak;
 
         // Some other potential checks are also analysed, even from squares
         // currently occupied by the opponent own pieces, as long as the square
