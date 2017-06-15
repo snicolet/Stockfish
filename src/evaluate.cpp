@@ -419,7 +419,7 @@ namespace {
                     &  ei.kingRing[Us]
                     & ~pos.pieces(Them);
 
-        // Find our pieces around our king which are attacked twice but weakly defended
+        // Find our pieces in the king ring which are attacked twice but weakly defended
         weak =   pos.pieces(Us)
               &  ei.kingRing[Us]
               &  ei.attackedBy2[Them]
@@ -454,13 +454,15 @@ namespace {
         safe |=  ei.attackedBy2[Them]
                & ~(ei.attackedBy2[Us] | pos.pieces(Them))
                & ei.attackedBy[Us][QUEEN];
-        safe |= weak;
 
         // Some other potential checks are also analysed, even from squares
         // currently occupied by the opponent own pieces, as long as the square
         // is not attacked by our pawns, and is not occupied by a blocked pawn.
         other = ~(   ei.attackedBy[Us][PAWN]
                   | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
+
+        // Also consider weak pieces around our king
+        other |= weak;
 
         // Enemy rooks safe and other checks
         if (b1 & ei.attackedBy[Them][ROOK] & safe)
