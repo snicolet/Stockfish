@@ -420,7 +420,6 @@ namespace {
 
         // Find our pieces around our king which are attacked twice but weakly defended
         hanging =   pos.pieces(Us)
-                  & ~undefended
                   & ei.kingRing[Us]
                   & ei.attackedBy2[Them]
                   & ~ei.attackedBy2[Us]
