@@ -427,9 +427,10 @@ namespace {
                     + 102 * ei.kingAdjacentZoneAttacksCount[Them]
                     + 201 * popcount(kingDefended)
                     + 143 * (popcount(undefended) + !!pos.pinned_pieces(Us))
-                    - 1048 * (!pos.count<QUEEN>(Them) || pos.count<ALL_PIECES>(Them) < 7)
+                    - 948 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
-                    +   4 * pos.count<ALL_PIECES>(Them);
+                    +   8 * pos.count<ALL_PIECES>(Them)
+                    -  40;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
@@ -442,21 +443,17 @@ namespace {
         if ((b1 | b2) & ei.attackedBy[Them][QUEEN] & safe)
             kingDanger += QueenCheck;
 
-        // For minors and rooks, also consider the square safe if attacked twice,
-        // and only defended by our queen.
+        // For rooks and minors, we also consider the check to be safe if the
+        // checking square is attacked twice and only defended by our queen.
         safe |=  ei.attackedBy2[Them]
                & ~(ei.attackedBy2[Us] | pos.pieces(Them))
                & ei.attackedBy[Us][QUEEN];
 
         b3 = pos.attacks_from<KNIGHT>(ksq);
 
-        bool rcb  = b1 & ei.attackedBy[Them][ROOK]   & safe;
-        bool bcb  = b2 & ei.attackedBy[Them][BISHOP] & safe;
-        bool kcb  = b3 & ei.attackedBy[Them][KNIGHT] & safe;
-
-        kingDanger += rcb * RookCheck;
-        kingDanger += bcb * BishopCheck;
-        kingDanger += kcb * KnightCheck;
+        kingDanger += RookCheck   * !!( b1 & ei.attackedBy[Them][ROOK]   & safe );
+        kingDanger += BishopCheck * !!( b2 & ei.attackedBy[Them][BISHOP] & safe );
+        kingDanger += KnightCheck * !! (b3 & ei.attackedBy[Them][KNIGHT] & safe );
 
         // Some other potential checks are also analysed, as long as the square
         // is not attacked by our pawns and is not occupied by an opponent piece.
