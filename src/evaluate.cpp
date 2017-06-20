@@ -579,7 +579,7 @@ namespace {
     }
 
     // Bonus if some pawns can safely be pushed to attack an enemy piece
-    // or to support one of our more advanced pawns.
+    // or to support one of our pieces.
     b = pos.pieces(Us, PAWN);
     b = shift<Up>(b | (shift<Up>(b & TRank2BB) & ~pos.pieces())) & ~pos.pieces();
 
@@ -590,7 +590,7 @@ namespace {
         & ~ei.attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(bb & (pos.pieces(Them) ^ pos.pieces(Them, PAWN)));
-    score += SupportingPush * popcount(bb & pos.pieces(Us, PAWN));
+    score += SupportingPush * popcount(bb & pos.pieces(Us));
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
