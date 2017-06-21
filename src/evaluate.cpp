@@ -191,8 +191,7 @@ namespace {
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
-  const Score SupportingPush      = S(  0, 16);
-  const Score PawnMobility        = S(  0,  8);
+  const Score SupportingPush      = S(  0, 24);
   const Score HinderPassedPawn    = S(  7,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -579,17 +578,16 @@ namespace {
             score += ThreatByKing[more_than_one(b)];
     }
 
-    // Count pawn safe mobility. Extra bonus if some pawns can be pushed
-    // to attack an enemy piece or to support one of our pieces.
+    // Bonus if some pawns can safely be pushed to support one of our pieces
+    // or to attack an enemy piece.
     b = pos.pieces(Us, PAWN);
     b = shift<Up>(b | (shift<Up>(b & TRank2BB) & ~pos.pieces())) & ~pos.pieces();
 
     b &= ~ei.attackedBy[Them][PAWN] | (ei.attackedBy[Us][PAWN] & ei.attackedBy2[Us] & ~ei.attackedBy2[Them]);
     b &= ~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy[Us][ALL_PIECES];
 
-    bb = (shift<Left>(b) | shift<Right>(b))  & ~ei.attackedBy[Us][PAWN];
+    bb = (shift<Left>(b) | shift<Right>(b)) & ~ei.attackedBy[Us][PAWN];
 
-    score += PawnMobility * popcount(b);
     score += SupportingPush * popcount(bb & pos.pieces(Us));
     score += ThreatByPawnPush * popcount(bb & (pos.pieces(Them) ^ pos.pieces(Them, PAWN)));
 
@@ -736,7 +734,7 @@ namespace {
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (asymmetry + kingDistance - 17) + 12 * pos.count<PAWN>() + 16 * bothFlanks;
+    int initiative = 8 * (asymmetry + kingDistance - 17) + 16 * (pos.count<PAWN>() + bothFlanks);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
