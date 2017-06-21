@@ -191,6 +191,8 @@ namespace {
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
+  const Score SupportingPush      = S(  0, 16);
+  const Score PawnMobility        = S(  0,  8);
   const Score HinderPassedPawn    = S(  7,  0);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
@@ -515,9 +517,8 @@ namespace {
     const Square Left       = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
-    const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
 
-    Bitboard b, weak, defended, stronglyProtected, safeThreats;
+    Bitboard b, bb, weak, defended, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies attacked by a pawn
@@ -578,19 +579,19 @@ namespace {
             score += ThreatByKing[more_than_one(b)];
     }
 
-    // Bonus if some pawns can safely push and attack an enemy piece
-    b = pos.pieces(Us, PAWN) & ~TRank7BB;
-    b = shift<Up>(b | (shift<Up>(b & TRank2BB) & ~pos.pieces()));
+    // Count pawn safe mobility. Extra bonus if some pawns can be pushed
+    // to attack an enemy piece or to support one of our pieces.
+    b = pos.pieces(Us, PAWN);
+    b = shift<Up>(b | (shift<Up>(b & TRank2BB) & ~pos.pieces())) & ~pos.pieces();
 
-    b &=  ~pos.pieces()
-        & ~ei.attackedBy[Them][PAWN]
-        & (ei.attackedBy[Us][ALL_PIECES] | ~ei.attackedBy[Them][ALL_PIECES]);
+    b &= ~ei.attackedBy[Them][PAWN] | (ei.attackedBy[Us][PAWN] & ei.attackedBy2[Us] & ~ei.attackedBy2[Them]);
+    b &= ~ei.attackedBy[Them][ALL_PIECES] | ei.attackedBy[Us][ALL_PIECES];
 
-    b =  (shift<Left>(b) | shift<Right>(b))
-       &  pos.pieces(Them)
-       & ~ei.attackedBy[Us][PAWN];
+    bb = (shift<Left>(b) | shift<Right>(b))  & ~ei.attackedBy[Us][PAWN];
 
-    score += ThreatByPawnPush * popcount(b);
+    score += PawnMobility * popcount(b);
+    score += SupportingPush * popcount(bb & pos.pieces(Us));
+    score += ThreatByPawnPush * popcount(bb & (pos.pieces(Them) ^ pos.pieces(Them, PAWN)));
 
     if (DoTrace)
         Trace::add(THREAT, Us, score);
