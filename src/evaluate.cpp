@@ -518,6 +518,9 @@ namespace {
     if (T)
         Trace::add(KING, Us, score);
 
+    int x = 60 + pos.count<ALL_PIECES>(Them);
+    score = make_score(mg_value(score) * x / 64, eg_value(score) * x / 64);
+
     return score;
   }
 
