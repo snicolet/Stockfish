@@ -216,7 +216,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
-  const Score OverConcentration   = S(  0, 20);
+  const Score OverConcentration   = S(  0, 24);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -537,7 +537,6 @@ namespace {
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
 
     Bitboard b, weak, defended, stronglyProtected, safeThreats;
-    Bitboard targets = 0;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies attacked by a pawn
@@ -551,8 +550,6 @@ namespace {
         safeThreats = (shift<Right>(b) | shift<Left>(b)) & weak;
 
         score += ThreatBySafePawn * popcount(safeThreats);
-        
-        targets |= safeThreats;
 
         if (weak ^ safeThreats)
             score += ThreatByHangingPawn;
@@ -572,13 +569,10 @@ namespace {
           & ~stronglyProtected
           &  attackedBy[Us][ALL_PIECES];
 
-    targets |= weak;
-
     // Add a bonus according to the kind of attacking pieces
     if (defended | weak)
     {
         b = (defended | weak) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
-        targets |= b;
         while (b)
         {
             Square s = pop_lsb(&b);
@@ -603,6 +597,13 @@ namespace {
             score += ThreatByKing[more_than_one(b)];
     }
 
+    // Malus if our threats are concentrated on one flank
+    b =  pos.pieces(Them)
+       & (weak | (defended & attackedBy2[Us] & ~attackedBy2[Them]));
+
+    if (!((b & QueenSide) && (b & KingSide)))
+        score -= OverConcentration;
+
     // Bonus if some pawns can safely push and attack an enemy piece
     b = pos.pieces(Us, PAWN) & ~TRank7BB;
     b = shift<Up>(b | (shift<Up>(b & TRank2BB) & ~pos.pieces()));
@@ -616,10 +617,6 @@ namespace {
        & ~attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
-
-    // Malus if our threats are concentrated on one flank
-    if (!(targets & QueenSide) || !(targets & KingSide))
-        score -= OverConcentration;
 
     if (T)
         Trace::add(THREAT, Us, score);
