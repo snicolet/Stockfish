@@ -216,6 +216,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
+  const Score Undermining         = S( 20, 20);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -532,6 +533,8 @@ namespace {
     const Square Up         = (Us == WHITE ? NORTH      : SOUTH);
     const Square Left       = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
+    const Square DownLeft   = (Us == WHITE ? SOUTH_WEST : NORTH_EAST);
+    const Square DownRight  = (Us == WHITE ? SOUTH_EAST : NORTH_WEST);
     const Bitboard TRank2BB = (Us == WHITE ? Rank2BB    : Rank7BB);
     const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
 
@@ -609,6 +612,18 @@ namespace {
        & ~attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    // Undermining the pawn support of an opponent piece
+    b =  pos.pieces(Them, PAWN) 
+       & attackedBy[Us][PAWN] 
+       & ~attackedBy[Them][PAWN];
+    b =  pos.pieces(Them)
+       & (shift<DownLeft>(b) | shift<DownRight>(b))
+       & ~attackedBy2[Them]
+       & attackedBy[Us][ALL_PIECES];
+
+    if (b)
+        score += Undermining;
 
     if (T)
         Trace::add(THREAT, Us, score);
