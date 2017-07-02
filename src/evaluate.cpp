@@ -614,11 +614,13 @@ namespace {
     score += ThreatByPawnPush * popcount(b);
 
     // Undermining the pawn support of an opponent piece
-    b =  pos.pieces(Them, PAWN) 
-       & attackedBy[Us][PAWN] 
+    Bitboard theirPawns = pos.pieces(Them, PAWN);
+    b =  theirPawns
+       & attackedBy[Us][PAWN]
        & ~attackedBy[Them][PAWN];
     b =  pos.pieces(Them)
        & (shift<DownLeft>(b) | shift<DownRight>(b))
+       & (shift<DownLeft>(theirPawns) ^ shift<DownRight>(theirPawns))
        & ~attackedBy2[Them]
        & attackedBy[Us][ALL_PIECES];
 
