@@ -477,6 +477,12 @@ namespace {
         else if (b1 & attackedBy[Them][ROOK] & other)
             score -= OtherCheck;
 
+        // Find our pieces around our king which are attacked twice but badly defended
+        other |=   pos.pieces(Us)
+                &  kingRing[Us]
+                &  attackedBy2[Them]
+                & ~attackedBy2[Us];
+
         // Enemy bishops safe and other checks
         if (b2 & attackedBy[Them][BISHOP] & safe)
             kingDanger += BishopCheck;
