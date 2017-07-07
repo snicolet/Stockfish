@@ -478,10 +478,10 @@ namespace {
             score -= OtherCheck;
 
         // Add some demolition checks by minors + majors
-        safe |=   pos.pieces(Us)
-               &  kingRing[Us]
-               &  (attackedBy[Them][QUEEN] | attackedBy[Them][ROOK])
-               & ~attackedBy2[Us];
+        other |=   pos.pieces(Us)
+                &  kingRing[Us]
+                &  (attackedBy[Them][QUEEN] | attackedBy[Them][ROOK])
+                & ~attackedBy2[Us];
 
         // Enemy bishops safe and other checks
         if (b2 & attackedBy[Them][BISHOP] & safe)
