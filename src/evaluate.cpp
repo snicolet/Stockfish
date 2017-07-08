@@ -477,11 +477,10 @@ namespace {
         else if (b1 & attackedBy[Them][ROOK] & other)
             score -= OtherCheck;
 
-        // Add some demolition checks by minors + majors
+        // Add some demolition checks by minors
         other |=   pos.pieces(Us)
                 &  kingRing[Us]
-                &  (attackedBy[Them][QUEEN] | attackedBy[Them][ROOK])
-                & ~attackedBy2[Us];
+                &  attackedBy2[Them];
 
         // Enemy bishops safe and other checks
         if (b2 & attackedBy[Them][BISHOP] & safe)
