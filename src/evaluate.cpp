@@ -265,7 +265,8 @@ namespace {
     attackedBy[Us][ALL_PIECES] = b | attackedBy[Us][PAWN];
 
     // Init our king safety tables only if we are going to use them
-    if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
+    if (   pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg
+        || pos.count<ROOK>(Them) > 0)
     {
         kingRing[Us] = b;
         if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
@@ -480,7 +481,8 @@ namespace {
         // Add some demolition checks by minors
         other |=   pos.pieces(Us)
                 &  kingRing[Us]
-                &  attackedBy2[Them];
+                &  attackedBy2[Them]
+                & ~attackedBy2[Us];
 
         // Enemy bishops safe and other checks
         if (b2 & attackedBy[Them][BISHOP] & safe)
