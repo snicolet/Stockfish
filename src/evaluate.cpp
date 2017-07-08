@@ -470,6 +470,12 @@ namespace {
         other = ~(   attackedBy[Us][PAWN]
                   | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
 
+        // Add some demolition checks by rook and minors
+        other |=   pos.pieces(Us)
+                &  kingRing[Us]
+                &  attackedBy2[Them]
+                & ~attackedBy2[Us];
+
         // Enemy rooks safe and other checks
         if (b1 & attackedBy[Them][ROOK] & safe)
             kingDanger += RookCheck;
