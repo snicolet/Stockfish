@@ -265,8 +265,7 @@ namespace {
     attackedBy[Us][ALL_PIECES] = b | attackedBy[Us][PAWN];
 
     // Init our king safety tables only if we are going to use them
-    if (   pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg
-        || pos.count<ROOK>(Them) > 0)
+    if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
     {
         kingRing[Us] = b;
         if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
@@ -444,7 +443,7 @@ namespace {
                     + 102 * kingAdjacentZoneAttacksCount[Them]
                     + 201 * popcount(kingOnlyDefended)
                     + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
-                    - 848 * !pos.count<QUEEN>(Them)
+                    - 948 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
                     +  40;
 
