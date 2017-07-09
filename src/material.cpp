@@ -58,10 +58,10 @@ namespace {
     24, -32, 107, -51, 117, -9, -126, -21, 31
   };
 
-  // QueenMinorsImbalance[opp_minor_count] contains a bonus/malus for each
-  // queen, indexed by the number of opponent minors.
-  const int QueenMinorsImbalance[16] = {
-    62, -16, -30, -50, -10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  // QueenPiecesImbalance[opp_pieces_count] contains a bonus/malus for each queen,
+  // indexed by the number of opponent non-queen pieces.
+  const int QueenPiecesImbalance[16] = {
+    62, -16, -30, -50, -256, -256, -256, 0, 0, 0, 0, 0, 0, 0, 0, 0
   };
 
   // Endgame evaluation and scaling functions are accessed directly and not through
@@ -117,9 +117,11 @@ namespace {
         bonus += pieceCount[Us][pt1] * v;
     }
 
-    // Special handling of Queen vs. Minors
+    // Special handling of queen versus other pieces
     bonus +=   pieceCount[Us][QUEEN]
-             * QueenMinorsImbalance[pieceCount[Them][KNIGHT] + pieceCount[Them][BISHOP]];
+             * QueenPiecesImbalance[  pieceCount[Them][KNIGHT] 
+                                    + pieceCount[Them][BISHOP]
+                                    + pieceCount[Them][ROOK]];
 
     return bonus;
   }
