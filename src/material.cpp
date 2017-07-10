@@ -61,7 +61,7 @@ namespace {
   // QueenPiecesImbalance[opp_pieces_count] contains a bonus/malus for each queen,
   // indexed by the number of opponent non-queen pieces.
   const int QueenPiecesImbalance[16] = {
-    62, -16, -30, -50, -128, -256, -256, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    62, -32, -64, -128, -256, -256, -256, 0, 0, 0, 0, 0, 0, 0, 0, 0
   };
 
   // Endgame evaluation and scaling functions are accessed directly and not through
@@ -118,10 +118,10 @@ namespace {
     }
 
     // Special handling of queen versus other pieces
-    bonus +=   pieceCount[Us][QUEEN]
-             * QueenPiecesImbalance[  pieceCount[Them][KNIGHT] 
-                                    + pieceCount[Them][BISHOP]
-                                    + pieceCount[Them][ROOK]];
+    if (pieceCount[Us][QUEEN] > pieceCount[Them][QUEEN])
+        bonus += QueenPiecesImbalance[  pieceCount[Them][KNIGHT] 
+                                      + pieceCount[Them][BISHOP]
+                                      + pieceCount[Them][ROOK]];
 
     return bonus;
   }
