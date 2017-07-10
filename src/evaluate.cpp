@@ -862,11 +862,12 @@ namespace {
 
     score += evaluate_initiative(eg_value(score));
 
-    // Interpolate between a middlegame and a (scaled by 'sf') endgame score
+    // Interpolate between the middlegame score and the (scaled by 'sf') endgame score
     ScaleFactor sf = evaluate_scale_factor(eg_value(score));
     v =  mg_value(score) * int(me->game_phase())
        + eg_value(score) * int(PHASE_MIDGAME - me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
+    v += ((v > 0) - (v < 0)) * int(PHASE_MIDGAME) / 2;
     v /= int(PHASE_MIDGAME);
 
     // In case of tracing add all remaining individual evaluation terms
