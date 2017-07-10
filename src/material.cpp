@@ -61,7 +61,7 @@ namespace {
   // QueenPiecesImbalance[opp_pieces_count] contains a bonus/malus for each queen,
   // indexed by the number of opponent non-queen pieces.
   const int QueenPiecesImbalance[16] = {
-    62, -32, -64, -128, -256, -256, -256, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    64, -64, -128, -256, -512, -512, -512, -512, 0, 0, 0, 0, 0, 0, 0, 0
   };
 
   // Endgame evaluation and scaling functions are accessed directly and not through
