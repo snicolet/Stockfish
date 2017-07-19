@@ -92,7 +92,6 @@ namespace {
     template<Color Us> Score evaluate_space();
     template<Color Us, PieceType Pt> Score evaluate_pieces();
     ScaleFactor evaluate_scale_factor(Value eg);
-    Score evaluate_initiative(Value eg);
 
     // Data members
     const Position& pos;
@@ -745,29 +744,6 @@ namespace {
   }
 
 
-  // evaluate_initiative() computes the initiative correction value for the
-  // position, i.e., second order bonus/malus based on the known attacking/defending
-  // status of the players.
-
-  template<Tracing T>
-  Score Evaluation<T>::evaluate_initiative(Value eg) {
-
-    int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-    bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
-
-    // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (pe->pawn_asymmetry() + kingDistance - 17) + 12 * pos.count<PAWN>() + 16 * bothFlanks;
-
-    // Now apply the bonus: note that we find the attacking side by extracting
-    // the sign of the endgame value, and that we carefully cap the bonus so
-    // that the endgame score will never change sign after the bonus.
-    int v = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg));
-
-    return make_score(0, v);
-  }
-
-
   // evaluate_scale_factor() computes the scale factor for the winning side
 
   template<Tracing T>
@@ -859,8 +835,6 @@ namespace {
     if (pos.non_pawn_material() >= SpaceThreshold)
         score +=  evaluate_space<WHITE>()
                 - evaluate_space<BLACK>();
-
-    score += evaluate_initiative(eg_value(score));
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = evaluate_scale_factor(eg_value(score));
