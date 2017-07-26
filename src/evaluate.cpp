@@ -213,6 +213,7 @@ namespace {
   const Score ThreatByHangingPawn = S( 71, 61);
   const Score ThreatBySafePawn    = S(182,175);
   const Score ThreatByRank        = S( 16,  3);
+  const Score LooseEnemies        = S(  0,  8);
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
@@ -536,6 +537,11 @@ namespace {
 
     Bitboard b, weak, defended, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
+
+    // Bonus if the opponent has loose pawns or pieces
+    b = ~(attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES])
+       & (pos.pieces(Them) ^ pos.pieces(Them, QUEEN, KING));
+    score += LooseEnemies * popcount(b);
 
     // Non-pawn enemies attacked by a pawn
     weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & attackedBy[Us][PAWN];
