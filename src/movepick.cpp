@@ -138,22 +138,33 @@ void MovePicker::score<CAPTURES>() {
 template<>
 void MovePicker::score<QUIETS>() {
 
+  const ButterflyHistory& history = history_at_ply< 0>(*ht);
+
+  const PieceToHistory& cmh = history_at_ply<-1>(*ht);
+  const PieceToHistory& fmh = history_at_ply<-2>(*ht);
+  const PieceToHistory& fm2 = history_at_ply<-4>(*ht);
+
+  Color c = pos.side_to_move();
+
   for (auto& m : *this)
-      m.value =  history_at_ply< 0>(*ht)[pos.side_to_move()][from_to(m)]
-               + history_at_ply<-1>(*ht)[pos.moved_piece(m)][to_sq(m)]
-               + history_at_ply<-2>(*ht)[pos.moved_piece(m)][to_sq(m)]
-               + history_at_ply<-4>(*ht)[pos.moved_piece(m)][to_sq(m)];
+      m.value =  cmh[pos.moved_piece(m)][to_sq(m)]
+               + fmh[pos.moved_piece(m)][to_sq(m)]
+               + fm2[pos.moved_piece(m)][to_sq(m)]
+               + history[c][from_to(m)];
 }
 
 template<>
 void MovePicker::score<EVASIONS>() {
   // Try captures ordered by MVV/LVA, then non-captures ordered by stats heuristics
+  const ButterflyHistory& history = history_at_ply<0>(*ht);
+  Color c = pos.side_to_move();
+ 
   for (auto& m : *this)
       if (pos.capture(m))
           m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
                    - Value(type_of(pos.moved_piece(m))) + (1 << 28);
       else
-          m.value = history_at_ply<0>(*ht)[pos.side_to_move()][from_to(m)];
+          m.value = history[c][from_to(m)];
 }
 
 

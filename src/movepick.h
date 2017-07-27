@@ -107,9 +107,11 @@ class MovePicker {
 public:
   MovePicker(const MovePicker&) = delete;
   MovePicker& operator=(const MovePicker&) = delete;
+
   MovePicker(const Position&, Move, Value);
   MovePicker(const Position&, Move, Depth, const Histories*, Square);
   MovePicker(const Position&, Move, Depth, const Histories*, Move, Move*);
+
   Move next_move(bool skipQuiets = false);
 
 private:
@@ -119,7 +121,9 @@ private:
 
   const Position& pos;
   const Histories* ht;
-  Move ttMove, killers[2], countermove;
+  Move killers[2];
+  Move countermove;
+  Move ttMove;
   ExtMove *cur, *endMoves, *endBadCaptures;
   int stage;
   Square recaptureSquare;
