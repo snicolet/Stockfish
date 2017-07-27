@@ -123,12 +123,12 @@ private:
   const Histories* ht;
   Move killers[2];
   Move countermove;
+  Depth depth;
   Move ttMove;
-  ExtMove *cur, *endMoves, *endBadCaptures;
-  int stage;
   Square recaptureSquare;
   Value threshold;
-  Depth depth;
+  int stage;
+  ExtMove *cur, *endMoves, *endBadCaptures;
   ExtMove moves[MAX_MOVES];
 };
 

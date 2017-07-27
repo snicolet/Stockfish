@@ -158,7 +158,7 @@ void MovePicker::score<EVASIONS>() {
   // Try captures ordered by MVV/LVA, then non-captures ordered by stats heuristics
   const ButterflyHistory& history = history_at_ply<0>(*ht);
   Color c = pos.side_to_move();
- 
+
   for (auto& m : *this)
       if (pos.capture(m))
           m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
