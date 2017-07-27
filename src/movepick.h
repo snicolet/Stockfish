@@ -22,6 +22,7 @@
 #define MOVEPICK_H_INCLUDED
 
 #include <array>
+#include <tuple>
 
 #include "movegen.h"
 #include "position.h"
@@ -86,6 +87,14 @@ typedef StatBoards<PIECE_NB, SQUARE_NB, Move> CounterMoveStat;
 /// stores a full history (based on PieceTo boards instead of ButterflyBoards).
 typedef StatBoards<PIECE_NB, SQUARE_NB, PieceToHistory> CounterMoveHistoryStat;
 
+/// Group all histories in a std::tuple to pass them around handily. Also
+/// define a helper function to access each history by ply.
+typedef std::tuple<ButterflyHistory*, PieceToHistory*, PieceToHistory*,
+                                      PieceToHistory*, PieceToHistory*> Histories;
+template<int N>
+inline auto history_at_ply(const Histories& ht) -> const decltype(*std::get<-N>(ht))& {
+  return *std::get<-N>(ht);
+}
 
 /// MovePicker class is used to pick one pseudo legal move at a time from the
 /// current position. The most important method is next_move(), which returns a
@@ -93,17 +102,14 @@ typedef StatBoards<PIECE_NB, SQUARE_NB, PieceToHistory> CounterMoveHistoryStat;
 /// when MOVE_NONE is returned. In order to improve the efficiency of the alpha
 /// beta algorithm, MovePicker attempts to return the moves which are most likely
 /// to get a cut-off first.
-namespace Search { struct Stack; }
 
 class MovePicker {
 public:
   MovePicker(const MovePicker&) = delete;
   MovePicker& operator=(const MovePicker&) = delete;
-
   MovePicker(const Position&, Move, Value);
-  MovePicker(const Position&, Move, Depth, Square);
-  MovePicker(const Position&, Move, Depth, Search::Stack*);
-
+  MovePicker(const Position&, Move, Depth, const Histories*, Square);
+  MovePicker(const Position&, Move, Depth, const Histories*, Move, Move*);
   Move next_move(bool skipQuiets = false);
 
 private:
@@ -112,15 +118,13 @@ private:
   ExtMove* end() { return endMoves; }
 
   const Position& pos;
-  const Search::Stack* ss;
-  Move killers[2];
-  Move countermove;
-  Depth depth;
-  Move ttMove;
+  const Histories* ht;
+  Move ttMove, killers[2], countermove;
+  ExtMove *cur, *endMoves, *endBadCaptures;
+  int stage;
   Square recaptureSquare;
   Value threshold;
-  int stage;
-  ExtMove *cur, *endMoves, *endBadCaptures;
+  Depth depth;
   ExtMove moves[MAX_MOVES];
 };
 

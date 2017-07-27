@@ -804,11 +804,10 @@ namespace {
 
 moves_loop: // When in check search starts from here
 
-    const PieceToHistory& cmh = *(ss-1)->history;
-    const PieceToHistory& fmh = *(ss-2)->history;
-    const PieceToHistory& fm2 = *(ss-4)->history;
+    const Histories& ht = std::make_tuple(&thisThread->history, (ss-1)->history, (ss-2)->history, nullptr, (ss-4)->history);
+    Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    MovePicker mp(pos, ttMove, depth, ss);
+    MovePicker mp(pos, ttMove, depth, &ht, countermove, ss->killers);
     value = bestValue; // Workaround a bogus 'uninitialized' warning under gcc
     improving =   ss->staticEval >= (ss-2)->staticEval
             /* || ss->staticEval == VALUE_NONE Already implicit in the previous condition */
@@ -910,8 +909,8 @@ moves_loop: // When in check search starts from here
 
               // Countermoves based pruning
               if (   lmrDepth < 3
-                  && (cmh[moved_piece][to_sq(move)] < CounterMovePruneThreshold)
-                  && (fmh[moved_piece][to_sq(move)] < CounterMovePruneThreshold))
+                  && history_at_ply<-1>(ht)[moved_piece][to_sq(move)] < CounterMovePruneThreshold
+                  && history_at_ply<-2>(ht)[moved_piece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
               // Futility pruning: parent node
@@ -978,11 +977,11 @@ moves_loop: // When in check search starts from here
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
                   r -= 2 * ONE_PLY;
 
-              ss->statScore =  cmh[moved_piece][to_sq(move)]
-                             + fmh[moved_piece][to_sq(move)]
-                             + fm2[moved_piece][to_sq(move)]
-                             + thisThread->history[~pos.side_to_move()][from_to(move)]
-                             - 4000; // Correction factor
+              ss->statScore =  history_at_ply< 0>(ht)[~pos.side_to_move()][from_to(move)]
+                             + history_at_ply<-1>(ht)[moved_piece][to_sq(move)]
+                             + history_at_ply<-2>(ht)[moved_piece][to_sq(move)]
+                             + history_at_ply<-4>(ht)[moved_piece][to_sq(move)]
+                             - 4000;
 
               // Decrease/increase reduction by comparing opponent's stat score
               if (ss->statScore > 0 && (ss-1)->statScore < 0)
@@ -1244,7 +1243,8 @@ moves_loop: // When in check search starts from here
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions and checks (only if depth >= DEPTH_QS_CHECKS) will
     // be generated.
-    MovePicker mp(pos, ttMove, depth, to_sq((ss-1)->currentMove));
+    const Histories& ht = std::make_tuple(&pos.this_thread()->history, nullptr, nullptr, nullptr, nullptr);
+    MovePicker mp(pos, ttMove, depth, &ht, to_sq((ss-1)->currentMove));
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move()) != MOVE_NONE)
