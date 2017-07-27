@@ -758,7 +758,7 @@ namespace {
     int passedPawns = popcount(pe->passed_pawns(WHITE) | pe->passed_pawns(BLACK));
 
     // Compute the initiative bonus for the attacking side
-    int initiative =    4 * passedPawns 
+    int initiative =    6 * passedPawns 
                      +  8 * (pe->pawn_asymmetry() + kingDistance - 17) 
                      + 12 * pos.count<PAWN>() 
                      + 16 * bothFlanks;
