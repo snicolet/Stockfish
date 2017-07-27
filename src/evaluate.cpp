@@ -757,7 +757,7 @@ namespace {
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
 
     // Compute the initiative bonus for the attacking side
-    int initiative =    8 * (pe->pawn_asymmetry() + kingDistance - 17) 
+    int initiative =    8 * (pe->pawn_asymmetry() + kingDistance - 18) 
                      + 12 * pos.count<PAWN>()
                      + 16 * bothFlanks;
 
