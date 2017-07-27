@@ -1389,7 +1389,7 @@ moves_loop: // When in check search starts from here
 
   void update_cm_stats(Stack* ss, Piece pc, Square s, int bonus) {
 
-    static const int weights[] = {0, 12, 16, 0, 20};
+    static const int weights[] = {0, 20, 16, 0, 12};
 
     for (int i : {1, 2, 4})
         if (is_ok((ss-i)->currentMove))
