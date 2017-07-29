@@ -207,6 +207,7 @@ namespace {
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
+  const Score DoublingMajors      = S(  0, 16);
   const Score OtherCheck          = S( 10, 10);
   const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
@@ -216,11 +217,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
-
-  // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
-  // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
-  // happen in Chess960 games.
-  const Score TrappedBishopA1H1 = S(50, 50);
+  const Score TrappedBishopA1H1   = S( 50, 50);
 
   #undef S
   #undef V
@@ -379,6 +376,15 @@ namespace {
                     && !pe->semiopen_side(Us, file_of(ksq), file_of(s) < file_of(ksq)))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+        }
+
+        if (Pt == ROOK || Pt == QUEEN)
+        {
+            // Bonus for doubling majors on the first open file
+            if (    pe->open_files() == 1
+                &&  (b & forward_file_bb(Us, s) & pos.pieces(Us, ROOK, QUEEN))
+                && !(b & forward_file_bb(Us, s) & pos.pieces(PAWN)))
+                score += DoublingMajors;
         }
 
         if (Pt == QUEEN)
