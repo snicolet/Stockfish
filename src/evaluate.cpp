@@ -380,8 +380,8 @@ namespace {
 
         if (Pt == ROOK || Pt == QUEEN)
         {
-            // Bonus for doubling majors on the first open file
-            if (    pe->open_files() == 1
+            // Bonus for doubling majors
+            if (    pe->open_files() <= 2
                 &&  (b & forward_file_bb(Us, s) & pos.pieces(Us, ROOK, QUEEN))
                 && !(b & forward_file_bb(Us, s) & pos.pieces(PAWN)))
                 score += DoublingMajors;
