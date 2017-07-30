@@ -207,7 +207,7 @@ namespace {
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
-  const Score DoublingMajors      = S( 25,  0);
+  const Score DoublingMajors      = S(  0, 16);
   const Score OtherCheck          = S( 10, 10);
   const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
@@ -283,6 +283,7 @@ namespace {
   Score Evaluation<T>::evaluate_pieces() {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
+    const Bitboard SeventhRank  = (Us == WHITE ? Rank7BB : Rank2BB);
     const Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
@@ -383,7 +384,7 @@ namespace {
             // Bonus for doubling majors
             if (    pe->open_files() <= 2
                 &&  (b & forward_file_bb(Us, s) & pos.pieces(Us, ROOK, QUEEN))
-                && !(b & forward_file_bb(Us, s) & pos.pieces(PAWN)))
+                && !(b & forward_file_bb(Us, s) & pos.pieces(PAWN) & ~SeventhRank))
                 score += DoublingMajors;
         }
 
