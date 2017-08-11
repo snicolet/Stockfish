@@ -187,8 +187,16 @@ namespace {
 
     return score;
   }
+  
+  int A_seed = 0;
+  int B_seed = 0;
+  int C_seed = 0;
+  
+  //TUNE(SetRange(-1000, 1000), A_seed, B_seed, C_seed);
 
 } // namespace
+
+
 
 namespace Pawns {
 
@@ -198,7 +206,14 @@ namespace Pawns {
 
 void init() {
 
-  static const int Seed[RANK_NB] = { 0, 13, 24, 18, 76, 100, 175, 330 };
+  static const int MasterSeed[RANK_NB] = { 0, 13, 24, 18, 76, 100, 175, 330 };
+  
+  int Seed[RANK_NB];
+  
+  for (int r = 0 ; r < RANK_8 ; ++r)
+     Seed[r] =    MasterSeed[r]
+               + (A_seed * r * r + B_seed * r + C_seed) ;
+  
 
   for (int opposed = 0; opposed <= 1; ++opposed)
       for (int phalanx = 0; phalanx <= 1; ++phalanx)
