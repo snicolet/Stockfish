@@ -192,7 +192,7 @@ namespace {
   int B_seed = 0;
   int C_seed = 0;
   
-  //TUNE(SetRange(-1000, 1000), A_seed, B_seed, C_seed);
+  TUNE(SetRange(-1000, 1000), A_seed, B_seed, C_seed, Pawns::init);
 
 } // namespace
 
