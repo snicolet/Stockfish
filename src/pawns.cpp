@@ -210,7 +210,7 @@ void init() {
   
   int Seed[RANK_NB];
   
-  for (int r = 0 ; r < RANK_8 ; ++r)
+  for (int r = 0 ; r < RANK_NB ; ++r)
      Seed[r] =    MasterSeed[r]
                + (A_seed * r * r + B_seed * r + C_seed) ;
   
