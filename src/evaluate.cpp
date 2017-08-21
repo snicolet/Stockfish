@@ -428,7 +428,8 @@ namespace {
         // Find the attacked squares which are defended only by our king...
         kingOnlyDefended =   attackedBy[Them][ALL_PIECES]
                           &  attackedBy[Us][KING]
-                          & ~attackedBy2[Us];
+                          & ~attackedBy2[Us]
+                          & ~pos.pieces(Them);
 
         // ... and those which are not defended at all in the larger king ring
         b =  attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES]
