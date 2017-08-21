@@ -216,7 +216,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
-  const Score KnightCheckingFork  = S( 10, 30);
+  const Score KnightCheckingFork  = S( 30, 10);
 
   // Penalty for a bishop on a1/h1 (a8/h8 for black) which is trapped by
   // a friendly pawn on b2/g2 (b7/g7 for black). This can obviously only
@@ -493,18 +493,20 @@ namespace {
         else if (b & other)
             score -= OtherCheck;
 
+        // Knight forks
+        if (b) {
+            b1 = b & ~attackedBy[Us][ALL_PIECES];
+            Bitboard targets =   pos.pieces(Us, QUEEN) 
+                              | (pos.pieces(Us) & ~attackedBy[Us][ALL_PIECES]);
+            while (b1)
+               if (PseudoAttacks[KNIGHT][pop_lsb(&b1)] & targets)
+                    score -= KnightCheckingFork;
+        }
+
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
     }
-
-    // Knight forks
-    b =  pos.attacks_from<KNIGHT>(ksq)
-       & attackedBy[Them][KNIGHT]
-       & ~attackedBy[Us][ALL_PIECES];
-    while (b)
-        if (PseudoAttacks[KNIGHT][pop_lsb(&b)] & pos.pieces(Us, ROOK, QUEEN))
-            score -= KnightCheckingFork;
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
     File kf = file_of(ksq);
