@@ -428,8 +428,7 @@ namespace {
         // Find the attacked squares which are defended only by our king...
         kingOnlyDefended =   attackedBy[Them][ALL_PIECES]
                           &  attackedBy[Us][KING]
-                          & ~attackedBy2[Us]
-                          & ~pos.pieces(Them);
+                          & ~attackedBy2[Us];
 
         // ... and those which are not defended at all in the larger king ring
         b =  attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES]
@@ -442,8 +441,8 @@ namespace {
         // the quality of the pawn shelter (current 'score' value).
         kingDanger =        kingAttackersCount[Them] * kingAttackersWeight[Them]
                     + 102 * kingAdjacentZoneAttacksCount[Them]
-                    + 201 * popcount(kingOnlyDefended)
-                    + 143 * (popcount(b) + !!pos.pinned_pieces(Us))
+                    + 201 * popcount(kingOnlyDefended | b)
+                    + 143 * !!pos.pinned_pieces(Us)
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
                     +  40;
