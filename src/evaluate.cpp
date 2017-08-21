@@ -493,18 +493,18 @@ namespace {
         else if (b & other)
             score -= OtherCheck;
 
-        // Knight forks
-        if (b) {
-            b1 = b & ~attackedBy[Us][ALL_PIECES];
-            while (b1)
-               if (PseudoAttacks[KNIGHT][pop_lsb(&b1)] & pos.pieces(Us, ROOK, QUEEN))
-                    score -= KnightCheckingFork;
-        }
-
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
     }
+
+    // Knight forks
+    b =  pos.attacks_from<KNIGHT>(ksq)
+       & attackedBy[Them][KNIGHT]
+       & ~attackedBy[Us][ALL_PIECES];
+    while (b)
+        if (PseudoAttacks[KNIGHT][pop_lsb(&b)] & pos.pieces(Us, ROOK, QUEEN))
+            score -= KnightCheckingFork;
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
     File kf = file_of(ksq);
