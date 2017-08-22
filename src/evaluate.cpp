@@ -416,7 +416,7 @@ namespace {
                                        : ~Bitboard(0) ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard kingOnlyDefended, b, b1, b2, safe, other;
+    Bitboard weak, b, b1, b2, safe, other;
     int kingDanger;
 
     // King shelter and enemy pawns storm
@@ -425,14 +425,12 @@ namespace {
     // Main king safety evaluation
     if (kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
     {
-        // Find the attacked squares which are defended only by our king...
-        kingOnlyDefended =   attackedBy[Them][ALL_PIECES]
-                          &  attackedBy[Us][KING]
-                          & ~attackedBy2[Us];
-
-        // ... and those which are not defended at all in the larger king ring
-        b =  attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES]
-           & kingRing[Us] & ~pos.pieces(Them);
+        // Find the attacked squares in our larger king ring which are weak
+        // because they are undefended or defended only by our king.
+        weak =   attackedBy[Them][ALL_PIECES]
+              & ~pos.pieces(Them)
+              &  kingRing[Us]
+              & (~attackedBy[Us][ALL_PIECES] | (attackedBy[Us][KING] & ~attackedBy2[Us]));
 
         // Initialize the 'kingDanger' variable, which will be transformed
         // later into a king danger score. The initial value is based on the
@@ -441,7 +439,7 @@ namespace {
         // the quality of the pawn shelter (current 'score' value).
         kingDanger =        kingAttackersCount[Them] * kingAttackersWeight[Them]
                     + 102 * kingAdjacentZoneAttacksCount[Them]
-                    + 201 * popcount(kingOnlyDefended | b)
+                    + 201 * popcount(weak)
                     + 143 * !!pos.pinned_pieces(Us)
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
@@ -449,7 +447,7 @@ namespace {
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
-        safe &= ~attackedBy[Us][ALL_PIECES] | (kingOnlyDefended & attackedBy2[Them]);
+        safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
 
         b1 = pos.attacks_from<  ROOK>(ksq);
         b2 = pos.attacks_from<BISHOP>(ksq);
