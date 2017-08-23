@@ -229,6 +229,7 @@ namespace {
   const int RookCheck   = 880;
   const int BishopCheck = 435;
   const int KnightCheck = 790;
+  const int KnightFork  = 356;
 
   // Threshold for lazy and space evaluation
   const Value LazyThreshold  = Value(1500);
@@ -489,6 +490,15 @@ namespace {
 
         else if (b & other)
             score -= OtherCheck;
+
+        // Knight forks
+        Bitboard checks = b & ~attackedBy[Us][ALL_PIECES];
+        while (checks) {
+            Bitboard targets = (pos.pieces(Us) & ~attackedBy[Us][ALL_PIECES])
+                              | pos.pieces(Us, ROOK, QUEEN);
+            if (PseudoAttacks[KNIGHT][pop_lsb(&checks)] & targets)
+                kingDanger += KnightFork;
+        }
 
         // Transform the kingDanger units into a Score, and substract it from the evaluation
         if (kingDanger > 0)
