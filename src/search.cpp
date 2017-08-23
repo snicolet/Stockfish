@@ -807,7 +807,7 @@ namespace {
 
 moves_loop: // When in check search starts from here
 
-    const PieceToHistory* contHist[] = { (ss-1)->contHistory, (ss-2)->contHistory, nullptr, (ss-4)->contHistory };
+    const PieceToHistory* contHist[] = { (ss-1)->contHistory, (ss-2)->contHistory, (ss-3)->contHistory, (ss-4)->contHistory };
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, contHist, countermove, ss->killers);
@@ -1391,11 +1391,11 @@ moves_loop: // When in check search starts from here
 
 
   // update_continuation_histories() updates histories of the move pairs formed
-  // by moves at ply -1, -2, and -4 with current move.
+  // by moves at ply -1, -2, -3 and -4 with current move.
 
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
 
-    for (int i : {1, 2, 4})
+    for (int i : {1, 2, 3, 4})
         if (is_ok((ss-i)->currentMove))
             (ss-i)->contHistory->update(pc, to, bonus);
   }
