@@ -439,7 +439,7 @@ namespace {
         // the quality of the pawn shelter (current 'score' value).
         kingDanger =        kingAttackersCount[Them] * kingAttackersWeight[Them]
                     + 102 * kingAdjacentZoneAttacksCount[Them]
-                    + 210 * popcount(kingOnlyDefended | undefended)
+                    + 191 * popcount(kingOnlyDefended | undefended)
                     + 143 * !!pos.pinned_pieces(Us)
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
