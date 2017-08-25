@@ -88,6 +88,17 @@ namespace {
     return d > 17 ? 0 : d * d + 2 * d - 2;
   }
 
+  // PruningSafety[rootColor][cut type] : pruning safety table
+  const int PruningSafety[2][2] = {
+     {  0 , -50 },  // ~rootColor : alpha, beta
+     { 50 ,  0  }   //  rootColor : alpha, beta
+  };
+  enum CutType { ALPHA, BETA };
+  template <CutType T> 
+  int pruning_safety(const Position& pos) {
+      return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+  }
+  
   // Skill structure is used to implement strength limit
   struct Skill {
     Skill(int l) : level(l) {}
@@ -247,7 +258,7 @@ void MainThread::search() {
       return;
   }
 
-  Color us = rootPos.side_to_move();
+  Color us = rootColor = rootPos.side_to_move();
   Time.init(Limits, us, rootPos.game_ply());
   TT.new_search();
 
@@ -708,12 +719,12 @@ namespace {
     // Step 6. Razoring (skipped when in check)
     if (   !PvNode
         &&  depth < 4 * ONE_PLY
-        &&  eval + razor_margin[depth / ONE_PLY] <= alpha)
+        &&  eval + razor_margin[depth / ONE_PLY] + pruning_safety<ALPHA>(pos) <= alpha)
     {
         if (depth <= ONE_PLY)
             return qsearch<NonPV, false>(pos, ss, alpha, alpha+1);
 
-        Value ralpha = alpha - razor_margin[depth / ONE_PLY];
+        Value ralpha = alpha - razor_margin[depth / ONE_PLY] - pruning_safety<ALPHA>(pos);
         Value v = qsearch<NonPV, false>(pos, ss, ralpha, ralpha+1);
         if (v <= ralpha)
             return v;
@@ -722,7 +733,7 @@ namespace {
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !rootNode
         &&  depth < 7 * ONE_PLY
-        &&  eval - futility_margin(depth) >= beta
+        &&  eval - futility_margin(depth) - pruning_safety<BETA>(pos) >= beta
         &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
         &&  pos.non_pawn_material(pos.side_to_move()))
         return eval;
@@ -772,7 +783,7 @@ namespace {
         &&  depth >= 5 * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
-        Value rbeta = std::min(beta + 200, VALUE_INFINITE);
+        Value rbeta = std::min(beta + 200 + pruning_safety<BETA>(pos), VALUE_INFINITE);
 
         assert(is_ok((ss-1)->currentMove));
 
@@ -919,7 +930,7 @@ moves_loop: // When in check search starts from here
               // Futility pruning: parent node
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth <= alpha)
+                  && ss->staticEval + 256 + 200 * lmrDepth + pruning_safety<ALPHA>(pos) <= alpha)
                   continue;
 
               // Prune moves with negative SEE
