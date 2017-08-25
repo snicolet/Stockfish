@@ -90,15 +90,15 @@ namespace {
 
   // PruningSafety[rootColor][cut type] : pruning safety table
   const int PruningSafety[2][2] = {
-     {  0 , -50 },  // ~rootColor : alpha, beta
-     { 50 ,  0  }   //  rootColor : alpha, beta
+     {  0, -50 },  // ~rootColor : alpha, beta
+     { 50,   0 }   //  rootColor : alpha, beta
   };
   enum CutType { ALPHA, BETA };
-  template <CutType T> 
+  template <CutType T>
   int pruning_safety(const Position& pos) {
       return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
   }
-  
+
   // Skill structure is used to implement strength limit
   struct Skill {
     Skill(int l) : level(l) {}
@@ -885,7 +885,7 @@ moves_loop: // When in check search starts from here
           &&  move == ttMove
           &&  pos.legal(move))
       {
-          Value rBeta = std::max(ttValue - 2 * depth / ONE_PLY, -VALUE_MATE);
+          Value rBeta = std::max(ttValue - 2 * depth / ONE_PLY - pruning_safety<ALPHA>(pos) / 8, -VALUE_MATE);
           Depth d = (depth / (2 * ONE_PLY)) * ONE_PLY;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, rBeta - 1, rBeta, d, cutNode, true);
