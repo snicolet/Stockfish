@@ -128,11 +128,10 @@ namespace {
     // KingAttackWeights array.
     int kingAttackersWeight[COLOR_NB];
 
-    // kingAttacksBy[color] is the number of attacks by the given color to
-    // squares in the enemy king ring. Pieces which attack more than one
-    // square are counted multiple times. For instance, if there is a white
-    // knight on g5 and black's king is on g8, this white knight adds 2
-    // to kingAttacksBy[WHITE].
+    // kingAttacksBy[color] is the number of attacks by the given color to squares
+    // in the enemy king ring. Pieces which attack more than one square are counted
+    // multiple times. For instance, if there is a white knight on g5 and the black 
+    // king is on g8, this white knight adds 2 to kingAttacksBy[WHITE].
     int kingAttacksBy[COLOR_NB];
   };
 
