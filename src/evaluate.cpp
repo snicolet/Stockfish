@@ -128,12 +128,12 @@ namespace {
     // KingAttackWeights array.
     int kingAttackersWeight[COLOR_NB];
 
-    // kingAdjacentZoneAttacksCount[color] is the number of attacks by the given
-    // color to squares directly adjacent to the enemy king. Pieces which attack
-    // more than one square are counted multiple times. For instance, if there is
-    // a white knight on g5 and black's king is on g8, this white knight adds 2
-    // to kingAdjacentZoneAttacksCount[WHITE].
-    int kingAdjacentZoneAttacksCount[COLOR_NB];
+    // kingAttacksBy[color] is the number of attacks by the given color
+    // to squares in the enemy king ring. Pieces which attack more than one
+    // square are counted multiple times. For instance, if there is a white
+    // knight on g5 and black's king is on g8, this white knight adds 2
+    // to kingAttacksBy[WHITE].
+    int kingAttacksBy[COLOR_NB];
   };
 
   #define V(v) Value(v)
@@ -268,7 +268,7 @@ namespace {
             kingRing[Us] |= shift<Up>(b);
 
         kingAttackersCount[Them] = popcount(b & pe->pawn_attacks(Them));
-        kingAdjacentZoneAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+        kingAttackersWeight[Them] = kingAttacksBy[Them] = 0;
     }
     else
         kingRing[Us] = kingAttackersCount[Them] = 0;
@@ -309,7 +309,7 @@ namespace {
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
-            kingAdjacentZoneAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
+            kingAttacksBy[Us] += popcount(b & kingRing[Them]);
         }
 
         int mob = popcount(b & mobilityArea[Us]);
@@ -438,7 +438,7 @@ namespace {
         // attacked and weak squares around our king, the absence of queen and
         // the quality of the pawn shelter (current 'score' value).
         kingDanger =        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                    + 102 * kingAdjacentZoneAttacksCount[Them]
+                    + 102 * kingAttacksBy[Them]
                     + 191 * popcount(kingOnlyDefended | undefended)
                     + 143 * !!pos.pinned_pieces(Us)
                     - 848 * !pos.count<QUEEN>(Them)
