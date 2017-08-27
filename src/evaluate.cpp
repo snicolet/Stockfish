@@ -414,36 +414,35 @@ namespace {
     const Square ksq = pos.square<KING>(Us);
     Bitboard b, b1, b2, safe, other;
 
-    // Find the attacked squares which are defended only by our king
+    // King shelter and enemy pawns storm
+    Score score = pe->king_safety<Us>(pos, ksq);
+
+    // Attacked squares which are defended only by our king
     Bitboard kingOnlyDefended =   attackedBy[Them][ALL_PIECES]
                                &  attackedBy[Us][KING]
                                & ~attackedBy2[Us];
 
-    // Find the attacked square which are not defended at all in the larger king ring
+    // Attacked squares which are not defended at all in our larger king ring
     Bitboard undefended =   attackedBy[Them][ALL_PIECES]
                          & ~attackedBy[Us][ALL_PIECES]
                          &  kingRing[Us]
                          & ~pos.pieces(Them);
 
-    // Initialize the 'kingDanger' variable, which will be transformed
-    // later into a king danger score. The initial value is based on the
-    // number and types of the enemy attacks, the number of weak squares
-    // around our king and the number of pins.
+    // The initial value of the 'kingDanger' variable is based on the number and
+    // types of the enemy attacks, the number of weak squares around our king and
+    // the number of pins and the quality of the pawn shelter.
+    // This variable will be transformed later into a king danger score.
     int kingDanger =        kingAttackersCount[Them] * kingAttackersWeight[Them]
                     + 102 * kingAdjacentZoneAttacksCount[Them]
                     + 191 * popcount(kingOnlyDefended | undefended)
                     + 143 * !!pos.pinned_pieces(Us)
+                    -   9 * mg_value(score) / 8
                     + 40;
 
-    // King shelter, enemy pawns storm and crude king danger
-    Score score = pe->king_safety<Us>(pos, ksq) - make_score(kingDanger / 32, 0);
-
-    // Main king safety evaluation: check analysis
+    // Now do check analysis
     if (kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
     {
-        // Decrease the king danger if no queen and good pawn shelter 
-        kingDanger -= 848 * !pos.count<QUEEN>(Them);
-        kingDanger -= mg_value(score);
+        kingDanger -= 848 * !pos.count<QUEEN>(Them); // no queen
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
@@ -489,11 +488,11 @@ namespace {
 
         else if (b & other)
             score -= OtherCheck;
-
-        // Transform the kingDanger units into a Score, and substract it from the evaluation
-        if (kingDanger > 0)
-            score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
     }
+
+    // Transform the king danger into a score, and substract it from the evaluation
+    if (kingDanger > 0)
+        score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
     File kf = file_of(ksq);
