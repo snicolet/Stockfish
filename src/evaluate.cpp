@@ -436,13 +436,13 @@ namespace {
                     + 102 * kingAdjacentZoneAttacksCount[Them]
                     + 191 * popcount(kingOnlyDefended | undefended)
                     + 143 * !!pos.pinned_pieces(Us)
-                    -   9 * mg_value(score) / 8
+                    - 848 * !pos.count<QUEEN>(Them)
                     + 40;
 
     // Now do check analysis
     if (kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
     {
-        kingDanger -= 848 * !pos.count<QUEEN>(Them); // no queen
+        kingDanger -= 9 * mg_value(score) / 8;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
