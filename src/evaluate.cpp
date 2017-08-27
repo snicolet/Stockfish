@@ -260,7 +260,10 @@ namespace {
     attackedBy2[Us]            = b & attackedBy[Us][PAWN];
     attackedBy[Us][ALL_PIECES] = b | attackedBy[Us][PAWN];
 
-    // Init our king safety tables only if we are going to use them
+    kingAttackersCount[Them] = kingAttackersWeight[Them] = 0;
+    kingRing[Us] = kingAdjacentZoneAttacksCount[Them] = 0;
+
+    // Init our king safety tables
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
     {
         kingRing[Us] = b;
@@ -268,10 +271,7 @@ namespace {
             kingRing[Us] |= shift<Up>(b);
 
         kingAttackersCount[Them] = popcount(b & pe->pawn_attacks(Them));
-        kingAdjacentZoneAttacksCount[Them] = kingAttackersWeight[Them] = 0;
     }
-    else
-        kingRing[Us] = kingAttackersCount[Them] = 0;
   }
 
 
@@ -412,38 +412,38 @@ namespace {
                                        : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard kingOnlyDefended, undefended, b, b1, b2, safe, other;
-    int kingDanger;
+    Bitboard b, b1, b2, safe, other;
 
-    // King shelter and enemy pawns storm
-    Score score = pe->king_safety<Us>(pos, ksq);
+    // Find the attacked squares which are defended only by our king
+    Bitboard kingOnlyDefended =   attackedBy[Them][ALL_PIECES]
+                               &  attackedBy[Us][KING]
+                               & ~attackedBy2[Us];
 
-    // Main king safety evaluation
-    if (kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
-    {
-        // Find the attacked squares which are defended only by our king...
-        kingOnlyDefended =   attackedBy[Them][ALL_PIECES]
-                          &  attackedBy[Us][KING]
-                          & ~attackedBy2[Us];
+    // Find the attacked square which are not defended at all in the larger king ring
+    Bitboard undefended =   attackedBy[Them][ALL_PIECES]
+                         & ~attackedBy[Us][ALL_PIECES]
+                         &  kingRing[Us]
+                         & ~pos.pieces(Them);
 
-        // ... and those which are not defended at all in the larger king ring
-        undefended =   attackedBy[Them][ALL_PIECES]
-                    & ~attackedBy[Us][ALL_PIECES]
-                    &  kingRing[Us]
-                    & ~pos.pieces(Them);
-
-        // Initialize the 'kingDanger' variable, which will be transformed
-        // later into a king danger score. The initial value is based on the
-        // number and types of the enemy's attacking pieces, the number of
-        // attacked and weak squares around our king, the absence of queen and
-        // the quality of the pawn shelter (current 'score' value).
-        kingDanger =        kingAttackersCount[Them] * kingAttackersWeight[Them]
+    // Initialize the 'kingDanger' variable, which will be transformed
+    // later into a king danger score. The initial value is based on the
+    // number and types of the enemy attacks, the number of weak squares
+    // around our king and the number of pins.
+    int kingDanger =        kingAttackersCount[Them] * kingAttackersWeight[Them]
                     + 102 * kingAdjacentZoneAttacksCount[Them]
                     + 191 * popcount(kingOnlyDefended | undefended)
                     + 143 * !!pos.pinned_pieces(Us)
-                    - 848 * !pos.count<QUEEN>(Them)
-                    -   9 * mg_value(score) / 8
-                    +  40;
+                    + 40;
+
+    // King shelter, enemy pawns storm and crude king danger
+    Score score = pe->king_safety<Us>(pos, ksq) - make_score(kingDanger / 32, 0);
+
+    // Main king safety evaluation: check analysis
+    if (kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
+    {
+        // Decrease the king danger if no queen and good pawn shelter 
+        kingDanger -= 848 * !pos.count<QUEEN>(Them);
+        kingDanger -= mg_value(score);
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
