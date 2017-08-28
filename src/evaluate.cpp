@@ -260,18 +260,14 @@ namespace {
     attackedBy2[Us]            = b & attackedBy[Us][PAWN];
     attackedBy[Us][ALL_PIECES] = b | attackedBy[Us][PAWN];
 
-    kingAttackersCount[Them] = kingAttackersWeight[Them] = 0;
-    kingRing[Us] = kingAdjacentZoneAttacksCount[Them] = 0;
-
     // Init our king safety tables
-    if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
-    {
-        kingRing[Us] = b;
-        if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
-            kingRing[Us] |= shift<Up>(b);
+    kingRing[Us] = b;
+    if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
+        kingRing[Us] |= shift<Up>(b);
 
-        kingAttackersCount[Them] = popcount(b & pe->pawn_attacks(Them));
-    }
+    kingAttackersCount[Them] = popcount(b & pe->pawn_attacks(Them));
+    kingAttackersWeight[Them] = 0;
+    kingAdjacentZoneAttacksCount[Them] = 0;
   }
 
 
