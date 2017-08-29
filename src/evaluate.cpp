@@ -578,7 +578,8 @@ namespace {
         }
 
         b = (pos.pieces(Them, QUEEN) | weak) & attackedBy[Us][ROOK];
-        b |= weak & attackedBy[Us][QUEEN];
+        if (!(pos.pieces(Us, QUEEN) & attackedBy[Them][ALL_PIECES]))
+            b |= weak & attackedBy[Us][QUEEN];
         while (b)
         {
             Square s = pop_lsb(&b);
