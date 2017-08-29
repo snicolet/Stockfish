@@ -170,14 +170,14 @@ namespace {
   // friendly pawn on the rook file.
   const Score RookOnFile[] = { S(20, 7), S(45, 20) };
 
-  // ThreatByMinor/ByRook[attacked PieceType] contains bonuses according to
+  // ThreatByMinor/ByMajor[attacked PieceType] contains bonuses according to
   // which piece type attacks which one. Attacks on lesser pieces which are
   // pawn-defended are not considered.
   const Score ThreatByMinor[PIECE_TYPE_NB] = {
     S(0, 0), S(0, 33), S(45, 43), S(46, 47), S(72, 107), S(48, 118)
   };
 
-  const Score ThreatByRook[PIECE_TYPE_NB] = {
+  const Score ThreatByMajor[PIECE_TYPE_NB] = {
     S(0, 0), S(0, 25), S(40, 62), S(40, 59), S(0, 34), S(35, 48)
   };
 
@@ -573,17 +573,16 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByMinor[type_of(pos.piece_on(s))];
-            if (!(defended & s))
-                score += ThreatByMinor[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
         b = (pos.pieces(Them, QUEEN) | weak) & attackedBy[Us][ROOK];
+        b |= weak & attackedBy[Us][QUEEN];
         while (b)
         {
             Square s = pop_lsb(&b);
-            score += ThreatByRook[type_of(pos.piece_on(s))];
+            score += ThreatByMajor[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
