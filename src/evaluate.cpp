@@ -834,7 +834,6 @@ namespace {
        return pos.side_to_move() == WHITE ? v : -v;
 
     // Main evaluation begins here
-
     initialize<WHITE>();
     initialize<BLACK>();
 
@@ -847,6 +846,11 @@ namespace {
 
     score +=  evaluate_king<WHITE>()
             - evaluate_king<BLACK>();
+
+    // Again, exit if score is high
+    v = (mg_value(score) + eg_value(score)) / 2;
+    if (abs(v) > LazyThreshold)
+       return pos.side_to_move() == WHITE ? v : -v;
 
     score +=  evaluate_threats<WHITE>()
             - evaluate_threats<BLACK>();
