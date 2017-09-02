@@ -208,7 +208,7 @@ namespace {
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
   const Score OtherCheck          = S( 10, 10);
-  const Score CloseEnemies        = S(  7,  0);
+  const Score KingTropism         = S(  6,  0);
   const Score PawnlessFlank       = S( 20, 80);
   const Score ThreatByHangingPawn = S( 71, 61);
   const Score ThreatBySafePawn    = S(182,175);
@@ -413,7 +413,20 @@ namespace {
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingOnlyDefended, undefended, b, b1, b2, safe, other;
-    int kingDanger;
+    int tropism, kingDanger;
+
+    // King tropism: firstly, find squares that opponent attacks in our king flank
+    File kf = file_of(ksq);
+    b = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
+
+    assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
+    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
+
+    // Secondly, add the squares which are attacked twice in that flank and
+    // which are not defended by our pawns.
+    b =  (Us == WHITE ? b << 4 : b >> 4)
+       | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
+    tropism = popcount(b);
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
@@ -443,7 +456,7 @@ namespace {
                     + 143 * !!pos.pinned_pieces(Us)
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
-                    +  40;
+                    +   4 * tropism;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
@@ -495,19 +508,7 @@ namespace {
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
     }
 
-    // King tropism: firstly, find squares that opponent attacks in our king flank
-    File kf = file_of(ksq);
-    b = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
-
-    assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
-    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
-
-    // Secondly, add the squares which are attacked twice in that flank and
-    // which are not defended by our pawns.
-    b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
-
-    score -= CloseEnemies * popcount(b);
+    score -= KingTropism * tropism;
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
