@@ -235,7 +235,7 @@ void MainThread::search() {
       return;
   }
 
-  Color us = rootPos.side_to_move();
+  Color us = rootColor = rootPos.side_to_move();
   Time.init(Limits, us, rootPos.game_ply());
   TT.new_search();
 
@@ -848,8 +848,11 @@ moves_loop: // When in check search starts from here
                   ? pos.check_squares(type_of(pos.piece_on(from_sq(move)))) & to_sq(move)
                   : pos.gives_check(move);
 
+      int futilityMoveCount =  FutilityMoveCounts[improving][depth / ONE_PLY]
+                             + (pos.side_to_move() == pos.this_thread()->rootColor ? 0 : 1);
+
       moveCountPruning =   depth < 16 * ONE_PLY
-                        && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
+                        && moveCount >= futilityMoveCount;
 
       // Step 12. Singular and Gives Check Extensions
 
