@@ -69,7 +69,7 @@ namespace {
   // Razoring and futility margin based on depth
   // razor_margin[0] is unused as long as depth >= ONE_PLY in search
   const int razor_margin[] = { 0, 570, 603, 554 };
-  Value futility_margin(Depth d) { return Value(150 * d / ONE_PLY); }
+  Value futility_margin(Depth d) { return Value(150 * d / ONE_PLY - 25); }
 
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
@@ -87,8 +87,8 @@ namespace {
 
   // PruningSafety[rootColor][cut type] : pruning safety table
   const int PruningSafety[2][2] = {
-     {  0  , -50 },  // ~rootColor : alpha, beta
-     {  75 ,  0  }   //  rootColor : alpha, beta
+     {  0 ,  0 },  // ~rootColor : alpha, beta
+     { 75 , 50 }   //  rootColor : alpha, beta
   };
   enum CutType { ALPHA, BETA };
   template <CutType T> 
@@ -918,7 +918,7 @@ moves_loop: // When in check search starts from here
               // Futility pruning: parent node
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth + pruning_safety<ALPHA>(pos) <= alpha)
+                  && ss->staticEval + 281 + 200 * lmrDepth + pruning_safety<ALPHA>(pos) <= alpha)
                   continue;
 
               // Prune moves with negative SEE
