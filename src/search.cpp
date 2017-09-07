@@ -849,7 +849,7 @@ moves_loop: // When in check search starts from here
                   : pos.gives_check(move);
 
       int futilityMoveCount =  FutilityMoveCounts[improving][depth / ONE_PLY]
-                             + (pos.side_to_move() == pos.this_thread()->rootColor ? 1 : 0);
+                             + (pos.side_to_move() == pos.this_thread()->rootColor ? 2 : 0);
 
       moveCountPruning =   depth < 16 * ONE_PLY
                         && moveCount >= futilityMoveCount;
