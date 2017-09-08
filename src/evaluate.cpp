@@ -217,6 +217,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score KnightAndAsymmetry  = S(  0, 10);
 
   #undef S
   #undef V
@@ -340,6 +341,11 @@ namespace {
             // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
+
+            // Knights are best in symmetrical pawn structures
+            if (   Pt == KNIGHT
+                && pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK))
+                score -= KnightAndAsymmetry * pe->pawn_asymmetry();
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
