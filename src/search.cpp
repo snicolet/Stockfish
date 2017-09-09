@@ -324,13 +324,13 @@ void MainThread::search() {
 
 void Thread::search() {
 
-  Stack stack[MAX_PLY+7], *ss = stack+4; // To allow referencing (ss-4) and (ss+2)
+  Stack stack[MAX_PLY+8], *ss = stack+5; // To allow referencing from (ss-5) to (ss+2)
   Value bestValue, alpha, beta, delta;
   Move easyMove = MOVE_NONE;
   MainThread* mainThread = (this == Threads.main() ? Threads.main() : nullptr);
 
-  std::memset(ss-4, 0, 7 * sizeof(Stack));
-  for (int i = 4; i > 0; i--)
+  std::memset(ss-5, 0, 8 * sizeof(Stack));
+  for (int i = 5; i > 0; i--)
      (ss-i)->contHistory = &this->contHistory[NO_PIECE][0]; // Use as sentinel
 
   bestValue = delta = alpha = -VALUE_INFINITE;
@@ -956,6 +956,36 @@ moves_loop: // When in check search starts from here
               // Decrease reduction if opponent's move count is high
               if ((ss-1)->moveCount > 15)
                   r -= ONE_PLY;
+
+              // Increase reduction if opponent has been improving consistently over time
+              if (   (ss-3)->staticEval > (ss-5)->staticEval + 20
+                  && (ss-2)->staticEval < (ss-4)->staticEval - 20
+                  && (ss-1)->staticEval > (ss-3)->staticEval + 20
+                  && (ss-0)->staticEval < (ss-2)->staticEval - 20
+                  && (ss-0)->staticEval < alpha
+                  && (ss-5)->staticEval != VALUE_NONE
+                  && (ss-4)->staticEval != VALUE_NONE
+                  && (ss-3)->staticEval != VALUE_NONE
+                  && (ss-2)->staticEval != VALUE_NONE
+                  && (ss-1)->staticEval != VALUE_NONE
+                  && (ss-0)->staticEval != VALUE_NONE)
+                  r += ONE_PLY;
+
+/*
+              // Decrease reduction if we have been improving consistently over time
+              if (   (ss-3)->staticEval < (ss-5)->staticEval - 20
+                  && (ss-2)->staticEval > (ss-4)->staticEval + 20
+                  && (ss-1)->staticEval < (ss-3)->staticEval - 20
+                  && (ss-0)->staticEval > (ss-2)->staticEval + 20
+                  && (ss-0)->staticEval > alpha
+                  && (ss-5)->staticEval != VALUE_NONE
+                  && (ss-4)->staticEval != VALUE_NONE
+                  && (ss-3)->staticEval != VALUE_NONE
+                  && (ss-2)->staticEval != VALUE_NONE
+                  && (ss-1)->staticEval != VALUE_NONE
+                  && (ss-0)->staticEval != VALUE_NONE)
+                  r -= ONE_PLY;
+*/
 
               // Increase reduction if ttMove is a capture
               if (ttCapture)
