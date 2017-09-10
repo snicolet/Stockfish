@@ -851,9 +851,9 @@ namespace {
     Score wt = evaluate_threats<WHITE>();
     Score bt = evaluate_threats<BLACK>();
     if (abs(mg_value(wt)) > abs(mg_value(bt)))
-        score += wt - (bt / 2);
+        score += wt - (bt - bt / 8);
     else
-        score += (wt / 2) - bt;
+        score += (wt - wt / 8) - bt;
 
     score +=  evaluate_passed_pawns<WHITE>()
             - evaluate_passed_pawns<BLACK>();
