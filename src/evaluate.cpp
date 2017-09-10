@@ -848,8 +848,12 @@ namespace {
     score +=  evaluate_king<WHITE>()
             - evaluate_king<BLACK>();
 
-    score +=  evaluate_threats<WHITE>()
-            - evaluate_threats<BLACK>();
+    Score wt = evaluate_threats<WHITE>();
+    Score bt = evaluate_threats<BLACK>();
+    if (abs(mg_value(wt)) > abs(mg_value(bt)))
+        score += wt - (bt / 2);
+    else
+        score += (wt / 2) - bt;
 
     score +=  evaluate_passed_pawns<WHITE>()
             - evaluate_passed_pawns<BLACK>();
