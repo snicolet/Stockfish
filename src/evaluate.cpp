@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -217,6 +218,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score Thorn               = S( 30, 30);
 
   #undef S
   #undef V
@@ -413,10 +415,32 @@ namespace {
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingOnlyDefended, undefended, b, b1, b2, safe, other;
+    Bitboard thorn = 0;
     int kingDanger;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
+
+    // Enemy thorn pawns, like h3 against king in g1
+    if (pos.count<QUEEN>(Them) > 0)
+    {
+        thorn =   pos.pieces(Them, PAWN)
+                & kingRing[Us]
+                & DistanceRingBB[ksq][1]
+                & ~attackedBy[Us][PAWN]
+                & (~attackedBy[Us][ALL_PIECES] | attackedBy[Them][ALL_PIECES])
+                & (~attackedBy2[Us] | attackedBy2[Them]);
+
+        if (thorn)
+        {
+         /*
+            std::cerr << pos << std::endl;
+            std::cerr << Bitboards::pretty(thorn) << std::endl;
+            std::cerr << "===========================================" << std::endl;
+         */
+            score -= Thorn;
+        }
+    }
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
