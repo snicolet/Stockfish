@@ -697,7 +697,7 @@ namespace {
         score += make_score(mbonus, ebonus) + PassedFile[file_of(s)];
     }
 
-    score = score + score / 2;
+    score += score / 4;
 
     if (T)
         Trace::add(PASSED, Us, score);
