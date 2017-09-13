@@ -218,7 +218,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
-  const Score Thorn               = S( 20, 40);
+  const Score Thorn               = S( 15, 15);
 
   #undef S
   #undef V
@@ -421,11 +421,10 @@ namespace {
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
 
-    // Enemy thorn pawns, like h3 against king in g1
-    if (pos.count<QUEEN>(Them) > 0)
+    // Enemy thorn pawns, able to support a queen contact check against our king
+    if (pos.pieces(Them, QUEEN))
     {
         thorn =   pos.pieces(Them, PAWN)
-                & kingRing[Us]
                 & DistanceRingBB[ksq][1]
                 & ~attackedBy[Us][PAWN]
                 & (~attackedBy[Us][ALL_PIECES] | attackedBy[Them][ALL_PIECES])
