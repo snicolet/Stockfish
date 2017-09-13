@@ -201,8 +201,8 @@ namespace {
   // KingProtector[PieceType-2] contains a bonus according to distance from king
   const Score KingProtector[] = { S(-3, -5), S(-4, -3), S(-3, 0), S(-1, 1) };
 
-  // CloseEnemies[with queen/without queen] contains a bonus for king tropism
-  const Score CloseEnemies[] = { S(7, 0), S(7, -4) };
+  // CloseEnemies[with queen/without queen] contains the king tropism bonus
+  const Score CloseEnemies[] = { S(8, 1), S(7, -4) };
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
