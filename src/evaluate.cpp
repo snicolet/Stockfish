@@ -369,7 +369,7 @@ namespace {
                 && (b & pos.slider_blockers(pos.pieces(Them, BISHOP), s, pinners)))
             {
                 score -= Skewer;
-                if (pinners & attackedBy[Us][PAWN])
+                if (pinners & attackedBy[Them][PAWN])
                     score -= Skewer;
             }
 
