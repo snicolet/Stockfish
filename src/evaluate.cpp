@@ -207,6 +207,7 @@ namespace {
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
+  const Score Skewer              = S( 20, 20);
   const Score OtherCheck          = S( 10, 10);
   const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
@@ -286,7 +287,7 @@ namespace {
                                                : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
 
-    Bitboard b, bb;
+    Bitboard b, bb, pinners;
     Square s;
     Score score = SCORE_ZERO;
 
@@ -362,6 +363,16 @@ namespace {
             if (relative_rank(Us, s) >= RANK_5)
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
 
+            // Penalty for a queen-rook or rook-rook skewer
+            b = pos.pieces(Us, ROOK, QUEEN);
+            if (   more_than_one(b)
+                && (b & pos.slider_blockers(pos.pieces(Them, BISHOP), s, pinners)))
+            {
+                score -= Skewer;
+                if (pinners & attackedBy[Us][PAWN])
+                    score -= Skewer;
+            }
+
             // Bonus when on an open or semi-open file
             if (pe->semiopen_file(Us, file_of(s)))
                 score += RookOnFile[!!pe->semiopen_file(Them, file_of(s))];
@@ -380,7 +391,6 @@ namespace {
         if (Pt == QUEEN)
         {
             // Penalty if any relative pin or discovered attack against the queen
-            Bitboard pinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, pinners))
                 score -= WeakQueen;
         }
