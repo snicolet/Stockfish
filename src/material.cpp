@@ -147,9 +147,14 @@ Entry* probe(const Position& pos) {
 
   Value npm_w = pos.non_pawn_material(WHITE);
   Value npm_b = pos.non_pawn_material(BLACK);
-  Value npm = std::max(EndgameLimit, std::min(npm_w + npm_b, MidgameLimit));
+  Value npm = std::max(EndgameLimit - 1000, std::min(npm_w + npm_b, MidgameLimit + 1000));
 
-  // Map total non-pawn material into [PHASE_ENDGAME, PHASE_MIDGAME]
+  // Map total non-pawn material into a game phase.
+  // The phase is 0 (PHASE_ENDGAME) when the non-pawn material has value EndgameLimit
+  // (about rook and knight for each player), and 128 (PHASE_MIDGAME) when the non-pawn
+  // material has value MidgameLimit (about queen, 2 rooks, 2 bishops and 1 knight for
+  // each player), but the phase can be outside the range 0..128 for positions with even
+  // less or more material than these limits.
   e->gamePhase = Phase(((npm - EndgameLimit) * PHASE_MIDGAME) / (MidgameLimit - EndgameLimit));
 
   // Let's look if we have a specialized evaluation function for this particular
