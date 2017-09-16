@@ -151,7 +151,7 @@ template<Color C, CastlingSide S> struct MakeCastling {
                      : S == QUEEN_SIDE ? BLACK_OOO : BLACK_OO;
 };
 
-enum Phase : int {
+enum Phase {
   PHASE_ENDGAME,
   PHASE_MIDGAME = 128,
   MG = 0, EG = 1, PHASE_NB = 2
