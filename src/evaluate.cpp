@@ -596,7 +596,14 @@ namespace {
 
     // Bonus for opponent unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
-        score += WeakUnopposedPawn * pe->weak_unopposed(Them);
+    {
+        int x =   pe->weak_unopposed(Them)
+                + popcount(   pos.pieces(Them, PAWN) 
+                           & ~attackedBy[Them][PAWN]
+                           & (attackedBy[Us][ROOK] | attackedBy[Us][QUEEN]));
+
+        score += WeakUnopposedPawn * x;
+    }
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
