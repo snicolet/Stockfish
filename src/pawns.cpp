@@ -182,6 +182,10 @@ namespace {
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
+        //if (!opposed && (!neighbours || backward))
+        //if (!(supported | phalanx | opposed))
+        //    e->weakUnopposed[Us]++;
+
         if (doubled && !supported)
             score -= Doubled;
 
