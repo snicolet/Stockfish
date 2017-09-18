@@ -162,8 +162,8 @@ namespace {
   // supported by a pawn. If the minor piece occupies an outpost square
   // then score is doubled.
   const Score Outpost[][2] = {
-    { S(22, 6), S(36,12) }, // Knight
-    { S( 9, 2), S(15, 5) }  // Bishop
+    { S(22, 6), S(30, 8) }, // Knight
+    { S( 9, 2), S(12, 3) }  // Bishop
   };
 
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is no
