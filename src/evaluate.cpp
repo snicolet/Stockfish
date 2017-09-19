@@ -215,7 +215,7 @@ namespace {
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
   const Score WeakUnopposedPawn   = S(  5, 25);
-  const Score PressureOnWeakPawns = S(  7, 13);
+  const Score PressureOnWeakPawns = S(  7, 23);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
