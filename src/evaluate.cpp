@@ -534,10 +534,12 @@ namespace {
     const Bitboard TRank3BB = (Us == WHITE ? Rank3BB    : Rank6BB);
 
     Bitboard b, weak, defended, stronglyProtected, safeThreats;
+    Bitboard weaknesses = 0;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies attacked by a pawn
     weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & attackedBy[Us][PAWN];
+    weaknesses |= weak;
 
     if (weak)
     {
@@ -565,6 +567,7 @@ namespace {
     weak =   pos.pieces(Them)
           & ~stronglyProtected
           &  attackedBy[Us][ALL_PIECES];
+    weaknesses |= weak;
 
     // Add a bonus according to the kind of attacking pieces
     if (defended | weak)
@@ -612,6 +615,14 @@ namespace {
        & ~attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+    weaknesses |= b;
+
+    // Quadratic bonus for multiple weaknesses
+    if (more_than_one(weaknesses))
+    {
+       int x = popcount(weaknesses);
+       score += make_score(0, 3 * x * (x - 1));
+    }
 
     if (T)
         Trace::add(THREAT, Us, score);
