@@ -621,7 +621,8 @@ namespace {
     if (more_than_one(weaknesses))
     {
        int x = popcount(weaknesses);
-       score += make_score(0, 3 * x * (x - 1));
+       int y = x * (x - 1);
+       score += make_score(2 * y, 4 * y);
     }
 
     if (T)
