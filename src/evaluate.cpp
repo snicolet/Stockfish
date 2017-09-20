@@ -533,7 +533,7 @@ namespace {
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank3BB = (Us == WHITE ? Rank3BB    : Rank6BB);
 
-    Bitboard b, weak, defended, stronglyProtected, safeThreats;
+    Bitboard b, weak, superweak, defended, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies attacked by a pawn
@@ -566,6 +566,10 @@ namespace {
           & ~stronglyProtected
           &  attackedBy[Us][ALL_PIECES];
 
+    superweak =   weak
+               & ~attackedBy2[Them]
+               &  attackedBy2[Us];
+
     // Add a bonus according to the kind of attacking pieces
     if (defended | weak)
     {
@@ -574,6 +578,10 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByMinor[type_of(pos.piece_on(s))];
+
+            if (superweak & s)
+                score += ThreatByMinor[type_of(pos.piece_on(s))];
+
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
@@ -583,6 +591,10 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByRook[type_of(pos.piece_on(s))];
+
+            if (superweak & s)
+                score += ThreatByRook[type_of(pos.piece_on(s))];
+
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
@@ -592,6 +604,8 @@ namespace {
         b = weak & attackedBy[Us][KING];
         if (b)
             score += ThreatByKing[more_than_one(b)];
+        if (superweak & b)
+            score += ThreatByKing[more_than_one(superweak & b)];
     }
 
     // Bonus for opponent unopposed weak pawns
