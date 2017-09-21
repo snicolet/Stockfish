@@ -566,9 +566,12 @@ namespace {
           & ~stronglyProtected
           &  attackedBy[Us][ALL_PIECES];
 
+    // Superweak pieces
     superweak =   weak
                & ~attackedBy2[Them]
                &  attackedBy2[Us];
+    if (superweak)
+        score += make_score(5, 25);
 
     // Add a bonus according to the kind of attacking pieces
     if (defended | weak)
@@ -578,10 +581,6 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByMinor[type_of(pos.piece_on(s))];
-
-            if (superweak & s)
-                score += ThreatByMinor[type_of(pos.piece_on(s))];
-
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
@@ -591,10 +590,6 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByRook[type_of(pos.piece_on(s))];
-
-            if (superweak & s)
-                score += ThreatByRook[type_of(pos.piece_on(s))];
-
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
