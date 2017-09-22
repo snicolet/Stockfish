@@ -189,7 +189,7 @@ enum Value : int {
   RookValueMg   = 1282,  RookValueEg   = 1373,
   QueenValueMg  = 2526,  QueenValueEg  = 2646,
 
-  MidgameLimit  = 15258, EndgameLimit  = 3915
+  MidgameLimit  = 15658, EndgameLimit  = 4315
 };
 
 enum PieceType {
