@@ -533,7 +533,7 @@ namespace {
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank3BB = (Us == WHITE ? Rank3BB    : Rank6BB);
 
-    Bitboard b, weak, defended, stronglyProtected, safeThreats;
+    Bitboard b, weak, superweak, defended, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies attacked by a pawn
@@ -565,6 +565,13 @@ namespace {
     weak =   pos.pieces(Them)
           & ~stronglyProtected
           &  attackedBy[Us][ALL_PIECES];
+
+    // Superweak pieces
+    superweak =   weak
+               & ~attackedBy2[Them]
+               &  attackedBy2[Us];
+    if (superweak)
+        score += make_score(10, 30);
 
     // Add a bonus according to the kind of attacking pieces
     if (defended | weak)
