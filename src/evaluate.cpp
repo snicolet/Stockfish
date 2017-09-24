@@ -532,8 +532,11 @@ namespace {
     const Square Left       = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
     const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Bitboard TRank3BB = (Us == WHITE ? Rank3BB    : Rank6BB);
+    const Bitboard OpponentCamp = 
+         (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                      : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
 
-    Bitboard b, weak, superweak, defended, stronglyProtected, safeThreats;
+    Bitboard b, weak, defended, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies attacked by a pawn
@@ -566,13 +569,6 @@ namespace {
           & ~stronglyProtected
           &  attackedBy[Us][ALL_PIECES];
 
-    // Superweak pieces
-    superweak =   weak
-               & ~attackedBy2[Them]
-               &  attackedBy2[Us];
-    if (superweak)
-        score += make_score(10, 30);
-
     // Add a bonus according to the kind of attacking pieces
     if (defended | weak)
     {
@@ -600,6 +596,18 @@ namespace {
         if (b)
             score += ThreatByKing[more_than_one(b)];
     }
+
+    b =  ~stronglyProtected
+       & ~attackedBy2[Them]
+       &  attackedBy2[Us];
+
+    // Bonus for superweak empty squares (i.e. entry points)
+    int x = popcount(b & OpponentCamp & ~pos.pieces());
+    score += make_score(3 * x * x, 0);
+
+    // Bonus for superweak pieces
+    if (b & pos.pieces(Them))
+        score += make_score(2, 12);
 
     // Bonus for opponent unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
