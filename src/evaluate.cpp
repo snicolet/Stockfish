@@ -296,8 +296,6 @@ namespace {
     while ((s = *pl++) != SQ_NONE)
     {
         Bitboard temp = pos.pieces(Us, PAWN) & attackedBy[Them][PAWN];
-        //Bitboard temp = 0;
-        //temp |= pos.pieces(Us, KNIGHT, BISHOP) 
         temp |= pos.pieces(Us, QUEEN, ROOK);
 
         // Find attacked squares, including x-ray attacks for bishops and rooks
