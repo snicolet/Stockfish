@@ -296,11 +296,13 @@ namespace {
     while ((s = *pl++) != SQ_NONE)
     {
         Bitboard temp = pos.pieces(Us, PAWN) & attackedBy[Them][PAWN];
-        temp |= pos.pieces(Us, KNIGHT, BISHOP) | pos.pieces(Us, ROOK);
+        //Bitboard temp = 0;
+        //temp |= pos.pieces(Us, KNIGHT, BISHOP) 
+        temp |= pos.pieces(Us, QUEEN, ROOK);
 
         // Find attacked squares, including x-ray attacks for bishops and rooks
-        b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Us, QUEEN) ^ temp)
-          : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(Us, ROOK, QUEEN) ^ temp)
+        b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ temp)
+          : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ temp)
                          : pos.attacks_from<Pt>(s);
 
         if (pos.pinned_pieces(Us) & s)
