@@ -601,7 +601,7 @@ namespace {
     // Malus if opponent has strong protections
     b = pos.pieces(Them) & stronglyProtected;
     int x = popcount(b);
-    score -= make_score(0, 4) * x;
+    score -= make_score(0, 2) * x;
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
