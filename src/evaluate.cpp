@@ -598,6 +598,11 @@ namespace {
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
+    // Malus if opponent has strong protections
+    b = pos.pieces(Them) & stronglyProtected;
+    int x = popcount(b);
+    score -= make_score(0, 3) * x;
+
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
