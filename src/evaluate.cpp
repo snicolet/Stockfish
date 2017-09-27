@@ -781,7 +781,8 @@ namespace {
 
     // If we don't already have an unusual scale factor, check for certain
     // types of endgames, and use a lower scale for those.
-    if (sf == SCALE_FACTOR_NORMAL || sf == SCALE_FACTOR_ONEPAWN)
+    if (   !pos.pieces(QUEEN) 
+        && (sf == SCALE_FACTOR_NORMAL || sf == SCALE_FACTOR_ONEPAWN))
     {
         if (pos.opposite_bishops())
         {
@@ -793,7 +794,7 @@ namespace {
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
-                return pos.pieces(QUEEN) ? ScaleFactor(55) : ScaleFactor(46);
+            return ScaleFactor(46);
         }
         
         // Endings where weaker side can place his king in front of the opponent's
