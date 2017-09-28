@@ -69,7 +69,7 @@ namespace {
   // Razoring and futility margin based on depth
   // razor_margin[0] is unused as long as depth >= ONE_PLY in search
   const int razor_margin[] = { 0, 570, 603, 554 };
-  Value futility_margin(Depth d) { return Value(150 * d / ONE_PLY); }
+  Value futility_margin(Depth d) { return Value(150 * d / ONE_PLY - 50); }
 
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
@@ -83,6 +83,12 @@ namespace {
   int stat_bonus(Depth depth) {
     int d = depth / ONE_PLY;
     return d > 17 ? 0 : d * d + 2 * d - 2;
+  }
+
+  // pruning safety
+  inline int pruning_safety(const Position& pos, int depth) {
+      return pos.side_to_move() != pos.this_thread()->rootColor ? 0 
+                                                                : 50 - 5 * depth;
   }
 
   // Skill structure is used to implement strength limit
@@ -235,7 +241,7 @@ void MainThread::search() {
       return;
   }
 
-  Color us = rootPos.side_to_move();
+  Color us = rootColor = rootPos.side_to_move();
   Time.init(Limits, us, rootPos.game_ply());
   TT.new_search();
 
@@ -710,7 +716,7 @@ namespace {
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !rootNode
         &&  depth < 7 * ONE_PLY
-        &&  eval - futility_margin(depth) >= beta
+        &&  eval - futility_margin(depth) - pruning_safety(pos, depth) >= beta
         &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
         &&  pos.non_pawn_material(pos.side_to_move()))
         return eval;
@@ -907,7 +913,7 @@ moves_loop: // When in check search starts from here
               // Futility pruning: parent node
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth <= alpha)
+                  && ss->staticEval + 231 + 200 * lmrDepth + pruning_safety(pos, lmrDepth) <= alpha)
                   continue;
 
               // Prune moves with negative SEE
