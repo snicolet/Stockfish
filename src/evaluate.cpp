@@ -763,7 +763,7 @@ namespace {
     int initiative = 12 * (pe->pawn_asymmetry() + kingDistance - 17)
                    + 18 * pos.count<PAWN>()
                    + 24 * bothFlanks
-                   -  2 * pos.rule50_count();
+                   -      pos.rule50_count();
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
