@@ -42,6 +42,13 @@ const std::string pretty(Bitboard b);
 const Bitboard AllSquares = ~Bitboard(0);
 const Bitboard DarkSquares = 0xAA55AA55AA55AA55ULL;
 
+const Bitboard LongDiagonals = 0x8142241818244281ULL;
+//const Bitboard LongDiagonalDarkSquares  = LongDiagonals &  DarkSquares;
+//const Bitboard LongDiagonalLightSquares = LongDiagonals & ~DarkSquares;
+const Bitboard Center = 0x0000001818000000ULL;
+//const Bitboard CenterLightSquares = LongDiagonalLightSquares & Center;
+//const Bitboard CenterDarkSquares  = LongDiagonalDarkSquares  & Center;
+
 const Bitboard FileABB = 0x0101010101010101ULL;
 const Bitboard FileBBB = FileABB << 1;
 const Bitboard FileCBB = FileABB << 2;
@@ -59,6 +66,13 @@ const Bitboard Rank5BB = Rank1BB << (8 * 4);
 const Bitboard Rank6BB = Rank1BB << (8 * 5);
 const Bitboard Rank7BB = Rank1BB << (8 * 6);
 const Bitboard Rank8BB = Rank1BB << (8 * 7);
+
+
+
+const Bitboard LightLongDiagonal  = (FileABB & Rank8BB) | (FileBBB & Rank7BB) | (FileCBB & Rank6BB) | (FileDBB & Rank5BB) | (FileEBB & Rank4BB) | (FileFBB & Rank3BB) | (FileGBB & Rank2BB) | (FileHBB & Rank1BB);
+const Bitboard DarkLongDiagonal   = (FileABB & Rank1BB) | (FileBBB & Rank2BB) | (FileCBB & Rank3BB) | (FileDBB & Rank4BB) | (FileEBB & Rank5BB) | (FileFBB & Rank6BB) | (FileGBB & Rank7BB) | (FileHBB & Rank8BB);
+const Bitboard LightCenterSquares = (FileDBB & Rank5BB) | (FileEBB & Rank4BB);
+const Bitboard DarkCenterSquares  = (FileDBB & Rank4BB) | (FileEBB & Rank5BB);
 
 extern int SquareDistance[SQUARE_NB][SQUARE_NB];
 

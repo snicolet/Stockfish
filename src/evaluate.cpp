@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -204,6 +205,7 @@ namespace {
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
+  const Score LongDiagonalBishop  = S( 16,  6);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
@@ -338,9 +340,39 @@ namespace {
                 && (pos.pieces(PAWN) & (s + pawn_push(Us))))
                 score += MinorBehindPawn;
 
-            // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
+            {
+                // Penalty for pawns on the same color square as the bishop
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
+                
+                /*
+                dbg_mean_of(LongDiagonalLightSquares == LightLongDiagonal);
+                dbg_mean_of(LongDiagonalDarkSquares  == DarkLongDiagonal);
+                dbg_mean_of(DarkCenterSquares  == CenterDarkSquares);
+                dbg_mean_of(LightCenterSquares  == CenterLightSquares);
+                */
+
+                // Bonus when on a long diagonal and the center squares are not occupied by pawns.
+                if (!(attackedBy[Them][PAWN] & s))
+                {
+                    bool A =   ((LightLongDiagonal & s) && !(pos.pieces(PAWN) & LightCenterSquares))
+                            || ((DarkLongDiagonal  & s) && !(pos.pieces(PAWN) & DarkCenterSquares ));
+                    
+                    bool B =    LongDiagonals & s
+                            && !(pos.pieces(PAWN) & Center & PseudoAttacks[BISHOP][s]);
+                    
+                    dbg_mean_of(A == B);
+                    
+                    if (A != B)
+                    {
+                        std::cerr << pos << std::endl;
+                    }
+                    
+                    if (B)
+                        score += LongDiagonalBishop;
+                }
+            }
+
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
