@@ -770,7 +770,7 @@ namespace {
 
     // Now apply the bonuses: note that we find the attacking side by extracting
     // the sign of the midgame and endgame values, and that we carefully cap the
-    // bonuses so that the score will never change sign after the bonuses.
+    // bonuses so that the scores will never change sign after the bonuses.
     int u = ((mg > 0) - (mg < 0)) * std::max(-shuffling, -abs(mg));
     int v = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg));
 
