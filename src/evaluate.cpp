@@ -348,11 +348,11 @@ namespace {
                 // Bonus when on a long diagonal and the center squares are not occupied by pawns.
                 if (!(attackedBy[Them][PAWN] & s))
                 {
-                    b = LongDiagonals;
-                    bb = Center;
+                    // b = LongDiagonals;
+                    // bb = Center;
 
-                    //b = LongDiagonals | shift<NORTH>(LongDiagonals) | shift<SOUTH>(LongDiagonals);
-                    //bb = LargeCenter & (Rank4BB | Rank5BB);
+                    b  = LongDiagonals | shift<NORTH>(LongDiagonals) | shift<SOUTH>(LongDiagonals);
+                    bb = LargeCenter & (Rank4BB | Rank5BB);
 
                     //std::cerr << Bitboards::pretty(b) << std::endl;
                     //std::cerr << Bitboards::pretty(bb) << std::endl;
