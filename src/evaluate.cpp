@@ -345,7 +345,7 @@ namespace {
                 // Penalty for pawns on the same color square as the bishop
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
 
-                // Bonus when on a long diagonal and the center squares are not occupied by pawns.
+                // Bonus when on a long diagonal and the center squares are not occupied by pawns
                 if (!(attackedBy[Them][PAWN] & s))
                 {
                     // b = LongDiagonals;
@@ -361,7 +361,6 @@ namespace {
                         score += LongRangedBishop;
                 }
             }
-
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
