@@ -205,7 +205,7 @@ namespace {
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
-  const Score LongDiagonalBishop  = S( 16,  6);
+  const Score LongRangedBishop    = S( 16,  6);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
@@ -344,32 +344,21 @@ namespace {
             {
                 // Penalty for pawns on the same color square as the bishop
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
-                
-                /*
-                dbg_mean_of(LongDiagonalLightSquares == LightLongDiagonal);
-                dbg_mean_of(LongDiagonalDarkSquares  == DarkLongDiagonal);
-                dbg_mean_of(DarkCenterSquares  == CenterDarkSquares);
-                dbg_mean_of(LightCenterSquares  == CenterLightSquares);
-                */
 
                 // Bonus when on a long diagonal and the center squares are not occupied by pawns.
                 if (!(attackedBy[Them][PAWN] & s))
                 {
-                    bool A =   ((LightLongDiagonal & s) && !(pos.pieces(PAWN) & LightCenterSquares))
-                            || ((DarkLongDiagonal  & s) && !(pos.pieces(PAWN) & DarkCenterSquares ));
-                    
-                    bool B =    LongDiagonals & s
-                            && !(pos.pieces(PAWN) & Center & PseudoAttacks[BISHOP][s]);
-                    
-                    dbg_mean_of(A == B);
-                    
-                    if (A != B)
-                    {
-                        std::cerr << pos << std::endl;
-                    }
-                    
-                    if (B)
-                        score += LongDiagonalBishop;
+                    b = LongDiagonals;
+                    bb = Center;
+
+                    //b = LongDiagonals | shift<NORTH>(LongDiagonals) | shift<SOUTH>(LongDiagonals);
+                    //bb = LargeCenter & (Rank4BB | Rank5BB);
+
+                    //std::cerr << Bitboards::pretty(b) << std::endl;
+                    //std::cerr << Bitboards::pretty(bb) << std::endl;
+
+                    if ((b & s) && !(bb & PseudoAttacks[BISHOP][s] & pos.pieces(PAWN)))
+                        score += LongRangedBishop;
                 }
             }
 
