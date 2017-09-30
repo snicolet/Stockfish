@@ -314,11 +314,14 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
-
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         // Bonus for this piece as a king protector
         score += KingProtector[Pt - 2] * distance(s, pos.square<KING>(Us));
+
+        // Skip the positional evaluation if the piece is attacked by a pawn
+        if (attackedBy[Them][PAWN] & s)
+            continue;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
