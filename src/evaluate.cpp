@@ -186,6 +186,10 @@ namespace {
   // pawns or pieces which are not pawn-defended.
   const Score ThreatByKing[] = { S(3, 62), S(9, 138) };
 
+  // LongRangedBishop[main diagonals/other] contains bonuses for bishops
+  // on the diagonals of length >= 7 not blocked by any pawn in the center.
+  const Score LongRangedBishop[] = { S(22, 6), S(11, 0) };
+
   // Passed[mg/eg][Rank] contains midgame and endgame bonuses for passed pawns.
   // We don't use a Score because we process the two components independently.
   const Value Passed[][RANK_NB] = {
@@ -205,7 +209,6 @@ namespace {
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
-  const Score LongRangedBishop    = S( 22,  0);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
@@ -358,7 +361,7 @@ namespace {
                     //std::cerr << Bitboards::pretty(bb) << std::endl;
 
                     if ((b & s) && !(bb & PseudoAttacks[BISHOP][s] & pos.pieces(PAWN)))
-                        score += LongRangedBishop;
+                        score += LongRangedBishop[!(LongDiagonals & s)];
                 }
             }
 
