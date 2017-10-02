@@ -360,10 +360,10 @@ namespace {
                     score += LongRangedBishop;
 
                 if (    relative_rank(Us, s) > RANK_1
-                    && !(PawnAttacks[Us][s] & pos.pieces(PAWN)))
+                    && !(attackedBy[Them][PAWN] & s))
                 {
                     int x = popcount(PseudoAttacks[Pt][s] & ~pos.pieces(PAWN)) - 8;
-                    score += make_score(3 * x, 0);
+                    score += make_score(2 * x, 0);
                 }
             }
 
