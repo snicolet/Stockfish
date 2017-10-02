@@ -158,12 +158,12 @@ namespace {
   };
 
   // Outpost[knight/bishop][supported by pawn] contains bonuses for minor
-  // pieces if they can reach an outpost square, bigger if that square is
-  // supported by a pawn. If the minor piece occupies an outpost square
-  // then score is doubled.
+  // pieces if they can reach an outpost square or a good diagonal, bigger
+  // if the good square is supported by a pawn. If the minor piece already
+  // occupies the good square then bonus will be counted doubled.
   const Score Outpost[][2] = {
     { S(22, 6), S(36,12) }, // Knight
-    { S( 9, 2), S(15, 5) }  // Bishop
+    { S(10, 1), S(16, 4) }  // Bishop
   };
 
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is no
@@ -288,7 +288,8 @@ namespace {
                                                : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
 
-    Bitboard b, bb;
+    Bitboard b, good;
+    Bitboard pawns = pos.pieces(PAWN);
     Square s;
     Score score = SCORE_ZERO;
 
@@ -323,33 +324,41 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
-            // Bonus for outpost squares
-            bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
-            if (bb & s)
+            // Define the good squares for this type of minor piece.
+            // Good squares for knight are outpost squares, but for
+            // bishop we also add the long diagonals if the central
+            // squares are not occupied by pawns.
+            // The piece will be given a big bonus if it already stands
+            // on a good square, and a smaller bonus if it can reach a 
+            // good square in the next turn.
+            good = 0;
+            if (Pt == BISHOP)
+            {
+                if ((DarkSquares & s) && !(Center & DarkSquares & pawns))
+                    good = LongDiagonals;
+                if ((~DarkSquares & s) && !(Center & ~DarkSquares & pawns))
+                    good = LongDiagonals;
+            }
+            good |= OutpostRanks & ~pe->pawn_attacks_span(Them);
+            good &= ~attackedBy[Them][PAWN];
+
+            if (good & s)
                 score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & s)] * 2;
             else
             {
-                bb &= b & ~pos.pieces(Us);
-                if (bb)
-                   score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & bb)];
+                good &= b & ~pos.pieces(Us);
+                if (good)
+                   score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & good)];
             }
 
             // Bonus when behind a pawn
             if (    relative_rank(Us, s) < RANK_5
-                && (pos.pieces(PAWN) & (s + pawn_push(Us))))
+                && (pawns & (s + pawn_push(Us))))
                 score += MinorBehindPawn;
 
+            // Penalty for pawns on the same color square as the bishop
             if (Pt == BISHOP)
-            {
-                // Penalty for pawns on the same color square as the bishop
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
-
-                // Bonus for bishop on a long diagonal without pawns in the center
-                if (    (LongDiagonals & s)
-                    && !(attackedBy[Them][PAWN] & s)
-                    && !(Center & PseudoAttacks[BISHOP][s] & pos.pieces(PAWN)))
-                    score += LongRangedBishop;
-            }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
