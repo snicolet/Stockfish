@@ -339,7 +339,7 @@ namespace {
             good |= OutpostRanks & ~pe->pawn_attacks_span(Them);
             good &= ~attackedBy[Them][PAWN];
 
-            // Big bonus if the pieces already stands on a good square
+            // Big bonus if the piece already stands on a good square
             if (good & s)
                 score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & s)] * 2;
             else
