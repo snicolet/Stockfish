@@ -548,19 +548,22 @@ namespace {
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies attacked by a pawn
-    weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & attackedBy[Us][PAWN];
+    weak =  (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) 
+          & attackedBy[Us][PAWN];
 
     if (weak)
     {
-        b = pos.pieces(Us, PAWN) & ( ~attackedBy[Them][ALL_PIECES]
-                                    | attackedBy[Us][ALL_PIECES]);
+        b = pos.pieces(Us, PAWN);
+        b &= ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
+        b &= ~(attackedBy[Them][PAWN] & attackedBy2[Them]);
 
-        safeThreats = (shift<Right>(b) | shift<Left>(b)) & weak;
+        safeThreats = weak & (shift<Right>(b) | shift<Left>(b));
 
-        score += ThreatBySafePawn * popcount(safeThreats);
+        if (safeThreats)
+            score += ThreatBySafePawn;
 
         if (weak ^ safeThreats)
-            score += ThreatByHangingPawn;
+            score += ThreatByHangingPawn * popcount(weak ^ safeThreats);
     }
 
     // Squares strongly protected by the opponent, either because they attack the
