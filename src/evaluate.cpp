@@ -325,6 +325,8 @@ namespace {
         {
             // Bonus for outpost squares
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
+            if (Pt == BISHOP)
+                bb &= ~attackedBy[Them][KNIGHT];
             if (bb & s)
                 score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & s)] * 2;
             else
