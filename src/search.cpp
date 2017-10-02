@@ -960,7 +960,7 @@ moves_loop: // When in check search starts from here
 
               // Decrease reduction for exact PV nodes
               if (pvExact)
-                  r -= ONE_PLY;
+                  r -= 2 * ONE_PLY;
 
               // Increase reduction if ttMove is a capture
               if (ttCapture)
