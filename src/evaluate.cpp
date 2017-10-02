@@ -328,9 +328,6 @@ namespace {
             // Good squares for knight are outpost squares, but for
             // bishop we also add the long diagonals if the central
             // squares are not occupied by pawns.
-            // The piece will be given a big bonus if it already stands
-            // on a good square, and a smaller bonus if it can reach a 
-            // good square in the next turn.
             good = 0;
             if (Pt == BISHOP)
             {
@@ -342,10 +339,12 @@ namespace {
             good |= OutpostRanks & ~pe->pawn_attacks_span(Them);
             good &= ~attackedBy[Them][PAWN];
 
+            // Big bonus if the pieces already stands on a good square
             if (good & s)
                 score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & s)] * 2;
             else
             {
+                // Smaller bonus if able to reach a good square in the next turn
                 good &= b & ~pos.pieces(Us);
                 if (good)
                    score += Outpost[Pt == BISHOP][!!(attackedBy[Us][PAWN] & good)];
