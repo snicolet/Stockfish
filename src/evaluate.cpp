@@ -325,7 +325,6 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
-
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         // Bonus for this piece as a king protector
@@ -359,6 +358,13 @@ namespace {
                     && !(attackedBy[Them][PAWN] & s)
                     && !(Center & PseudoAttacks[BISHOP][s] & pos.pieces(PAWN)))
                     score += LongRangedBishop;
+
+                if (    relative_rank(Us, s) > RANK_1
+                    && !(PawnAttacks[Us][s] & pos.pieces(PAWN)))
+                {
+                    int x = popcount(PseudoAttacks[Pt][s] & ~pos.pieces(PAWN)) - 8;
+                    score += make_score(3 * x, 0);
+                }
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
