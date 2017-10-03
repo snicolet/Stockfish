@@ -221,8 +221,8 @@ namespace {
   const Score OtherCheck          = S( 10, 10);
   const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
-  const Score ThreatByHangingPawn = S( 71, 61);
-  const Score ThreatBySafePawn    = S(182,175);
+  const Score ThreatByHangingPawn = S( 61, 61);
+  const Score ThreatBySafePawn    = S(175,175);
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
   const Score WeakUnopposedPawn   = S(  5, 25);
@@ -552,8 +552,9 @@ namespace {
 
     if (weak)
     {
-        b = pos.pieces(Us, PAWN) & ( ~attackedBy[Them][ALL_PIECES]
-                                    | attackedBy[Us][ALL_PIECES]);
+        b = pos.pieces(Us, PAWN);
+        b &= ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
+        b &= ~(attackedBy[Them][PAWN] & attackedBy2[Them]);
 
         safeThreats = (shift<Right>(b) | shift<Left>(b)) & weak;
 
