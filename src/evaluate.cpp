@@ -222,7 +222,7 @@ namespace {
   const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
   const Score ThreatByHangingPawn = S( 71, 61);
-  const Score ThreatBySafePawn    = S(182,175);
+  const Score ThreatBySafePawn    = S(212,205);
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
   const Score WeakUnopposedPawn   = S(  5, 25);
@@ -562,9 +562,6 @@ namespace {
 
         if (weak ^ safeThreats)
             score += ThreatByHangingPawn;
-
-        if (pos.side_to_move() == Us)
-            score += make_score(100, 100);
     }
 
     // Squares strongly protected by the opponent, either because they attack the
