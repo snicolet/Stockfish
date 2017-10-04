@@ -788,11 +788,12 @@ namespace {
   ScaleFactor Evaluation<T>::evaluate_scale_factor(Value eg) {
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-    ScaleFactor sf = me->scale_factor(pos, strongSide);
+    int factor       = me->scale_factor(pos, strongSide);
+    int shuffling    = pos.rule50_count() / 4;
 
     // If we don't already have an unusual scale factor, check for certain
     // types of endgames, and use a lower scale for those.
-    if (sf == SCALE_FACTOR_NORMAL || sf == SCALE_FACTOR_ONEPAWN)
+    if (factor == SCALE_FACTOR_NORMAL || factor == SCALE_FACTOR_ONEPAWN)
     {
         if (pos.opposite_bishops())
         {
@@ -800,21 +801,22 @@ namespace {
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                return more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
+                factor = more_than_one(pos.pieces(PAWN)) ? 31 : 9;
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
-            return ScaleFactor(46);
+            else
+                factor = 46;
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
         else if (    abs(eg) <= BishopValueEg
                  &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
-            return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
+            factor = 37 + 7 * pos.count<PAWN>(strongSide);
     }
 
-    return sf;
+    return ScaleFactor(std::max(0, factor - shuffling));
   }
 
 
