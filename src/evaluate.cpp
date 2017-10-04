@@ -816,7 +816,7 @@ namespace {
             factor = 37 + 7 * pos.count<PAWN>(strongSide);
     }
 
-    return ScaleFactor(std::max(0, factor - shuffling));
+    return ScaleFactor(factor + shuffling);
   }
 
 
