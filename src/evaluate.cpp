@@ -789,7 +789,9 @@ namespace {
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     int factor       = me->scale_factor(pos, strongSide);
-    int shuffling    = pos.rule50_count() / 4;
+
+    int shuffling    = pos.rule50_count();
+    shuffling = shuffling < 10 ? shuffling / 2 : -shuffling;
 
     // If we don't already have an unusual scale factor, check for certain
     // types of endgames, and use a lower scale for those.
@@ -816,7 +818,7 @@ namespace {
             factor = 37 + 7 * pos.count<PAWN>(strongSide);
     }
 
-    return ScaleFactor(factor + shuffling);
+    return ScaleFactor(std::max(factor + shuffling, 0));
   }
 
 
