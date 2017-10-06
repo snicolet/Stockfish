@@ -789,7 +789,7 @@ namespace {
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     int factor       = me->scale_factor(pos, strongSide);
-    int shuffling    = pos.rule50_count() <= 8 ? 0 : (pos.rule50_count() - 8) / 4;
+    int shuffling    = pos.rule50_count() / 4  - 1;
 
     // If we don't already have an unusual scale factor, check for certain
     // types of endgames, and use a lower scale for those.
