@@ -914,10 +914,7 @@ Value Eval::evaluate_draw(const Position& pos)
 {
    Color stm = pos.side_to_move();
    
-   int v = 8 * (pos.count<ALL_PIECES>(stm) - pos.count<ALL_PIECES>(~stm));
-   v += (pos.non_pawn_material(stm) - pos.non_pawn_material(~stm)) / 64;
-   
-   v += (v > 0 ? pos.rule50_count() / 4 : -pos.rule50_count() / 4);
+   int v = 2 * (pos.count<ALL_PIECES>(stm) - pos.count<ALL_PIECES>(~stm));
    
    return Value(v);
 }
