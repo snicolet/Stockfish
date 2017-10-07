@@ -34,6 +34,7 @@ const Value Tempo = Value(20); // Must be visible to search
 std::string trace(const Position& pos);
 
 Value evaluate(const Position& pos);
+Value evaluate_draw(const Position& pos);
 }
 
 #endif // #ifndef EVALUATE_H_INCLUDED

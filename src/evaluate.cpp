@@ -910,6 +910,16 @@ Value Eval::evaluate(const Position& pos)
    return Evaluation<>(pos).value();
 }
 
+Value Eval::evaluate_draw(const Position& pos)
+{
+   Color stm = pos.side_to_move();
+
+   int v = pos.count<ALL_PIECES>(stm) - pos.count<ALL_PIECES>(~stm);
+   v += (pos.non_pawn_material(stm) - pos.non_pawn_material(~stm)) / 256;
+
+   return Value(v);
+}
+
 /// trace() is like evaluate(), but instead of returning a value, it returns
 /// a string (suitable for outputting to stdout) that contains the detailed
 /// descriptions and values of each evaluation term. Useful for debugging.
