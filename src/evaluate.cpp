@@ -215,6 +215,7 @@ namespace {
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
   const Score LongRangedBishop    = S( 22,  0);
+  const Score BishopOnWeakPawns   = S( 25,  0);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
@@ -351,8 +352,11 @@ namespace {
 
             if (Pt == BISHOP)
             {
-                // Penalty for pawns on the same color square as the bishop
+                // Penalty for our pawns on the same color square as the bishop
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
+
+                // Bonus for bishop attacking enemy weak pawns
+                score += BishopOnWeakPawns * popcount(b & pe->weak_unopposed(Them));
 
                 // Bonus for bishop on a long diagonal without pawns in the center
                 if (    (LongDiagonals & s)
@@ -607,7 +611,7 @@ namespace {
 
     // Bonus for opponent unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
-        score += WeakUnopposedPawn * pe->weak_unopposed(Them);
+        score += WeakUnopposedPawn * popcount(pe->weak_unopposed(Them));
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
