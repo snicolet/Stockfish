@@ -913,7 +913,12 @@ Value Eval::evaluate(const Position& pos)
 Value Eval::evaluate_draw(const Position& pos)
 {
    Color stm = pos.side_to_move();
-   int v = pos.count<ALL_PIECES>(stm) - pos.count<ALL_PIECES>(~stm);
+   
+   int v = 8 * (pos.count<ALL_PIECES>(stm) - pos.count<ALL_PIECES>(~stm));
+   // v += (pos.non_pawn_material(stm) - pos.non_pawn_material(~stm)) / 32;
+   
+   v += (v > 0 ? pos.rule50_count() / 4 : -pos.rule50_count() / 4);
+   
    return Value(v);
 }
 
