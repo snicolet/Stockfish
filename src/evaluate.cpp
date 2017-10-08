@@ -351,7 +351,7 @@ namespace {
 
             if (Pt == BISHOP)
             {
-                // Penalty for pawns on the same color square as the bishop
+                // Penalty for our pawns on the same color square as the bishop
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
 
                 // Bonus for bishop on a long diagonal without pawns in the center
@@ -606,8 +606,9 @@ namespace {
     }
 
     // Bonus for opponent unopposed weak pawns
-    if (pos.pieces(Us, ROOK, QUEEN))
-        score += WeakUnopposedPawn * pe->weak_unopposed(Them);
+    if (   pos.pieces(Us, ROOK, QUEEN)
+        || (pe->weak_unopposed(Them) & attackedBy2[Us]))
+        score += WeakUnopposedPawn * popcount(pe->weak_unopposed(Them));
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
