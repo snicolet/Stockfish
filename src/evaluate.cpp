@@ -215,6 +215,7 @@ namespace {
   const Score MinorBehindPawn     = S( 16,  0);
   const Score BishopPawns         = S(  8, 12);
   const Score LongRangedBishop    = S( 22,  0);
+  const Score BishopOnWeakPawns   = S(  4,  4);
   const Score RookOnPawn          = S(  8, 24);
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
@@ -351,8 +352,12 @@ namespace {
 
             if (Pt == BISHOP)
             {
-                // Penalty for pawns on the same color square as the bishop
+                // Penalty for our pawns on the same color square as the bishop
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
+
+                // Bonus for enemy weak pawns on the same color square as the bishop
+                bb = SameColorBB[s] & pos.pieces(Them, PAWN) & ~attackedBy[Them][PAWN];
+                score += BishopOnWeakPawns * popcount(bb);
 
                 // Bonus for bishop on a long diagonal without pawns in the center
                 if (    (LongDiagonals & s)

@@ -27,6 +27,7 @@ uint8_t PopCnt16[1 << 16];
 int SquareDistance[SQUARE_NB][SQUARE_NB];
 
 Bitboard SquareBB[SQUARE_NB];
+Bitboard SameColorBB[SQUARE_NB];
 Bitboard FileBB[FILE_NB];
 Bitboard RankBB[RANK_NB];
 Bitboard AdjacentFilesBB[FILE_NB];
@@ -148,6 +149,7 @@ void Bitboards::init() {
   {
       SquareBB[s] = 1ULL << s;
       BSFTable[bsf_index(SquareBB[s])] = s;
+      SameColorBB[s] = (DarkSquares & s ? DarkSquares : ~DarkSquares);
   }
 
   for (Bitboard b = 2; b < 256; ++b)

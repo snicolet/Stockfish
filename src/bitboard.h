@@ -63,6 +63,7 @@ const Bitboard Rank8BB = Rank1BB << (8 * 7);
 extern int SquareDistance[SQUARE_NB][SQUARE_NB];
 
 extern Bitboard SquareBB[SQUARE_NB];
+extern Bitboard SameColorBB[SQUARE_NB];
 extern Bitboard FileBB[FILE_NB];
 extern Bitboard RankBB[RANK_NB];
 extern Bitboard AdjacentFilesBB[FILE_NB];
