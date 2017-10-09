@@ -29,7 +29,7 @@ class Position;
 
 namespace Eval {
 
-const Value Tempo = Value(40); // Must be visible to search
+const Value Tempo = Value(30); // Must be visible to search
 
 std::string trace(const Position& pos);
 
