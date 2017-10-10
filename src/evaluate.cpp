@@ -585,6 +585,10 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByMinor[type_of(pos.piece_on(s))];
+            
+            if (weak & attackedBy2[Us] & s)
+                score += ThreatByMinor[type_of(pos.piece_on(s))] / 2;
+            
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
@@ -594,13 +598,18 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByRook[type_of(pos.piece_on(s))];
+            
+            if (attackedBy2[Us] & s)
+                score += ThreatByRook[type_of(pos.piece_on(s))] / 2;
+            
+            
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        b = weak & attackedBy2[Us];
-        while (b)
-            score += ThreatByMinor[type_of(pos.piece_on(pop_lsb(&b)))];
+        //b = weak & attackedBy2[Us] & attackedBy[Us][QUEEN];
+        //while (b)
+        //    score += ThreatByMinor[type_of(pos.piece_on(pop_lsb(&b)))];
 
         score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES]);
 
