@@ -425,6 +425,7 @@ namespace {
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingOnlyDefended, undefended, b, b1, b2, safe, other;
+    Bitboard attackingPawns;
     int kingDanger;
 
     // King shelter and enemy pawns storm
@@ -444,6 +445,10 @@ namespace {
                     &  kingRing[Us]
                     & ~pos.pieces(Them);
 
+        attackingPawns =   kingRing[Us]
+                         & pos.pieces(Them, PAWN)
+                         & attackedBy[Them][PAWN];
+
         // Initialize the 'kingDanger' variable, which will be transformed
         // later into a king danger score. The initial value is based on the
         // number and types of the enemy's attacking pieces, the number of
@@ -455,6 +460,7 @@ namespace {
                     + 143 * !!pos.pinned_pieces(Us)
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
+                    +  30 * popcount(attackingPawns)
                     +  40;
 
         // Analyse the safe enemy's checks which are possible on next move
