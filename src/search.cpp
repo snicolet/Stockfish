@@ -1001,6 +1001,13 @@ moves_loop: // When in check search starts from here
                               : -qsearch<NonPV, false>(pos, ss+1, -(alpha+1), -alpha)
                               : - search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true, false);
 
+          // Verification at intermediate depth if reduction is very high
+          if (value > alpha && r >= 5 * ONE_PLY)
+          {
+            Depth d2 = std::max(newDepth - 2 * ONE_PLY, ONE_PLY);
+            value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d2, true, false);
+          }
+
           doFullDepthSearch = (value > alpha && d != newDepth);
       }
       else
