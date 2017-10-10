@@ -227,6 +227,7 @@ namespace {
   const Score Hanging             = S( 48, 27);
   const Score WeakUnopposedPawn   = S(  5, 25);
   const Score ThreatByPawnPush    = S( 38, 22);
+  const Score SupportByPawnPush   = S( 20, 20);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
 
@@ -619,10 +620,10 @@ namespace {
 
     // Add a bonus for each new pawn threats from those squares
     b =  (shift<Left>(b) | shift<Right>(b))
-       &  pos.pieces(Them)
        & ~attackedBy[Us][PAWN];
 
-    score += ThreatByPawnPush * popcount(b);
+    score += ThreatByPawnPush  * popcount(b & pos.pieces(Them));
+    score += SupportByPawnPush * popcount(b & pos.pieces(Us, PAWN));
 
     if (T)
         Trace::add(THREAT, Us, score);
