@@ -460,7 +460,7 @@ namespace {
                     + 143 * !!pos.pinned_pieces(Us)
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
-                    +  30 * popcount(attackingPawns)
+                    +  20 * popcount(attackingPawns)
                     +  40;
 
         // Analyse the safe enemy's checks which are possible on next move
