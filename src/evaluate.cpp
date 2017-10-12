@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -417,6 +418,7 @@ namespace {
 
     const Color Them    = (Us == WHITE ? BLACK : WHITE);
     const Square Up     = (Us == WHITE ? NORTH : SOUTH);
+    const Square Down   = (Us == WHITE ? SOUTH : NORTH);
     const Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                        : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
@@ -445,6 +447,20 @@ namespace {
         attackingPawns =   kingRing[Us]
                          & pos.pieces(Them, PAWN)
                          & attackedBy[Them][PAWN];
+        Bitboard d =   DistanceRingBB[ksq][0]
+                         & attackedBy[Them][PAWN]
+                         & shift<Down>(shift<Down>(pos.pieces(Them, PAWN)))
+                         & ~pos.pieces(Us, PAWN);
+        attackingPawns = d;
+        
+        /*
+        if (d && pos.side_to_move() == BLACK)
+        {
+            std::cerr << pos << std::endl;
+            std::cerr << Bitboards::pretty(d) << std::endl;
+            std::cerr << "=======================================================\n";
+        }
+        */
 
         // Initialize the 'kingDanger' variable, which will be transformed
         // later into a king danger score. The initial value is based on the
@@ -457,7 +473,7 @@ namespace {
                     + 143 * !!pos.pinned_pieces(Us)
                     - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
-                    +  11 * popcount(attackingPawns)
+                    +  50 * popcount(attackingPawns)
                     +  40;
 
         // Analyse the safe enemy's checks which are possible on next move
