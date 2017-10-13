@@ -347,6 +347,13 @@ namespace {
             if (    relative_rank(Us, s) < RANK_5
                 && (pos.pieces(PAWN) & (s + pawn_push(Us))))
                 score += MinorBehindPawn;
+            
+            const Score PilingMinors = make_score(20,20);
+            
+            if (   pos.pieces(Them, ROOK, QUEEN)
+                && !(file_bb(s) & pos.pieces(PAWN))
+                && more_than_one(file_bb(s) & pos.pieces(Us, KNIGHT, BISHOP)))
+                score -= PilingMinors;
 
             if (Pt == BISHOP)
             {
