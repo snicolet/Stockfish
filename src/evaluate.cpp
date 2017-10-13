@@ -224,7 +224,7 @@ namespace {
   const Score ThreatBySafePawn    = S(192,175);
   const Score ThreatByRank        = S( 16,  3);
   const Score Hanging             = S( 48, 27);
-  const Score FollowUp            = S( 20, 20);
+  const Score FollowUp            = S( 30,  0);
   const Score WeakUnopposedPawn   = S(  5, 25);
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
@@ -588,7 +588,7 @@ namespace {
 
             for (PieceType pt = KNIGHT; pt <= QUEEN ; pt = PieceType(pt+1))
                 if (   (attackedBy[Us][pt] & weak & s)
-                    && more_than_one(PseudoAttacks[pt][s] & pos.pieces(Them) & ~attackedBy[Them][PAWN]))
+                    && more_than_one(pos.attacks_from(pt, s) & pos.pieces(Them) & ~attackedBy[Them][PAWN]))
                     score += FollowUp;
         }
 
@@ -599,6 +599,11 @@ namespace {
             score += ThreatByRook[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
+            
+            for (PieceType pt = KNIGHT; pt <= QUEEN ; pt = PieceType(pt+1))
+                if (   (attackedBy[Us][pt] & weak & s)
+                    && more_than_one(pos.attacks_from(pt, s) & pos.pieces(Them) & ~attackedBy[Them][PAWN]))
+                    score += FollowUp;
         }
 
         score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES]);
