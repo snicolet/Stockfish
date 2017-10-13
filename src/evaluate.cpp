@@ -587,7 +587,7 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
 
             for (PieceType pt = KNIGHT; pt <= QUEEN ; pt = PieceType(pt+1))
-                if (   (attackedBy[Us][pt] & s)
+                if (   (attackedBy[Us][pt] & weak & s)
                     && more_than_one(PseudoAttacks[pt][s] & pos.pieces(Them) & ~attackedBy[Them][PAWN]))
                     score += FollowUp;
         }
