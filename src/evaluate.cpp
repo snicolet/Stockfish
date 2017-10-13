@@ -228,7 +228,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
-  const Score PawnMobility        = S( 10, 10);
+  const Score PawnMobility        = S(  5,  5);
 
   #undef S
   #undef V
