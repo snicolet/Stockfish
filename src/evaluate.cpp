@@ -228,7 +228,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
-  const Score PawnMobility        = S(  5,  5);
+  const Score PawnMobility        = S( 10, 10);
 
   #undef S
   #undef V
@@ -612,7 +612,7 @@ namespace {
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are not completely unsafe
-    b &= ~attackedBy[Them][PAWN]
+    b &=  ~stronglyProtected
         & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
 
     score += PawnMobility * popcount(b);
