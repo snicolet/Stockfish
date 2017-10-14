@@ -53,6 +53,8 @@ namespace {
             ratio *= 1.5;
 
         ratio *= 1 + inc / (myTime * 8.5);
+
+        //ratio = std::min(0.25, ratio);
     }
     // Otherwise we increase usage of remaining time as the game goes on
     else
@@ -61,7 +63,7 @@ namespace {
         ratio = (type == OptimumTime ? 0.017 : 0.07) * (k + inc / myTime);
     }
 
-    int time = int(std::min(0.25, ratio) * std::max(0, myTime - moveOverhead));
+    int time = int(std::min(0.5, ratio) * std::max(0, myTime - moveOverhead));
 
     if (type == OptimumTime && ponder)
         time = 5 * time / 4;
