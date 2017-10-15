@@ -228,9 +228,13 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score ForwardMobility     = S( 10, 10);
 
   #undef S
   #undef V
+
+   // ForwardMobilityAverage[PieceType] : average forward mobility by piece type
+  const int ForwardMobilityAverage[PIECE_TYPE_NB] = { 0, 0, 2, 3, 1, 5 };
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 78, 56, 45, 11 };
@@ -329,6 +333,13 @@ namespace {
 
         // Bonus for this piece as a king protector
         score += KingProtector[Pt - 2] * distance(s, pos.square<KING>(Us));
+
+        // Bonus/malus for opportunities to move forward
+        if (relative_rank(Us, s) <= RANK_4)
+        {
+            int forwardCount = popcount(b & mobilityArea[Us] & forward_ranks_bb(Us, s));
+            score += ForwardMobility * (forwardCount - ForwardMobilityAverage[Pt]);
+        }
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
