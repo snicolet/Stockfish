@@ -228,6 +228,7 @@ namespace {
   const Score ThreatByPawnPush    = S( 38, 22);
   const Score HinderPassedPawn    = S(  7,  0);
   const Score TrappedBishopA1H1   = S( 50, 50);
+  const Score ForwardMobility     = S(  0, 20);
 
   #undef S
   #undef V
@@ -370,6 +371,13 @@ namespace {
                     score -= !pos.empty(s + d + pawn_push(Us))                ? TrappedBishopA1H1 * 4
                             : pos.piece_on(s + d + d) == make_piece(Us, PAWN) ? TrappedBishopA1H1 * 2
                                                                               : TrappedBishopA1H1;
+            }
+
+            // Bonus/malus for restricting knights
+            if (Pt == KNIGHT && relative_rank(Us, s) <= RANK_4)
+            {
+                int forwardMobility = popcount(b & mobilityArea[Us] & forward_ranks_bb(Us, s));
+                score += ForwardMobility * (forwardMobility - 2);
             }
         }
 
