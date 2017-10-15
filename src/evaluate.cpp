@@ -233,6 +233,9 @@ namespace {
   #undef S
   #undef V
 
+   // ForwardMobilityAverage[PieceType] : average forward mobility by piece type
+  const int ForwardMobilityAverage[PIECE_TYPE_NB] = { 0, 0, 2, 3, 1, 5 };
+
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   const int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 78, 56, 45, 11 };
 
@@ -333,6 +336,13 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+            // Bonus/malus for forward mobility
+            if (relative_rank(Us, s) <= RANK_4)
+            {
+                bb = b & mobilityArea[Us] & ~pos.pieces(Us, PAWN) & forward_ranks_bb(Us, s);
+                score += ForwardMobility * (popcount(bb) - ForwardMobilityAverage[Pt]);
+            }
+
             // Bonus for outpost squares
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
@@ -371,13 +381,6 @@ namespace {
                     score -= !pos.empty(s + d + pawn_push(Us))                ? TrappedBishopA1H1 * 4
                             : pos.piece_on(s + d + d) == make_piece(Us, PAWN) ? TrappedBishopA1H1 * 2
                                                                               : TrappedBishopA1H1;
-            }
-
-            // Bonus/malus for restricting knights
-            if (Pt == KNIGHT && relative_rank(Us, s) <= RANK_4)
-            {
-                int forwardMobility = popcount(b & mobilityArea[Us] & forward_ranks_bb(Us, s));
-                score += ForwardMobility * (forwardMobility - 2);
             }
         }
 
