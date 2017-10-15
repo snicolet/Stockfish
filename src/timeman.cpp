@@ -59,6 +59,18 @@ namespace {
     {
         double k = 1 + 20 * moveNum / (500.0 + moveNum);
         ratio = (type == OptimumTime ? 0.017 : 0.07) * (k + inc / myTime);
+        
+        // When playing in sudden death mode (increment = 0), we allocate
+        // time as if we had to play at least 10 more future moves after
+        // *each* move: in other words, we shall never use more than 1/10th 
+        // of the remaining time for each single move. We also amplify
+        // the moveOverhead value to anticipate the sum of overheads for
+        // the next ten moves.
+        if (inc <= 0)
+        {
+            ratio = std::min(0.1, ratio);
+            moveOverhead = std::min(myTime / 2, moveOverhead * 10);
+        }
     }
 
     int time = int(std::min(0.5, ratio) * std::max(0, myTime - moveOverhead));
