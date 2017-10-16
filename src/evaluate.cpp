@@ -907,6 +907,14 @@ Value Eval::evaluate(const Position& pos)
    return Evaluation<>(pos).value();
 }
 
+
+/// evaluate_draw() is called when the search detects a draw by repetition or by 50 moves
+
+Value Eval::evaluate_draw(const Position& pos)
+{
+   return DrawValue[pos.side_to_move()] + Eval::Tempo;
+}
+
 /// trace() is like evaluate(), but instead of returning a value, it returns
 /// a string (suitable for outputting to stdout) that contains the detailed
 /// descriptions and values of each evaluation term. Useful for debugging.
@@ -942,3 +950,5 @@ std::string Eval::trace(const Position& pos) {
 
   return ss.str();
 }
+
+Value Eval::DrawValue[COLOR_NB];
