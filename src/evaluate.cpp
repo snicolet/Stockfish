@@ -339,7 +339,7 @@ namespace {
             // Bonus/malus for forward mobility
             if (relative_rank(Us, s) <= RANK_4)
             {
-                bb = b & mobilityArea[Us] & ~pos.pieces(Us, PAWN) & forward_ranks_bb(Us, s);
+                bb = b & mobilityArea[Us] & forward_ranks_bb(Us, s);
                 score += ForwardMobility * (popcount(bb) - ForwardMobilityAverage[Pt]);
             }
 
