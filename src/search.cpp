@@ -950,7 +950,7 @@ moves_loop: // When in check search starts from here
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
           if (captureOrPromotion)
-              r -= r ? ONE_PLY : DEPTH_ZERO;
+              r -= (r ? ONE_PLY : DEPTH_ZERO);
           else
           {
               // Decrease reduction if opponent's move count is high
@@ -967,7 +967,7 @@ moves_loop: // When in check search starts from here
 
               // Increase reduction for cut nodes
               if (cutNode)
-                  r += 2 * ONE_PLY;
+                  r += (moveCount > 3 ? 2 * ONE_PLY : ONE_PLY);
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
