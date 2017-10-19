@@ -777,10 +777,9 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
-    int u = std::max(initiative, 0);
-    int v = std::max(initiative, -abs(eg));
+    int v = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg));
 
-    return make_score(u, v) * ((eg > 0) - (eg < 0));
+    return make_score(v, v);
   }
 
 
