@@ -622,25 +622,13 @@ namespace {
     score += ThreatByPawnPush * popcount(b);
 
     // Control of the middle ranks
-    int x = popcount(    (Rank3BB | Rank4BB | Rank5BB | Rank6BB)
+    const Bitboard ControlMask = Rank3BB | Rank4BB | Rank5BB | Rank6BB;
+    int x = popcount(    ControlMask
                       & ~pos.pieces()
                       &  attackedBy2[Us]
                       & ~attackedBy[Us][PAWN]
                       & ~(attackedBy[Them][PAWN] | attackedBy2[Them]) );
     score += make_score(2 * x * x, 0);
-    // score += make_score(2 * x * (x - 1), 0); // good !
-
-    /*
-    // Entry points in the opponent camp
-    const Bitboard OpponentCamp = 
-         (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
-                      : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
-    int x = popcount(   ~pos.pieces()
-                      &  OpponentCamp
-                      &  attackedBy2[Us]
-                      & ~(attackedBy[Them][PAWN] | attackedBy2[Them]));
-    score += make_score(2 * x * (x - 1), 0);
-    */
 
     if (T)
         Trace::add(THREAT, Us, score);
