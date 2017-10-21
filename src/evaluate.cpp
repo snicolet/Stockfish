@@ -717,34 +717,33 @@ namespace {
   }
 
 
-  // evaluate_space() computes the space evaluation for a given side. The
-  // space evaluation is a simple bonus based on the number of safe squares
-  // available for minor pieces on the central four files on ranks 2--4. Safe
-  // squares one, two or three squares behind a friendly pawn are counted
-  // twice. Finally, the space bonus is multiplied by a weight. The aim is to
-  // improve play on game opening.
+  // evaluate_space() computes the space evaluation for a given side.
 
   template<Tracing T>  template<Color Us>
   Score Evaluation<T>::evaluate_space() {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
-
-    Score score = SCORE_ZERO;
-
-    if (pos.non_pawn_material() >= SpaceThreshold)
-    {
-        const Bitboard SpaceMask =
+    const Bitboard OpponentCamp = 
+         (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                      : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
+    const Bitboard SpaceMask =
            Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
                        : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
-        // Find the safe squares for our pieces inside the area defined by
-        // SpaceMask. A square is unsafe if it is attacked by an enemy
-        // pawn, or if it is undefended and attacked by an enemy piece.
+
+    int space = 0;
+
+    // Find the safe squares for our pieces inside the area defined by
+    // SpaceMask. A square is unsafe if it is attacked by an enemy
+    // pawn, or if it is undefended and attacked by an enemy piece.
+    if (pos.non_pawn_material() >= SpaceThreshold)
+    {
         Bitboard safe =   SpaceMask
                        & ~pos.pieces(Us, PAWN)
                        & ~attackedBy[Them][PAWN]
                        & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
 
-        // Find all squares which are at most three squares behind some friendly pawn
+        // Find all squares which are at most three squares behind some friendly pawn,
+        // because we want to count twice these squares in the space bonus.
         Bitboard behind = pos.pieces(Us, PAWN);
         behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
         behind |= (Us == WHITE ? behind >> 16 : behind << 16);
@@ -753,12 +752,19 @@ namespace {
         assert(unsigned(safe >> (Us == WHITE ? 32 : 0)) == 0);
 
         // ...count safe + (behind & safe) with a single popcount.
-        int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
-        int weight = pos.count<ALL_PIECES>(Us) - 2 * pe->open_files();
-    
-        score += make_score(bonus * weight * weight / 16, 0);
+        space += popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
     }
-    
+
+    // Entry points in the opponent camp
+    space += popcount(   ~pos.pieces()
+                      &  OpponentCamp
+                      &  attackedBy2[Us]
+                      & ~(attackedBy[Them][PAWN] | attackedBy2[Them]));
+
+    // Multiply the space variable by a weight to get the final space score
+    int weight = pos.count<ALL_PIECES>(Us) - 2 * pe->open_files();
+    Score score = make_score(space * weight * weight / 16, 0);
+
     if (T)
         Trace::add(SPACE, Us, score);
 
