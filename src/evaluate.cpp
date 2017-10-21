@@ -629,7 +629,7 @@ namespace {
         & ~(attackedBy[Them][PAWN] | attackedBy2[Them]);
 
     int x = popcount(b) + popcount(b & ~attackedBy[Us][PAWN]);
-    score += make_score(x, 2 * x);
+    score += make_score( x, 3 * x);
 
     if (T)
         Trace::add(THREAT, Us, score);
