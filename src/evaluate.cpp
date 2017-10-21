@@ -728,31 +728,41 @@ namespace {
   Score Evaluation<T>::evaluate_space() {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
-    const Bitboard SpaceMask =
-      Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
-                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
 
-    // Find the safe squares for our pieces inside the area defined by
-    // SpaceMask. A square is unsafe if it is attacked by an enemy
-    // pawn, or if it is undefended and attacked by an enemy piece.
-    Bitboard safe =   SpaceMask
-                   & ~pos.pieces(Us, PAWN)
-                   & ~attackedBy[Them][PAWN]
-                   & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
+    Score score = SCORE_ZERO;
 
-    // Find all squares which are at most three squares behind some friendly pawn
-    Bitboard behind = pos.pieces(Us, PAWN);
-    behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
-    behind |= (Us == WHITE ? behind >> 16 : behind << 16);
+    if (pos.non_pawn_material() >= SpaceThreshold)
+    {
+        const Bitboard SpaceMask =
+           Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
+                       : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
+        // Find the safe squares for our pieces inside the area defined by
+        // SpaceMask. A square is unsafe if it is attacked by an enemy
+        // pawn, or if it is undefended and attacked by an enemy piece.
+        Bitboard safe =   SpaceMask
+                       & ~pos.pieces(Us, PAWN)
+                       & ~attackedBy[Them][PAWN]
+                       & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
 
-    // Since SpaceMask[Us] is fully on our half of the board...
-    assert(unsigned(safe >> (Us == WHITE ? 32 : 0)) == 0);
+        // Find all squares which are at most three squares behind some friendly pawn
+        Bitboard behind = pos.pieces(Us, PAWN);
+        behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
+        behind |= (Us == WHITE ? behind >> 16 : behind << 16);
 
-    // ...count safe + (behind & safe) with a single popcount.
-    int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
-    int weight = pos.count<ALL_PIECES>(Us) - 2 * pe->open_files();
+        // Since SpaceMask[Us] is fully on our half of the board...
+        assert(unsigned(safe >> (Us == WHITE ? 32 : 0)) == 0);
 
-    return make_score(bonus * weight * weight / 16, 0);
+        // ...count safe + (behind & safe) with a single popcount.
+        int bonus = popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
+        int weight = pos.count<ALL_PIECES>(Us) - 2 * pe->open_files();
+    
+        score += make_score(bonus * weight * weight / 16, 0);
+    }
+    
+    if (T)
+        Trace::add(SPACE, Us, score);
+
+    return score;
   }
 
 
@@ -867,9 +877,8 @@ namespace {
     score +=  evaluate_passed_pawns<WHITE>()
             - evaluate_passed_pawns<BLACK>();
 
-    if (pos.non_pawn_material() >= SpaceThreshold)
-        score +=  evaluate_space<WHITE>()
-                - evaluate_space<BLACK>();
+    score +=  evaluate_space<WHITE>()
+            - evaluate_space<BLACK>();
 
     score += evaluate_initiative(eg_value(score));
 
@@ -887,9 +896,6 @@ namespace {
         Trace::add(IMBALANCE, me->imbalance());
         Trace::add(PAWN, pe->pawns_score());
         Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
-        if (pos.non_pawn_material() >= SpaceThreshold)
-            Trace::add(SPACE, evaluate_space<WHITE>()
-                            , evaluate_space<BLACK>());
         Trace::add(TOTAL, score);
     }
 
