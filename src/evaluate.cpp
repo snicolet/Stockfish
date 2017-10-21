@@ -627,7 +627,7 @@ namespace {
                       &  OpponentCamp
                       &  attackedBy2[Us]
                       & ~(attackedBy[Them][PAWN] | attackedBy2[Them]));
-    score += make_score(2 * x * (x - 1), 2 * x);
+    score += make_score( x * (x - 1), 3 * x);
 
     score += ThreatByPawnPush * popcount(b);
 
