@@ -535,11 +535,12 @@ namespace {
   template<Tracing T>  template<Color Us>
   Score Evaluation<T>::evaluate_threats() {
 
-    const Color Them        = (Us == WHITE ? BLACK      : WHITE);
-    const Square Up         = (Us == WHITE ? NORTH      : SOUTH);
-    const Square Left       = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
-    const Square Right      = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
-    const Bitboard TRank3BB = (Us == WHITE ? Rank3BB    : Rank6BB);
+    const Color Them               = (Us == WHITE ? BLACK      : WHITE);
+    const Square Up                = (Us == WHITE ? NORTH      : SOUTH);
+    const Square Left              = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
+    const Square Right             = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
+    const Bitboard TRank3BB        = (Us == WHITE ? Rank3BB    : Rank6BB);
+    const Bitboard EntryPointsZone = Rank3BB | Rank4BB | Rank5BB | Rank6BB;
 
     Bitboard b, weak, defended, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
@@ -621,14 +622,14 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
 
-    // Control of the middle ranks
-    const Bitboard ControlMask = Rank3BB | Rank4BB | Rank5BB | Rank6BB;
-    int x = popcount(    ControlMask
-                      & ~pos.pieces()
-                      &  attackedBy2[Us]
-                      & ~attackedBy[Us][PAWN]
-                      & ~(attackedBy[Them][PAWN] | attackedBy2[Them]) );
-    score += make_score(2 * x * x, 0);
+    // Control over the entry points in the middle ranks
+    b =    EntryPointsZone
+        & ~pos.pieces()
+        &  attackedBy2[Us]
+        & ~(attackedBy[Them][PAWN] | attackedBy2[Them]);
+
+    int x = popcount(b) + popcount(b & ~attackedBy[Us][PAWN]);
+    score += make_score(x, 2 * x);
 
     if (T)
         Trace::add(THREAT, Us, score);
