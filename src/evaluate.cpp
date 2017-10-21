@@ -717,15 +717,15 @@ namespace {
   }
 
 
-  // evaluate_space() computes the space evaluation for a given side.
+  // evaluate_space() computes the space evaluation for the given color
 
   template<Tracing T>  template<Color Us>
   Score Evaluation<T>::evaluate_space() {
 
     const Color Them = (Us == WHITE ? BLACK : WHITE);
     const Bitboard OpponentCamp = 
-         (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
-                      : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
+           Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                       : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB;
     const Bitboard SpaceMask =
            Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
                        : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
@@ -743,7 +743,7 @@ namespace {
                        & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
 
         // Find all squares which are at most three squares behind some friendly pawn,
-        // because we want to count twice these squares in the space bonus.
+        // because we want to count these squares twice in the space bonus.
         Bitboard behind = pos.pieces(Us, PAWN);
         behind |= (Us == WHITE ? behind >>  8 : behind <<  8);
         behind |= (Us == WHITE ? behind >> 16 : behind << 16);
@@ -751,7 +751,7 @@ namespace {
         // Since SpaceMask[Us] is fully on our half of the board...
         assert(unsigned(safe >> (Us == WHITE ? 32 : 0)) == 0);
 
-        // ...count safe + (behind & safe) with a single popcount.
+        // ...count safe + (behind & safe) with a single popcount
         space += popcount((Us == WHITE ? safe << 32 : safe >> 32) | (behind & safe));
     }
 
