@@ -623,11 +623,11 @@ namespace {
     const Bitboard OpponentCamp = 
          (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
                       : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
-    int x = popcount(   ~pos.pieces(Them)
+    int x = popcount(   ~pos.pieces()
                       &  OpponentCamp
                       &  attackedBy2[Us]
                       & ~(attackedBy[Them][PAWN] | attackedBy2[Them]));
-    score += make_score(2 * x * (x - 1), 2 * x);
+    score += make_score( 3 * x * (x - 1), 0);
 
     score += ThreatByPawnPush * popcount(b);
 
