@@ -154,6 +154,7 @@ public:
   Thread* this_thread() const;
   bool is_draw(int ply) const;
   int rule50_count() const;
+  int aging() const;
   Score psq_score() const;
   Value non_pawn_material(Color c) const;
   Value non_pawn_material() const;
@@ -318,7 +319,7 @@ inline bool Position::advanced_pawn_push(Move m) const {
 }
 
 inline Key Position::key() const {
-  return st->key;
+  return st->key ^ aging();
 }
 
 inline Key Position::pawn_key() const {
@@ -347,6 +348,10 @@ inline int Position::game_ply() const {
 
 inline int Position::rule50_count() const {
   return st->rule50;
+}
+
+inline int Position::aging() const {
+  return st->rule50 / 16;
 }
 
 inline bool Position::opposite_bishops() const {
