@@ -768,13 +768,14 @@ namespace {
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
 
     int mobility_per_piece =   (eg_value(mobility[WHITE] + mobility[BLACK]))
-                             / (pos.count<ALL_PIECES>() - pos.count<PAWN>());
-    int lowMobility = (40 - mobility_per_piece) / 10;
+                             / (pos.count<ALL_PIECES>() - pos.count<PAWN>() - 1);
+    //int lowMobility = (50 - mobility_per_piece) / 16;
 
     // Compute the initiative bonus for the attacking side
     int initiative =    8 * (pe->pawn_asymmetry() + kingDistance - 17) 
                      + 12 * std::min(pos.count<PAWN>(), 14)
-                     + 16 * (bothFlanks + lowMobility);
+                     + 16 * bothFlanks
+                     - 16 * ((mobility_per_piece - 60) / 16);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
