@@ -773,8 +773,6 @@ namespace {
                     + 16 * bothFlanks
                     -  6 * pos.rule50_count();
 
-    //dbg_mean_of(pos.rule50_count());
-
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
