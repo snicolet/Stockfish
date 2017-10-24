@@ -99,6 +99,7 @@ namespace {
     template<Color Us> Score evaluate_threats();
     template<Color Us> Score evaluate_passed_pawns();
     template<Color Us> Score evaluate_space();
+    template<Color Us> Score evaluate_mobility();
     template<Color Us, PieceType Pt> Score evaluate_pieces();
     ScaleFactor evaluate_scale_factor(Value eg);
     Score evaluate_initiative(Value eg);
@@ -753,6 +754,21 @@ namespace {
     int weight = pos.count<ALL_PIECES>(Us) - 2 * pe->open_files();
 
     return make_score(bonus * weight * weight / 16, 0);
+  } 
+
+  template<Tracing T>  template<Color Us>
+  Score Evaluation<T>::evaluate_mobility()
+  {
+    int mobility_per_piece =    eg_value(mobility[Us])
+                             / (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us));
+
+    Score score = make_score(mg_value(mobility[Us]) / 2, 
+                             mobility_per_piece * 5);
+
+    if (T)
+        Trace::add(PASSED, Us, score);
+
+    return score;
   }
 
 
@@ -859,7 +875,8 @@ namespace {
     score += evaluate_pieces<WHITE, ROOK  >() - evaluate_pieces<BLACK, ROOK  >();
     score += evaluate_pieces<WHITE, QUEEN >() - evaluate_pieces<BLACK, QUEEN >();
 
-    score += mobility[WHITE] - mobility[BLACK];
+    score +=  evaluate_mobility<WHITE>()
+            - evaluate_mobility<BLACK>();
 
     score +=  evaluate_king<WHITE>()
             - evaluate_king<BLACK>();
@@ -889,7 +906,6 @@ namespace {
         Trace::add(MATERIAL, pos.psq_score());
         Trace::add(IMBALANCE, me->imbalance());
         Trace::add(PAWN, pe->pawns_score());
-        Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
         if (pos.non_pawn_material() >= SpaceThreshold)
             Trace::add(SPACE, evaluate_space<WHITE>()
                             , evaluate_space<BLACK>());
