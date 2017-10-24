@@ -763,17 +763,18 @@ namespace {
   template<Tracing T>
   Score Evaluation<T>::evaluate_initiative(Value eg) {
 
+    Color strongSide = eg > 0 ? WHITE : BLACK;
+
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
-    //int shuffling = pos.rule50_count() <= 8 ? 0 : 8 - pos.rule50_count();
-    int shuffling = -pos.rule50_count();
+    int shuffling = (strongSide == pos.root_color()) ? pos.rule50_count() : 0;
 
     // Compute the initiative bonus for the attacking side
     int initiative =   8 * (pe->pawn_asymmetry() + kingDistance - 17)
                     + 12 * pos.count<PAWN>()
                     + 16 * bothFlanks
-                    +  4 * shuffling;
+                    -  4 * shuffling;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so

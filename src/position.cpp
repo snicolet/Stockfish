@@ -278,6 +278,8 @@ Position& Position::set(const string& fenStr, bool isChess960, StateInfo* si, Th
 
   chess960 = isChess960;
   thisThread = th;
+  if (thisThread)
+      thisThread->rootColor = sideToMove;
   set_state(st);
 
   assert(pos_is_ok());
@@ -982,6 +984,13 @@ Key Position::key_after(Move m) const {
       k ^= Zobrist::psq[captured][to];
 
   return k ^ Zobrist::psq[pc][to] ^ Zobrist::psq[pc][from];
+}
+
+
+/// Position::root_color() returns the color of the root of the search tree
+
+Color Position::root_color() const {
+  return thisThread->rootColor;
 }
 
 
