@@ -754,7 +754,10 @@ namespace {
     int weight = pos.count<ALL_PIECES>(Us) - 2 * pe->open_files();
 
     return make_score(bonus * weight * weight / 16, 0);
-  } 
+  }
+
+
+  // evaluate_mobility() computes the mobility bonus for the given color.
 
   template<Tracing T>  template<Color Us>
   Score Evaluation<T>::evaluate_mobility()
@@ -762,7 +765,7 @@ namespace {
     int mobility_per_piece =    eg_value(mobility[Us])
                              / (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us));
 
-    Score score = make_score(mg_value(mobility[Us]) / 2, 
+    Score score = make_score(mg_value(mobility[Us]) / 2,
                              mobility_per_piece * 5);
 
     if (T)
