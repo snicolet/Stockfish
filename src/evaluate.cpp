@@ -769,7 +769,7 @@ namespace {
                              mobility_per_piece * 5);
 
     if (T)
-        Trace::add(PASSED, Us, score);
+        Trace::add(MOBILITY, Us, score);
 
     return score;
   }
