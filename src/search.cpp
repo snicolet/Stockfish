@@ -353,8 +353,10 @@ void Thread::search() {
 
   multiPV = std::min(multiPV, rootMoves.size());
 
+  Depth depthIncrement = Limits.use_time_management() ? 2 * ONE_PLY : ONE_PLY;
+
   // Iterative deepening loop until requested to stop or the target depth is reached
-  while (   (rootDepth += ONE_PLY) < DEPTH_MAX
+  while (   (rootDepth += depthIncrement) < DEPTH_MAX
          && !Threads.stop
          && !(Limits.depth && mainThread && rootDepth / ONE_PLY > Limits.depth))
   {
@@ -500,6 +502,9 @@ void Thread::search() {
               EasyMove.update(rootPos, rootMoves[0].pv);
           else
               EasyMove.clear();
+
+          if (Time.elapsed() > Time.optimum() * 0.33)
+              depthIncrement = ONE_PLY;
       }
   }
 
