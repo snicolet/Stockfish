@@ -757,7 +757,7 @@ namespace {
   }
 
 
-  // evaluate_mobility() computes the mobility bonus for the given color.
+  // evaluate_mobility() computes the mobility bonus for the given color
 
   template<Tracing T>  template<Color Us>
   Score Evaluation<T>::evaluate_mobility()
@@ -765,7 +765,7 @@ namespace {
     // Mobility per piece
     int x = eg_value(mobility[Us]) / (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us));
 
-    Score score = make_score(2 * x, 2 * x);
+    Score score = make_score(2, 2) * x;
 
     if (T)
         Trace::add(MOBILITY, Us, score);
