@@ -765,7 +765,7 @@ namespace {
     // Mobility per piece
     int x = eg_value(mobility[Us]) / (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us));
 
-    Score score = make_score(2, 2) * x;
+    Score score = mobility[Us] / 2 + make_score(3, 3) * x;
 
     if (T)
         Trace::add(MOBILITY, Us, score);
