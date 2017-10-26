@@ -1213,7 +1213,7 @@ moves_loop: // When in check search starts from here
             {
                 v = evaluate(pos);
                 v0 = (ss-2)->staticEval == VALUE_NONE ? v : (ss-2)->staticEval;
-                v += (v - v0) / 16;
+                v += (v - v0) / 32;
 
                 ss->staticEval = bestValue = v;
             }
@@ -1228,7 +1228,7 @@ moves_loop: // When in check search starts from here
             v = (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
                                                  : -(ss-1)->staticEval + 2 * Eval::Tempo;
             v0 = (ss-2)->staticEval == VALUE_NONE ? v : (ss-2)->staticEval;
-            v += (v - v0) / 16;
+            v += (v - v0) / 32;
 
             ss->staticEval = bestValue = v;
         }
