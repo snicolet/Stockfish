@@ -1390,14 +1390,16 @@ moves_loop: // When in check search starts from here
   Value evaluate_with_trend(const Position& pos, Stack* ss) {
 
       Value v = evaluate(pos);
-      Value v0 = (ss-2)->staticEval;
-      Value v1 = (ss-4)->staticEval;
+      Value v2 = (ss-2)->staticEval;
+      Value v4 = (ss-4)->staticEval;
+      
+      if (v2 == VALUE_NONE || v4 == VALUE_NONE || v == v2 || v2 == v4)
+         return v;
 
-      v += (v0 == VALUE_NONE) ? 0 : (v - v0) / 32;
-      v += (v1 == VALUE_NONE) ? 0 : (v - v1) / 32;
-      v += (v0 == VALUE_NONE || v1 == VALUE_NONE) ? 0 : (v0 - v1) / 32;
-
-      return v;
+      int trend = int(v - v2) * int(v2 - v4);
+      
+      return v + (trend >= 0 ? 0
+                             : (v - (v2 + v4) / 2) / 16  );
   }
 
   // update_continuation_histories() updates histories of the move pairs formed
