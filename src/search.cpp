@@ -1156,6 +1156,7 @@ moves_loop: // When in check search starts from here
     Key posKey;
     Move ttMove, move, bestMove;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
+    Value v, v0;
     bool ttHit, givesCheck, evasionPrunable;
     Depth ttDepth;
     int moveCount;
@@ -1209,7 +1210,13 @@ moves_loop: // When in check search starts from here
         {
             // Never assume anything on values stored in TT
             if ((ss->staticEval = bestValue = tte->eval()) == VALUE_NONE)
-                ss->staticEval = bestValue = evaluate(pos);
+            {
+                v = evaluate(pos);
+                v0 = (ss-2)->staticEval == VALUE_NONE ? v : (ss-2)->staticEval;
+                v += (v - v0) / 16;
+
+                ss->staticEval = bestValue = v;
+            }
 
             // Can ttValue be used as a better position evaluation?
             if (   ttValue != VALUE_NONE
@@ -1217,9 +1224,14 @@ moves_loop: // When in check search starts from here
                 bestValue = ttValue;
         }
         else
-            ss->staticEval = bestValue =
-            (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
-                                             : -(ss-1)->staticEval + 2 * Eval::Tempo;
+        {
+            v = (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
+                                                 : -(ss-1)->staticEval + 2 * Eval::Tempo;
+            v0 = (ss-2)->staticEval == VALUE_NONE ? v : (ss-2)->staticEval;
+            v += (v - v0) / 16;
+
+            ss->staticEval = bestValue = v;
+        }
 
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
