@@ -672,7 +672,14 @@ namespace {
     {
         // Never assume anything on values stored in TT
         if ((ss->staticEval = eval = tte->eval()) == VALUE_NONE)
-            eval = ss->staticEval = evaluate(pos);
+        {
+            Value v, v0;
+            v = evaluate(pos);
+            v0 = (ss-2)->staticEval == VALUE_NONE ? v : (ss-2)->staticEval;
+            v += (v - v0) / 16;
+
+            eval = ss->staticEval = v;
+        }
 
         // Can ttValue be used as a better position evaluation?
         if (   ttValue != VALUE_NONE
@@ -681,9 +688,13 @@ namespace {
     }
     else
     {
-        eval = ss->staticEval =
-        (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
-                                         : -(ss-1)->staticEval + 2 * Eval::Tempo;
+        Value v, v0;
+        v = (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
+                                             : -(ss-1)->staticEval + 2 * Eval::Tempo;
+        v0 = (ss-2)->staticEval == VALUE_NONE ? v : (ss-2)->staticEval;
+        v += (v - v0) / 16;
+            
+        eval = ss->staticEval = v;
 
         tte->save(posKey, VALUE_NONE, BOUND_NONE, DEPTH_NONE, MOVE_NONE,
                   ss->staticEval, TT.generation());
@@ -1213,7 +1224,7 @@ moves_loop: // When in check search starts from here
             {
                 v = evaluate(pos);
                 v0 = (ss-2)->staticEval == VALUE_NONE ? v : (ss-2)->staticEval;
-                v += (v - v0) / 32;
+                v += (v - v0) / 16;
 
                 ss->staticEval = bestValue = v;
             }
@@ -1228,7 +1239,7 @@ moves_loop: // When in check search starts from here
             v = (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
                                                  : -(ss-1)->staticEval + 2 * Eval::Tempo;
             v0 = (ss-2)->staticEval == VALUE_NONE ? v : (ss-2)->staticEval;
-            v += (v - v0) / 32;
+            v += (v - v0) / 16;
 
             ss->staticEval = bestValue = v;
         }
