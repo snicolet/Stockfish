@@ -205,7 +205,13 @@ enum Piece {
   PIECE_NB = 16
 };
 
+enum Term { // The first 8 entries are for PieceType
+      MATERIAL = 8, IMBALANCE, MOBILITY, THREAT, PASSED, SPACE, INITIATIVE, TOTAL, TERM_NB
+    };
+
 extern Value PieceValue[PHASE_NB][PIECE_NB];
+extern int Optimism[TERM_NB][COLOR_NB];
+
 
 enum Depth : int {
 

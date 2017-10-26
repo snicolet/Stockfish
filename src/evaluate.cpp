@@ -44,10 +44,6 @@ namespace {
 
     enum Tracing {NO_TRACE, TRACE};
 
-    enum Term { // The first 8 entries are for PieceType
-      MATERIAL = 8, IMBALANCE, MOBILITY, THREAT, PASSED, SPACE, INITIATIVE, TOTAL, TERM_NB
-    };
-
     double scores[TERM_NB][COLOR_NB][PHASE_NB];
 
     double to_cp(Value v) { return double(v) / PawnValueEg; }
@@ -873,6 +869,10 @@ namespace {
     if (pos.non_pawn_material() >= SpaceThreshold)
         score +=  evaluate_space<WHITE>()
                 - evaluate_space<BLACK>();
+
+    int optimism =  Optimism[ALL_PIECES][WHITE] * pos.count<ALL_PIECES>(WHITE)
+                  - Optimism[ALL_PIECES][BLACK] * pos.count<ALL_PIECES>(BLACK);
+    score += make_score(optimism, 0);
 
     score += evaluate_initiative(eg_value(score));
 
