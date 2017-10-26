@@ -1396,7 +1396,7 @@ moves_loop: // When in check search starts from here
       if (v2 == VALUE_NONE || v4 == VALUE_NONE || v == v2 || v2 == v4)
          return v;
 
-      int trend = int(v - v2) * int(v2 - v4);
+      int trend = int(v - v2) / int(v2 - v4);
       
       return v + (trend >= 0 ? 0
                              : (v - (v2 + v4) / 2) / 16  );
