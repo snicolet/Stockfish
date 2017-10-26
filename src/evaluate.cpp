@@ -602,6 +602,20 @@ namespace {
             score += ThreatByKing[more_than_one(b)];
     }
 
+    // Overattacked pawns
+    b =  pos.pieces(Them, PAWN)
+       & attackedBy2[Us]
+       & ~attackedBy[Them][PAWN]
+       & ~attackedBy[Us][PAWN]
+       & ~(weak & ~attackedBy[Them][ALL_PIECES]);  // hanging pawns are already counted
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+        Bitboard bb = pos.attackers_to(s);
+        if (popcount(bb & pos.pieces(Us)) > popcount(bb & pos.pieces(Them)))
+            score += Hanging;
+    }
+
     // Bonus for opponent unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
