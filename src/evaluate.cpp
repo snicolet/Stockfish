@@ -602,12 +602,12 @@ namespace {
             score += ThreatByKing[more_than_one(b)];
     }
 
-    // Overattacked pawns
+    // Over-attacked pawns
     b =  pos.pieces(Them, PAWN)
        & attackedBy2[Us]
+       & attackedBy[Them][ALL_PIECES]  // hanging pawns are already counted
        & ~attackedBy[Them][PAWN]
-       & ~attackedBy[Us][PAWN]
-       & ~(weak & ~attackedBy[Them][ALL_PIECES]);  // hanging pawns are already counted
+       & ~attackedBy[Us][PAWN];
     while (b)
     {
         Square s = pop_lsb(&b);
