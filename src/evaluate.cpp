@@ -766,12 +766,13 @@ namespace {
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
-    int imbalance =   (pos.count<KNIGHT>(WHITE) != pos.count<KNIGHT>(BLACK))
-                    + (pos.count<BISHOP>(WHITE) != pos.count<BISHOP>(BLACK));
+    bool passed     = !!(pe->passed_pawns(WHITE) | pe->passed_pawns(BLACK));
+    int asymmetry   = pe->pawn_asymmetry();
+    int pawns       = pos.count<PAWN>();
 
     // Compute the initiative bonus for the attacking side
-    int initiative =    8 * (pe->pawn_asymmetry() + kingDistance - imbalance - 16)
-                     + 25 * pos.count<PAWN>() / 2
+    int initiative =    8 * (asymmetry + kingDistance + passed - 17)
+                     + 12 * pawns
                      + 16 * bothFlanks;
 
     // Now apply the bonus: note that we find the attacking side by extracting
