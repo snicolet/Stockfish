@@ -146,6 +146,7 @@ namespace {
 
   Value value_to_tt(Value v, int ply);
   Value value_from_tt(Value v, int ply);
+  Value evaluate_with_trend(const Position& pos, Stack* ss);
   void update_pv(Move* pv, Move move, Move* childPv);
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
   void update_stats(const Position& pos, Stack* ss, Move move, Move* quiets, int quietsCnt, int bonus);
@@ -672,7 +673,7 @@ namespace {
     {
         // Never assume anything on values stored in TT
         if ((ss->staticEval = eval = tte->eval()) == VALUE_NONE)
-            eval = ss->staticEval = evaluate(pos);
+            eval = ss->staticEval = evaluate_with_trend(pos, ss);
 
         // Can ttValue be used as a better position evaluation?
         if (   ttValue != VALUE_NONE
@@ -682,7 +683,7 @@ namespace {
     else
     {
         eval = ss->staticEval =
-        (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
+        (ss-1)->currentMove != MOVE_NULL ? evaluate_with_trend(pos, ss)
                                          : -(ss-1)->staticEval + 2 * Eval::Tempo;
 
         tte->save(posKey, VALUE_NONE, BOUND_NONE, DEPTH_NONE, MOVE_NONE,
@@ -1209,7 +1210,7 @@ moves_loop: // When in check search starts from here
         {
             // Never assume anything on values stored in TT
             if ((ss->staticEval = bestValue = tte->eval()) == VALUE_NONE)
-                ss->staticEval = bestValue = evaluate(pos);
+                ss->staticEval = bestValue = evaluate_with_trend(pos, ss);
 
             // Can ttValue be used as a better position evaluation?
             if (   ttValue != VALUE_NONE
@@ -1218,7 +1219,7 @@ moves_loop: // When in check search starts from here
         }
         else
             ss->staticEval = bestValue =
-            (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
+            (ss-1)->currentMove != MOVE_NULL ? evaluate_with_trend(pos, ss)
                                              : -(ss-1)->staticEval + 2 * Eval::Tempo;
 
         // Stand pat. Return immediately if static value is at least beta
@@ -1384,6 +1385,20 @@ moves_loop: // When in check search starts from here
     *pv = MOVE_NONE;
   }
 
+  // evaluate_with_trend() is like evaluate(), but adds a small bonus/malus 
+  // if the position is on an improving/declining branch.
+  Value evaluate_with_trend(const Position& pos, Stack* ss) {
+
+      Value v = evaluate(pos);
+      Value v0 = (ss-2)->staticEval;
+      Value v1 = (ss-4)->staticEval;
+
+      v += (v0 == VALUE_NONE) ? 0 : (v - v0) / 32;
+      v += (v1 == VALUE_NONE) ? 0 : (v - v1) / 32;
+      v += (v0 == VALUE_NONE || v1 == VALUE_NONE) ? 0 : (v0 - v1) / 32;
+
+      return v;
+  }
 
   // update_continuation_histories() updates histories of the move pairs formed
   // by moves at ply -1, -2, and -4 with current move.
