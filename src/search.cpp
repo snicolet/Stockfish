@@ -246,8 +246,8 @@ void MainThread::search() {
   
   for (int term = 0; term < TERM_NB; term++)
   {
-      Optimism[term][ us] =  1;
-      Optimism[term][~us] = -1;
+      Optimism[term][ us] =  2;
+      Optimism[term][~us] = -2;
   }
 
   if (rootMoves.empty())
