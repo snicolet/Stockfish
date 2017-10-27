@@ -870,9 +870,12 @@ namespace {
         score +=  evaluate_space<WHITE>()
                 - evaluate_space<BLACK>();
 
-    int optimism =  Optimism[ALL_PIECES][WHITE] * pos.count<ALL_PIECES>(WHITE)
-                  - Optimism[ALL_PIECES][BLACK] * pos.count<ALL_PIECES>(BLACK);
-    score += make_score(optimism, 0);
+    if (mg_value(score) * Optimism[ALL_PIECES][WHITE] >= 0)
+    {
+        int optimism =  Optimism[ALL_PIECES][WHITE] * pos.count<ALL_PIECES>(WHITE)
+                      - Optimism[ALL_PIECES][BLACK] * pos.count<ALL_PIECES>(BLACK);
+        score += make_score(optimism, 0);
+    }
 
     score += evaluate_initiative(eg_value(score));
 
