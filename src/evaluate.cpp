@@ -549,8 +549,10 @@ namespace {
 
     if (weak)
     {
-        b = pos.pieces(Us, PAWN) & ( ~attackedBy[Them][ALL_PIECES]
-                                    | attackedBy[Us][ALL_PIECES]);
+        // Safe pawns are non-hanging and non-pinned pawns
+        b =  pos.pieces(Us, PAWN)
+           & (~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES])
+           & ~pos.pinned_pieces(Us);
 
         safeThreats = (shift<Right>(b) | shift<Left>(b)) & weak;
 
