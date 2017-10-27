@@ -179,7 +179,7 @@ Move MovePicker::next_move(bool skipQuiets) {
           move = pick_best(cur++, endMoves);
           if (move != ttMove)
           {
-              if (pos.see_ge(move, Value(-100)))
+              if (pos.see_ge(move, Value(-200)))
                   return move;
 
               // Losing capture, move it to the beginning of the array
