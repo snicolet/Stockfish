@@ -1035,7 +1035,7 @@ moves_loop: // When in check search starts from here
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
-      
+
       // Small malus for each exchange of piece in the first 10 plies
       // of the PV (only in case SF has a positive evaluation)
       if (   PvNode
