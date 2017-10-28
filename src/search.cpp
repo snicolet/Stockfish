@@ -247,7 +247,7 @@ void MainThread::search() {
   for (int term = 0; term < TERM_NB; term++)
   {
       Optimism[term][ us] =  1;
-      Optimism[term][~us] = -1;
+      Optimism[term][~us] = -2;
   }
 
   if (rootMoves.empty())
@@ -1035,6 +1035,12 @@ moves_loop: // When in check search starts from here
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
+      
+      if (   ss->ply <= 9
+          && pos.capture(move)
+          && type_of(pos.piece_on(to_sq(move))) == PAWN
+          && value * Optimism[MATERIAL][pos.side_to_move()] > 4)
+          value -= Optimism[MATERIAL][pos.side_to_move()];
 
       // Step 18. Check for a new best move
       // Finished searching the move. If a stop occurred, the return value of
