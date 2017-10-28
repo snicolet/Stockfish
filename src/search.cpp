@@ -949,7 +949,7 @@ moves_loop: // When in check search starts from here
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
-          // Decrease reduction if at a PV node the best value is drawish
+          // Decrease reduction at a PV node if the best value is drawish
           if (PvNode && abs(bestValue - DrawValue[~pos.side_to_move()]) <= 10)
               r -= ONE_PLY;
 
