@@ -543,6 +543,7 @@ namespace {
     Value bestValue, value, ttValue, eval;
     bool ttHit, inCheck, givesCheck, singularExtensionNode, improving;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets, ttCapture, pvExact;
+    bool drawishPV;
     Piece movedPiece;
     int moveCount, quietCount;
 
@@ -851,6 +852,10 @@ moves_loop: // When in check search starts from here
       moveCountPruning =   depth < 16 * ONE_PLY
                         && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
 
+      drawishPV =   PvNode 
+                 && bestValue >= alpha
+                 && abs(bestValue - DrawValue[~pos.side_to_move()]) <= 10;
+
       // Step 12. Singular and Gives Check Extensions
 
       // Singular extension search. If all moves but one fail low on a search of
@@ -880,7 +885,8 @@ moves_loop: // When in check search starts from here
       newDepth = depth - ONE_PLY + extension;
 
       // Step 13. Pruning at shallow depth
-      if (  !rootNode
+      if (   !rootNode
+          && !drawishPV
           && pos.non_pawn_material(pos.side_to_move())
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
@@ -950,7 +956,7 @@ moves_loop: // When in check search starts from here
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
           // Decrease reduction at a PV node if the best value is drawish
-          if (PvNode && abs(bestValue - DrawValue[~pos.side_to_move()]) <= 10)
+          if (drawishPV)
               r -= ONE_PLY;
 
           if (captureOrPromotion)
