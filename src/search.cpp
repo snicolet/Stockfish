@@ -1037,8 +1037,8 @@ moves_loop: // When in check search starts from here
 
       if (rootNode)
       {
-          if (pos.capture(move) && value > DrawValue[pos.side_to_move()])
-              value -= Value(4);
+          if (pos.capture(move) && value >= DrawValue[pos.side_to_move()])
+              value -= Value(3);
           
           RootMove& rm = *std::find(thisThread->rootMoves.begin(),
                                     thisThread->rootMoves.end(), move);
