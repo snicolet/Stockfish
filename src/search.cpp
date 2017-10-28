@@ -1036,7 +1036,8 @@ moves_loop: // When in check search starts from here
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
       
-      if (   ss->ply <= 9
+      if (   PvNode
+          && ss->ply <= 9
           && pos.capture(move)
           && type_of(pos.piece_on(to_sq(move))) == PAWN
           && value * Optimism[MATERIAL][pos.side_to_move()] > 4)
