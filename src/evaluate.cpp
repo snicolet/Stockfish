@@ -545,18 +545,23 @@ namespace {
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies attacked by a pawn
-    weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & attackedBy[Us][PAWN];
+   // weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & attackedBy[Us][PAWN];
+    weak = pos.pieces(Them) & attackedBy[Us][PAWN];
 
     if (weak)
     {
-        // Safe pawns are non-hanging and non-pinned pawns
-        b =  pos.pieces(Us, PAWN)
-           & (~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES])
-           & ~pos.pinned_pieces(Us);
+        // Safe attacking pawns: non-hanging and non-pinned pawns
+        b = pos.pieces(Us, PAWN);
+        b &= ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
+        b &= ~(attackedBy[Them][PAWN] & attackedBy2[Them]) | (attackedBy[Us][PAWN] & attackedBy2[Us]);
+        b &= ~pos.pinned_pieces(Us);
 
         safeThreats = (shift<Right>(b) | shift<Left>(b)) & weak;
 
         score += ThreatBySafePawn * popcount(safeThreats);
+
+      //  if (safeThreats && pos.side_to_move() == Us)
+      //      score += make_score(40, 40);
 
         if (weak ^ safeThreats)
             score += ThreatByHangingPawn;
