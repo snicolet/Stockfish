@@ -771,9 +771,9 @@ namespace {
     // Compute the initiative bonus for the attacking side
     int initiative_mg =   2 * (pieces - 8);
     int initiative_eg =   8 * (pe->pawn_asymmetry() + kingDistance - 17) 
-                       + 14 * pos.count<PAWN>() 
+                       + 12 * pos.count<PAWN>() 
                        + 16 * bothFlanks;
-    
+
     //dbg_mean_of(initiative_mg);
     //dbg_mean_of(initiative_eg);
 
