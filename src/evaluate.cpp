@@ -769,11 +769,10 @@ namespace {
     int pieces = pos.count<ALL_PIECES>();
 
     // Compute the initiative bonus for the attacking side
-    int initiative_mg =   2 * (pieces - 28);
-    int initiative_eg =   8 * (pe->pawn_asymmetry() + kingDistance - 20) 
-                       + 10 * pos.count<PAWN>() 
-                       + 16 * bothFlanks
-                       +  2 * pieces;
+    int initiative_mg =   2 * (pieces - 8);
+    int initiative_eg =   8 * (pe->pawn_asymmetry() + kingDistance - 17) 
+                       + 14 * pos.count<PAWN>() 
+                       + 16 * bothFlanks;
     
     //dbg_mean_of(initiative_mg);
     //dbg_mean_of(initiative_eg);
@@ -781,7 +780,7 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
-    int u = ((eg > 0) - (eg < 0)) * initiative_mg;
+    int u = ((eg > 0) - (eg < 0)) * std::max(initiative_mg, -abs(eg));
     int v = ((eg > 0) - (eg < 0)) * std::max(initiative_eg, -abs(eg));
 
     if (T)
