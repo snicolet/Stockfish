@@ -550,6 +550,7 @@ namespace {
     Value bestValue, value, ttValue, eval;
     bool ttHit, inCheck, givesCheck, singularExtensionNode, improving;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets, ttCapture, pvExact;
+    bool PvIsDrawish;
     Piece movedPiece;
     int moveCount, quietCount;
 
@@ -858,6 +859,10 @@ moves_loop: // When in check search starts from here
       moveCountPruning =   depth < 16 * ONE_PLY
                         && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
 
+      PvIsDrawish =   PvNode 
+                   && bestValue >= alpha
+                   && bestValue == DrawValue[pos.side_to_move()];
+
       // Step 12. Singular and Gives Check Extensions
 
       // Singular extension search. If all moves but one fail low on a search of
@@ -887,7 +892,8 @@ moves_loop: // When in check search starts from here
       newDepth = depth - ONE_PLY + extension;
 
       // Step 13. Pruning at shallow depth
-      if (  !rootNode
+      if (   !rootNode
+          && !PvIsDrawish
           && pos.non_pawn_material(pos.side_to_move())
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
@@ -956,8 +962,12 @@ moves_loop: // When in check search starts from here
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
+          // Decrease reduction at a PV node if the best value is drawish
+          if (PvIsDrawish)
+              r -= ONE_PLY;
+
           if (captureOrPromotion)
-              r -= r ? ONE_PLY : DEPTH_ZERO;
+              r -= ONE_PLY;
           else
           {
               // Decrease reduction if opponent's move count is high
@@ -997,8 +1007,10 @@ moves_loop: // When in check search starts from here
                   r += ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history
-              r = std::max(DEPTH_ZERO, (r / ONE_PLY - ss->statScore / 20000) * ONE_PLY);
+              r -= ss->statScore / 20000 * ONE_PLY;
           }
+
+          r = std::max(DEPTH_ZERO, r);
 
           Depth d = std::max(newDepth - r, ONE_PLY);
 
