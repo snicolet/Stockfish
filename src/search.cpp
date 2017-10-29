@@ -678,11 +678,12 @@ namespace {
     else if (ttHit)
     {
         // Never assume anything on values stored in TT
-        if ((ss->staticEval = eval = tte->eval()) == VALUE_NONE)
+        if (VALUE_NONE == (ss->staticEval = eval = tte->eval()))
             eval = ss->staticEval = evaluate(pos);
 
         // Can ttValue be used as a better position evaluation?
-        if (   ttValue != VALUE_NONE
+        if (   !PvNode
+            && ttValue != VALUE_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
     }
