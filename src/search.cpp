@@ -1046,9 +1046,9 @@ moves_loop: // When in check search starts from here
       // Small malus for each exchange of piece in the first 10 plies
       // of the PV (only in case SF has a positive evaluation)
       if (   PvNode
-          && ss->ply <= 9
+          && ss->ply <= 3
           && pos.capture(move)
-          && type_of(pos.piece_on(to_sq(move))) != PAWN
+        //  && type_of(pos.piece_on(to_sq(move))) != PAWN
           && value * Optimism[MATERIAL][pos.side_to_move()] > 4)
           value -= Optimism[MATERIAL][pos.side_to_move()];
 
