@@ -766,19 +766,28 @@ namespace {
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
+    int pieces = pos.count<ALL_PIECES>();
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (pe->pawn_asymmetry() + kingDistance - 17) + 12 * pos.count<PAWN>() + 16 * bothFlanks;
+    int initiative_mg =   2 * (pieces - 28);
+    int initiative_eg =   8 * (pe->pawn_asymmetry() + kingDistance - 20) 
+                       + 10 * pos.count<PAWN>() 
+                       + 16 * bothFlanks
+                       +  2 * pieces;
+    
+    //dbg_mean_of(initiative_mg);
+    //dbg_mean_of(initiative_eg);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
-    int v = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg));
+    int u = ((eg > 0) - (eg < 0)) * initiative_mg;
+    int v = ((eg > 0) - (eg < 0)) * std::max(initiative_eg, -abs(eg));
 
     if (T)
-        Trace::add(INITIATIVE, make_score(0, v));
+        Trace::add(INITIATIVE, make_score(u, v));
 
-    return make_score(0, v);
+    return make_score(u, v);
   }
 
 
