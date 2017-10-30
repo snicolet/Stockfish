@@ -548,7 +548,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval;
-    bool ttHit, inCheck, givesCheck, singularExtensionNode, improving;
+    bool ttHit, inCheck, givesCheck, singularExtensionNode, improving, drawishPvNode;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets, ttCapture, pvExact;
     Piece movedPiece;
     int moveCount, quietCount;
@@ -559,6 +559,7 @@ namespace {
     moveCount = quietCount = ss->moveCount = 0;
     ss->statScore = 0;
     bestValue = -VALUE_INFINITE;
+    drawishPvNode = false;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -956,8 +957,12 @@ moves_loop: // When in check search starts from here
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
+          // Decrease reduction if at a PV node the best value is draw
+          if (drawishPvNode)
+              r -= ONE_PLY;
+
           if (captureOrPromotion)
-              r -= r ? ONE_PLY : DEPTH_ZERO;
+              r -= ONE_PLY;
           else
           {
               // Decrease reduction if opponent's move count is high
@@ -997,8 +1002,10 @@ moves_loop: // When in check search starts from here
                   r += ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history
-              r = std::max(DEPTH_ZERO, (r / ONE_PLY - ss->statScore / 20000) * ONE_PLY);
+              r -= ss->statScore / 20000 * ONE_PLY;
           }
+
+          r = std::max(DEPTH_ZERO, r);
 
           Depth d = std::max(newDepth - r, ONE_PLY);
 
@@ -1029,6 +1036,13 @@ moves_loop: // When in check search starts from here
                                        : -qsearch<PV, false>(pos, ss+1, -beta, -alpha)
                                        : - search<PV>(pos, ss+1, -beta, -alpha, newDepth, false, false);
       }
+
+      // Amend value if the value seems to come from a perpetual check
+      if (   PvNode 
+          && value == -DrawValue[pos.side_to_move()]
+          && value >= alpha
+          && (inCheck || givesCheck))
+           value += givesCheck ? +1 : -1;
 
       // Step 17. Undo move
       pos.undo_move(move);
@@ -1091,6 +1105,10 @@ moves_loop: // When in check search starts from here
                   break;
               }
           }
+
+          drawishPvNode =    PvNode
+                          && bestValue == -DrawValue[~pos.side_to_move()]
+                          && bestValue >= alpha;
       }
 
       if (!captureOrPromotion && move != bestMove && quietCount < 64)
