@@ -243,8 +243,8 @@ void MainThread::search() {
   // DrawValue[ us] = VALUE_DRAW - Value(contempt);
   // DrawValue[~us] = VALUE_DRAW + Value(contempt);
   
-  DrawValue[ us] = VALUE_DRAW - 10;
-  DrawValue[~us] = VALUE_DRAW +  0;
+  DrawValue[ us] = VALUE_DRAW -  0;
+  DrawValue[~us] = VALUE_DRAW + 10;
 
   if (rootMoves.empty())
   {
