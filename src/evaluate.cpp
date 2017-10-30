@@ -774,8 +774,7 @@ namespace {
                        + 12 * pos.count<PAWN>() 
                        + 16 * bothFlanks;
 
-    // In midgame Stockfish will always try to keep more pieces, so we swap the
-    // the sign of the initiative_mg term if SF is losing.
+    // In midgame we use a non-null value if and only if the attacking side is Stockfish
     if (mg * Optimism[ALL_PIECES][WHITE] <= 0) 
         initiative_mg = 0;
 
