@@ -240,8 +240,11 @@ void MainThread::search() {
   TT.new_search();
 
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
-  DrawValue[ us] = VALUE_DRAW - Value(contempt);
-  DrawValue[~us] = VALUE_DRAW + Value(contempt);
+  // DrawValue[ us] = VALUE_DRAW - Value(contempt);
+  // DrawValue[~us] = VALUE_DRAW + Value(contempt);
+  
+  DrawValue[ us] = VALUE_DRAW - 10;
+  DrawValue[~us] = VALUE_DRAW +  0;
 
   if (rootMoves.empty())
   {
