@@ -209,6 +209,9 @@ namespace {
 
   // KingProtector[PieceType-2] contains a bonus according to distance from king
   const Score KingProtector[] = { S(-3, -5), S(-4, -3), S(-3, 0), S(-1, 1) };
+  
+  // CloseEnemies[without queen/with queen]
+  const Score CloseEnemies[]        = {S(7, 0) , S(8, 1) };
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn     = S( 16,  0);
@@ -218,7 +221,6 @@ namespace {
   const Score TrappedRook         = S( 92,  0);
   const Score WeakQueen           = S( 50, 10);
   const Score OtherCheck          = S( 10, 10);
-  const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
   const Score ThreatByHangingPawn = S( 71, 61);
   const Score ThreatBySafePawn    = S(192,175);
@@ -516,7 +518,7 @@ namespace {
     b =  (Us == WHITE ? b << 4 : b >> 4)
        | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
 
-    score -= CloseEnemies * popcount(b);
+    score -= CloseEnemies[pos.count<QUEEN>(Them) > 0] * popcount(b);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
