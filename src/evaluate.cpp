@@ -776,8 +776,8 @@ namespace {
                        + 16 * bothFlanks;
 
     // In midgame we use a non-null value if and only if the attacking side is Stockfish
-    if (mg * Optimism[ALL_PIECES][WHITE] <= 0) 
-        initiative_mg = 0;
+    // if (mg * Optimism[ALL_PIECES][WHITE] <= 0) 
+    //    initiative_mg = 0;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the midgame/endgame value, and that we carefully cap the bonus
