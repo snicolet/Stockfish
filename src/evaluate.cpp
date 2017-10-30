@@ -768,15 +768,16 @@ namespace {
     int pieces = pos.count<ALL_PIECES>();
 
     // Compute the initiative bonus for the attacking side
-    int initiative_mg = !!pos.count<QUEEN>() * (pieces - 14);
+    int initiative_mg = !!pos.count<QUEEN>() * pieces - 13;
 
     int initiative_eg =   8 * (pe->pawn_asymmetry() + kingDistance - 17) 
                        + 12 * pos.count<PAWN>() 
                        + 16 * bothFlanks;
 
-    // In midgame we use a non-null value if and only if the attacking side is Stockfish
-    //if (mg * Optimism[ALL_PIECES][WHITE] <= 0) 
-      //  initiative_mg = 0;
+    // In midgame Stockfish will always try to keep more pieces, so we swap the
+    // the sign of the initiative_mg term if SF is losing.
+    if (mg * Optimism[ALL_PIECES][WHITE] <= 0) 
+        initiative_mg = -initiative_mg;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the midgame/endgame value, and that we carefully cap the bonus
