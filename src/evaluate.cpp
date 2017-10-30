@@ -768,7 +768,7 @@ namespace {
     int pieces = pos.count<ALL_PIECES>();
 
     // Compute the initiative bonus for the attacking side
-    int initiative_mg = !!pos.count<QUEEN>() * pieces - 13;
+    int initiative_mg = !!pos.count<QUEEN>() * (pieces - 14);
 
     int initiative_eg =   8 * (pe->pawn_asymmetry() + kingDistance - 17) 
                        + 12 * pos.count<PAWN>() 
