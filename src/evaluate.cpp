@@ -777,7 +777,7 @@ namespace {
     // In midgame Stockfish will always try to keep more pieces, so we swap the
     // the sign of the initiative_mg term if SF is losing.
     if (mg * Optimism[ALL_PIECES][WHITE] <= 0) 
-        initiative_mg = -initiative_mg;
+        initiative_mg = 0;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the midgame/endgame value, and that we carefully cap the bonus
