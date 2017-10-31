@@ -842,7 +842,7 @@ namespace {
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
-    score += pe->pawns_score();
+    score += pe->pawns_evaluation();
 
     // Early exit if score is high
     Value v = (mg_value(score) + eg_value(score)) / 2;
@@ -888,7 +888,7 @@ namespace {
     {
         Trace::add(MATERIAL, pos.psq_score());
         Trace::add(IMBALANCE, me->imbalance());
-        Trace::add(PAWN, pe->pawns_score());
+        Trace::add(PAWN, pe->pawns_evaluation());
         Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
         if (pos.non_pawn_material() >= SpaceThreshold)
             Trace::add(SPACE, evaluate_space<WHITE>()

@@ -87,6 +87,10 @@ namespace {
   // Max bonus for king safety. Corresponds to start position with all the pawns
   // in front of the king and no enemy pawn on the horizon.
   const Value MaxSafetyBonus = V(258);
+  
+  // Bonus for a dangerous pawn in the center near the opponent king, for instance
+  // pawn e5 against king g8.
+  const Score DangerousCenterPawn = S(5, 0);
 
   #undef S
   #undef V
@@ -231,7 +235,7 @@ Entry* probe(const Position& pos) {
       return e;
 
   e->key = key;
-  e->score = evaluate<WHITE>(pos, e) - evaluate<BLACK>(pos, e);
+  e->evaluation = evaluate<WHITE>(pos, e) - evaluate<BLACK>(pos, e);
   e->asymmetry = popcount(e->semiopenFiles[WHITE] ^ e->semiopenFiles[BLACK]);
   e->openFiles = popcount(e->semiopenFiles[WHITE] & e->semiopenFiles[BLACK]);
   return e;
@@ -281,6 +285,8 @@ Value Entry::shelter_storm(const Position& pos, Square ksq) {
 template<Color Us>
 Score Entry::do_king_safety(const Position& pos, Square ksq) {
 
+  const Color Them = (Us == WHITE ? BLACK : WHITE);
+
   kingSquares[Us] = ksq;
   castlingRights[Us] = pos.can_castle(Us);
   int minKingPawnDistance = 0;
@@ -298,7 +304,19 @@ Score Entry::do_king_safety(const Position& pos, Square ksq) {
   if (pos.can_castle(MakeCastling<Us, QUEEN_SIDE>::right))
       bonus = std::max(bonus, shelter_storm<Us>(pos, relative_square(Us, SQ_C1)));
 
-  return make_score(bonus, -16 * minKingPawnDistance);
+  Score score = make_score(bonus, -16 * minKingPawnDistance);
+
+  // Malus for opponent advanced pawns in the center
+  File f = file_of(ksq);
+  pawns = pos.pieces(Them, PAWN);
+
+  if (f >= FILE_D && (pawns & relative_square(Us, SQ_E4)))
+      score -= DangerousCenterPawn;
+
+  if (f <= FILE_E && (pawns & relative_square(Us, SQ_D4)))
+      score -= DangerousCenterPawn;
+
+  return score;
 }
 
 // Explicit template instantiation
