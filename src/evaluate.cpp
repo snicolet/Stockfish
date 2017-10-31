@@ -759,28 +759,31 @@ namespace {
   template<Tracing T>
   Score Evaluation<T>::evaluate_initiative(Score s) {
 
+    int initiative_mg, initiative_eg;
+
     Value mg = mg_value(s);
     Value eg = eg_value(s);
 
-    int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
+                     - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    int pieces      = pos.count<ALL_PIECES>();
+    int pawns       = pos.count<PAWN>();
+    int asymmetry   = pe->pawn_asymmetry();
+    int queens      = !!pos.count<QUEEN>();
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
-    int pieces = pos.count<ALL_PIECES>();
+    bool StockfishIsAttacking = mg * Optimism[ALL_PIECES][WHITE] > 0;
 
-    // Compute the initiative bonus for the attacking side
-    int initiative_mg = !!pos.count<QUEEN>() * pieces - 13;
+    // Compute the initiative bonus
 
-    int initiative_eg =   8 * (pe->pawn_asymmetry() + kingDistance - 17) 
-                       + 12 * pos.count<PAWN>() 
-                       + 16 * bothFlanks;
+    initiative_mg = StockfishIsAttacking ? queens * pieces - 13
+                                         : queens * pawns ;
 
-    // In midgame Stockfish will always try to keep more pieces, so we swap the
-    // the sign of the initiative_mg term if SF is losing.
-    if (mg * Optimism[ALL_PIECES][WHITE] <= 0) 
-        initiative_mg = 0;
+    initiative_eg =   8 * (asymmetry + outflanking - 17)
+                   + 12 * pawns
+                   + 16 * bothFlanks;
 
     // Now apply the bonus: note that we find the attacking side by extracting
-    // the sign of the midgame/endgame value, and that we carefully cap the bonus
+    // the sign of the midgame/endgame values, and that we carefully cap the bonus
     // so that the endgame score will never change sign after the bonus.
     int u = ((mg > 0) - (mg < 0)) * std::max(initiative_mg, -abs(mg));
     int v = ((eg > 0) - (eg < 0)) * std::max(initiative_eg, -abs(eg));
