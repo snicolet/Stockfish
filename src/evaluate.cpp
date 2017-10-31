@@ -768,10 +768,11 @@ namespace {
     int pieces = pos.count<ALL_PIECES>();
 
     // Compute the initiative bonus for the attacking side
-    int initiative_mg = (!!pos.count<QUEEN>() * pieces - 13) / 2;
+    int initiative_mg =    !!pos.count<QUEEN>() * (pieces + pe->pawn_asymmetry())
+                        -  14;
 
-    int initiative_eg =   8 * (pe->pawn_asymmetry() + kingDistance - 17) 
-                       + 12 * pos.count<PAWN>() 
+    int initiative_eg =   8 * (pe->pawn_asymmetry() + kingDistance - 17)
+                       + 12 * pos.count<PAWN>()
                        + 16 * bothFlanks;
 
     // In midgame we use a non-null value if and only if the attacking side is Stockfish
