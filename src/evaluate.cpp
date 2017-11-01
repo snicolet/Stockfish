@@ -277,7 +277,7 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
 
     attackedBy2[Us]            = b & attackedBy[Us][PAWN];
-    attackedBy[Us][ALL_PIECES] = b | attackedBy[Us][PAWN];
+    attackedBy[Us][ALL_PIECES] = attackedBy[Us][PAWN];
     transientThreats[Us]       = 0;
 
     // Init our king safety tables only if we are going to use them
@@ -325,10 +325,8 @@ namespace {
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][ALL_PIECES] |= attackedBy[Us][Pt] |= b;
 
-        if (attackedBy[Them][ALL_PIECES] & s)
-            transientThreats[Us] |= b;
-        
-        if (pos.pieces(Them, Pt) & b)
+        if (   (attackedBy[Them][ALL_PIECES] & s)
+            || (pos.pieces(Them, Pt) & b))
             transientThreats[Us] |= b;
 
         if (b & kingRing[Them])
@@ -559,6 +557,9 @@ namespace {
     Bitboard b, weak, defended, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
 
+    if (pos.side_to_move() == Us)
+        transientThreats[Us] = 0;
+
     // Non-pawn enemies attacked by a pawn
     weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & attackedBy[Us][PAWN];
 
@@ -636,16 +637,19 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
 
-    if ((pos.side_to_move() != Us)
-        && (transientThreats[Us] != 0))
-        score -= score / 2;
-    
+
+    //if (transientThreats[Us] && (pos.side_to_move() != Us))
+    if (transientThreats[Us])
+        score = score / 4;
+
+    /*
     if (false && transientThreats[Us])
     {
        std::cerr << pos << std::endl;
        std::cerr << Bitboards::pretty(transientThreats[Us]) << std::endl;
        std::cerr << "==================================\n";
     }
+    */
 
     if (T)
         Trace::add(THREAT, Us, score);
@@ -890,6 +894,12 @@ namespace {
     score -= evaluate_pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
+    
+    attackedBy2[WHITE] |= attackedBy[WHITE][ALL_PIECES] & attackedBy[WHITE][KING];
+    attackedBy2[BLACK] |= attackedBy[BLACK][ALL_PIECES] & attackedBy[BLACK][KING];
+    
+    attackedBy[WHITE][ALL_PIECES] |= attackedBy[WHITE][KING];
+    attackedBy[BLACK][ALL_PIECES] |= attackedBy[BLACK][KING];
 
     score +=  evaluate_king<WHITE>()
             - evaluate_king<BLACK>();
