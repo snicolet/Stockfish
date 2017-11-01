@@ -640,7 +640,7 @@ namespace {
 
     //if (transientThreats[Us] && (pos.side_to_move() != Us))
     if (transientThreats[Us])
-        score = score / 4;
+        score = score / 2;
 
     /*
     if (false && transientThreats[Us])
