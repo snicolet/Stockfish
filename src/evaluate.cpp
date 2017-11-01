@@ -637,8 +637,8 @@ namespace {
     score += ThreatByPawnPush * popcount(b);
 
     if ((pos.side_to_move() != Us)
-        && transientThreats[Us])
-        score -= make_score(mg_value(score) / 2, eg_value(score) / 2);
+        && (transientThreats[Us] != 0))
+        score -= make_score(10, 10);
     
     if (false && transientThreats[Us])
     {
