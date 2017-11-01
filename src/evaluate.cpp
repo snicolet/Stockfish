@@ -109,6 +109,7 @@ namespace {
     Pawns::Entry* pe;
     Bitboard mobilityArea[COLOR_NB];
     Score mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
+    int exchanges = 0;
 
     // attackedBy[color][piece type] is a bitboard representing all squares
     // attacked by a given color and piece type (can be also ALL_PIECES).
@@ -330,6 +331,10 @@ namespace {
         // Bonus for this piece as a king protector
         score += KingProtector[Pt - 2] * distance(s, pos.square<KING>(Us));
 
+        // Possible exchange ?
+        if (b & pos.pieces(Them, Pt))
+           exchanges++;
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus for outpost squares
@@ -522,6 +527,9 @@ namespace {
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
 
+    if (exchanges)
+       score = -score / 4;
+
     if (T)
         Trace::add(KING, Us, score);
 
@@ -620,6 +628,9 @@ namespace {
        & ~attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    if (exchanges)
+       score -= score / 4;
 
     if (T)
         Trace::add(THREAT, Us, score);
