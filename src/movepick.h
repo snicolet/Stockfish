@@ -56,14 +56,14 @@ struct StatCubes : public std::array<std::array<std::array<T, Size3>, Size2>, Si
     std::fill(p, p + sizeof(*this) / sizeof(*p), v);
   }
 
-  void update(T& entry, int bonus, const int D) {
+  void update(T& entry, int bonus, const int D, const int W) {
 
-    assert(abs(bonus) <= D); // Ensure range is [-32 * D, 32 * D]
-    assert(abs(32 * D) < INT16_MAX); // Ensure we don't overflow
+    assert(abs(bonus) <= D); // Ensure range is [-W * D, W * D]
+    assert(abs(W * D) < INT16_MAX); // Ensure we don't overflow
 
-    entry += bonus * 32 - entry * abs(bonus) / D;
+    entry += bonus * W - entry * abs(bonus) / D;
 
-    assert(abs(entry) <= 32 * D);
+    assert(abs(entry) <= W * D);
   }
 };
 
@@ -99,7 +99,7 @@ struct PieceToHistory : public PieceToBoards {
 struct CapturePieceToHistory : public CapturePieceToBoards {
 
   void update(Piece pc, Square to, PieceType captured, int bonus) {
-    StatCubes::update((*this)[pc][to][captured], bonus, 324);
+    StatCubes::update((*this)[pc][to][captured], bonus, 324, 1);
   }
 };
 
