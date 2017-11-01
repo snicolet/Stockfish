@@ -527,6 +527,9 @@ namespace {
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
 
+    if (exchanges && (Us == pos.side_to_move()))
+        score -= score / 4;
+
     if (T)
         Trace::add(KING, Us, score);
 
@@ -625,6 +628,9 @@ namespace {
        & ~attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    if (exchanges && (Us != pos.side_to_move()))
+        score -= score / 4;
 
     if (T)
         Trace::add(THREAT, Us, score);
@@ -866,9 +872,8 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
-    if (!exchanges)
-        score +=  evaluate_king<WHITE>()
-                - evaluate_king<BLACK>();
+    score +=  evaluate_king<WHITE>()
+            - evaluate_king<BLACK>();
 
     score +=  evaluate_threats<WHITE>()
             - evaluate_threats<BLACK>();
