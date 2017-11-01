@@ -638,7 +638,7 @@ namespace {
 
     if ((pos.side_to_move() != Us)
         && (transientThreats[Us] != 0))
-        score -= make_score(10, 10);
+        score -= score / 2;
     
     if (false && transientThreats[Us])
     {
@@ -880,10 +880,14 @@ namespace {
     initialize<WHITE>();
     initialize<BLACK>();
 
-    score += evaluate_pieces<WHITE, KNIGHT>() - evaluate_pieces<BLACK, KNIGHT>();
-    score += evaluate_pieces<WHITE, BISHOP>() - evaluate_pieces<BLACK, BISHOP>();
-    score += evaluate_pieces<WHITE, ROOK  >() - evaluate_pieces<BLACK, ROOK  >();
-    score += evaluate_pieces<WHITE, QUEEN >() - evaluate_pieces<BLACK, QUEEN >();
+    score += evaluate_pieces<WHITE, KNIGHT>();
+    score -= evaluate_pieces<BLACK, KNIGHT>();
+    score += evaluate_pieces<WHITE, BISHOP>();
+    score -= evaluate_pieces<BLACK, BISHOP>();
+    score += evaluate_pieces<WHITE, ROOK  >();
+    score -= evaluate_pieces<BLACK, ROOK  >();
+    score += evaluate_pieces<WHITE, QUEEN >();
+    score -= evaluate_pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
 
