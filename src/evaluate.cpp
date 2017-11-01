@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -124,7 +125,7 @@ namespace {
     // are in turn attacked by opponent pieces of less or equal value. For instance,
     // if there is a white knight in f3 and a black bishop in g5, then the squares
     // attacked by the bishop g5 will be included in transientThreats[BLACK].
-    Bitboard transientThreats[COLOR_NB];
+    Bitboard transientThreats[COLOR_NB] = {0, 0};
 
     // kingRing[color] is the zone around the king which is considered
     // by the king safety evaluation. This consists of the squares directly
@@ -324,8 +325,10 @@ namespace {
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][ALL_PIECES] |= attackedBy[Us][Pt] |= b;
 
-        if (   (attackedBy[Them][ALL_PIECES] & s)
-            || (b & pos.pieces(Them, Pt)))
+        if (attackedBy[Them][ALL_PIECES] & s)
+            transientThreats[Us] |= b;
+        
+        if (pos.pieces(Them, Pt) & b)
             transientThreats[Us] |= b;
 
         if (b & kingRing[Them])
@@ -633,8 +636,16 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
 
-    if (transientThreats[Us] && (Us != pos.side_to_move()))
-        score -= score / 2;
+    if ((pos.side_to_move() != Us)
+        && transientThreats[Us])
+        score -= make_score(mg_value(score) / 2, eg_value(score) / 2);
+    
+    if (false && transientThreats[Us])
+    {
+       std::cerr << pos << std::endl;
+       std::cerr << Bitboards::pretty(transientThreats[Us]) << std::endl;
+       std::cerr << "==================================\n";
+    }
 
     if (T)
         Trace::add(THREAT, Us, score);
