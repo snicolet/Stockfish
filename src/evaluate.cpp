@@ -119,6 +119,13 @@ namespace {
     // pawn or squares attacked by 2 pawns are not explicitly added.
     Bitboard attackedBy2[COLOR_NB];
 
+    // transientThreats[color] are the squares attacked by the pieces of the given
+    // color which are likely to be exchanged in the next move, because these pieces
+    // are in turn attacked by opponent pieces of less or equal value. For instance,
+    // if there is a white knight in f3 and a black bishop in g5, then the squares
+    // attacked by the bishop g5 will be included in transientThreats[BLACK].
+    Bitboard transientThreats[COLOR_NB];
+
     // kingRing[color] is the zone around the king which is considered
     // by the king safety evaluation. This consists of the squares directly
     // adjacent to the king, and (only for a king on its first rank) the
@@ -270,6 +277,7 @@ namespace {
 
     attackedBy2[Us]            = b & attackedBy[Us][PAWN];
     attackedBy[Us][ALL_PIECES] = b | attackedBy[Us][PAWN];
+    transientThreats[Us]       = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -315,6 +323,10 @@ namespace {
 
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][ALL_PIECES] |= attackedBy[Us][Pt] |= b;
+
+        if (   (attackedBy[Them][ALL_PIECES] & s)
+            || (b & pos.pieces(Them, Pt)))
+            transientThreats[Us] |= b;
 
         if (b & kingRing[Them])
         {
@@ -620,6 +632,9 @@ namespace {
        & ~attackedBy[Us][PAWN];
 
     score += ThreatByPawnPush * popcount(b);
+
+    if (transientThreats[Us] && (Us != pos.side_to_move()))
+        score -= score / 2;
 
     if (T)
         Trace::add(THREAT, Us, score);
