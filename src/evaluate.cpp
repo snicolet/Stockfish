@@ -767,17 +767,16 @@ namespace {
 
     int asymmetry   = pe->pawn_asymmetry();
     int pawns       = pos.count<PAWN>();
+    int pieces      = pos.count<ALL_PIECES>();
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-    int advanced    = popcount((pos.pieces(WHITE, PAWN) & BlackCamp)
-                             | (pos.pieces(BLACK, PAWN) & WhiteCamp));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
-    bool queens     = !!pos.count<QUEEN>();
     bool StockfishIsAttacking = mg * Optimism[ALL_PIECES][WHITE] > 0;
 
     // Compute the initiative bonus
 
-    initiative_mg = StockfishIsAttacking ? 2 * queens * advanced : 0;
+    initiative_mg = StockfishIsAttacking ? pieces : 0;
+
     initiative_eg =   8 * (asymmetry + outflanking - 17)
                    + 12 * pawns
                    + 16 * bothFlanks;
