@@ -775,7 +775,7 @@ namespace {
 
     // Compute the initiative bonus
 
-    initiative_mg = StockfishIsAttacking ? pieces : -pieces;
+    initiative_mg = initiative_mg = StockfishIsAttacking ? pieces + 20 : 0;
 
     initiative_eg =   8 * (asymmetry + outflanking - 17)
                    + 12 * pawns
