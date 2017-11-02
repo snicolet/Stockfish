@@ -123,8 +123,8 @@ namespace {
     // transientThreats[color] are the squares attacked by the pieces of the given
     // color which are likely to be exchanged in the next move, because these pieces
     // are in turn attacked by opponent pieces of less or equal value. For instance,
-    // if there is a white knight in f3 and a black bishop in g5, then the squares
-    // attacked by the bishop g5 will be included in transientThreats[BLACK].
+    // if there is a white knight on f3 and a black bishop on g5, then the squares
+    // attacked by the bishop on g5 will be included in transientThreats[BLACK].
     Bitboard transientThreats[COLOR_NB] = {0, 0};
 
     // kingRing[color] is the zone around the king which is considered
@@ -326,7 +326,7 @@ namespace {
         attackedBy[Us][ALL_PIECES] |= attackedBy[Us][Pt] |= b;
 
         if (   (attackedBy[Them][ALL_PIECES] & s)
-            || (pos.pieces(Them, Pt) & b))
+            || (pos.pieces(Them, Pt) & attacks_bb(Pt, s, pos.pieces() ^ pos.pieces(QUEEN))))
             transientThreats[Us] |= b;
 
         if (b & kingRing[Them])
@@ -611,7 +611,7 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES]);
+        score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES] & ~transientThreats[Us]);
 
         b = weak & attackedBy[Us][KING];
         if (b)
@@ -637,10 +637,8 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
 
-
-    //if (transientThreats[Us] && (pos.side_to_move() != Us))
-    if (!transientThreats[Us])
-        score += score / 4;
+    if (transientThreats[Us])
+        score -= score / 3;
 
     /*
     if (false && transientThreats[Us])
@@ -884,14 +882,10 @@ namespace {
     initialize<WHITE>();
     initialize<BLACK>();
 
-    score += evaluate_pieces<WHITE, KNIGHT>();
-    score -= evaluate_pieces<BLACK, KNIGHT>();
-    score += evaluate_pieces<WHITE, BISHOP>();
-    score -= evaluate_pieces<BLACK, BISHOP>();
-    score += evaluate_pieces<WHITE, ROOK  >();
-    score -= evaluate_pieces<BLACK, ROOK  >();
-    score += evaluate_pieces<WHITE, QUEEN >();
-    score -= evaluate_pieces<BLACK, QUEEN >();
+    score += evaluate_pieces<WHITE, KNIGHT>() - evaluate_pieces<BLACK, KNIGHT>();
+    score += evaluate_pieces<WHITE, BISHOP>() - evaluate_pieces<BLACK, BISHOP>();
+    score += evaluate_pieces<WHITE, ROOK  >() - evaluate_pieces<BLACK, ROOK  >();
+    score += evaluate_pieces<WHITE, QUEEN >() - evaluate_pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
     
