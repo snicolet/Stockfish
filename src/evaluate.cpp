@@ -768,15 +768,17 @@ namespace {
     int asymmetry   = pe->pawn_asymmetry();
     int pawns       = pos.count<PAWN>();
     int pieces      = pos.count<ALL_PIECES>();
-    int mobDiff     = abs(eg_value(mobility[WHITE] - mobility[BLACK])) / 16;
+    int flexibility = popcount(pos.pieces(PAWN) & (Rank2BB | Rank3BB | Rank6BB | Rank7BB));
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
     bool StockfishIsAttacking = mg * Optimism[ALL_PIECES][WHITE] > 0;
 
+    // if (pos.pieces(QUEEN)) dbg_mean_of(flexibility);
+
     // Compute the initiative bonus
 
-    initiative_mg = initiative_mg = StockfishIsAttacking ? pieces + 5 - mobDiff : 0;
+    initiative_mg = initiative_mg = StockfishIsAttacking ? pieces + flexibility - 5 : 0;
 
     initiative_eg =   8 * (asymmetry + outflanking - 17)
                    + 12 * pawns
