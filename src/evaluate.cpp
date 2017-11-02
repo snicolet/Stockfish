@@ -23,7 +23,6 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -640,15 +639,6 @@ namespace {
     if (transientThreats[Us])
         score -= score / 3;
 
-    /*
-    if (false && transientThreats[Us])
-    {
-       std::cerr << pos << std::endl;
-       std::cerr << Bitboards::pretty(transientThreats[Us]) << std::endl;
-       std::cerr << "==================================\n";
-    }
-    */
-
     if (T)
         Trace::add(THREAT, Us, score);
 
@@ -888,10 +878,10 @@ namespace {
     score += evaluate_pieces<WHITE, QUEEN >() - evaluate_pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
-    
+
     attackedBy2[WHITE] |= attackedBy[WHITE][ALL_PIECES] & attackedBy[WHITE][KING];
     attackedBy2[BLACK] |= attackedBy[BLACK][ALL_PIECES] & attackedBy[BLACK][KING];
-    
+
     attackedBy[WHITE][ALL_PIECES] |= attackedBy[WHITE][KING];
     attackedBy[BLACK][ALL_PIECES] |= attackedBy[BLACK][KING];
 
