@@ -766,10 +766,9 @@ namespace {
     Value eg = eg_value(s);
 
     int asymmetry   = pe->pawn_asymmetry();
-    int openFiles   = pe->open_files();
     int pawns       = pos.count<PAWN>();
     int pieces      = pos.count<ALL_PIECES>();
-    int mobDiff     = abs(eg_value(mobility[WHITE] - mobility[BLACK])) / 8;
+    int mobDiff     = abs(eg_value(mobility[WHITE] - mobility[BLACK])) / 16;
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
