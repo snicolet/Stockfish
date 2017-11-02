@@ -144,6 +144,7 @@ namespace {
   template <NodeType NT, bool InCheck>
   Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth = DEPTH_ZERO);
 
+  Value evaluate_draw(const Position& pos);
   Value value_to_tt(Value v, int ply);
   Value value_from_tt(Value v, int ply);
   void update_pv(Move* pv, Move move, Move* childPv);
@@ -573,7 +574,7 @@ namespace {
         // Step 2. Check for aborted search and immediate draw
         if (Threads.stop.load(std::memory_order_relaxed) || pos.is_draw(ss->ply) || ss->ply >= MAX_PLY)
             return ss->ply >= MAX_PLY && !inCheck ? evaluate(pos)
-                                                  : DrawValue[pos.side_to_move()];
+                                                  : evaluate_draw(pos);
 
         // Step 3. Mate distance pruning. Even if we mate at the next move our score
         // would be at best mate_in(ss->ply+1), but if alpha is already bigger because
@@ -1114,7 +1115,7 @@ moves_loop: // When in check search starts from here
 
     if (!moveCount)
         bestValue = excludedMove ? alpha
-                   :     inCheck ? mated_in(ss->ply) : DrawValue[pos.side_to_move()];
+                   :     inCheck ? mated_in(ss->ply) : evaluate_draw(pos);
     else if (bestMove)
     {
         // Quiet best move: update move sorting heuristics
@@ -1181,7 +1182,7 @@ moves_loop: // When in check search starts from here
     // Check for an instant draw or if the maximum ply has been reached
     if (pos.is_draw(ss->ply) || ss->ply >= MAX_PLY)
         return ss->ply >= MAX_PLY && !InCheck ? evaluate(pos)
-                                              : DrawValue[pos.side_to_move()];
+                                              : evaluate_draw(pos);
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -1356,6 +1357,10 @@ moves_loop: // When in check search starts from here
     return bestValue;
   }
 
+
+  Value evaluate_draw(const Position& pos) {
+      return DrawValue[pos.side_to_move()] + pos.rule50_count();
+  }
 
   // value_to_tt() adjusts a mate score from "plies to mate from the root" to
   // "plies to mate from the current position". Non-mate scores are unchanged.
