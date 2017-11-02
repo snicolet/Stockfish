@@ -121,9 +121,9 @@ namespace {
 
     // transientThreats[color] are the squares attacked by the pieces of the given
     // color which are likely to be exchanged in the next move, because these pieces
-    // are in turn attacked by opponent pieces of less or equal value. For instance,
-    // if there is a white knight on f3 and a black bishop on g5, then the squares
-    // attacked by the bishop on g5 will be included in transientThreats[BLACK].
+    // are in turn attacked by opponent pieces of equal value. For instance,
+    // if there is a white queen on f3 and a black queen on d5, then the squares
+    // attacked by the queen on d5 will be included in transientThreats[BLACK].
     Bitboard transientThreats[COLOR_NB] = {0, 0};
 
     // kingRing[color] is the zone around the king which is considered
@@ -276,7 +276,7 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
 
     attackedBy2[Us]            = b & attackedBy[Us][PAWN];
-    attackedBy[Us][ALL_PIECES] = attackedBy[Us][PAWN];
+    attackedBy[Us][ALL_PIECES] = b | attackedBy[Us][PAWN];
     transientThreats[Us]       = 0;
 
     // Init our king safety tables only if we are going to use them
@@ -324,8 +324,7 @@ namespace {
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][ALL_PIECES] |= attackedBy[Us][Pt] |= b;
 
-        if (   (attackedBy[Them][ALL_PIECES] & s)
-            || (pos.pieces(Them, Pt) & attacks_bb(Pt, s, pos.pieces() ^ pos.pieces(QUEEN))))
+        if (pos.pieces(Them, Pt) & attacks_bb(Pt, s, pos.pieces() ^ pos.pieces(QUEEN)))
             transientThreats[Us] |= b;
 
         if (b & kingRing[Them])
@@ -610,7 +609,8 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES] & ~transientThreats[Us]);
+        b = weak & ~attackedBy[Them][ALL_PIECES];
+        score += Hanging * popcount(b);
 
         b = weak & attackedBy[Us][KING];
         if (b)
@@ -637,7 +637,7 @@ namespace {
     score += ThreatByPawnPush * popcount(b);
 
     if (transientThreats[Us])
-        score -= score / 3;
+        score = score / 2;
 
     if (T)
         Trace::add(THREAT, Us, score);
@@ -878,12 +878,6 @@ namespace {
     score += evaluate_pieces<WHITE, QUEEN >() - evaluate_pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
-
-    attackedBy2[WHITE] |= attackedBy[WHITE][ALL_PIECES] & attackedBy[WHITE][KING];
-    attackedBy2[BLACK] |= attackedBy[BLACK][ALL_PIECES] & attackedBy[BLACK][KING];
-
-    attackedBy[WHITE][ALL_PIECES] |= attackedBy[WHITE][KING];
-    attackedBy[BLACK][ALL_PIECES] |= attackedBy[BLACK][KING];
 
     score +=  evaluate_king<WHITE>()
             - evaluate_king<BLACK>();
