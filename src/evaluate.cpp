@@ -35,6 +35,8 @@ namespace {
   const Bitboard QueenSide   = FileABB | FileBBB | FileCBB | FileDBB;
   const Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
   const Bitboard KingSide    = FileEBB | FileFBB | FileGBB | FileHBB;
+  const Bitboard WhiteCamp   = Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB;
+  const Bitboard BlackCamp   = Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB;
 
   const Bitboard KingFlank[FILE_NB] = {
     QueenSide, QueenSide, QueenSide, CenterFiles, CenterFiles, KingSide, KingSide, KingSide
@@ -413,8 +415,7 @@ namespace {
 
     const Color Them    = (Us == WHITE ? BLACK : WHITE);
     const Square Up     = (Us == WHITE ? NORTH : SOUTH);
-    const Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
-                                       : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    const Bitboard Camp = (Us == WHITE ? WhiteCamp : BlackCamp);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingOnlyDefended, undefended, b, b1, b2, safe, other;
@@ -759,29 +760,31 @@ namespace {
   template<Tracing T>
   Score Evaluation<T>::evaluate_initiative(Score s) {
 
+    int initiative_mg, initiative_eg;
+
     Value mg = mg_value(s);
     Value eg = eg_value(s);
 
-    int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    int asymmetry   = pe->pawn_asymmetry();
+    int pawns       = pos.count<PAWN>();
+    int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
+                     - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    int advanced    = popcount((pos.pieces(WHITE, PAWN) & BlackCamp)
+                             | (pos.pieces(BLACK, PAWN) & WhiteCamp));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
-    int pieces = pos.count<ALL_PIECES>();
+    bool queens     = !!pos.count<QUEEN>();
+    bool StockfishIsAttacking = mg * Optimism[ALL_PIECES][WHITE] > 0;
 
-    // Compute the initiative bonus for the attacking side
-    int initiative_mg = !!pos.count<QUEEN>() * pieces - 13;
+    // Compute the initiative bonus
 
-    int initiative_eg =   8 * (pe->pawn_asymmetry() + kingDistance - 17) 
-                       + 12 * pos.count<PAWN>() 
-                       + 16 * bothFlanks;
-
-    // In midgame Stockfish will always try to keep more pieces, so we swap the
-    // the sign of the initiative_mg term if SF is losing.
-    if (mg * Optimism[ALL_PIECES][WHITE] <= 0) 
-        initiative_mg = 0;
+    initiative_mg = StockfishIsAttacking ? 2 * queens * advanced : 0;
+    initiative_eg =   8 * (asymmetry + outflanking - 17)
+                   + 12 * pawns
+                   + 16 * bothFlanks;
 
     // Now apply the bonus: note that we find the attacking side by extracting
-    // the sign of the midgame/endgame value, and that we carefully cap the bonus
-    // so that the endgame score will never change sign after the bonus.
+    // the sign of the midgame/endgame values, and that we carefully cap the bonus
+    // so that the values will never change sign after the bonus.
     int u = ((mg > 0) - (mg < 0)) * std::max(initiative_mg, -abs(mg));
     int v = ((eg > 0) - (eg < 0)) * std::max(initiative_eg, -abs(eg));
 
