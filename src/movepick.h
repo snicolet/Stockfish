@@ -22,6 +22,7 @@
 #define MOVEPICK_H_INCLUDED
 
 #include <array>
+#include <limits>
 
 #include "movegen.h"
 #include "position.h"
@@ -39,7 +40,7 @@ struct StatBoards : public std::array<std::array<T, Size2>, Size1> {
   void update(T& entry, int bonus, const int D) {
 
     assert(abs(bonus) <= D); // Ensure range is [-32 * D, 32 * D]
-    assert(abs(32 * D) < INT16_MAX); // Ensure we don't overflow
+    assert(abs(32 * D) < std::numeric_limits<T>().max()); // Ensure we don't overflow
 
     entry += bonus * 32 - entry * abs(bonus) / D;
 
@@ -59,7 +60,7 @@ struct StatCubes : public std::array<std::array<std::array<T, Size3>, Size2>, Si
   void update(T& entry, int bonus, const int D, const int W) {
 
     assert(abs(bonus) <= D); // Ensure range is [-W * D, W * D]
-    assert(abs(W * D) < INT16_MAX); // Ensure we don't overflow
+    assert(abs(W * D) < std::numeric_limits<T>().max()); // Ensure we don't overflow
 
     entry += bonus * W - entry * abs(bonus) / D;
 
