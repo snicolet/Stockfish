@@ -778,7 +778,7 @@ namespace {
 
     // Compute the initiative bonus
 
-    initiative_mg = flexibility;
+    initiative_mg = 2 * flexibility;
 
     initiative_eg =   8 * (asymmetry + outflanking - 17)
                    + 12 * pawns
