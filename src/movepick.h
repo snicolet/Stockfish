@@ -102,6 +102,10 @@ struct CapturePieceToHistory : public CapturePieceToBoards {
   void update(Piece pc, Square to, PieceType captured, int bonus) {
     StatCubes::update((*this)[pc][to][captured], bonus, 324, 2);
   }
+
+  inline int value(const Position& pos, Move move) const {
+    return (*this)[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))];
+  }
 };
 
 /// CounterMoveHistory stores counter moves indexed by [piece][to] of the previous

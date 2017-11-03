@@ -132,7 +132,7 @@ void MovePicker::score() {
   for (auto& m : *this)
       if (Type == CAPTURES)
           m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-                   + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
+                   + captureHistory->value(pos, m);
 
       else if (Type == QUIETS)
           m.value =  (*mainHistory)[pos.side_to_move()][from_to(m)]
@@ -179,7 +179,8 @@ Move MovePicker::next_move(bool skipQuiets) {
           move = pick_best(cur++, endMoves);
           if (move != ttMove)
           {
-              if (pos.see_ge(move))
+              if (   captureHistory->value(pos, move) > 600
+                  || pos.see_ge(move))
                   return move;
 
               // Losing capture, move it to the beginning of the array
