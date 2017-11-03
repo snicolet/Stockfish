@@ -35,6 +35,8 @@ namespace {
   const Bitboard QueenSide   = FileABB | FileBBB | FileCBB | FileDBB;
   const Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
   const Bitboard KingSide    = FileEBB | FileFBB | FileGBB | FileHBB;
+  const Bitboard WhiteCamp   = Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB;
+  const Bitboard BlackCamp   = Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB;
 
   const Bitboard KingFlank[FILE_NB] = {
     QueenSide, QueenSide, QueenSide, CenterFiles, CenterFiles, KingSide, KingSide, KingSide
@@ -101,7 +103,7 @@ namespace {
     template<Color Us> Score evaluate_space();
     template<Color Us, PieceType Pt> Score evaluate_pieces();
     ScaleFactor evaluate_scale_factor(Value eg);
-    Score evaluate_initiative(Value eg);
+    Score evaluate_initiative(Score s);
 
     // Data members
     const Position& pos;
@@ -417,8 +419,7 @@ namespace {
 
     const Color Them    = (Us == WHITE ? BLACK : WHITE);
     const Square Up     = (Us == WHITE ? NORTH : SOUTH);
-    const Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
-                                       : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    const Bitboard Camp = (Us == WHITE ? WhiteCamp : BlackCamp);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingOnlyDefended, undefended, b, b1, b2, safe, other;
@@ -761,24 +762,40 @@ namespace {
   // status of the players.
 
   template<Tracing T>
-  Score Evaluation<T>::evaluate_initiative(Value eg) {
+  Score Evaluation<T>::evaluate_initiative(Score s) {
 
-    int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    int initiative_mg, initiative_eg;
+
+    Value mg = mg_value(s);
+    Value eg = eg_value(s);
+
+    int asymmetry   = pe->pawn_asymmetry();
+    int pawns       = pos.count<PAWN>();
+    int flexibility = popcount(pos.pieces(PAWN) & (Rank2BB | Rank3BB | Rank6BB | Rank7BB));
+    int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
+                     - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
 
-    // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (pe->pawn_asymmetry() + kingDistance - 17) + 12 * pos.count<PAWN>() + 16 * bothFlanks;
+    // Compute the initiative bonus
+
+    initiative_mg = flexibility;
+
+    initiative_eg =   8 * (asymmetry + outflanking - 17)
+                   + 12 * pawns
+                   + 16 * bothFlanks;
 
     // Now apply the bonus: note that we find the attacking side by extracting
-    // the sign of the endgame value, and that we carefully cap the bonus so
-    // that the endgame score will never change sign after the bonus.
-    int v = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg));
+    // the sign of the midgame/endgame values, and that we carefully cap the bonus
+    // so that the values will never change sign after the bonus.
+    int u = ((mg > 0) - (mg < 0)) * std::max(initiative_mg, -abs(mg));
+    int v = ((eg > 0) - (eg < 0)) * std::max(initiative_eg, -abs(eg));
+
+    Score score = make_score(u, v);
 
     if (T)
-        Trace::add(INITIATIVE, make_score(0, v));
+        Trace::add(INITIATIVE, score);
 
-    return make_score(0, v);
+    return score;
   }
 
 
@@ -874,7 +891,7 @@ namespace {
         score +=  evaluate_space<WHITE>()
                 - evaluate_space<BLACK>();
 
-    score += evaluate_initiative(eg_value(score));
+    score += evaluate_initiative(score);
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = evaluate_scale_factor(eg_value(score));
