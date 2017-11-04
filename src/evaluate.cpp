@@ -220,6 +220,7 @@ namespace {
   const Score OtherCheck          = S( 10, 10);
   const Score CloseEnemies        = S(  7,  0);
   const Score PawnlessFlank       = S( 20, 80);
+  const Score Pressure            = S(  1,  0);
   const Score ThreatByHangingPawn = S( 71, 61);
   const Score ThreatBySafePawn    = S(192,175);
   const Score ThreatByRank        = S( 16,  3);
@@ -543,6 +544,10 @@ namespace {
 
     Bitboard b, weak, defended, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
+
+    // Small bonus for general pressure
+    weak = pos.pieces(Them) & attackedBy[Us][ALL_PIECES];
+    score += Pressure * popcount(weak);
 
     // Non-pawn enemies attacked by a pawn
     weak = (pos.pieces(Them) ^ pos.pieces(Them, PAWN)) & attackedBy[Us][PAWN];
