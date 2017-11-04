@@ -351,10 +351,12 @@ namespace {
             if (Pt == BISHOP)
             {
                 // Penalty for pawns on the same color square as the bishop
-                
+
                 //dbg_mean_of(mob);
 
-                score -= BishopPawns * (5 - mob + pe->pawns_on_same_color_squares(Us, s));
+                int lowMobility = (20 - eg_value(MobilityBonus[Pt - 2][mob])) / 16;
+
+                score -= BishopPawns * (lowMobility + pe->pawns_on_same_color_squares(Us, s));
 
 
 
