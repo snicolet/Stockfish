@@ -762,7 +762,7 @@ namespace {
 
     int initiative_mg, initiative_eg;
 
-    Value mg = mg_value(s);
+    Value mg = mg_value(s) + 20 * Optimism[ALL_PIECES][WHITE];
     Value eg = eg_value(s);
 
     int asymmetry   = pe->pawn_asymmetry();
@@ -775,7 +775,7 @@ namespace {
 
     // Compute the initiative bonus
 
-    initiative_mg = StockfishIsAttacking ? pieces - asymmetry : pawns - asymmetry;
+    initiative_mg = StockfishIsAttacking ? pieces : -asymmetry;
 
     initiative_eg =   8 * (asymmetry + outflanking - 17)
                    + 12 * pawns
