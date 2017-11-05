@@ -351,14 +351,11 @@ namespace {
             if (Pt == BISHOP)
             {
                 // Penalty for pawns on the same color square as the bishop
+                score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
 
-                //dbg_mean_of(mob);
-
-                int lowMobility = (20 - eg_value(MobilityBonus[Pt - 2][mob])) / 16;
-
-                score -= BishopPawns * (lowMobility + pe->pawns_on_same_color_squares(Us, s));
-
-
+                // Bad bishop against good knights
+                if (mob <= 1 && pos.pieces(Them, KNIGHT))
+                    mobility[Us] += MobilityBonus[Pt - 2][mob];
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(Center & (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) | s)))
