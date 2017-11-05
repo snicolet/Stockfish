@@ -355,7 +355,7 @@ namespace {
 
                 // Bad bishop against good knights
                 if (mob <= 1 && pos.pieces(Them, KNIGHT))
-                    mobility[Us] += MobilityBonus[Pt - 2][mob];
+                    mobility[Us] += MobilityBonus[Pt - 2][mob] / 2;
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(Center & (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) | s)))
