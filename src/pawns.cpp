@@ -40,6 +40,9 @@ namespace {
   // Connected pawn bonus by opposed, phalanx, #support and rank
   Score Connected[2][2][3][RANK_NB];
 
+  // Supported pawn bonus
+  const Score Supported = S(10, 20);
+
   // Doubled pawn penalty
   const Score Doubled = S(18, 38);
 
@@ -213,6 +216,9 @@ void init() {
       v += (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
 
       Connected[opposed][phalanx][support][r] = make_score(v, v * (r - 2) / 4);
+
+      if (support)
+          Connected[opposed][phalanx][support][r] += Supported;
   }
 }
 
