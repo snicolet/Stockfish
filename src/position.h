@@ -123,6 +123,7 @@ public:
   bool capture(Move m) const;
   bool capture_or_promotion(Move m) const;
   bool gives_check(Move m) const;
+  bool discovered_check(Move m) const;
   bool advanced_pawn_push(Move m) const;
   Piece moved_piece(Move m) const;
   Piece captured_piece() const;
@@ -372,6 +373,11 @@ inline bool Position::capture(Move m) const {
 
 inline Piece Position::captured_piece() const {
   return st->capturedPiece;
+}
+
+inline bool Position::discovered_check(Move m) const {
+  return   (discovered_check_candidates() & from_sq(m))
+        && !aligned(from_sq(m), to_sq(m), square<KING>(~sideToMove));
 }
 
 inline Thread* Position::this_thread() const {
