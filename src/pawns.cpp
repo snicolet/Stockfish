@@ -185,6 +185,11 @@ namespace {
         if (doubled && !supported)
             score -= Doubled;
 
+        if (   doubled
+            && supported
+            && relative_rank(Us, s) >= RANK_4)
+            score += Doubled;
+
         if (lever)
             score += Lever[relative_rank(Us, s)];
     }
