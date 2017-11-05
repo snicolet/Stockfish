@@ -997,6 +997,10 @@ bool Position::see_ge(Move m, Value threshold) const {
   if (type_of(m) != NORMAL)
       return VALUE_ZERO >= threshold;
 
+  // Bishop takes knight should pass a neutral SEE
+  if (threshold == VALUE_ZERO)
+      threshold = Value(-100);
+
   Square from = from_sq(m), to = to_sq(m);
   PieceType nextVictim = type_of(piece_on(from));
   Color stm = ~color_of(piece_on(from)); // First consider opponent's move
