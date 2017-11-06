@@ -66,10 +66,8 @@ namespace {
   const int skipSize[]  = { 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4 };
   const int skipPhase[] = { 0, 1, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 6, 7 };
 
-  // Razoring and futility margin based on depth
-  // razor_margin[0] is unused as long as depth >= ONE_PLY in search
+  // Razoring margin based on depth, razor_margin[0] is unused as long as depth >= ONE_PLY in search
   const int razor_margin[] = { 0, 570, 603, 554 };
-  Value futility_margin(Depth d) { return Value(150 * d / ONE_PLY); }
 
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
@@ -114,24 +112,17 @@ namespace {
 
 
   enum CutType { ALPHA, BETA };
+
   template <CutType T> 
-  int pruning_safety(const Position& pos, Depth depth) {
+  Value futility_margin(const Position& pos, int depth) {
 
-      //return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+     int margin = (T == ALPHA ? 200 * depth + 256 
+                              : 150 * depth);
 
-      // Change pruning only far from the leaves
-      if (depth >= 5 * ONE_PLY)
-          return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
-      else
-          return 0;
+     if (depth >= 5)
+         margin += PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
 
-
-      // Change pruning only far from the root of the search
-      // if (ply >= 8)
-      //   return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
-      // else
-      //   return 0;
-
+     return Value(margin); 
   }
 
   // Skill structure is used to implement strength limit
@@ -727,7 +718,7 @@ namespace {
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !rootNode
         &&  depth < 8 * ONE_PLY
-        &&  eval - futility_margin(depth) - pruning_safety<BETA>(pos, depth) >= beta
+        &&  eval - futility_margin<BETA>(pos, depth / ONE_PLY) >= beta
         &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
         &&  pos.non_pawn_material(pos.side_to_move()))
         return eval;
@@ -923,10 +914,9 @@ moves_loop: // When in check search starts from here
                   continue;
 
               // Futility pruning: parent node
-              int margin = 256 + 200 * lmrDepth + pruning_safety<ALPHA>(pos, lmrDepth * ONE_PLY);
               if (   lmrDepth < 8
                   && !inCheck
-                  && ss->staticEval + margin <= alpha)
+                  && ss->staticEval + futility_margin<ALPHA>(pos, lmrDepth) <= alpha)
                   continue;
 
               // Prune moves with negative SEE
