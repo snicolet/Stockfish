@@ -726,7 +726,7 @@ namespace {
 
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !rootNode
-        &&  depth < 7 * ONE_PLY
+        &&  depth < 8 * ONE_PLY
         &&  eval - futility_margin(depth) - pruning_safety<BETA>(pos, depth) >= beta
         &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
         &&  pos.non_pawn_material(pos.side_to_move()))
@@ -923,9 +923,10 @@ moves_loop: // When in check search starts from here
                   continue;
 
               // Futility pruning: parent node
-              if (   lmrDepth < 7
+              int margin = 256 + 200 * lmrDepth + pruning_safety<ALPHA>(pos, lmrDepth * ONE_PLY);
+              if (   lmrDepth < 8
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth + pruning_safety<ALPHA>(pos, Depth(lmrDepth)) <= alpha)
+                  && ss->staticEval + margin <= alpha)
                   continue;
 
               // Prune moves with negative SEE
