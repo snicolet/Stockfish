@@ -95,25 +95,24 @@ namespace {
      {  50 , -25 }   //  rootColor : alpha, beta
    };
    */
-   
-   
+
+   /*
    // take 2, bench = 4927381
-  const int PruningSafety[2][2] = {
+   const int PruningSafety[2][2] = {
      {   0 , -50 },  // ~rootColor : alpha, beta
      {  75 ,   0 }   //  rootColor : alpha, beta
-  };
-  
-  /*
-  // take 3, bench = ???
-  const int PruningSafety[2][2] = {
-     {   0 , -50 },  // ~rootColor : alpha, beta
-     {  50 , -25 }   //  rootColor : alpha, beta
    };
    */
-   
-   
- 
- 
+
+
+   // take 3, bench = 4643251
+   const int PruningSafety[2][2] = {
+      {   0 , -50 },  // ~rootColor : alpha, beta
+      {  50 , -25 }   //  rootColor : alpha, beta
+    };
+
+
+
   enum CutType { ALPHA, BETA };
   template <CutType T> 
   int pruning_safety(const Position& pos, Depth depth) {
