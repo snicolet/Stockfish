@@ -83,9 +83,6 @@ namespace {
     return d > 17 ? 0 : d * d + 2 * d - 2;
   }
 
-
- // PruningSafety[rootColor][cut type] : pruning safety table
- 
    /*
    // take 1, bench = 4769184
    const int PruningSafety[2][2] = {
@@ -94,13 +91,13 @@ namespace {
    };
    */
 
-
+   /*
    // take 2, bench = 4927381
    const int PruningSafety[2][2] = {
      {   0 , -50 },  // ~rootColor : alpha, beta
      {  75 ,   0 }   //  rootColor : alpha, beta
    };
-
+   */
 
    /*
    // take 3, bench = 4643251
@@ -110,17 +107,23 @@ namespace {
     };
    */
 
+   // PruningSafety[rootColor][cut type] : pruning safety table
+   // take 4, bench = 4856961
+   const int PruningSafety[2][2] = {
+     {  0  , -8  },  // ~rootColor : alpha, beta
+     {  12 ,  0  }   //  rootColor : alpha, beta
+   };
+
 
   enum CutType { ALPHA, BETA };
 
   template <CutType T> 
   Value futility_margin(const Position& pos, int depth) {
 
-     int margin = (T == ALPHA ? 200 * depth + 256 
+     int margin = (T == ALPHA ? 200 * depth + 256
                               : 150 * depth);
 
-     if (depth >= 5)
-         margin += PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+     margin += depth * PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
 
      return Value(margin); 
   }
@@ -717,7 +720,7 @@ namespace {
 
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !rootNode
-        &&  depth < 8 * ONE_PLY
+        &&  depth < 7 * ONE_PLY
         &&  eval - futility_margin<BETA>(pos, depth / ONE_PLY) >= beta
         &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
         &&  pos.non_pawn_material(pos.side_to_move()))
@@ -914,7 +917,7 @@ moves_loop: // When in check search starts from here
                   continue;
 
               // Futility pruning: parent node
-              if (   lmrDepth < 8
+              if (   lmrDepth < 7
                   && !inCheck
                   && ss->staticEval + futility_margin<ALPHA>(pos, lmrDepth) <= alpha)
                   continue;
