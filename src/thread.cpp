@@ -58,6 +58,7 @@ void Thread::clear() {
 
   counterMoves.fill(MOVE_NONE);
   mainHistory.fill(0);
+  captureHistory.fill(0);
 
   for (auto& to : contHistory)
       for (auto& h : to)
@@ -111,7 +112,7 @@ void Thread::idle_loop() {
 
 
 /// ThreadPool::init() creates and launches the threads that will go
-/// immediately to sleep in idle_loop. We cannot use the c'tor because
+/// immediately to sleep in idle_loop. We cannot use the constructor because
 /// Threads is a static object and we need a fully initialized engine at
 /// this point due to allocation of Endgames in the Thread constructor.
 
