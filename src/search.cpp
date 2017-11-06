@@ -115,22 +115,22 @@ namespace {
 
   enum CutType { ALPHA, BETA };
   template <CutType T> 
-  int pruning_safety(const Position& pos, int ply) {
+  int pruning_safety(const Position& pos, Depth depth) {
 
       //return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
 
-      // Change pruning only near the leaves
-      // if (depth <= 10 * ONE_PLY)
-      //    return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
-      // else
-      //    return 0;
-
-
-      // Change pruning only near the root of the search
-      if (ply >= 8)
-         return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+      // Change pruning only far from the leaves
+      if (depth >= 5 * ONE_PLY)
+          return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
       else
-         return 0;
+          return 0;
+
+
+      // Change pruning only far from the root of the search
+      // if (ply >= 8)
+      //   return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+      // else
+      //   return 0;
 
   }
 
@@ -727,7 +727,7 @@ namespace {
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !rootNode
         &&  depth < 7 * ONE_PLY
-        &&  eval - futility_margin(depth) - pruning_safety<BETA>(pos, ss->ply) >= beta
+        &&  eval - futility_margin(depth) - pruning_safety<BETA>(pos, depth) >= beta
         &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
         &&  pos.non_pawn_material(pos.side_to_move()))
         return eval;
@@ -925,7 +925,7 @@ moves_loop: // When in check search starts from here
               // Futility pruning: parent node
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth + pruning_safety<ALPHA>(pos, ss->ply) <= alpha)
+                  && ss->staticEval + 256 + 200 * lmrDepth + pruning_safety<ALPHA>(pos, Depth(lmrDepth)) <= alpha)
                   continue;
 
               // Prune moves with negative SEE
