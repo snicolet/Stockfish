@@ -69,7 +69,7 @@ namespace {
   // Razoring and futility margin based on depth
   // razor_margin[0] is unused as long as depth >= ONE_PLY in search
   const int razor_margin[] = { 0, 570, 603, 554 };
-  Value futility_margin(Depth d) { return Value(145 * d / ONE_PLY - 75); }
+  Value futility_margin(Depth d) { return Value(155 * d / ONE_PLY - 75); }
 
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
@@ -918,7 +918,7 @@ moves_loop: // When in check search starts from here
               // Futility pruning: parent node
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 231 + 195 * lmrDepth + pruning_safety<ALPHA>(pos) <= alpha)
+                  && ss->staticEval + 231 + 205 * lmrDepth + pruning_safety<ALPHA>(pos) <= alpha)
                   continue;
 
               // Prune moves with negative SEE
