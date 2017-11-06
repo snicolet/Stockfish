@@ -96,40 +96,41 @@ namespace {
    };
    */
 
-   /*
+
    // take 2, bench = 4927381
    const int PruningSafety[2][2] = {
      {   0 , -50 },  // ~rootColor : alpha, beta
      {  75 ,   0 }   //  rootColor : alpha, beta
    };
-   */
 
 
+   /*
    // take 3, bench = 4643251
    const int PruningSafety[2][2] = {
       {   0 , -50 },  // ~rootColor : alpha, beta
       {  50 , -25 }   //  rootColor : alpha, beta
     };
-
+   */
 
 
   enum CutType { ALPHA, BETA };
   template <CutType T> 
   int pruning_safety(const Position& pos, Depth depth) {
 
-      return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+      //return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
 
-      // Change pruning only for big sub-trees?
-      //if (depth >= 13 * ONE_PLY)
-      //   return 0;
+      // Change pruning only near the leaves
+      if (depth <= 10 * ONE_PLY)
+         return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+      else
+         return 0;
+
+
+      // Change pruning only near the root of the search
+      //if (ply <= 10)
+      //   return return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
       //else
-      //   return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
-    
-      // Change pruning only near the root of the search?
-      //if (ply >= 13)
       //   return 0;
-      //else
-      //   return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
 
   }
 
