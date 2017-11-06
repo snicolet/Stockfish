@@ -127,7 +127,7 @@ namespace {
 
 
       // Change pruning only near the root of the search
-      if (ply <= 10)
+      if (ply >= 8)
          return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
       else
          return 0;
