@@ -85,15 +85,53 @@ namespace {
     return d > 17 ? 0 : d * d + 2 * d - 2;
   }
 
+
  // PruningSafety[rootColor][cut type] : pruning safety table
-  const int PruningSafety[2][2] = {
+ 
+   /*
+   // take 1, bench = 4769184
+   const int PruningSafety[2][2] = {
      { -25 , -75 },  // ~rootColor : alpha, beta
      {  50 , -25 }   //  rootColor : alpha, beta
+   };
+   */
+   
+   
+   // take 2, bench = 4927381
+  const int PruningSafety[2][2] = {
+     {   0 , -50 },  // ~rootColor : alpha, beta
+     {  75 ,   0 }   //  rootColor : alpha, beta
   };
+  
+  /*
+  // take 3, bench = ???
+  const int PruningSafety[2][2] = {
+     {   0 , -50 },  // ~rootColor : alpha, beta
+     {  50 , -25 }   //  rootColor : alpha, beta
+   };
+   */
+   
+   
+ 
+ 
   enum CutType { ALPHA, BETA };
   template <CutType T> 
-  int pruning_safety(const Position& pos) {
+  int pruning_safety(const Position& pos, Depth depth) {
+
       return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+
+      // Change pruning only for big sub-trees?
+      //if (depth >= 13 * ONE_PLY)
+      //   return 0;
+      //else
+      //   return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+    
+      // Change pruning only near the root of the search?
+      //if (ply >= 13)
+      //   return 0;
+      //else
+      //   return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+
   }
 
   // Skill structure is used to implement strength limit
@@ -689,7 +727,7 @@ namespace {
     // Step 7. Futility pruning: child node (skipped when in check)
     if (   !rootNode
         &&  depth < 7 * ONE_PLY
-        &&  eval - futility_margin(depth) - pruning_safety<BETA>(pos) >= beta
+        &&  eval - futility_margin(depth) - pruning_safety<BETA>(pos, depth) >= beta
         &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
         &&  pos.non_pawn_material(pos.side_to_move()))
         return eval;
@@ -887,7 +925,7 @@ moves_loop: // When in check search starts from here
               // Futility pruning: parent node
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth + pruning_safety<ALPHA>(pos) <= alpha)
+                  && ss->staticEval + 256 + 200 * lmrDepth + pruning_safety<ALPHA>(pos, depth) <= alpha)
                   continue;
 
               // Prune moves with negative SEE
