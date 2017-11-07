@@ -83,18 +83,18 @@ namespace {
     return d > 17 ? 0 : d * d + 2 * d - 2;
   }
 
-  // PruningSafety[rootColor][cut type] : pruning safety table for futility margins
+  // PruningSafety[cut type][rootColor] : depth multiplier for futility margins
    const int PruningSafety[2][2] = {
-     {  0  , -12 },  // ~rootColor : alpha, beta
-     {  18 ,  0  }   //  rootColor : alpha, beta
+     { 200 , 218 },  // alpha : ~rootColor, rootColor
+     { 138 , 150 }   // beta  : ~rootColor, rootColor
    };
 
   enum CutType { ALPHA, BETA };
-  template <CutType T> 
+  template <CutType T>
   Value futility_margin(const Position& pos, int depth) {
-     int margin = (T == ALPHA ? 200 * depth + 256
-                              : 150 * depth);
-     margin += depth * PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+  
+     bool rc = (pos.this_thread()->rootColor == pos.side_to_move());
+     int margin = depth * PruningSafety[T][rc];
 
      return Value(margin); 
   }
@@ -890,7 +890,7 @@ moves_loop: // When in check search starts from here
               // Futility pruning: parent node
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + futility_margin<ALPHA>(pos, lmrDepth) <= alpha)
+                  && ss->staticEval + 256 + futility_margin<ALPHA>(pos, lmrDepth) <= alpha)
                   continue;
 
               // Prune moves with negative SEE
