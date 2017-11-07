@@ -762,8 +762,8 @@ namespace {
 
     int initiative_mg, initiative_eg;
 
-    Value mg = mg_value(s) + 14 * Optimism[ALL_PIECES][WHITE];
-    Value eg = eg_value(s) + 14 * Optimism[ALL_PIECES][WHITE];
+    Value mg = mg_value(s) + 28 * Optimism[ALL_PIECES][WHITE];
+    Value eg = eg_value(s);
 
     int asymmetry   = pe->pawn_asymmetry();
     int pawns       = pos.count<PAWN>();
