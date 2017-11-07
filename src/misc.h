@@ -24,6 +24,7 @@
 #include <cassert>
 #include <chrono>
 #include <ostream>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -61,6 +62,20 @@ std::ostream& operator<<(std::ostream&, SyncCout);
 #define sync_cout std::cout << IO_LOCK
 #define sync_endl std::endl << IO_UNLOCK
 
+
+/// Debug macro to write to std::err if NDEBUG flag is set, and do nothing otherwise
+#ifndef NDEBUG
+#define debug 0 && std::cerr
+#else
+#define debug 0 && std::cerr
+#endif
+
+inline void hit_any_key() {
+   #ifndef NDEBUG
+       debug << "Hit any key to continue..." << std::endl << std::flush;
+       system("read");   // on Windows, should be system("pause");
+   #endif
+}
 
 /// xorshift64star Pseudo-Random Number Generator
 /// This class is based on original code written and dedicated

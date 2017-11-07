@@ -27,6 +27,7 @@
 
 #include "evaluate.h"
 #include "misc.h"
+#include "montecarlo.h"
 #include "movegen.h"
 #include "movepick.h"
 #include "position.h"
@@ -175,6 +176,8 @@ void Search::clear() {
 
   Time.availableNodes = 0;
   TT.clear();
+  // sync_cout << MCTS.size() << sync_endl;
+  MCTS.clear();
 
   for (Thread* th : Threads)
       th->clear();
@@ -314,6 +317,11 @@ void Thread::search() {
       multiPV = std::max(multiPV, (size_t)4);
 
   multiPV = std::min(multiPV, rootMoves.size());
+
+
+  if (USE_MONTE_CARLO)
+      MonteCarlo(rootPos).test();
+  else
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   (rootDepth += ONE_PLY) < DEPTH_MAX
@@ -788,6 +796,14 @@ moves_loop: // When in check search starts from here
     while ((move = mp.next_move(skipQuiets)) != MOVE_NONE)
     {
       assert(is_ok(move));
+
+      if (pos.should_debug())
+          debug << " depth = "         << depth
+                << " move = "          << UCI::move(move, pos.is_chess960())
+                << " ss->moveCount = " << ss->moveCount
+                << " moveCount = "     << moveCount
+                << " moveCountPruning = " << FutilityMoveCounts[improving][depth / ONE_PLY]
+                << std::endl;
 
       if (move == excludedMove)
           continue;
@@ -1473,6 +1489,43 @@ moves_loop: // When in check search starts from here
 
 } // namespace
 
+
+  // minimax_value() is a wrapper around the search() and qsearch() functions
+  // used to compute the minimax evaluation of a position at the given depth,
+  // from the point of view of the side to move. It does not compute PV nor
+  // emit anything on the output stream. Note: you can call this function
+  // with depth == DEPTH_ZERO to compute the quiescence value of the position.
+
+  Value minimax_value(Position& pos, Search::Stack* ss, Depth depth) {
+
+    Threads.stopOnPonderhit = Threads.stop = false;
+    Value alpha = -VALUE_INFINITE;
+    Value beta = VALUE_INFINITE;
+    Move pv[MAX_PLY+1];
+    ss->pv = pv;
+
+    if (pos.should_debug())
+    {
+        debug << "Entering minimax_value() for the following position:" << std::endl;
+        debug << pos << std::endl;
+        hit_any_key();
+    }
+
+    Value value = depth <   ONE_PLY ?
+                     pos.checkers() ? qsearch<PV,  true>(pos, ss, alpha, beta)
+                                    : qsearch<PV, false>(pos, ss, alpha, beta)
+                                    :  search<PV>(pos, ss, alpha, beta, depth, false, false);
+
+    if (pos.should_debug())
+    {
+        debug << pos << std::endl;
+        debug << "... exiting minimax_value() with value = " << value << std::endl;
+        hit_any_key();
+    }
+
+    return value;
+  }
+
   // check_time() is used to print debug info and, more importantly, to detect
   // when we are out of available time and thus stop the search.
 
@@ -1499,6 +1552,9 @@ moves_loop: // When in check search starts from here
     // An engine may not stop pondering until told so by the GUI
     if (Threads.ponder)
         return;
+
+    if (USE_MONTE_CARLO)
+        elapsed = 3 * elapsed;
 
     if (   (Limits.use_time_management() && elapsed > Time.maximum())
         || (Limits.movetime && elapsed >= Limits.movetime)
