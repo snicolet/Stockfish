@@ -203,9 +203,7 @@ void MainThread::search() {
   Time.init(Limits, us, rootPos.game_ply());
   TT.new_search();
 
-  int contempt = (Options["Contempt"]) * PawnValueEg / 100 ; // From centipawns
-
-  contempt = 14;
+  int contempt = 14 + (Options["Contempt"]) * PawnValueEg / 100 ; // From centipawns
 
   DrawValue[ us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
