@@ -85,8 +85,8 @@ namespace {
 
   // PruningSafety[cut type][rootColor] : depth multiplier for futility margins
    const int PruningSafety[2][2] = {
-     { 200 , 224 },  // alpha : ~rootColor, rootColor
-     { 134 , 150 }   // beta  : ~rootColor, rootColor
+     { 200 , 212 },  // alpha : ~rootColor, rootColor
+     { 142 , 150 }   // beta  : ~rootColor, rootColor
    };
 
   enum CutType { ALPHA, BETA };
