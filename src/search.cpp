@@ -83,46 +83,17 @@ namespace {
     return d > 17 ? 0 : d * d + 2 * d - 2;
   }
 
-   /*
-   // take 1, bench = 4769184
+  // PruningSafety[rootColor][cut type] : pruning safety table for futility margins
    const int PruningSafety[2][2] = {
-     { -25 , -75 },  // ~rootColor : alpha, beta
-     {  50 , -25 }   //  rootColor : alpha, beta
+     {  0  , -12 },  // ~rootColor : alpha, beta
+     {  18 ,  0  }   //  rootColor : alpha, beta
    };
-   */
-
-   /*
-   // take 2, bench = 4927381
-   const int PruningSafety[2][2] = {
-     {   0 , -50 },  // ~rootColor : alpha, beta
-     {  75 ,   0 }   //  rootColor : alpha, beta
-   };
-   */
-
-   /*
-   // take 3, bench = 4643251
-   const int PruningSafety[2][2] = {
-      {   0 , -50 },  // ~rootColor : alpha, beta
-      {  50 , -25 }   //  rootColor : alpha, beta
-    };
-   */
-
-   // PruningSafety[rootColor][cut type] : pruning safety table
-   // take 4, bench = 4856961
-   const int PruningSafety[2][2] = {
-     {  0  , -8  },  // ~rootColor : alpha, beta
-     {  12 ,  0  }   //  rootColor : alpha, beta
-   };
-
 
   enum CutType { ALPHA, BETA };
-
   template <CutType T> 
   Value futility_margin(const Position& pos, int depth) {
-
      int margin = (T == ALPHA ? 200 * depth + 256
                               : 150 * depth);
-
      margin += depth * PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
 
      return Value(margin); 
