@@ -206,6 +206,7 @@ enum Piece {
 };
 
 extern Value PieceValue[PHASE_NB][PIECE_NB];
+extern Value DrawValue[COLOR_NB];
 
 enum Depth : int {
 

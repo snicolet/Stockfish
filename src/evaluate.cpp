@@ -101,7 +101,7 @@ namespace {
     template<Color Us> Score evaluate_space();
     template<Color Us, PieceType Pt> Score evaluate_pieces();
     ScaleFactor evaluate_scale_factor(Value eg);
-    Score evaluate_initiative(Value eg);
+    Score evaluate_initiative(Score s);
 
     // Data members
     const Position& pos;
@@ -761,24 +761,40 @@ namespace {
   // status of the players.
 
   template<Tracing T>
-  Score Evaluation<T>::evaluate_initiative(Value eg) {
+  Score Evaluation<T>::evaluate_initiative(Score s) {
 
-    int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    int initiative_mg, initiative_eg;
+
+    Value mg = mg_value(s) - 2 * DrawValue[WHITE];
+    Value eg = eg_value(s);
+
+    int asymmetry   = pe->pawn_asymmetry();
+    int pawns       = pos.count<PAWN>();
+    int pieces      = pos.count<ALL_PIECES>();
+    int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
+                     - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
 
-    // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (pe->pawn_asymmetry() + kingDistance - 17) + 12 * pos.count<PAWN>() + 16 * bothFlanks;
+    // Compute the initiative bonus
+
+    initiative_mg = pieces - asymmetry + 10;
+
+    initiative_eg =   8 * (asymmetry + outflanking - 17)
+                   + 12 * pawns
+                   + 16 * bothFlanks;
 
     // Now apply the bonus: note that we find the attacking side by extracting
-    // the sign of the endgame value, and that we carefully cap the bonus so
-    // that the endgame score will never change sign after the bonus.
-    int v = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg));
+    // the sign of the midgame/endgame values, and that we carefully cap the bonus
+    // so that the values will never change sign after the bonus.
+    int u = ((mg > 0) - (mg < 0)) * initiative_mg;
+    int v = ((eg > 0) - (eg < 0)) * std::max(initiative_eg, -abs(eg));
+
+    Score score = make_score(u, v);
 
     if (T)
-        Trace::add(INITIATIVE, make_score(0, v));
+        Trace::add(INITIATIVE, score);
 
-    return make_score(0, v);
+    return score;
   }
 
 
@@ -874,7 +890,7 @@ namespace {
         score +=  evaluate_space<WHITE>()
                 - evaluate_space<BLACK>();
 
-    score += evaluate_initiative(eg_value(score));
+    score += evaluate_initiative(score);
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = evaluate_scale_factor(eg_value(score));

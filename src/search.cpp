@@ -96,8 +96,6 @@ namespace {
     Move best = MOVE_NONE;
   };
 
-  Value DrawValue[COLOR_NB];
-
   template <NodeType NT>
   Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode, bool skipEarlyPruning);
 
@@ -201,7 +199,8 @@ void MainThread::search() {
   Time.init(Limits, us, rootPos.game_ply());
   TT.new_search();
 
-  int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
+  int contempt = 14 + (Options["Contempt"]) * PawnValueEg / 100 ; // From centipawns
+
   DrawValue[ us] = VALUE_DRAW - Value(contempt);
   DrawValue[~us] = VALUE_DRAW + Value(contempt);
 
@@ -1635,3 +1634,5 @@ void Tablebases::filter_root_moves(Position& pos, Search::RootMoves& rootMoves) 
                    : TB::Score < VALUE_DRAW ? -VALUE_MATE + MAX_PLY + 1
                                             :  VALUE_DRAW;
 }
+
+Value DrawValue[COLOR_NB];
