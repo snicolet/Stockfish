@@ -85,14 +85,14 @@ namespace {
 
   // PruningSafety[cut type][rootColor] : depth multiplier for futility margins
    const int PruningSafety[2][2] = {
-     { 200 , 218 },  // alpha : ~rootColor, rootColor
-     { 138 , 150 }   // beta  : ~rootColor, rootColor
+     { 200 , 224 },  // alpha : ~rootColor, rootColor
+     { 134 , 150 }   // beta  : ~rootColor, rootColor
    };
 
   enum CutType { ALPHA, BETA };
   template <CutType T>
   Value futility_margin(const Position& pos, int depth) {
-  
+
      bool rc = (pos.this_thread()->rootColor == pos.side_to_move());
      int margin = depth * PruningSafety[T][rc];
 
