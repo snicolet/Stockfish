@@ -762,8 +762,8 @@ namespace {
 
     int initiative_mg, initiative_eg;
 
-    Value mg = mg_value(s) + 14 * Optimism[ALL_PIECES][WHITE];
-    Value eg = eg_value(s) + 14 * Optimism[ALL_PIECES][WHITE];
+    Value mg = mg_value(s);
+    Value eg = eg_value(s);
 
     int asymmetry   = pe->pawn_asymmetry();
     int pawns       = pos.count<PAWN>();
@@ -775,7 +775,7 @@ namespace {
 
     // Compute the initiative bonus
 
-    initiative_mg = StockfishIsAttacking ? pieces : 0;
+    initiative_mg = StockfishIsAttacking ? pieces : -asymmetry;
 
     initiative_eg =   8 * (asymmetry + outflanking - 17)
                    + 12 * pawns
@@ -784,8 +784,7 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the midgame/endgame values, and that we carefully cap the bonus
     // so that the values will never change sign after the bonus.
-    //int u = ((mg > 0) - (mg < 0)) * std::max(initiative_mg, -abs(mg));
-    int u = ((mg > 0) - (mg < 0)) * initiative_mg;
+    int u = ((mg > 0) - (mg < 0)) * std::max(initiative_mg, -abs(mg));
     int v = ((eg > 0) - (eg < 0)) * std::max(initiative_eg, -abs(eg));
 
     Score score = make_score(u, v);
