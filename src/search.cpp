@@ -83,20 +83,26 @@ namespace {
     return d > 17 ? 0 : d * d + 2 * d - 2;
   }
 
-  // PruningSafety[cut type][rootColor] : depth multiplier for futility margins
-   const int PruningSafety[2][2] = {
+  // FutilityMultiplier[cut type][rootColor] : depth multiplier for futility margins
+  int FutilityMultiplier[2][2] = {
      { 200 , 212 },  // alpha : ~rootColor, rootColor
      { 142 , 150 }   // beta  : ~rootColor, rootColor
-   };
+  };
+
+  // FutilityConstant[cut type][rootColor] : constant term for futility margins
+  int FutilityConstant[2][2] = {
+     { 256 , 256 },  // alpha : ~rootColor, rootColor
+     {   0 ,   0 }   // beta  : ~rootColor, rootColor
+  };
 
   enum CutType { ALPHA, BETA };
   template <CutType T>
   Value futility_margin(const Position& pos, int depth) {
 
      bool rc = (pos.this_thread()->rootColor == pos.side_to_move());
-     int margin = depth * PruningSafety[T][rc];
+     int margin = FutilityConstant[T][rc] + depth * FutilityMultiplier[T][rc];
 
-     return Value(margin); 
+     return Value(margin);
   }
 
   // Skill structure is used to implement strength limit
@@ -890,7 +896,7 @@ moves_loop: // When in check search starts from here
               // Futility pruning: parent node
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 256 + futility_margin<ALPHA>(pos, lmrDepth) <= alpha)
+                  && ss->staticEval + futility_margin<ALPHA>(pos, lmrDepth) <= alpha)
                   continue;
 
               // Prune moves with negative SEE
