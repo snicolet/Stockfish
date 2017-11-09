@@ -84,16 +84,16 @@ namespace {
   }
 
   // SafetyMultiplier[cut type][rootColor] : depth multiplier for futility margins
-   const int SafetyMultiplier[2][2] = {
+  int SafetyMultiplier[2][2] = {
      { 200 , 212 },  // alpha : ~rootColor, rootColor
      { 142 , 150 }   // beta  : ~rootColor, rootColor
-   };
+  };
 
-   // SafetyConstant[cut type][rootColor] : constant term for futility margins
-   const int SafetyConstant[2][2] = {
+  // SafetyConstant[cut type][rootColor] : constant term for futility margins
+  int SafetyConstant[2][2] = {
      { 256 , 256 },  // alpha : ~rootColor, rootColor
      {   0 ,   0 }   // beta  : ~rootColor, rootColor
-   };
+  };
 
   enum CutType { ALPHA, BETA };
   template <CutType T>
@@ -104,6 +104,9 @@ namespace {
 
      return Value(margin);
   }
+
+  TUNE(SetRange(-1000, 1000), SafetyMultiplier);
+  TUNE(SetRange(-1000, 1000), SafetyConstant);
 
   // Skill structure is used to implement strength limit
   struct Skill {
