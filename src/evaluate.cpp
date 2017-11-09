@@ -765,23 +765,18 @@ namespace {
     Value mg = mg_value(s);
     Value eg = eg_value(s);
 
-    Bitboard b       = pos.pieces() ^ pos.pieces(KING, BISHOP);
-    Bitboard blocked =   (b & pos.pieces(WHITE) & shift<SOUTH>(pos.pieces(BLACK)))
-                       | (b & pos.pieces(BLACK) & shift<NORTH>(pos.pieces(WHITE)));
-
     int asymmetry   = pe->pawn_asymmetry();
     int pawns       = pos.count<PAWN>();
     int pieces      = pos.count<ALL_PIECES>();
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-    int openness    = (10 - popcount(blocked)) / 2;
 
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
     bool StockfishIsAttacking = mg * Optimism[ALL_PIECES][WHITE] > 0;
 
     // Compute the initiative bonus
 
-    initiative_mg = StockfishIsAttacking ? pieces + openness : -asymmetry;
+    initiative_mg = StockfishIsAttacking ? pieces : -asymmetry + 2 * pieces;
 
     initiative_eg =   8 * (asymmetry + outflanking - 17)
                    + 12 * pawns
