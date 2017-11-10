@@ -91,8 +91,8 @@ namespace {
 
   // FutilityConstant[cut type][rootColor] : constant term for futility margins
   int FutilityConstant[2][2] = {
-     { 256 , 256 },  // alpha : ~rootColor, rootColor
-     {  50 ,  50 }   // beta  : ~rootColor, rootColor
+     { 256 , 264 },  // alpha : ~rootColor, rootColor
+     {  -6 ,   0 }   // beta  : ~rootColor, rootColor
   };
 
   enum CutType { ALPHA, BETA };
