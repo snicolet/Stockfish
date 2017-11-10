@@ -184,10 +184,10 @@ enum Value : int {
   VALUE_MATED_IN_MAX_PLY = -VALUE_MATE + 2 * MAX_PLY,
 
   PawnValueMg   = 171,   PawnValueEg   = 240,
-  KnightValueMg = 764,   KnightValueEg = 848,
-  BishopValueMg = 826,   BishopValueEg = 891,
-  RookValueMg   = 1282,  RookValueEg   = 1373,
-  QueenValueMg  = 2526,  QueenValueEg  = 2646,
+  KnightValueMg = 749,   KnightValueEg = 823,
+  BishopValueMg = 806,   BishopValueEg = 879,
+  RookValueMg   = 1267,  RookValueEg   = 1373,
+  QueenValueMg  = 2521,  QueenValueEg  = 2651,
 
   MidgameLimit  = 15258, EndgameLimit  = 3915
 };
