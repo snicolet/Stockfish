@@ -85,14 +85,14 @@ namespace {
 
   // FutilityMultiplier[cut type][rootColor] : depth multiplier for futility margins
   int FutilityMultiplier[2][2] = {
-     { 202 , 244 },  // alpha : ~rootColor, rootColor
-     { 191 , 220 }   // beta  : ~rootColor, rootColor
+     { 212 , 239 },  // alpha : ~rootColor, rootColor
+     { 188 , 176 }   // beta  : ~rootColor, rootColor
   };
 
   // FutilityConstant[cut type][rootColor] : constant term for futility margins
   int FutilityConstant[2][2] = {
-     { 300 , 275 },  // alpha : ~rootColor, rootColor
-     {  74 ,  33 }   // beta  : ~rootColor, rootColor
+     { 329 , 316 },  // alpha : ~rootColor, rootColor
+     {  56 ,  54 }   // beta  : ~rootColor, rootColor
   };
 
   enum CutType { ALPHA, BETA };
