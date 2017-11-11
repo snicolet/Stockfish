@@ -192,7 +192,7 @@ namespace {
         if (lever)
             score += Lever[relative_rank(Us, s)];
 
-        if (supported && supporting && (f >= FILE_D && f <= FILE_E))
+        if (supported && supporting && (f >= FILE_C && f <= FILE_F))
             score += Chain;
     }
 
