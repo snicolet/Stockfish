@@ -28,19 +28,40 @@
 
 #include "bitboard.h"
 #include "types.h"
+#include "tree-3.1/tree.hh"
 
 
-/// UCTInfo class stores information in a node to perform the UCT algorithm
+typedef double Reward;
+
+
+/// UCTInfo class stores information in a node
 
 class UCTInfo {
 public:
-  
-private:
-  uint64_t number_of_visits;         // number of visits by the UCT algorithm
-  uint64_t number_of_sons;           // total number of legal moves
-  uint64_t number_of_expanded_sons;  // number of sons expanded by the UCT algorithm
-  double   reward;                   // reward from the point of view of the side to move
+
+  Move last_move() { return lastMove; }
+
+  // Data members
+  uint64_t visits        = 0;         // number of visits by the UCT algorithm
+  uint64_t sons          = 0;         // total number of legal moves
+  uint64_t expandedSsons = 0;         // number of sons expanded by the UCT algorithm
+  Reward   reward        = 0.0;       // reward from the point of view of the side to move
+  Move     lastMove      = MOVE_NONE; // the move between the parent and this node
 };
+
+
+typedef tree<UCTInfo> Node;
+
+
+UCTInfo get_uct_infos(Node n) {
+  return n.begin().node->data;
+}
+
+Move move_of(Node n) {
+    return get_uct_infos(n).last_move();
+}
+
+
 
 /// A list to keep track of the position states along the setup moves (from the
 /// start position to the position just before the search starts). Needed by
