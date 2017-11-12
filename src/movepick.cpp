@@ -187,6 +187,11 @@ Move MovePicker::next_move(bool skipQuiets) {
                   && (cur-1)->value > 1090)
                   return move;
 
+              if (   move == killers[0] 
+                  || move == killers[1] 
+                  || move == countermove)
+                  return move;
+
               // Losing capture, move it to the beginning of the array
               *endBadCaptures++ = move;
           }
