@@ -502,7 +502,8 @@ namespace {
     // Secondly, add the squares which are attacked twice in that flank and
     // which are not defended by our pawns.
     b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & (attackedBy2[Them] | attackedBy[Them][PAWN]) & ~attackedBy[Us][PAWN]);
+       | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN])
+       | (b & pos.pieces(Them, PAWN));
 
     score -= CloseEnemies * popcount(b);
 
