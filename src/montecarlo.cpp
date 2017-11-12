@@ -40,8 +40,13 @@ using std::string;
 
 
 // UCT: a class implementing Monte-Carlo Tree Search for Stockfish.
-// We are following the survey http://mcts.ai/pubs/mcts-survey-master.pdf 
+// We are following the survey http://mcts.ai/pubs/mcts-survey-master.pdf
 // for the Monte-Carlo algorithm description and the notations used.
+
+// Bibliography:
+//     http://mcts.ai/pubs/mcts-survey-master.pdf
+//     https://www.ke.tu-darmstadt.de/lehre/arbeiten/bachelor/2012/Arenz_Oleg.pdf
+//     https://dke.maastrichtuniversity.nl/m.winands/publications.html
 
 class UCT {
 public:
