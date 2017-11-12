@@ -99,6 +99,7 @@ namespace {
 
     const Color  Them  = (Us == WHITE ? BLACK      : WHITE);
     const Square Up    = (Us == WHITE ? NORTH      : SOUTH);
+    const Square Down  = (Us == WHITE ? SOUTH      : NORTH);
     const Square Right = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     const Square Left  = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
 
@@ -192,7 +193,9 @@ namespace {
         if (lever)
             score += Lever[relative_rank(Us, s)];
 
-        if (supported && (supporting & (FileDBB | FileEBB)))
+        if (    supported 
+            && (supporting & (FileDBB | FileEBB))
+            && more_than_one(shift<Up>(supported) | shift<Down>(supporting)))
             score += Chain * int(relative_rank(Us, s));
     }
 
