@@ -44,7 +44,7 @@ namespace {
   const Score Doubled = S(18, 38);
 
   // Pawn chain bonus
-  const Score Chain = S(0, 10);
+  const Score Chain = S(3, 2);
 
   // Lever bonus by rank
   const Score Lever[RANK_NB] = {
@@ -193,7 +193,7 @@ namespace {
             score += Lever[relative_rank(Us, s)];
 
         if (supported && (supporting & (FileDBB | FileEBB)))
-            score += Chain;
+            score += Chain * int(relative_rank(Us, s));
     }
 
     return score;
