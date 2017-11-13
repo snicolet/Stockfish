@@ -21,6 +21,7 @@
 #include <cassert>
 
 #include "movepick.h"
+#include "misc.h"
 
 namespace {
 
@@ -179,7 +180,11 @@ Move MovePicker::next_move(bool skipQuiets) {
           move = pick_best(cur++, endMoves);
           if (move != ttMove)
           {
-              if ((cur-1)->value >= 0)
+              // int value_0 = captureHistory->value(pos, move);
+              // int value_1 = (cur-1)->value - PieceValue[MG][pos.piece_on(to_sq(move))];
+              // dbg_mean_of(abs(value_1 - value_0));
+
+              if (captureHistory->value(pos, move) >= -100)
                   return move;
 
               // Losing capture, move it to the beginning of the array
