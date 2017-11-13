@@ -184,7 +184,7 @@ Move MovePicker::next_move(bool skipQuiets) {
               // int value_1 = (cur-1)->value - PieceValue[MG][pos.piece_on(to_sq(move))];
               // dbg_mean_of(abs(value_1 - value_0));
 
-              if (captureHistory->value(pos, move) >= -100)
+              if (captureHistory->value(pos, move) >= 600)
                   return move;
 
               // Losing capture, move it to the beginning of the array
