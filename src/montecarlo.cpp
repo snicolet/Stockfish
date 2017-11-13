@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstddef> // For offsetof()
 #include <cstring> // For std::memset, std::memcmp
 #include <iomanip>
@@ -70,16 +71,24 @@ public:
   void undo_move();
   void generate_moves();
 
-  // Evaluate current node with a local minimax search
+  // Evaluations of nodes in the tree
   Value evaluate_with_minimax(Depth d);
+  Reward calculate_prior(Move m, int moveCount);
+  Reward value_to_reward(Value v);
+  Value reward_to_value(Reward r);
+  
+  // Other helpers
+  double get_exploration_constant();
+  void set_exploration_constant(double C);
 
 private:
 
   // Data members
-  Position&       pos;           // The current position of the tree, changes during search
-  Position        rootPosition;  // A full copy of the position used to initialise the class
-  Node            root;
-  Node            currentNode;
+  Position&       pos;                  // The current position of the tree, changes during search
+  Position        rootPosition;         // A full copy of the position used to initialise the class
+  Node            root;                 // A pointer to the root
+  Node            currentNode;          // A pointer to the current node
+  double          explorationConstant = 10.0;   // Default value for the UCB formula
 
   // Counters
   uint64_t        ply;
@@ -112,13 +121,11 @@ Move UCT::search(Position& p) {
 
 
 /// UCT::UCT() is the constructor for the UCT class
-
 UCT::UCT(Position& p) : pos(p) {
     create_root(p);
 }
 
 /// UCT::create_root() initializes the UCT tree with the given position
-
 void UCT::create_root(Position& p) {
 
     // Initialize the global counters
@@ -146,14 +153,12 @@ void UCT::create_root(Position& p) {
 
 /// UCT::computational_budget() stops the search if the computational budget
 /// has been reached (time limit, or number of nodes, etc.)
-
 bool UCT::computational_budget() {
     return (treeSize < 5);
 }
 
 
 /// UCT::tree_policy() selects the next node to be expanded
-
 Node UCT::tree_policy() {
     descentCnt++;
     return root;
@@ -161,7 +166,6 @@ Node UCT::tree_policy() {
 
 
 /// UCT::playout_policy() plays a semi random game starting from the last extended node
-
 Reward UCT::playout_policy(Node n) {
     playoutCnt++;
     return 1.0;
@@ -170,83 +174,130 @@ Reward UCT::playout_policy(Node n) {
 
 /// UCT::backup() implements the strategy for accumulating rewards up
 /// the tree after a playout.
-
 void UCT::backup(Node n, Reward r) {
 }
 
 
 /// UCT::best_child() selects the best child of a node according to the UCT formula
-
 Node UCT::best_child(Node n, double c) {
     return n;
 }
 
+/// UCT::set_exploration_constant() changes the exploration constant of the UCB formula.
+/// 
+/// This constant sets the balance between the exploitation of past results and the
+/// exploration of new branches in the UCT tree. The higher the constant, the more
+/// likely is the algorithm to explore new parts of the tree, whereas lower values
+/// of the constant makes an algorithm which focuses more on the already explored
+/// parts of the tree. Default value is 10.0
+///
+void UCT::set_exploration_constant(double C) {
+    explorationConstant = C;
+}
+
+/// UCT::get_exploration_constant() returns the exploration constant of the UCB formula
+double UCT::get_exploration_constant() {
+    return explorationConstant;
+}
 
 /// UCT::do_move() plays a move in the search tree from the current position
-
 void UCT::do_move(Move m) {
 
-  stack[ply].ply         = ply;
-  stack[ply].currentMove = m;
-  stack[ply].contHistory = &(pos.this_thread()->contHistory[pos.moved_piece(m)][to_sq(m)]);
+    stack[ply].ply         = ply;
+    stack[ply].currentMove = m;
+    stack[ply].contHistory = &(pos.this_thread()->contHistory[pos.moved_piece(m)][to_sq(m)]);
 
-  pos.do_move(m, states[ply]);
+    pos.do_move(m, states[ply]);
 
-  ply++;
+    ply++;
 }
 
 
-/// UCT::undo_move() undos the current move in the search tree
-
+/// UCT::undo_move() undo the current move in the search tree
 void UCT::undo_move() {
-  ply--;
-  pos.undo_move(stack[ply].currentMove);
+    ply--;
+    pos.undo_move(stack[ply].currentMove);
 }
 
 
 /// UCT::generate_moves() does some Stockfish gimmick to iterate over legal moves
-/// in a sensible order.
+/// of the current position, in a sensible order.
 /// For historical reasons, it is not so easy to get a MovePicker object to
 /// generate moves if we want to have a decent order (captures first, then
 /// quiet moves, etc.). We have to pass various history tables to the MovePicker
 /// constructor, like in the alpha-beta implementation of move ordering.
-
 void UCT::generate_moves() {
 
-  Thread*  thread      = pos.this_thread();
-  Square   prevSq      = to_sq(stack[ply-1].currentMove);
-  Move     countermove = thread->counterMoves[pos.piece_on(prevSq)][prevSq];
-  Move     ttMove      = MOVE_NONE;  // FIXME
-  Move*    killers     = stack[ply].killers;
-  Depth    depth       = 30 * ONE_PLY;
+    Thread*  thread      = pos.this_thread();
+    Square   prevSq      = to_sq(stack[ply-1].currentMove);
+    Move     countermove = thread->counterMoves[pos.piece_on(prevSq)][prevSq];
+    Move     ttMove      = MOVE_NONE;  // FIXME
+    Move*    killers     = stack[ply].killers;
+    Depth    depth       = 30 * ONE_PLY;
   
-  const CapturePieceToHistory* cph   = &thread->captureHistory;
-  const ButterflyHistory* mh         = &thread->mainHistory;
-  const PieceToHistory*   contHist[] = { stack[ply-1].contHistory, 
-                                         stack[ply-2].contHistory, 
-                                         nullptr, 
-                                         stack[ply-4].contHistory };
+    const CapturePieceToHistory* cph   = &thread->captureHistory;
+    const ButterflyHistory* mh         = &thread->mainHistory;
+    const PieceToHistory*   contHist[] = { stack[ply-1].contHistory, 
+                                           stack[ply-2].contHistory, 
+                                           nullptr, 
+                                           stack[ply-4].contHistory };
 
-  MovePicker mp(pos, ttMove, depth, mh, cph, contHist, countermove, killers);
+    MovePicker mp(pos, ttMove, depth, mh, cph, contHist, countermove, killers);
 
-  Move move;
-  int moveCount = 0;
-   
-  while ((move = mp.next_move()) != MOVE_NONE)
-      if (pos.legal(move))
-      {
-          stack[ply].moveCount = ++moveCount;
-      }
+    Move move;
+    int moveCount = 0;
+
+    while ((move = mp.next_move()) != MOVE_NONE)
+        if (pos.legal(move))
+        {
+            stack[ply].moveCount = ++moveCount;
+        }
 }
 
 /// UCT::evaluate_with_minimax() evaluates the current position in the tree
 /// with a small minimax search of the given depth. Use depth==DEPTH_ZERO
 /// for a direct quiescence value.
-
 Value UCT::evaluate_with_minimax(Depth depth) {
     return minimax_value(pos, &stack[ply], depth);
 }
 
+/// UCT::calculate_prior() returns the a-priori reward of the move leading to
+/// the n-th son of the current node. Here we use the evaluation function to
+/// estimate this prior, we could use other strategies too (like the rank n of
+/// the son, or the type of the move (good capture/quiet/bad capture), etc).
+Reward UCT::calculate_prior(Move move, int n) {
+    Reward prior;
+  
+    do_move(move);
+    prior = value_to_reward(evaluate_with_minimax(DEPTH_ZERO));
+    undo_move();
+  
+    return prior;
+}
+
+/// UCT::value_to_reward() transforms a Stockfish value to a reward in [0..1]
+/// We scale the logistic function such that a value of 600 (about three pawns)
+/// is given a probability of win of 0.75, and a value of -600 is given a probability
+/// of win of 0.25
+Reward UCT::value_to_reward(Value v)
+{
+    const double k = -0.00183102048111;
+    double r = 1.0 / (1 + exp(k * int(v)));
+    return Reward(r);
+}
+
+/// UCT::reward_to_value() transforms a reward in [0..1] to a Stockfish value.
+/// The scale is such that a reward of 0.75 corresponds to 600 (about three pawns),
+/// and a reward of 0.25 corresponds to -600 (about minus three pawns).
+Value UCT::reward_to_value(Reward r)
+{
+    if (r > 0.99) return  VALUE_KNOWN_WIN;
+    if (r < 0.01) return -VALUE_KNOWN_WIN;
+    
+    const double g = 546.14353597715121;  //  this is 1 / k
+    double v = g * log(r / (1.0 - r)) ;
+    return Value(int(v));
+}
 
 
 
