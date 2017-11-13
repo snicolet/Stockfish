@@ -68,6 +68,7 @@ public:
   // Playing moves
   void do_move(Move m);
   void undo_move();
+  void generate_moves();
 
 private:
 
@@ -106,52 +107,137 @@ Move UCT::search(Position& p) {
     return move_of(best_child(root, 0));
 }
 
-// UCT() : the constructor for the UCT class
+
+/// UCT::UCT() is the constructor for the UCT class
 
 UCT::UCT(Position& p) : pos(p) {
     create_root(p);
 }
 
+/// UCT::create_root() initialize the UCT tree with the given position
+
 void UCT::create_root(Position& p) {
-    doMoveCnt = 0;
-    treeSize = 0;
+
+    // Initialize the global counters
+    doMoveCnt  = 0;
+    treeSize   = 0;
     descentCnt = 0;
-    ply = 0;
+    ply        = 0;
+
+    // Prepare the stack to go down and up in the game tree
+    std::memset(&stack[-4], 0, 7 * sizeof(Search::Stack));
+    for (int i = 4; i > 0; i--)
+      stack[-i].contHistory = &(pos.this_thread()->contHistory[NO_PIECE][0]); // Use as sentinel
+
+    // TODO : what to do with killers ???
+
+    // TODO : setupStates should probably come the caller, as a global ???
+    StateListPtr setupStates(new std::deque<StateInfo>(1));   
+
+    // Save a hard copy of the root position
+    StateInfo tmp = setupStates->back();
+    rootPosition.set(pos.fen(), pos.is_chess960(), &setupStates->back(), pos.this_thread());
+    setupStates->back() = tmp;
 }
+
+
+/// UCT::computational_budget() stops the search if the computational budget
+/// has been reached (time limit, or number of nodes, etc.)
 
 bool UCT::computational_budget() {
     return (treeSize < 5);
 }
+
+
+/// UCT::tree_policy() selects the next node to be expanded
 
 Node UCT::tree_policy() {
     descentCnt++;
     return root;
 }
 
+
+/// UCT::playout_policy() plays a semi random game starting from the last extended node
+
 Reward UCT::playout_policy(Node n) {
     playoutCnt++;
     return 1.0;
 }
 
+
+/// UCT::backup() implements the strategy for accumulating rewards up
+/// the tree after a playout.
+
 void UCT::backup(Node n, Reward r) {
 }
+
+
+/// UCT::best_child() selects the best child of a node according to the UCT formula
 
 Node UCT::best_child(Node n, double c) {
     return n;
 }
 
+
+/// UCT::do_move() plays a move in the search tree from the current position
+
 void UCT::do_move(Move m) {
 
-  stack[ply].ply = ply;
+  stack[ply].ply         = ply;
   stack[ply].currentMove = m;
-  
+  stack[ply].contHistory = &(pos.this_thread()->contHistory[pos.moved_piece(m)][to_sq(m)]);
+
   pos.do_move(m, states[ply]);
 
   ply++;
 }
 
+
+/// undo_move() undo the current move in the search tree
+
 void UCT::undo_move() {
   ply--;
   pos.undo_move(stack[ply].currentMove);
 }
+
+
+/// generate_moves() does some Stockfish gimmick to iterate over legal moves
+/// in a sensible order.
+/// For historical reasons, it is not so easy to get a MovePicker object to
+/// generate moves if we want to have a decent order (captures first, then
+/// quiet moves, etc.). We have to pass various history tables to the MovePicker
+/// constructor, like in the alpha-beta implementation of move ordering.
+
+void UCT::generate_moves() {
+
+  Thread*  thread      = pos.this_thread();
+  Square   prevSq      = to_sq(stack[ply-1].currentMove);
+  Move     countermove = thread->counterMoves[pos.piece_on(prevSq)][prevSq];
+  Move     ttMove      = MOVE_NONE;  // FIXME
+  Move*    killers     = stack[ply].killers;
+  Depth    depth       = 30 * ONE_PLY;
+  
+  const CapturePieceToHistory* cph   = &thread->captureHistory;
+  const ButterflyHistory* mh         = &thread->mainHistory;
+  const PieceToHistory*   contHist[] = { stack[ply-1].contHistory, 
+                                         stack[ply-2].contHistory, 
+                                         nullptr, 
+                                         stack[ply-4].contHistory };
+
+   MovePicker mp(pos, ttMove, depth, mh, cph, contHist, countermove, killers);
+
+   Move move;
+   int moveCount = 0;
+   
+   while ((move = mp.next_move()) != MOVE_NONE)
+     if (pos.legal(move))
+     {
+        stack[ply].moveCount = ++moveCount;
+     }
+}
+
+
+
+
+
 
