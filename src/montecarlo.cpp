@@ -25,12 +25,12 @@
 #include <iomanip>
 #include <sstream>
 
-#include "bitboard.h"
 #include "misc.h"
-#include "movegen.h"
 #include "position.h"
+#include "search.h"
 #include "thread.h"
 #include "tt.h"
+#include "types.h"
 #include "uci.h"
 #include "montecarlo.h"
 #include "syzygy/tbprobe.h"
@@ -69,6 +69,9 @@ public:
   void do_move(Move m);
   void undo_move();
   void generate_moves();
+
+  // Evaluate current node with a local minimax search
+  Value evaluate_with_minimax(Depth d);
 
 private:
 
@@ -114,7 +117,7 @@ UCT::UCT(Position& p) : pos(p) {
     create_root(p);
 }
 
-/// UCT::create_root() initialize the UCT tree with the given position
+/// UCT::create_root() initializes the UCT tree with the given position
 
 void UCT::create_root(Position& p) {
 
@@ -193,7 +196,7 @@ void UCT::do_move(Move m) {
 }
 
 
-/// undo_move() undo the current move in the search tree
+/// UCT::undo_move() undos the current move in the search tree
 
 void UCT::undo_move() {
   ply--;
@@ -201,7 +204,7 @@ void UCT::undo_move() {
 }
 
 
-/// generate_moves() does some Stockfish gimmick to iterate over legal moves
+/// UCT::generate_moves() does some Stockfish gimmick to iterate over legal moves
 /// in a sensible order.
 /// For historical reasons, it is not so easy to get a MovePicker object to
 /// generate moves if we want to have a decent order (captures first, then
@@ -224,19 +227,25 @@ void UCT::generate_moves() {
                                          nullptr, 
                                          stack[ply-4].contHistory };
 
-   MovePicker mp(pos, ttMove, depth, mh, cph, contHist, countermove, killers);
+  MovePicker mp(pos, ttMove, depth, mh, cph, contHist, countermove, killers);
 
-   Move move;
-   int moveCount = 0;
+  Move move;
+  int moveCount = 0;
    
-   while ((move = mp.next_move()) != MOVE_NONE)
-     if (pos.legal(move))
-     {
-        stack[ply].moveCount = ++moveCount;
-     }
+  while ((move = mp.next_move()) != MOVE_NONE)
+      if (pos.legal(move))
+      {
+          stack[ply].moveCount = ++moveCount;
+      }
 }
 
+/// UCT::evaluate_with_minimax() evaluates the current position in the tree
+/// with a small minimax search of the given depth. Use depth==DEPTH_ZERO
+/// for a direct quiescence value.
 
+Value UCT::evaluate_with_minimax(Depth depth) {
+    return minimax_value(pos, &stack[ply], depth);
+}
 
 
 

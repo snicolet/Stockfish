@@ -103,4 +103,7 @@ void clear();
 
 } // namespace Search
 
+
+Value minimax_value(Position& pos, Search::Stack* ss, Depth depth);
+
 #endif // #ifndef SEARCH_H_INCLUDED

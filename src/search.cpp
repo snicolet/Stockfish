@@ -1473,6 +1473,24 @@ moves_loop: // When in check search starts from here
 
 } // namespace
 
+
+  // minimax_value() is a wrapper around the search() and qsearch() functions
+  // used to compute the minimax evaluation of a position at the given depth.
+  // It does not compute PV nor emit anything on the output stream.
+  // Use depth == DEPTH_ZERO to compute the quiescence value of the position.
+
+  Value minimax_value(Position& pos, Search::Stack* ss, Depth depth) {
+    Value value, alpha = -VALUE_INFINITE, beta = VALUE_INFINITE;
+    bool givesCheck = pos.checkers();
+    
+    value = depth <   ONE_PLY ?
+                   givesCheck ? -qsearch<NonPV,  true>(pos, ss, alpha, beta)
+                              : -qsearch<NonPV, false>(pos, ss, alpha, beta)
+                              : - search<NonPV>(pos, ss, alpha, beta, depth, false, false);
+    
+    return value;
+  }
+
   // check_time() is used to print debug info and, more importantly, to detect
   // when we are out of available time and thus stop the search.
 
