@@ -63,19 +63,21 @@ public:
 };
 
 
-typedef tree<UCTInfo> Node;
+//typedef tree<UCTInfo> Node;
+typedef UCTInfo* Node;
 
 
-UCTInfo& get_uct_infos(Node n) {
-  return n.begin().node->data;
+UCTInfo* get_uct_infos(Node n) {
+  //return &(n.begin().node->data);
+  return n;
 }
 
 Move move_of(Node n) {
-    return get_uct_infos(n).last_move();
+    return get_uct_infos(n)->last_move();
 }
 
 MoveAndPrior* get_list_of_priors(Node n) {
-    return get_uct_infos(n).priors_list();
+    return get_uct_infos(n)->priors_list();
 }
 
 

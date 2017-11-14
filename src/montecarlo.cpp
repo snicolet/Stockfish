@@ -222,21 +222,21 @@ void UCT::undo_move() {
 
 /// UCT::add_prior_to_node() adds the given (move,prior) pair as a new son for a node
 void add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
-   UCTInfo& infos = get_uct_infos(node);
+   UCTInfo* infos = get_uct_infos(node);
 
-   assert(infos.sons < MAX_SONS);
+   assert(infos->sons < MAX_SONS);
 
-   if (infos.sons < MAX_SONS)
+   if (infos->sons < MAX_SONS)
    {
-       infos.priors[infos.sons].move  = m;
-       infos.priors[infos.sons].prior = prior;
-       infos.sons++;
+       infos->priors[infos->sons].move  = m;
+       infos->priors[infos->sons].prior = prior;
+       infos->sons++;
 
-       assert(infos.sons == moveCount);
+       assert(infos->sons == moveCount);
    }
    else
    {
-   		std::cerr << "ERROR : too many sons (" << infos.sons << ") in add_prior_to_node()" << std::endl;
+   		std::cerr << "ERROR : too many sons (" << infos->sons << ") in add_prior_to_node()" << std::endl;
    }
 }
 
@@ -280,7 +280,7 @@ void UCT::generate_moves() {
         }
 
     // sort the priors
-    int n = get_uct_infos(currentNode).sons;
+    int n = get_uct_infos(currentNode)->sons;
     if (n > 0)
     {
         MoveAndPrior* priors = get_list_of_priors(currentNode);
