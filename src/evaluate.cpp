@@ -755,13 +755,13 @@ namespace {
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
     int shuffling_amount = pos.rule50_count();
-    bool shuffling_risk = (pos.non_pawn_material() <= 2 * QueenValueMg);
+    int shuffling_risk = pos.aging() ? 4 : 0;
 
     // Compute the initiative bonus for the attacking side
     int initiative =   8 * (pe->pawn_asymmetry() + kingDistance - 17)
                     + 12 * pos.count<PAWN>()
                     + 16 * bothFlanks
-                    -  4 * shuffling_risk * shuffling_amount;
+                    - shuffling_risk * shuffling_amount;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
