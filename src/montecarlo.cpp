@@ -71,6 +71,7 @@ public:
   double UCB(Node node, Move move, double C);
   
   // Playing moves
+  Node current_node();
   void do_move(Move move);
   void undo_move();
   void generate_moves();
@@ -91,7 +92,6 @@ private:
   Position&       pos;                  // The current position of the tree, changes during search
   Position        rootPosition;         // A full copy of the position used to initialise the class
   Node            root;                 // A pointer to the root
-  Node            currentNode;          // A pointer to the current node
   double          explorationConstant = 10.0;   // Default value for the UCB formula
 
   // Counters
@@ -103,8 +103,9 @@ private:
 
   // Stack to do/undo the moves: for compatibility with the alpha-beta search implementation,
   // we want to be able to reference from stack[-4] to stack[MAX_PLY + 2].
-  Search::Stack   stackBuffer[MAX_PLY+7] , *stack  = stackBuffer+4;
-  StateInfo       statesBuffer[MAX_PLY+7], *states = statesBuffer+4;
+  Search::Stack   stackBuffer [MAX_PLY+7],  *stack  = stackBuffer  + 4;
+  StateInfo       statesBuffer[MAX_PLY+7],  *states = statesBuffer + 4;
+  Node            nodesBuffer [MAX_PLY+7],  *nodes  = nodesBuffer  + 4;
 };
 
 
@@ -139,7 +140,7 @@ void UCT::create_root(Position& p) {
     ply        = 0;
 
     // Prepare the stack to go down and up in the game tree
-    std::memset(&stack[-4], 0, 7 * sizeof(Search::Stack));
+    std::memset(stackBuffer, 0, sizeof(stackBuffer));
     for (int i = 4; i > 0; i--)
       stack[-i].contHistory = &(pos.this_thread()->contHistory[NO_PIECE][0]); // Use as sentinel
 
@@ -152,6 +153,13 @@ void UCT::create_root(Position& p) {
     StateInfo tmp = setupStates->back();
     rootPosition.set(pos.fen(), pos.is_chess960(), &setupStates->back(), pos.this_thread());
     setupStates->back() = tmp;
+    
+    // Erase the list of nodes, and set the root node
+    std::memset(nodesBuffer, 0, sizeof(nodesBuffer));
+    root = nodes[0] = create_node(pos);
+    
+    assert(ply == 0);
+    assert(root == nodes[0]);
 }
 
 
@@ -176,8 +184,8 @@ Reward UCT::playout_policy(Node node) {
 }
 
 
-/// UCT::UCB() calculates the upper confidence bound formula for the son after
-/// the given move of the 
+/// UCT::UCB() calculates the upper confidence bound formula for the son which
+/// we reach from node "node" by playing move "move".
 double UCT::UCB(Node node, Move move, double C) {
     UCTInfo* current = get_uct_infos(node);
     UCTInfo* child   = get_uct_infos(son_after(node, move));
@@ -207,7 +215,7 @@ Move UCT::best_move(Node node, double C) {
     MoveAndPrior* moves = get_list_of_priors(node);
     Move best = MOVE_NONE;
     
-    double bestValue;
+    double bestValue = -100000000.0;
     for (int k = 0 ; k < number_of_sons(node) ; k++)
     {
         double r = UCB(node, moves[k].move, C);
@@ -236,6 +244,11 @@ void UCT::set_exploration_constant(double C) {
 /// UCT::get_exploration_constant() returns the exploration constant of the UCB formula
 double UCT::get_exploration_constant() {
     return explorationConstant;
+}
+
+/// UCT::current_node() is the current node of our tree exploration
+Node UCT::current_node() {
+    return nodes[ply];
 }
 
 /// UCT::do_move() plays a move in the search tree from the current position
@@ -313,14 +326,14 @@ void UCT::generate_moves() {
             stack[ply].moveCount = ++moveCount;
 
             prior = calculate_prior(move, moveCount);
-            add_prior_to_node(currentNode, move, prior, moveCount);
+            add_prior_to_node(current_node(), move, prior, moveCount);
         }
 
     // sort the priors
-    int n = number_of_sons(currentNode);
+    int n = number_of_sons(current_node());
     if (n > 0)
     {
-        MoveAndPrior* priors = get_list_of_priors(currentNode);
+        MoveAndPrior* priors = get_list_of_priors(current_node());
         std::sort(priors, priors + n, CompareMoveAndPrior);
     }
 }

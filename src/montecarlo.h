@@ -67,8 +67,12 @@ public:
 typedef UCTInfo* Node;
 
 
+Node create_node(const Position& pos) {
+   return nullptr;  // TODO, FIXME : this should create a Node !
+}
+
 Node son_after(Node node, Move move) {
-   return node;    /// FIXME : this is the son after move from the given node !
+   return node;    /// TODO, FIXME : this is the son after move from the given node !
 }
 
 UCTInfo* get_uct_infos(Node node) {
