@@ -75,21 +75,21 @@ Node son_after(Node node, Move move) {
    return node;    /// TODO, FIXME : this is the son after move from the given node !
 }
 
-UCTInfo* get_uct_infos(Node node) {
+UCTInfo* get_infos(Node node) {
   //return &(node.begin().node->data);
   return node;
 }
 
 Move move_of(Node node) {
-    return get_uct_infos(node)->last_move();
+    return get_infos(node)->last_move();
 }
 
 MoveAndPrior* get_list_of_priors(Node node) {
-    return get_uct_infos(node)->priors_list();
+    return get_infos(node)->priors_list();
 }
 
 int number_of_sons(Node node) {
-    return get_uct_infos(node)->sons;
+    return get_infos(node)->sons;
 }
 
 

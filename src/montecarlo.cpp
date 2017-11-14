@@ -187,8 +187,8 @@ Reward UCT::playout_policy(Node node) {
 /// UCT::UCB() calculates the upper confidence bound formula for the son which
 /// we reach from node "node" by playing move "move".
 double UCT::UCB(Node node, Move move, double C) {
-    UCTInfo* current = get_uct_infos(node);
-    UCTInfo* child   = get_uct_infos(son_after(node, move));
+    UCTInfo* current = get_infos(node);
+    UCTInfo* child   = get_infos(son_after(node, move));
     double result;
 
     if (!child || child->visits == 0)
@@ -272,21 +272,21 @@ void UCT::undo_move() {
 
 /// UCT::add_prior_to_node() adds the given (move,prior) pair as a new son for a node
 void add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
-   UCTInfo* infos = get_uct_infos(node);
+   UCTInfo* s = get_infos(node);
 
-   assert(infos->sons < MAX_SONS);
+   assert(s->sons < MAX_SONS);
 
-   if (infos->sons < MAX_SONS)
+   if (s->sons < MAX_SONS)
    {
-       infos->priors[infos->sons].move  = m;
-       infos->priors[infos->sons].prior = prior;
-       infos->sons++;
+       s->priors[s->sons].move  = m;
+       s->priors[s->sons].prior = prior;
+       s->sons++;
 
-       assert(infos->sons == moveCount);
+       assert(s->sons == moveCount);
    }
    else
    {
-   		std::cerr << "ERROR : too many sons (" << infos->sons << ") in add_prior_to_node()" << std::endl;
+   		std::cerr << "ERROR : too many sons (" << s->sons << ") in add_prior_to_node()" << std::endl;
    }
 }
 
