@@ -63,12 +63,15 @@ public:
   void create_root(Position& p);
   bool computational_budget();
   Node tree_policy();
-  Node best_child(Node n, double c);
-  Reward playout_policy(Node n);
-  void backup(Node n, Reward r);
+  Move best_move(Node node, double C);
+  Reward playout_policy(Node node);
+  void backup(Node node, Reward r);
 
+  // The UCB formula
+  double UCB(Node node, Move move, double C);
+  
   // Playing moves
-  void do_move(Move m);
+  void do_move(Move move);
   void undo_move();
   void generate_moves();
 
@@ -112,12 +115,12 @@ Move UCT::search(Position& p) {
     create_root(p);
 
     while (computational_budget()) {
-       Node n = tree_policy();
-       Reward r = playout_policy(n);
-       backup(n, r);
+       Node node = tree_policy();
+       Reward reward = playout_policy(node);
+       backup(node, reward);
     }
 
-    return move_of(best_child(root, 0));
+    return best_move(root, 0.0);
 }
 
 
@@ -167,21 +170,55 @@ Node UCT::tree_policy() {
 
 
 /// UCT::playout_policy() plays a semi random game starting from the last extended node
-Reward UCT::playout_policy(Node n) {
+Reward UCT::playout_policy(Node node) {
     playoutCnt++;
     return 1.0;
 }
 
 
+/// UCT::UCB() calculates the upper confidence bound formula for the son after
+/// the given move of the 
+double UCT::UCB(Node node, Move move, double C) {
+    UCTInfo* current = get_uct_infos(node);
+    UCTInfo* child   = get_uct_infos(son_after(node, move));
+    double result;
+
+    if (!child || child->visits == 0)
+        result = 100000000.0;
+    else
+    {
+        assert(current->visits != 0);
+        
+        result = child->reward / child->visits;
+        result += C * sqrt(log(current->visits) / child->visits);
+    }
+
+    return result;
+}
+
 /// UCT::backup() implements the strategy for accumulating rewards up
 /// the tree after a playout.
-void UCT::backup(Node n, Reward r) {
+void UCT::backup(Node node, Reward r) {
 }
 
 
-/// UCT::best_child() selects the best child of a node according to the UCT formula
-Node UCT::best_child(Node n, double c) {
-    return n;
+/// UCT::best_move() selects the best child of a node according to the UCT formula
+Move UCT::best_move(Node node, double C) {
+    MoveAndPrior* moves = get_list_of_priors(node);
+    Move best = MOVE_NONE;
+    
+    double bestValue;
+    for (int k = 0 ; k < number_of_sons(node) ; k++)
+    {
+        double r = UCB(node, moves[k].move, C);
+        if ( r > bestValue )
+        {
+            bestValue = r;
+            best = moves[k].move;
+        }
+    }
+
+    return best;
 }
 
 /// UCT::set_exploration_constant() changes the exploration constant of the UCB formula.
@@ -280,7 +317,7 @@ void UCT::generate_moves() {
         }
 
     // sort the priors
-    int n = get_uct_infos(currentNode)->sons;
+    int n = number_of_sons(currentNode);
     if (n > 0)
     {
         MoveAndPrior* priors = get_list_of_priors(currentNode);

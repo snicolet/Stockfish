@@ -56,7 +56,7 @@ public:
   // Data members
   uint64_t       visits        = 0;         // number of visits by the UCT algorithm
   Reward         reward        = 0.0;       // reward from the point of view of the side to move
-  int            expandedSsons = 0;         // number of sons expanded by the UCT algorithm
+  int            expandedSons  = 0;         // number of sons expanded by the UCT algorithm
   int            sons          = 0;         // total number of legal moves
   Move           lastMove      = MOVE_NONE; // the move between the parent and this node
   MoveAndPrior   priors[MAX_SONS];
@@ -67,17 +67,25 @@ public:
 typedef UCTInfo* Node;
 
 
-UCTInfo* get_uct_infos(Node n) {
-  //return &(n.begin().node->data);
-  return n;
+Node son_after(Node node, Move move) {
+   return node;    /// FIXME : this is the son after move from the given node !
 }
 
-Move move_of(Node n) {
-    return get_uct_infos(n)->last_move();
+UCTInfo* get_uct_infos(Node node) {
+  //return &(node.begin().node->data);
+  return node;
 }
 
-MoveAndPrior* get_list_of_priors(Node n) {
-    return get_uct_infos(n)->priors_list();
+Move move_of(Node node) {
+    return get_uct_infos(node)->last_move();
+}
+
+MoveAndPrior* get_list_of_priors(Node node) {
+    return get_uct_infos(node)->priors_list();
+}
+
+int number_of_sons(Node node) {
+    return get_uct_infos(node)->sons;
 }
 
 
