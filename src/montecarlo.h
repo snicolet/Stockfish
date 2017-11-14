@@ -36,29 +36,46 @@ typedef double Reward;
 
 /// UCTInfo class stores information in a node
 
+struct MoveAndPrior {
+  Move move;
+  Reward prior;
+};
+
+struct { 
+  bool operator()(MoveAndPrior a, MoveAndPrior b) const { return a.prior < b.prior; }   
+} CompareMoveAndPrior;
+
+const int MAX_SONS = 64;
+
 class UCTInfo {
 public:
 
-  Move last_move() { return lastMove; }
+  Move           last_move()   { return lastMove; }
+  MoveAndPrior*  priors_list() { return &(priors[0]); }
 
   // Data members
-  uint64_t visits        = 0;         // number of visits by the UCT algorithm
-  uint64_t sons          = 0;         // total number of legal moves
-  uint64_t expandedSsons = 0;         // number of sons expanded by the UCT algorithm
-  Reward   reward        = 0.0;       // reward from the point of view of the side to move
-  Move     lastMove      = MOVE_NONE; // the move between the parent and this node
+  uint64_t       visits        = 0;         // number of visits by the UCT algorithm
+  Reward         reward        = 0.0;       // reward from the point of view of the side to move
+  int            expandedSsons = 0;         // number of sons expanded by the UCT algorithm
+  int            sons          = 0;         // total number of legal moves
+  Move           lastMove      = MOVE_NONE; // the move between the parent and this node
+  MoveAndPrior   priors[MAX_SONS];
 };
 
 
 typedef tree<UCTInfo> Node;
 
 
-UCTInfo get_uct_infos(Node n) {
+UCTInfo& get_uct_infos(Node n) {
   return n.begin().node->data;
 }
 
 Move move_of(Node n) {
     return get_uct_infos(n).last_move();
+}
+
+MoveAndPrior* get_list_of_priors(Node n) {
+    return get_uct_infos(n).priors_list();
 }
 
 

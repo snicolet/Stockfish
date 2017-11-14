@@ -24,6 +24,7 @@
 #include <cstddef> // For offsetof()
 #include <cstring> // For std::memset, std::memcmp
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
 #include "misc.h"
@@ -219,6 +220,26 @@ void UCT::undo_move() {
     pos.undo_move(stack[ply].currentMove);
 }
 
+/// UCT::add_prior_to_node() adds the given (move,prior) pair as a new son for a node
+void add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
+   UCTInfo& infos = get_uct_infos(node);
+   
+   assert(infos.sons < MAX_SONS);
+   
+   if (infos.sons < MAX_SONS)
+   {
+       infos.priors[infos.sons].move  = m;
+       infos.priors[infos.sons].prior = prior;
+       infos.sons++;
+       
+       assert(infos.sons == moveCount);
+   }
+   else
+   {
+   		std::cerr << "ERROR : too many sons (" << infos.sons << ") in add_prior_to_node()" << std::endl;
+   }
+}
+
 
 /// UCT::generate_moves() does some Stockfish gimmick to iterate over legal moves
 /// of the current position, in a sensible order.
@@ -245,13 +266,26 @@ void UCT::generate_moves() {
     MovePicker mp(pos, ttMove, depth, mh, cph, contHist, countermove, killers);
 
     Move move;
+    Reward prior;
     int moveCount = 0;
-
+    
+    // generate the legal moves and calculate their priors
     while ((move = mp.next_move()) != MOVE_NONE)
         if (pos.legal(move))
         {
             stack[ply].moveCount = ++moveCount;
+            
+            prior = calculate_prior(move, moveCount);
+            add_prior_to_node(currentNode, move, prior, moveCount);
         }
+    
+    // sort the priors
+    int n = get_uct_infos(currentNode).sons;
+    if (n > 0)
+    {
+        MoveAndPrior* priors = get_list_of_priors(currentNode);
+        std::sort(priors, priors + n, CompareMoveAndPrior);
+    }
 }
 
 /// UCT::evaluate_with_minimax() evaluates the current position in the tree
