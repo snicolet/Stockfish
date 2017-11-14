@@ -77,7 +77,7 @@ public:
   Reward calculate_prior(Move m, int moveCount);
   Reward value_to_reward(Value v);
   Value reward_to_value(Reward r);
-  
+
   // Other helpers
   double get_exploration_constant();
   void set_exploration_constant(double C);
@@ -97,7 +97,7 @@ private:
   uint64_t        descentCnt;
   uint64_t        playoutCnt;
   uint64_t        doMoveCnt;
-  
+
   // Stack to do/undo the moves: for compatibility with the alpha-beta search implementation,
   // we want to be able to reference from stack[-4] to stack[MAX_PLY + 2].
   Search::Stack   stackBuffer[MAX_PLY+7] , *stack  = stackBuffer+4;
@@ -143,7 +143,7 @@ void UCT::create_root(Position& p) {
     // TODO : what to do with killers ???
 
     // TODO : setupStates should probably come the caller, as a global ???
-    StateListPtr setupStates(new std::deque<StateInfo>(1));   
+    StateListPtr setupStates(new std::deque<StateInfo>(1));
 
     // Save a hard copy of the root position
     StateInfo tmp = setupStates->back();
@@ -185,7 +185,7 @@ Node UCT::best_child(Node n, double c) {
 }
 
 /// UCT::set_exploration_constant() changes the exploration constant of the UCB formula.
-/// 
+///
 /// This constant sets the balance between the exploitation of past results and the
 /// exploration of new branches in the UCT tree. The higher the constant, the more
 /// likely is the algorithm to explore new parts of the tree, whereas lower values
@@ -223,15 +223,15 @@ void UCT::undo_move() {
 /// UCT::add_prior_to_node() adds the given (move,prior) pair as a new son for a node
 void add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
    UCTInfo& infos = get_uct_infos(node);
-   
+
    assert(infos.sons < MAX_SONS);
-   
+
    if (infos.sons < MAX_SONS)
    {
        infos.priors[infos.sons].move  = m;
        infos.priors[infos.sons].prior = prior;
        infos.sons++;
-       
+
        assert(infos.sons == moveCount);
    }
    else
@@ -255,12 +255,12 @@ void UCT::generate_moves() {
     Move     ttMove      = MOVE_NONE;  // FIXME
     Move*    killers     = stack[ply].killers;
     Depth    depth       = 30 * ONE_PLY;
-  
+
     const CapturePieceToHistory* cph   = &thread->captureHistory;
     const ButterflyHistory* mh         = &thread->mainHistory;
-    const PieceToHistory*   contHist[] = { stack[ply-1].contHistory, 
-                                           stack[ply-2].contHistory, 
-                                           nullptr, 
+    const PieceToHistory*   contHist[] = { stack[ply-1].contHistory,
+                                           stack[ply-2].contHistory,
+                                           nullptr,
                                            stack[ply-4].contHistory };
 
     MovePicker mp(pos, ttMove, depth, mh, cph, contHist, countermove, killers);
@@ -268,17 +268,17 @@ void UCT::generate_moves() {
     Move move;
     Reward prior;
     int moveCount = 0;
-    
+
     // generate the legal moves and calculate their priors
     while ((move = mp.next_move()) != MOVE_NONE)
         if (pos.legal(move))
         {
             stack[ply].moveCount = ++moveCount;
-            
+
             prior = calculate_prior(move, moveCount);
             add_prior_to_node(currentNode, move, prior, moveCount);
         }
-    
+
     // sort the priors
     int n = get_uct_infos(currentNode).sons;
     if (n > 0)
@@ -301,11 +301,11 @@ Value UCT::evaluate_with_minimax(Depth depth) {
 /// the son, or the type of the move (good capture/quiet/bad capture), etc).
 Reward UCT::calculate_prior(Move move, int n) {
     Reward prior;
-  
+
     do_move(move);
     prior = value_to_reward(evaluate_with_minimax(DEPTH_ZERO));
     undo_move();
-  
+
     return prior;
 }
 
@@ -327,7 +327,7 @@ Value UCT::reward_to_value(Reward r)
 {
     if (r > 0.99) return  VALUE_KNOWN_WIN;
     if (r < 0.01) return -VALUE_KNOWN_WIN;
-    
+
     const double g = 546.14353597715121;  //  this is 1 / k
     double v = g * log(r / (1.0 - r)) ;
     return Value(int(v));

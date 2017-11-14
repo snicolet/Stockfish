@@ -41,8 +41,8 @@ struct MoveAndPrior {
   Reward prior;
 };
 
-struct { 
-  bool operator()(MoveAndPrior a, MoveAndPrior b) const { return a.prior < b.prior; }   
+struct {
+  bool operator()(MoveAndPrior a, MoveAndPrior b) const { return a.prior < b.prior; }
 } CompareMoveAndPrior;
 
 const int MAX_SONS = 64;

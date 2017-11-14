@@ -1,6 +1,6 @@
-/* 
+/*
 
-	A collection of miscellaneous utilities that operate on the templated 
+	A collection of miscellaneous utilities that operate on the templated
 	tree.hh class.
 
 
@@ -21,7 +21,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- 
+
 */
 
 #ifndef tree_util_hh_
@@ -36,7 +36,7 @@ template<class T>
 void print_tree_bracketed(const tree<T>& t, std::ostream& str=std::cout);
 
 template<class T>
-void print_subtree_bracketed(const tree<T>& t, typename tree<T>::iterator iRoot, 
+void print_subtree_bracketed(const tree<T>& t, typename tree<T>::iterator iRoot,
 									  std::ostream& str=std::cout);
 
 
@@ -45,7 +45,7 @@ void print_subtree_bracketed(const tree<T>& t, typename tree<T>::iterator iRoot,
 // by calling printSingleRoot.
 
 template<class T>
-void print_tree_bracketed(const tree<T>& t, std::ostream& str) 
+void print_tree_bracketed(const tree<T>& t, std::ostream& str)
 	{
 	int headCount = t.number_of_siblings(t.begin());
 	int headNum = 0;
@@ -61,7 +61,7 @@ void print_tree_bracketed(const tree<T>& t, std::ostream& str)
 // Print everything under this root in a flat, bracketed structure.
 
 template<class T>
-void print_subtree_bracketed(const tree<T>& t, typename tree<T>::iterator iRoot, std::ostream& str) 
+void print_subtree_bracketed(const tree<T>& t, typename tree<T>::iterator iRoot, std::ostream& str)
 	{
 	if(t.empty()) return;
 	if (t.number_of_children(iRoot) == 0) {
