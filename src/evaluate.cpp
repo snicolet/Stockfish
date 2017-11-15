@@ -864,6 +864,12 @@ namespace {
 
     score += evaluate_initiative(eg_value(score));
 
+    if (pos.opposite_bishops())
+    {
+        int opb = std::min( 16, std::abs(mg_value(score)) );
+        score += make_score(opb * (mg_value(score) > 0 ? 1 : -1) , 0);
+    }
+
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = evaluate_scale_factor(eg_value(score));
     v =  mg_value(score) * int(me->game_phase())
