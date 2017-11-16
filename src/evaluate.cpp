@@ -754,7 +754,7 @@ namespace {
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
-    int shuffling = pos.aging() ? 4 * pos.rule50_count() : 0;
+    int shuffling = pos.aging() ? 4 * (pos.rule50_count() - 7) : 0;
 
     // Compute the initiative bonus for the attacking side
     int initiative =   8 * (pe->pawn_asymmetry() + kingDistance - 17)
