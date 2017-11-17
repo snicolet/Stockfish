@@ -760,14 +760,17 @@ namespace {
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
     bool StockfishIsAttacking = mg * Optimism[ALL_PIECES][WHITE] > 0;
+    bool oppositeBishops =    pos.opposite_bishops() 
+                           && !(pe->passed_pawns(WHITE) | pe->passed_pawns(BLACK));
 
-    // Compute the initiative bonus
-
-    initiative_mg = StockfishIsAttacking ? pieces : 0;
+    // Compute the initiative bonuses. These bonuses are from the point of view
+    // of the attacking (stronger) side.
 
     initiative_eg =   8 * (asymmetry + outflanking - 17)
                    + 12 * pawns
                    + 16 * bothFlanks;
+
+    initiative_mg = StockfishIsAttacking ? -16 * oppositeBishops + pieces : 0 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the midgame/endgame values, and that we carefully cap the bonus
