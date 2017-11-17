@@ -770,7 +770,7 @@ namespace {
                    + 12 * pawns
                    + 16 * bothFlanks;
 
-    initiative_mg = StockfishIsAttacking ? -16 * oppositeBishops + pieces : 0 ;
+    initiative_mg = StockfishIsAttacking ? pieces : -16 * oppositeBishops;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the midgame/endgame values, and that we carefully cap the bonus
