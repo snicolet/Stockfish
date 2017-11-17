@@ -809,7 +809,7 @@ namespace {
             return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
     }
 
-    return StockfishIsAttacking ? ScaleFactor(3 * sf / 4) : sf;
+    return StockfishIsAttacking ? sf : ScaleFactor(5 * sf / 4);
   }
 
 
