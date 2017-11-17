@@ -99,7 +99,7 @@ namespace {
     template<Color Us> Score evaluate_space();
     template<Color Us, PieceType Pt> Score evaluate_pieces();
     ScaleFactor evaluate_scale_factor(Value eg);
-    Score evaluate_initiative(Score s);
+    Score evaluate_initiative(Value eg);
 
     // Data members
     const Position& pos;
@@ -746,39 +746,28 @@ namespace {
   // status of the players.
 
   template<Tracing T>
-  Score Evaluation<T>::evaluate_initiative(Score s) {
-
-    int initiative_mg, initiative_eg;
-
-    Value mg = mg_value(s);
-    Value eg = eg_value(s);
+  Score Evaluation<T>::evaluate_initiative(Value eg) {
 
     int asymmetry   = pe->pawn_asymmetry();
     int pawns       = pos.count<PAWN>();
-    int pieces      = pos.count<ALL_PIECES>();
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
-    bool StockfishIsAttacking = mg * Optimism[ALL_PIECES][WHITE] > 0;
-    bool oppositeBishops =    pos.opposite_bishops() 
-                           && !(pe->passed_pawns(WHITE) | pe->passed_pawns(BLACK));
 
     // Compute the initiative bonuses. These bonuses are from the point of view
     // of the attacking (stronger) side.
 
-    initiative_eg =   8 * (asymmetry + outflanking - 17)
-                   + 12 * pawns
-                   + 16 * bothFlanks;
-
-    initiative_mg = StockfishIsAttacking ? pieces : -16 * oppositeBishops;
+    int initiative_eg =   8 * (asymmetry + outflanking - 17)
+                       + 12 * pawns
+                       + 16 * bothFlanks;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the midgame/endgame values, and that we carefully cap the bonus
     // so that the values will never change sign after the bonus.
-    int u = ((mg > 0) - (mg < 0)) * std::max(initiative_mg, -abs(mg));
+
     int v = ((eg > 0) - (eg < 0)) * std::max(initiative_eg, -abs(eg));
 
-    Score score = make_score(u, v);
+    Score score = make_score(0, v);
 
     if (T)
         Trace::add(INITIATIVE, score);
@@ -794,6 +783,7 @@ namespace {
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     ScaleFactor sf = me->scale_factor(pos, strongSide);
+    bool StockfishIsAttacking = eg * Optimism[ALL_PIECES][WHITE] > 0;
 
     // If we don't already have an unusual scale factor, check for certain
     // types of endgames, and use a lower scale for those.
@@ -819,7 +809,7 @@ namespace {
             return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
     }
 
-    return sf;
+    return StockfishIsAttacking ? ScaleFactor(3 * sf / 4) : sf;
   }
 
 
@@ -879,7 +869,7 @@ namespace {
         score +=  evaluate_space<WHITE>()
                 - evaluate_space<BLACK>();
 
-    score += evaluate_initiative(score);
+    score += evaluate_initiative(eg_value(score));
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = evaluate_scale_factor(eg_value(score));
