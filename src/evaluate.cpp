@@ -768,8 +768,8 @@ namespace {
                            && !(pe->passed_pawns(WHITE) | pe->passed_pawns(BLACK));
     */
 
-    // Compute the initiative bonuses. These bonuses are from the point of view
-    // of the attacking (stronger) side.
+    // Compute the midgame and endgame initiative bonuses. These bonuses are
+    // from the point of view of the attacking (stronger) side.
 
     initiative_eg =   8 * (asymmetry + outflanking - 17)
                    + 12 * pawns
