@@ -800,7 +800,6 @@ namespace {
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     ScaleFactor sf = me->scale_factor(pos, strongSide);
-    bool StockfishIsAttacking = eg * Optimism[ALL_PIECES][WHITE] > 0;
 
     // If we don't already have an unusual scale factor, check for certain
     // types of endgames, and use a lower scale for those.
@@ -826,7 +825,7 @@ namespace {
             return ScaleFactor(37 + 7 * pos.count<PAWN>(strongSide));
     }
 
-    return StockfishIsAttacking ? ScaleFactor(3 * sf / 4) : sf;
+    return sf;
   }
 
 
