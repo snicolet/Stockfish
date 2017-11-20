@@ -39,14 +39,14 @@ typedef double Reward;
 
 /// UCTInfo class stores information in a node
 
-struct MoveAndPrior {
+struct Edge {
   Move move;
   Reward prior;
 };
 
 struct {
-  bool operator()(MoveAndPrior a, MoveAndPrior b) const { return a.prior < b.prior; }
-} CompareMoveAndPrior;
+  bool operator()(Edge a, Edge b) const { return a.prior < b.prior; }
+} ComparePrior;
 
 const int MAX_SONS = 64;
 
@@ -54,7 +54,7 @@ class UCTInfo {
 public:
 
   Move           last_move()   { return lastMove; }
-  MoveAndPrior*  priors_list() { return &(priors[0]); }
+  Edge*          edges_list()  { return &(edges[0]); }
 
   // Data members
   uint64_t       visits        = 0;         // number of visits by the UCT algorithm
@@ -62,7 +62,7 @@ public:
   int            expandedSons  = 0;         // number of sons expanded by the UCT algorithm
   int            sons          = 0;         // total number of legal moves
   Move           lastMove      = MOVE_NONE; // the move between the parent and this node
-  MoveAndPrior   priors[MAX_SONS];
+  Edge           edges[MAX_SONS];
 };
 
 

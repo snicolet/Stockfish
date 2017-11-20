@@ -59,8 +59,8 @@ Move move_of(Node node) {
     return get_infos(node)->last_move();
 }
 
-MoveAndPrior* get_list_of_priors(Node node) {
-    return get_infos(node)->priors_list();
+Edge* get_list_of_edges(Node node) {
+    return get_infos(node)->edges_list();
 }
 
 int number_of_sons(Node node) {
@@ -182,7 +182,7 @@ void UCT::backup(Node node, Reward r) {
 
 /// UCT::best_move() selects the best child of a node according to the UCT formula
 Move UCT::best_move(Node node, double C) {
-    MoveAndPrior* moves = get_list_of_priors(node);
+    Edge* moves = get_list_of_edges(node);
     Move best = MOVE_NONE;
     
     double bestValue = -100000000.0;
@@ -248,8 +248,8 @@ void add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
 
    if (s->sons < MAX_SONS)
    {
-       s->priors[s->sons].move  = m;
-       s->priors[s->sons].prior = prior;
+       s->edges[s->sons].move  = m;
+       s->edges[s->sons].prior = prior;
        s->sons++;
 
        assert(s->sons == moveCount);
@@ -299,12 +299,12 @@ void UCT::generate_moves() {
             add_prior_to_node(current_node(), move, prior, moveCount);
         }
 
-    // sort the priors
+    // Sort the moves according to their prior value
     int n = number_of_sons(current_node());
     if (n > 0)
     {
-        MoveAndPrior* priors = get_list_of_priors(current_node());
-        std::sort(priors, priors + n, CompareMoveAndPrior);
+        Edge* edges = get_list_of_edges(current_node());
+        std::sort(edges, edges + n, ComparePrior);
     }
 }
 
