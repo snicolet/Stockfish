@@ -58,7 +58,6 @@ Node create_node(const Position& pos) {
 }
 
 UCTInfo* get_infos(Node node) {
-  //return &(node.begin().node->data);
   return node;
 }
 

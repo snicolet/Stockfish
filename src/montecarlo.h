@@ -66,8 +66,6 @@ public:
   Edge           edges[MAX_SONS];
 };
 
-
-//typedef tree<UCTInfo> Node;
 typedef UCTInfo* Node;
 
 
