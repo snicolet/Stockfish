@@ -53,8 +53,29 @@ using namespace std;
 using std::string;
 
 
+UCTHashTable UCTTable;
+
 Node create_node(const Position& pos) {
-   return nullptr;  // TODO, FIXME : this should create a Node !
+
+   Key key1 = pos.key();
+   Key key2 = pos.pawn_key();
+   Node node = UCTTable[key1];
+
+   // If node already exists, return it
+   if (node->key1 == key1 && node->key2 == key2)
+       return node;
+
+   // Otherwise create a new node. This will overwrite any node in the 
+   // hash table in the same location.
+
+   node->key1         = key1;
+   node->key2         = key2;
+   node->visits       = 0;         // number of visits by the UCT algorithm
+   node->expandedSons = 0;         // number of sons expanded by the UCT algorithm
+   node->sons         = 0;         // total number of legal moves
+   node->lastMove     = MOVE_NONE; // the move between the parent and this node
+
+   return node;
 }
 
 UCTInfo* get_infos(Node node) {
@@ -99,7 +120,6 @@ void UCT::create_root(Position& p) {
 
     // Initialize the global counters
     doMoveCnt  = 0;
-    treeSize   = 0;
     descentCnt = 0;
     ply        = 0;
 
@@ -130,12 +150,14 @@ void UCT::create_root(Position& p) {
 /// UCT::computational_budget() stops the search if the computational budget
 /// has been reached (time limit, or number of nodes, etc.)
 bool UCT::computational_budget() {
-    return (treeSize < 5);
+    return (descentCnt < 5);
 }
 
 
 /// UCT::tree_policy() selects the next node to be expanded
 Node UCT::tree_policy() {
+    assert(current_node() == root);
+
     descentCnt++;
     return root;
 }

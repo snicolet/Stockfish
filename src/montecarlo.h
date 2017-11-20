@@ -59,7 +59,9 @@ public:
   Edge*          edges_list()  { return &(edges[0]); }
 
   // Data members
-  int            visits        = 0;
+  Key            key1          = 0;
+  Key            key2          = 0;
+  int            visits        = 0;         // number of visits by the UCT algorithm
   int            expandedSons  = 0;         // number of sons expanded by the UCT algorithm
   int            sons          = 0;         // total number of legal moves
   Move           lastMove      = MOVE_NONE; // the move between the parent and this node
@@ -70,7 +72,6 @@ typedef UCTInfo* Node;
 
 
 const int UCT_HASH_SIZE = 8192;
-
 typedef HashTable<UCTInfo, UCT_HASH_SIZE> UCTHashTable;
 
 
@@ -123,7 +124,6 @@ private:
 
   // Counters
   uint64_t        ply;
-  uint64_t        treeSize;
   uint64_t        descentCnt;
   uint64_t        playoutCnt;
   uint64_t        doMoveCnt;
