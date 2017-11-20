@@ -46,10 +46,6 @@ Node create_node(const Position& pos) {
    return nullptr;  // TODO, FIXME : this should create a Node !
 }
 
-Node son_after(Node node, Move move) {
-   return node;    /// TODO, FIXME : this is the son after move from the given node !
-}
-
 UCTInfo* get_infos(Node node) {
   //return &(node.begin().node->data);
   return node;
@@ -123,11 +119,11 @@ void UCT::create_root(Position& p) {
     StateInfo tmp = setupStates->back();
     rootPosition.set(pos.fen(), pos.is_chess960(), &setupStates->back(), pos.this_thread());
     setupStates->back() = tmp;
-    
+
     // Erase the list of nodes, and set the root node
     std::memset(nodesBuffer, 0, sizeof(nodesBuffer));
     root = nodes[0] = create_node(pos);
-    
+
     assert(ply == 0);
     assert(root == nodes[0]);
 }
@@ -155,21 +151,14 @@ Reward UCT::playout_policy(Node node) {
 
 
 /// UCT::UCB() calculates the upper confidence bound formula for the son which
-/// we reach from node "node" by playing move "move".
-double UCT::UCB(Node node, Move move, double C) {
-    UCTInfo* current = get_infos(node);
-    UCTInfo* child   = get_infos(son_after(node, move));
+/// we reach from node "node" by following the edge "edge".
+double UCT::UCB(Node node, Edge& edge, double C) {
+    UCTInfo* father = get_infos(node);
     double result;
 
-    if (!child || child->visits == 0)
-        result = 100000000.0;
-    else
-    {
-        assert(current->visits != 0);
-        
-        result = child->reward / child->visits;
-        result += C * sqrt(log(current->visits) / child->visits);
-    }
+
+    result = edge.actionValue / edge.visits;
+    result += C * edge.prior * sqrt(father->visits) / (1 + edge.visits);
 
     return result;
 }
@@ -182,17 +171,17 @@ void UCT::backup(Node node, Reward r) {
 
 /// UCT::best_move() selects the best child of a node according to the UCT formula
 Move UCT::best_move(Node node, double C) {
-    Edge* moves = get_list_of_edges(node);
+    Edge* edges = get_list_of_edges(node);
     Move best = MOVE_NONE;
-    
+
     double bestValue = -100000000.0;
     for (int k = 0 ; k < number_of_sons(node) ; k++)
     {
-        double r = UCB(node, moves[k].move, C);
+        double r = UCB(node, edges[k], C);
         if ( r > bestValue )
         {
             bestValue = r;
-            best = moves[k].move;
+            best = edges[k].move;
         }
     }
 
@@ -244,11 +233,12 @@ void UCT::undo_move() {
 void add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
    UCTInfo* s = get_infos(node);
    int n = s->sons;
-   
+
    assert(n < MAX_SONS);
 
    if (n < MAX_SONS)
    {
+       s->edges[n].visits         = 0;
        s->edges[n].move           = m;
        s->edges[n].prior          = prior;
        s->edges[n].actionValue    = 0.0;
@@ -309,6 +299,11 @@ void UCT::generate_moves() {
         Edge* edges = get_list_of_edges(current_node());
         std::sort(edges, edges + n, ComparePrior);
     }
+
+    // Indicate that we have just expanded the current node
+    UCTInfo* s = get_infos(current_node());
+    s->visits       = 1;
+    s->expandedSons = 0;
 }
 
 /// UCT::evaluate_with_minimax() evaluates the current position in the tree

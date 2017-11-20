@@ -60,8 +60,7 @@ public:
   Edge*          edges_list()  { return &(edges[0]); }
 
   // Data members
-  int            visits        = 0;         // number of visits by the UCT algorithm
-  Reward         reward        = 0.0;       // reward from the point of view of the side to move
+  int            visits        = 0;
   int            expandedSons  = 0;         // number of sons expanded by the UCT algorithm
   int            sons          = 0;         // total number of legal moves
   Move           lastMove      = MOVE_NONE; // the move between the parent and this node
@@ -72,6 +71,10 @@ public:
 //typedef tree<UCTInfo> Node;
 typedef UCTInfo* Node;
 
+
+const int UCT_HASH_SIZE = 8192;
+
+typedef HashTable<UCTInfo, UCT_HASH_SIZE> UCTHashTable;
 
 
 class UCT {
@@ -92,8 +95,8 @@ public:
   void backup(Node node, Reward r);
 
   // The UCB formula
-  double UCB(Node node, Move move, double C);
-  
+  double UCB(Node node, Edge& edge, double C);
+
   // Playing moves
   Node current_node();
   void do_move(Move move);
