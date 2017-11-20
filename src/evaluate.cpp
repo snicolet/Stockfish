@@ -751,22 +751,16 @@ namespace {
     int initiative_mg, initiative_eg;
 
     Value mg = mg_value(s);
-    Value eg = eg_value(s);
+    Value eg = eg_value(s) + 20 * Optimism[ALL_PIECES][WHITE];
 
     int asymmetry   = pe->pawn_asymmetry();
     int pawns       = pos.count<PAWN>();
     int pieces      = pos.count<ALL_PIECES>();
-    int rooks       = pos.count<ROOK>();
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
 
     bool StockfishIsAttacking = mg * Optimism[ALL_PIECES][WHITE] > 0;
-
-    /*
-    bool oppositeBishops =    pos.opposite_bishops() 
-                           && !(pe->passed_pawns(WHITE) | pe->passed_pawns(BLACK));
-    */
 
     // Compute the midgame and endgame initiative bonuses. These bonuses are
     // from the point of view of the attacking (stronger) side.
@@ -775,8 +769,7 @@ namespace {
                    + 12 * pawns
                    + 16 * bothFlanks;
 
-    initiative_mg = StockfishIsAttacking ? 3 * pieces + 2 * rooks - 30 : 
-                                              -pieces - 4 * rooks;
+    initiative_mg = StockfishIsAttacking ? pieces : 0;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the midgame/endgame values, and that we carefully cap the bonus
