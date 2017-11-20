@@ -243,13 +243,16 @@ void UCT::undo_move() {
 /// UCT::add_prior_to_node() adds the given (move,prior) pair as a new son for a node
 void add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
    UCTInfo* s = get_infos(node);
+   int n = s->sons;
+   
+   assert(n < MAX_SONS);
 
-   assert(s->sons < MAX_SONS);
-
-   if (s->sons < MAX_SONS)
+   if (n < MAX_SONS)
    {
-       s->edges[s->sons].move  = m;
-       s->edges[s->sons].prior = prior;
+       s->edges[n].move           = m;
+       s->edges[n].prior          = prior;
+       s->edges[n].actionValue    = 0.0;
+       s->edges[n].meanAcionValue = 0.0;
        s->sons++;
 
        assert(s->sons == moveCount);
@@ -289,7 +292,7 @@ void UCT::generate_moves() {
     Reward prior;
     int moveCount = 0;
 
-    // generate the legal moves and calculate their priors
+    // Generate the legal moves and calculate their priors
     while ((move = mp.next_move()) != MOVE_NONE)
         if (pos.legal(move))
         {

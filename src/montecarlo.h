@@ -40,8 +40,11 @@ typedef double Reward;
 /// UCTInfo class stores information in a node
 
 struct Edge {
-  Move move;
-  Reward prior;
+  Move    move;
+  int     visits;
+  Reward  prior;
+  Reward  actionValue;
+  Reward  meanAcionValue;
 };
 
 struct {
@@ -57,7 +60,7 @@ public:
   Edge*          edges_list()  { return &(edges[0]); }
 
   // Data members
-  uint64_t       visits        = 0;         // number of visits by the UCT algorithm
+  int            visits        = 0;         // number of visits by the UCT algorithm
   Reward         reward        = 0.0;       // reward from the point of view of the side to move
   int            expandedSons  = 0;         // number of sons expanded by the UCT algorithm
   int            sons          = 0;         // total number of legal moves
