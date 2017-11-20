@@ -31,7 +31,6 @@
 #include "search.h"
 #include "thread.h"
 #include "types.h"
-#include "tree-3.1/tree.hh"
 
 
 typedef double Reward;

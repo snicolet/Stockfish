@@ -36,7 +36,18 @@
 #include "uci.h"
 #include "montecarlo.h"
 #include "syzygy/tbprobe.h"
-#include "tree-3.1/tree.hh"
+
+
+// UCT is a class implementing Monte-Carlo Tree Search for Stockfish.
+// We are following the survey http://mcts.ai/pubs/mcts-survey-master.pdf
+// for the Monte-Carlo algorithm description and the notations used.
+
+// Bibliography:
+//     http://mcts.ai/pubs/mcts-survey-master.pdf
+//     https://www.ke.tu-darmstadt.de/lehre/arbeiten/bachelor/2012/Arenz_Oleg.pdf
+//     https://dke.maastrichtuniversity.nl/m.winands/publications.html
+
+
 
 using namespace std;
 using std::string;
@@ -62,18 +73,6 @@ Edge* get_list_of_edges(Node node) {
 int number_of_sons(Node node) {
     return get_infos(node)->sons;
 }
-
-
-
-// UCT is a class implementing Monte-Carlo Tree Search for Stockfish.
-// We are following the survey http://mcts.ai/pubs/mcts-survey-master.pdf
-// for the Monte-Carlo algorithm description and the notations used.
-
-// Bibliography:
-//     http://mcts.ai/pubs/mcts-survey-master.pdf
-//     https://www.ke.tu-darmstadt.de/lehre/arbeiten/bachelor/2012/Arenz_Oleg.pdf
-//     https://dke.maastrichtuniversity.nl/m.winands/publications.html
-
 
 // UCT::search() is the main function of UCT algorithm.
 
