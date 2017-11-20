@@ -27,6 +27,9 @@
 #include <string>
 
 #include "bitboard.h"
+#include "position.h"
+#include "search.h"
+#include "thread.h"
 #include "types.h"
 #include "tree-3.1/tree.hh"
 
@@ -67,31 +70,67 @@ public:
 typedef UCTInfo* Node;
 
 
-Node create_node(const Position& pos) {
-   return nullptr;  // TODO, FIXME : this should create a Node !
-}
 
-Node son_after(Node node, Move move) {
-   return node;    /// TODO, FIXME : this is the son after move from the given node !
-}
+class UCT {
+public:
 
-UCTInfo* get_infos(Node node) {
-  //return &(node.begin().node->data);
-  return node;
-}
+  // Constructors
+  UCT(Position& p);
 
-Move move_of(Node node) {
-    return get_infos(node)->last_move();
-}
+  // The main function of the class
+  Move search(Position& pos);
 
-MoveAndPrior* get_list_of_priors(Node node) {
-    return get_infos(node)->priors_list();
-}
+  // The high-level description of the UCT algorithm
+  void create_root(Position& p);
+  bool computational_budget();
+  Node tree_policy();
+  Move best_move(Node node, double C);
+  Reward playout_policy(Node node);
+  void backup(Node node, Reward r);
 
-int number_of_sons(Node node) {
-    return get_infos(node)->sons;
-}
+  // The UCB formula
+  double UCB(Node node, Move move, double C);
+  
+  // Playing moves
+  Node current_node();
+  void do_move(Move move);
+  void undo_move();
+  void generate_moves();
 
+  // Evaluations of nodes in the tree
+  Value evaluate_with_minimax(Depth d);
+  Reward calculate_prior(Move m, int moveCount);
+  Reward value_to_reward(Value v);
+  Value reward_to_value(Reward r);
+
+  // Other helpers
+  double get_exploration_constant();
+  void set_exploration_constant(double C);
+
+  // Testing
+  void test();
+
+private:
+
+  // Data members
+  Position&       pos;                  // The current position of the tree, changes during search
+  Position        rootPosition;         // A full copy of the position used to initialise the class
+  Node            root;                 // A pointer to the root
+  double          explorationConstant = 10.0;   // Default value for the UCB formula
+
+  // Counters
+  uint64_t        ply;
+  uint64_t        treeSize;
+  uint64_t        descentCnt;
+  uint64_t        playoutCnt;
+  uint64_t        doMoveCnt;
+
+  // Stack to do/undo the moves: for compatibility with the alpha-beta search implementation,
+  // we want to be able to reference from stack[-4] to stack[MAX_PLY + 2].
+  Search::Stack   stackBuffer [MAX_PLY+7],  *stack  = stackBuffer  + 4;
+  StateInfo       statesBuffer[MAX_PLY+7],  *states = statesBuffer + 4;
+  Node            nodesBuffer [MAX_PLY+7],  *nodes  = nodesBuffer  + 4;
+};
 
 
 #endif // #ifndef MONTECARLO_H_INCLUDED

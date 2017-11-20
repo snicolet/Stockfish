@@ -25,6 +25,7 @@
 
 #include "evaluate.h"
 #include "movegen.h"
+#include "montecarlo.h"
 #include "position.h"
 #include "search.h"
 #include "thread.h"
@@ -152,6 +153,7 @@ namespace {
 
     for (const auto& cmd : list)
     {
+        std::cerr << cmd << std::endl;
         istringstream is(cmd);
         is >> skipws >> token;
 
@@ -161,6 +163,7 @@ namespace {
             go(pos, is, states);
             Threads.main()->wait_for_search_finished();
             nodes += Threads.nodes_searched();
+            UCT(pos).test();
         }
         else if (token == "setoption")  setoption(is);
         else if (token == "position")   position(pos, is, states);
@@ -234,6 +237,7 @@ void UCI::loop(int argc, char* argv[]) {
       // Additional custom non-UCI commands, mainly for debugging
       else if (token == "flip")  pos.flip();
       else if (token == "bench") bench(pos, is, states);
+      else if (token == "uct")   UCT(pos).test();
       else if (token == "d")     sync_cout << pos << sync_endl;
       else if (token == "eval")  sync_cout << Eval::trace(pos) << sync_endl;
       else
