@@ -64,7 +64,7 @@ Node get_node(const Position& pos) {
    if (node->key1 == key1 && node->key2 == key2)
        return node;
 
-   // Otherwise create a new node. This will overwrite any node in the 
+   // Otherwise create a new node. This will overwrite any node in the
    // hash table in the same location.
 
    node->key1         = key1;
@@ -182,7 +182,7 @@ Reward UCT::playout_policy(Node node) {
     playoutCnt++;
 
     generate_moves();
-    
+
     print_stats();
 
     return 1.0;
@@ -227,9 +227,9 @@ Move UCT::best_move(Node node, double C) {
 
     for (int k = 0 ; k < number_of_sons(node) ; k++)
     {
-        cerr << "move #" << k << ": " 
-            << UCI::move(edges[k].move, pos.is_chess960()) 
-            << " with prior " << edges[k].prior 
+        cerr << "move #" << k << ": "
+            << UCI::move(edges[k].move, pos.is_chess960())
+            << " with prior " << edges[k].prior
             << endl;
     }
 
@@ -243,8 +243,8 @@ Move UCT::best_move(Node node, double C) {
             best = edges[k].move;
         }
     }
-    
-    cerr << "selecting move " << UCI::move(best, pos.is_chess960()) 
+
+    cerr << "selecting move " << UCI::move(best, pos.is_chess960())
          << " with UCB " << bestValue
          << endl;
 
@@ -307,9 +307,9 @@ void UCT::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
        node->edges[n].meanAcionValue = 0.0;
        node->sons++;
 
-       cerr << "Adding move #" << n << ": " 
-            << UCI::move(m, pos.is_chess960()) 
-            << " with prior " << prior 
+       cerr << "Adding move #" << n << ": "
+            << UCI::move(m, pos.is_chess960())
+            << " with prior " << prior
             << endl;
 
        assert(node->sons == moveCount);
@@ -436,9 +436,9 @@ void UCT::test() {
    cerr << "---------------------------------------------------------------------------------" << endl;
    cerr << "Testing UCT for position..." << endl;
    cerr << pos << endl;
-   
+
    search();
-   
+
    cerr << "...end of UCT testing!" << endl;
    cerr << "---------------------------------------------------------------------------------" << endl;
 }
