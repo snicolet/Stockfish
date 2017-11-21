@@ -21,58 +21,17 @@
 #ifndef MONTECARLO_H_INCLUDED
 #define MONTECARLO_H_INCLUDED
 
-#include <cassert>
-#include <deque>
-#include <memory> // For std::unique_ptr
-#include <string>
 
-#include "bitboard.h"
 #include "position.h"
-#include "search.h"
 #include "thread.h"
 #include "types.h"
 
 
+struct NodeInfo;
+struct Edge;
+
 typedef double Reward;
-
-
-/// UCTInfo class stores information in a node
-
-struct Edge {
-  Move    move;
-  int     visits;
-  Reward  prior;
-  Reward  actionValue;
-  Reward  meanAcionValue;
-};
-
-struct {
-  bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }
-} ComparePrior;
-
-const int MAX_SONS = 64;
-
-class UCTInfo {
-public:
-
-  Move           last_move()   { return lastMove; }
-  Edge*          edges_list()  { return &(edges[0]); }
-
-  // Data members
-  Key            key1          = -99;
-  Key            key2          = -553;
-  int            visits        = -373;         // number of visits by the UCT algorithm
-  int            sons          = -1003;         // total number of legal moves
-  int            expandedSons  = -5977;         // number of sons expanded by the UCT algorithm
-  Move           lastMove      = MOVE_NONE; // the move between the parent and this node
-  Edge           edges[MAX_SONS];
-};
-
-typedef UCTInfo* Node;
-
-
-const int UCT_HASH_SIZE = 8192;
-typedef HashTable<UCTInfo, UCT_HASH_SIZE> UCTHashTable;
+typedef NodeInfo* Node;
 
 
 class UCT {
@@ -82,10 +41,10 @@ public:
   UCT(Position& p);
 
   // The main function of the class
-  Move search(Position& pos);
+  Move search();
 
   // The high-level description of the UCT algorithm
-  void create_root(Position& p);
+  void create_root();
   bool computational_budget();
   Node tree_policy();
   Move best_move(Node node, double C);
@@ -138,6 +97,44 @@ private:
   StateInfo       statesBuffer[MAX_PLY+7],  *states = statesBuffer + 4;
   Node            nodesBuffer [MAX_PLY+7],  *nodes  = nodesBuffer  + 4;
 };
+
+
+const int MAX_EDGES = 64;
+
+
+/// Edge struct stores the statistics of one edge between nodes in the UCT tree
+struct Edge {
+  Move    move;
+  int     visits;
+  Reward  prior;
+  Reward  actionValue;
+  Reward  meanAcionValue;
+};
+
+/// NodeInfo struct stores information in a node of the UCT tree
+struct NodeInfo {
+public:
+
+  Move           last_move()   { return lastMove; }
+  Edge*          edges_list()  { return &(edges[0]); }
+
+  // Data members
+  Key            key1          = -99;
+  Key            key2          = -553;
+  int            visits        = -373;      // number of visits by the UCT algorithm
+  int            sons          = -1003;     // total number of legal moves
+  int            expandedSons  = -5977;     // number of sons expanded by the UCT algorithm
+  Move           lastMove      = MOVE_NONE; // the move between the parent and this node
+  Edge           edges[MAX_EDGES];
+};
+
+
+// Comparison function for edges
+struct { bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }} ComparePrior;
+
+// The UCT tree is stored implicitly in one big hash table
+const int UCT_HASH_SIZE = 8192;
+typedef HashTable<NodeInfo, UCT_HASH_SIZE> UCTHashTable;
 
 
 #endif // #ifndef MONTECARLO_H_INCLUDED

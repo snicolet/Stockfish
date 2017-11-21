@@ -21,21 +21,18 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <cstddef> // For offsetof()
 #include <cstring> // For std::memset, std::memcmp
-#include <iomanip>
 #include <iostream>
 #include <sstream>
 
 #include "misc.h"
+#include "montecarlo.h"
 #include "position.h"
 #include "search.h"
 #include "thread.h"
-#include "tt.h"
 #include "types.h"
 #include "uci.h"
-#include "montecarlo.h"
-#include "syzygy/tbprobe.h"
+
 
 
 // UCT is a class implementing Monte-Carlo Tree Search for Stockfish.
@@ -86,9 +83,9 @@ int number_of_sons(Node node) { return node->sons; }
 
 // UCT::search() is the main function of UCT algorithm.
 
-Move UCT::search(Position& p) {
+Move UCT::search() {
 
-    create_root(p);
+    create_root();
 
     while (computational_budget()) {
        print_stats();
@@ -103,11 +100,11 @@ Move UCT::search(Position& p) {
 
 /// UCT::UCT() is the constructor for the UCT class
 UCT::UCT(Position& p) : pos(p) {
-    create_root(p);
+    create_root();
 }
 
 /// UCT::create_root() initializes the UCT tree with the given position
-void UCT::create_root(Position& p) {
+void UCT::create_root() {
 
     // Initialize the global counters
     doMoveCnt  = 0;
@@ -298,10 +295,10 @@ void UCT::undo_move() {
 /// UCT::add_prior_to_node() adds the given (move,prior) pair as a new son for a node
 void UCT::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
 
-   assert(node->sons < MAX_SONS);
+   assert(node->sons < MAX_EDGES);
 
    int n = node->sons;
-   if (n < MAX_SONS)
+   if (n < MAX_EDGES)
    {
        node->edges[n].visits         = 0;
        node->edges[n].move           = m;
@@ -398,6 +395,8 @@ Value UCT::evaluate_with_minimax(Depth depth) {
 /// the son, or the type of the move (good capture/quiet/bad capture), etc).
 Reward UCT::calculate_prior(Move move, int n) {
 
+    assert(n >= 0);
+
     priorCnt++;
 
     do_move(move);
@@ -438,7 +437,7 @@ void UCT::test() {
    cerr << "Testing UCT for position..." << endl;
    cerr << pos << endl;
    
-   search(pos);
+   search();
    
    cerr << "...end of UCT testing!" << endl;
    cerr << "---------------------------------------------------------------------------------" << endl;
