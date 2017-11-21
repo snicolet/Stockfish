@@ -53,6 +53,8 @@ using std::string;
 
 UCTHashTable UCTTable;
 
+/// get_node() probe the UCT hash table to know if we can find the node 
+/// for the given position.
 Node get_node(const Position& pos) {
 
    Key key1 = pos.key();
@@ -217,8 +219,8 @@ double UCT::UCB(Node node, Edge& edge, double C) {
     return result;
 }
 
-/// UCT::backup() implements the strategy for accumulating rewards up
-/// the tree after a playout.
+/// UCT::backup() implements the strategy for accumulating rewards up the tree
+/// after a playout.
 void UCT::backup(Node node, Reward r) {
 
 
