@@ -55,7 +55,7 @@ using std::string;
 
 UCTHashTable UCTTable;
 
-Node create_node(const Position& pos) {
+Node get_node(const Position& pos) {
 
    Key key1 = pos.key();
    Key key2 = pos.pawn_key();
@@ -71,27 +71,23 @@ Node create_node(const Position& pos) {
    node->key1         = key1;
    node->key2         = key2;
    node->visits       = 0;         // number of visits by the UCT algorithm
-   node->expandedSons = 0;         // number of sons expanded by the UCT algorithm
    node->sons         = 0;         // total number of legal moves
+   node->expandedSons = 0;         // number of sons expanded by the UCT algorithm
    node->lastMove     = MOVE_NONE; // the move between the parent and this node
 
    return node;
 }
 
-UCTInfo* get_infos(Node node) {
-  return node;
-}
-
 Move move_of(Node node) {
-    return get_infos(node)->last_move();
+    return node->last_move();
 }
 
 Edge* get_list_of_edges(Node node) {
-    return get_infos(node)->edges_list();
+    return node->edges_list();
 }
 
 int number_of_sons(Node node) {
-    return get_infos(node)->sons;
+    return node->sons;
 }
 
 // UCT::search() is the main function of UCT algorithm.
@@ -101,6 +97,7 @@ Move UCT::search(Position& p) {
     create_root(p);
 
     while (computational_budget()) {
+       print_stats();
        Node node = tree_policy();
        Reward reward = playout_policy(node);
        backup(node, reward);
@@ -121,6 +118,7 @@ void UCT::create_root(Position& p) {
     // Initialize the global counters
     doMoveCnt  = 0;
     descentCnt = 0;
+    playoutCnt = 0;
     ply        = 0;
 
     // Prepare the stack to go down and up in the game tree
@@ -138,9 +136,12 @@ void UCT::create_root(Position& p) {
     rootPosition.set(pos.fen(), pos.is_chess960(), &setupStates->back(), pos.this_thread());
     setupStates->back() = tmp;
 
-    // Erase the list of nodes, and set the root node
+    // Erase the list of nodes, and set the current node to the root node
     std::memset(nodesBuffer, 0, sizeof(nodesBuffer));
-    root = nodes[0] = create_node(pos);
+    root = nodes[0] = get_node(pos);
+
+    if (current_node()->visits == 0)
+       generate_moves();
 
     assert(ply == 0);
     assert(root == nodes[0]);
@@ -150,6 +151,8 @@ void UCT::create_root(Position& p) {
 /// UCT::computational_budget() stops the search if the computational budget
 /// has been reached (time limit, or number of nodes, etc.)
 bool UCT::computational_budget() {
+    assert(current_node() == root);
+
     return (descentCnt < 5);
 }
 
@@ -159,26 +162,52 @@ Node UCT::tree_policy() {
     assert(current_node() == root);
 
     descentCnt++;
-    return root;
+
+
+    double C = get_exploration_constant();
+
+    while (current_node()->visits > 0) {
+
+        C = get_exploration_constant();
+        Move m = best_move(current_node(), C);
+
+        assert(pos.legal(m));
+
+        do_move(m);
+        nodes[ply] = get_node(pos);
+
+    }
+
+    assert(current_node()->visits == 0);
+
+    return current_node();
 }
 
 
 /// UCT::playout_policy() plays a semi random game starting from the last extended node
 Reward UCT::playout_policy(Node node) {
+
+    generate_moves();
+
     playoutCnt++;
     return 1.0;
 }
 
 
-/// UCT::UCB() calculates the upper confidence bound formula for the son which
-/// we reach from node "node" by following the edge "edge".
+/// UCT::UCB() calculates the upper confidence bound formula for the son
+/// which we reach from node "node" by following the edge "edge".
 double UCT::UCB(Node node, Edge& edge, double C) {
-    UCTInfo* father = get_infos(node);
-    double result;
 
+    int fatherVisits = node->visits;
 
-    result = edge.actionValue / edge.visits;
-    result += C * edge.prior * sqrt(father->visits) / (1 + edge.visits);
+    assert(fatherVisits > 0);
+
+    double result = 0.0;
+
+    if (edge.visits)
+        result += edge.actionValue / edge.visits;
+
+    result += C * edge.prior * sqrt(fatherVisits) / (1 + edge.visits);
 
     return result;
 }
@@ -186,13 +215,28 @@ double UCT::UCB(Node node, Edge& edge, double C) {
 /// UCT::backup() implements the strategy for accumulating rewards up
 /// the tree after a playout.
 void UCT::backup(Node node, Reward r) {
+
+
+   assert(current_node() == root);
 }
 
 
 /// UCT::best_move() selects the best child of a node according to the UCT formula
 Move UCT::best_move(Node node, double C) {
+
+    cerr << "Entering best_move()..." << endl;
+    cerr << pos << endl;
+
     Edge* edges = get_list_of_edges(node);
     Move best = MOVE_NONE;
+
+    for (int k = 0 ; k < number_of_sons(node) ; k++)
+    {
+        cerr << "move #" << k << ": " 
+            << UCI::move(edges[k].move, pos.is_chess960()) 
+            << " with prior " << edges[k].prior 
+            << endl;
+    }
 
     double bestValue = -100000000.0;
     for (int k = 0 ; k < number_of_sons(node) ; k++)
@@ -204,6 +248,10 @@ Move UCT::best_move(Node node, double C) {
             best = edges[k].move;
         }
     }
+    
+    cerr << "selecting move " << UCI::move(best, pos.is_chess960()) 
+         << " with UCB " << bestValue
+         << endl;
 
     return best;
 }
@@ -250,26 +298,30 @@ void UCT::undo_move() {
 }
 
 /// UCT::add_prior_to_node() adds the given (move,prior) pair as a new son for a node
-void add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
-   UCTInfo* s = get_infos(node);
-   int n = s->sons;
+void UCT::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
 
-   assert(n < MAX_SONS);
+   assert(node->sons < MAX_SONS);
 
+   int n = node->sons;
    if (n < MAX_SONS)
    {
-       s->edges[n].visits         = 0;
-       s->edges[n].move           = m;
-       s->edges[n].prior          = prior;
-       s->edges[n].actionValue    = 0.0;
-       s->edges[n].meanAcionValue = 0.0;
-       s->sons++;
+       node->edges[n].visits         = 0;
+       node->edges[n].move           = m;
+       node->edges[n].prior          = prior;
+       node->edges[n].actionValue    = 0.0;
+       node->edges[n].meanAcionValue = 0.0;
+       node->sons++;
 
-       assert(s->sons == moveCount);
+       cerr << "Adding move #" << n << ": " 
+            << UCI::move(m, pos.is_chess960()) 
+            << " with prior " << prior 
+            << endl;
+
+       assert(node->sons == moveCount);
    }
    else
    {
-   		std::cerr << "ERROR : too many sons (" << s->sons << ") in add_prior_to_node()" << std::endl;
+        cerr << "ERROR : too many sons (" << node->sons << ") in add_prior_to_node()" << endl;
    }
 }
 
@@ -281,6 +333,13 @@ void add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
 /// quiet moves, etc.). We have to pass various history tables to the MovePicker
 /// constructor, like in the alpha-beta implementation of move ordering.
 void UCT::generate_moves() {
+
+    assert(current_node()->visits == 0);
+
+    cerr << "Entering generate_moves()..." << endl;
+    cerr << pos << endl;
+
+    print_node(current_node());
 
     Thread*  thread      = pos.this_thread();
     Square   prevSq      = to_sq(stack[ply-1].currentMove);
@@ -309,7 +368,9 @@ void UCT::generate_moves() {
             stack[ply].moveCount = ++moveCount;
 
             prior = calculate_prior(move, moveCount);
+
             add_prior_to_node(current_node(), move, prior, moveCount);
+
         }
 
     // Sort the moves according to their prior value
@@ -321,7 +382,7 @@ void UCT::generate_moves() {
     }
 
     // Indicate that we have just expanded the current node
-    UCTInfo* s = get_infos(current_node());
+    Node s = current_node();
     s->visits       = 1;
     s->expandedSons = 0;
 }
@@ -377,9 +438,48 @@ void UCT::test() {
    cerr << "---------------------------------------------------------------------------------" << endl;
    cerr << "Testing UCT for position..." << endl;
    cerr << pos << endl;
+   
+   search(pos);
+   
    cerr << "...end of UCT testing!" << endl;
    cerr << "---------------------------------------------------------------------------------" << endl;
 }
+
+
+/// UCT::print_stats()
+void UCT::print_stats() {
+   cerr << "ply        = " << ply        << endl;
+   cerr << "descentCnt = " << descentCnt << endl;
+   cerr << "playoutCnt = " << playoutCnt << endl;
+   cerr << "doMoveCnt  = " << doMoveCnt  << endl;
+}
+
+/// UCT::print_node()
+void UCT::print_node(Node node) {
+   cerr << "isCurrent    = " << (node == current_node()) << endl;
+   cerr << "isRoot       = " << (node == root)           << endl;
+   cerr << "key1         = " << node->key1               << endl;
+   cerr << "key2         = " << node->key2               << endl;
+   cerr << "visits       = " << node->visits             << endl;
+   cerr << "sons         = " << node->sons               << endl;
+   cerr << "expandedSons = " << node->expandedSons       << endl;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

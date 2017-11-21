@@ -1480,13 +1480,19 @@ moves_loop: // When in check search starts from here
   // Use depth == DEPTH_ZERO to compute the quiescence value of the position.
 
   Value minimax_value(Position& pos, Search::Stack* ss, Depth depth) {
-    Value value, alpha = -VALUE_INFINITE, beta = VALUE_INFINITE;
+  
+    Value alpha = -VALUE_INFINITE;
+    Value beta = VALUE_INFINITE;
+    Move pv[MAX_PLY+1];
+
+    ss->pv = pv;
+
     bool givesCheck = pos.checkers();
 
-    value = depth <   ONE_PLY ?
-                   givesCheck ? -qsearch<NonPV,  true>(pos, ss, alpha, beta)
-                              : -qsearch<NonPV, false>(pos, ss, alpha, beta)
-                              : - search<NonPV>(pos, ss, alpha, beta, depth, false, false);
+    Value value = depth <   ONE_PLY ?
+                         givesCheck ? -qsearch<PV,  true>(pos, ss, alpha, beta)
+                                    : -qsearch<PV, false>(pos, ss, alpha, beta)
+                                    : - search<PV>(pos, ss, alpha, beta, depth, false, false);
 
     return value;
   }

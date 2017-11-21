@@ -160,8 +160,8 @@ namespace {
         if (token == "go")
         {
             cerr << "\nPosition: " << cnt++ << '/' << num << endl;
-            go(pos, is, states);
-            Threads.main()->wait_for_search_finished();
+            //go(pos, is, states);
+            //Threads.main()->wait_for_search_finished();
             nodes += Threads.nodes_searched();
             UCT(pos).test();
         }

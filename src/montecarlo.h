@@ -47,7 +47,7 @@ struct Edge {
 };
 
 struct {
-  bool operator()(Edge a, Edge b) const { return a.prior < b.prior; }
+  bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }
 } ComparePrior;
 
 const int MAX_SONS = 64;
@@ -59,11 +59,11 @@ public:
   Edge*          edges_list()  { return &(edges[0]); }
 
   // Data members
-  Key            key1          = 0;
-  Key            key2          = 0;
-  int            visits        = 0;         // number of visits by the UCT algorithm
-  int            expandedSons  = 0;         // number of sons expanded by the UCT algorithm
-  int            sons          = 0;         // total number of legal moves
+  Key            key1          = -99;
+  Key            key2          = -553;
+  int            visits        = -373;         // number of visits by the UCT algorithm
+  int            sons          = -1003;         // total number of legal moves
+  int            expandedSons  = -5977;         // number of sons expanded by the UCT algorithm
   Move           lastMove      = MOVE_NONE; // the move between the parent and this node
   Edge           edges[MAX_SONS];
 };
@@ -104,6 +104,7 @@ public:
   // Evaluations of nodes in the tree
   Value evaluate_with_minimax(Depth d);
   Reward calculate_prior(Move m, int moveCount);
+  void add_prior_to_node(Node node, Move m, Reward prior, int moveCount);
   Reward value_to_reward(Value v);
   Value reward_to_value(Reward r);
 
@@ -111,7 +112,9 @@ public:
   double get_exploration_constant();
   void set_exploration_constant(double C);
 
-  // Testing
+  // Testing and debugging
+  void print_stats();
+  void print_node(Node node);
   void test();
 
 private:
