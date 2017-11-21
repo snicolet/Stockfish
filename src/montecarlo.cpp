@@ -46,6 +46,8 @@
 //     http://mcts.ai/pubs/mcts-survey-master.pdf
 //     https://www.ke.tu-darmstadt.de/lehre/arbeiten/bachelor/2012/Arenz_Oleg.pdf
 //     https://dke.maastrichtuniversity.nl/m.winands/publications.html
+//     https://www.ru.is/faculty/yngvi/pdf/WinandsB11a.pdf
+//     https://www.nature.com/articles/nature24270.epdf?author_access_token=VJXbVjaSHxFoctQQ4p2k4tRgN0jAjWel9jnR3ZoTv0PVW4gB86EEpGqTRDtpIz-2rmo8-KG06gqVobU5NSCFeHILHcVFUeMsbvwS-lxjqQGg98faovwjxeTUgZAUMnRQ
 
 
 
@@ -78,17 +80,9 @@ Node get_node(const Position& pos) {
    return node;
 }
 
-Move move_of(Node node) {
-    return node->last_move();
-}
-
-Edge* get_list_of_edges(Node node) {
-    return node->edges_list();
-}
-
-int number_of_sons(Node node) {
-    return node->sons;
-}
+Move move_of(Node node) { return node->last_move(); }
+Edge* get_list_of_edges(Node node) { return node->edges_list(); }
+int number_of_sons(Node node) { return node->sons; }
 
 // UCT::search() is the main function of UCT algorithm.
 
@@ -119,9 +113,10 @@ void UCT::create_root(Position& p) {
     doMoveCnt  = 0;
     descentCnt = 0;
     playoutCnt = 0;
-    ply        = 0;
+    priorCnt   = 0;
 
     // Prepare the stack to go down and up in the game tree
+    ply = 0;
     std::memset(stackBuffer, 0, sizeof(stackBuffer));
     for (int i = 4; i > 0; i--)
       stack[-i].contHistory = &(pos.this_thread()->contHistory[NO_PIECE][0]); // Use as sentinel
@@ -187,9 +182,12 @@ Node UCT::tree_policy() {
 /// UCT::playout_policy() plays a semi random game starting from the last extended node
 Reward UCT::playout_policy(Node node) {
 
-    generate_moves();
-
     playoutCnt++;
+
+    generate_moves();
+    
+    print_stats();
+
     return 1.0;
 }
 
@@ -399,10 +397,11 @@ Value UCT::evaluate_with_minimax(Depth depth) {
 /// estimate this prior, we could use other strategies too (like the rank n of
 /// the son, or the type of the move (good capture/quiet/bad capture), etc).
 Reward UCT::calculate_prior(Move move, int n) {
-    Reward prior;
+
+    priorCnt++;
 
     do_move(move);
-    prior = value_to_reward(evaluate_with_minimax(DEPTH_ZERO));
+    Reward prior = value_to_reward(evaluate_with_minimax(DEPTH_ZERO));
     undo_move();
 
     return prior;
@@ -452,6 +451,7 @@ void UCT::print_stats() {
    cerr << "descentCnt = " << descentCnt << endl;
    cerr << "playoutCnt = " << playoutCnt << endl;
    cerr << "doMoveCnt  = " << doMoveCnt  << endl;
+   cerr << "priorCnt   = " << priorCnt   << endl;
 }
 
 /// UCT::print_node()

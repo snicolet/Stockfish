@@ -126,10 +126,11 @@ private:
   double          explorationConstant = 10.0;   // Default value for the UCB formula
 
   // Counters
-  uint64_t        ply;
-  uint64_t        descentCnt;
-  uint64_t        playoutCnt;
-  uint64_t        doMoveCnt;
+  int             ply;
+  int             descentCnt;
+  int             playoutCnt;
+  int             doMoveCnt;
+  int             priorCnt;
 
   // Stack to do/undo the moves: for compatibility with the alpha-beta search implementation,
   // we want to be able to reference from stack[-4] to stack[MAX_PLY + 2].
