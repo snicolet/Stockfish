@@ -1481,16 +1481,14 @@ moves_loop: // When in check search starts from here
 
   Value minimax_value(Position& pos, Search::Stack* ss, Depth depth) {
 
+    Threads.stopOnPonderhit = Threads.stop = false;;
     Value alpha = -VALUE_INFINITE;
     Value beta = VALUE_INFINITE;
     Move pv[MAX_PLY+1];
-
     ss->pv = pv;
 
-    bool givesCheck = pos.checkers();
-
     Value value = depth <   ONE_PLY ?
-                         givesCheck ? -qsearch<PV,  true>(pos, ss, alpha, beta)
+                     pos.checkers() ? -qsearch<PV,  true>(pos, ss, alpha, beta)
                                     : -qsearch<PV, false>(pos, ss, alpha, beta)
                                     : - search<PV>(pos, ss, alpha, beta, depth, false, false);
 

@@ -113,10 +113,10 @@ void UCT::create_root() {
     priorCnt   = 0;
 
     // Prepare the stack to go down and up in the game tree
-    ply = 0;
+    ply = 1;
     std::memset(stackBuffer, 0, sizeof(stackBuffer));
-    for (int i = 4; i > 0; i--)
-      stack[-i].contHistory = &(pos.this_thread()->contHistory[NO_PIECE][0]); // Use as sentinel
+    for (int i = -4; i <= MAX_PLY + 2; i++)
+      stack[i].contHistory = &(pos.this_thread()->contHistory[NO_PIECE][0]); // Use as sentinel
 
     // TODO : what to do with killers ???
 
@@ -130,12 +130,12 @@ void UCT::create_root() {
 
     // Erase the list of nodes, and set the current node to the root node
     std::memset(nodesBuffer, 0, sizeof(nodesBuffer));
-    root = nodes[0] = get_node(pos);
+    root = nodes[ply] = get_node(pos);
 
     if (current_node()->visits == 0)
        generate_moves();
 
-    assert(ply == 0);
+    assert(ply == 1);
     assert(root == nodes[0]);
 }
 
@@ -386,6 +386,11 @@ void UCT::generate_moves() {
 /// with a small minimax search of the given depth. Use depth==DEPTH_ZERO
 /// for a direct quiescence value.
 Value UCT::evaluate_with_minimax(Depth depth) {
+
+    stack[ply].ply          = ply;
+    stack[ply].currentMove  = MOVE_NONE;
+    stack[ply].excludedMove = MOVE_NONE;
+
     return minimax_value(pos, &stack[ply], depth);
 }
 
@@ -400,7 +405,7 @@ Reward UCT::calculate_prior(Move move, int n) {
     priorCnt++;
 
     do_move(move);
-    Reward prior = value_to_reward(evaluate_with_minimax(DEPTH_ZERO));
+    Reward prior = value_to_reward(evaluate_with_minimax(3 * ONE_PLY));
     undo_move();
 
     return prior;
