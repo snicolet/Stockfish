@@ -82,8 +82,8 @@ Move move_of(Node node) { return node->last_move(); }
 Edge* get_list_of_edges(Node node) { return node->edges_list(); }
 int number_of_sons(Node node) { return node->sons; }
 
-// UCT::search() is the main function of UCT algorithm.
 
+// UCT::search() is the main function of UCT algorithm.
 Move UCT::search() {
 
     create_root();
@@ -103,6 +103,7 @@ Move UCT::search() {
 UCT::UCT(Position& p) : pos(p) {
     create_root();
 }
+
 
 /// UCT::create_root() initializes the UCT tree with the given position
 void UCT::create_root() {
@@ -219,6 +220,7 @@ double UCT::UCB(Node node, Edge& edge, double C) {
     return result;
 }
 
+
 /// UCT::backup() implements the strategy for accumulating rewards up the tree
 /// after a playout.
 void UCT::backup(Node node, Reward r) {
@@ -264,27 +266,12 @@ Move UCT::best_move(Node node, double C) {
     return best;
 }
 
-/// UCT::set_exploration_constant() changes the exploration constant of the UCB formula.
-///
-/// This constant sets the balance between the exploitation of past results and the
-/// exploration of new branches in the UCT tree. The higher the constant, the more
-/// likely is the algorithm to explore new parts of the tree, whereas lower values
-/// of the constant makes an algorithm which focuses more on the already explored
-/// parts of the tree. Default value is 10.0
-///
-void UCT::set_exploration_constant(double C) {
-    explorationConstant = C;
-}
-
-/// UCT::get_exploration_constant() returns the exploration constant of the UCB formula
-double UCT::get_exploration_constant() {
-    return explorationConstant;
-}
 
 /// UCT::current_node() is the current node of our tree exploration
 Node UCT::current_node() {
     return nodes[ply];
 }
+
 
 /// UCT::do_move() plays a move in the search tree from the current position
 void UCT::do_move(Move m) {
@@ -306,6 +293,7 @@ void UCT::undo_move() {
     ply--;
     pos.undo_move(stack[ply].currentMove);
 }
+
 
 /// UCT::add_prior_to_node() adds the given (move,prior) pair as a new son for a node
 void UCT::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
@@ -397,6 +385,7 @@ void UCT::generate_moves() {
     s->expandedSons = 0;
 }
 
+
 /// UCT::evaluate_with_minimax() evaluates the current position in the tree
 /// with a small minimax search of the given depth. Note : you can use 
 /// depth==DEPTH_ZERO for a direct quiescence value.
@@ -408,6 +397,7 @@ Value UCT::evaluate_with_minimax(Depth depth) {
 
     return minimax_value(pos, &stack[ply], depth);
 }
+
 
 /// UCT::calculate_prior() returns the a-priori reward of the move leading to
 /// the n-th son of the current node. Here we use the evaluation function to
@@ -427,28 +417,46 @@ Reward UCT::calculate_prior(Move move, int n) {
     return prior;
 }
 
+
 /// UCT::value_to_reward() transforms a Stockfish value to a reward in [0..1]
 /// We scale the logistic function such that a value of 600 (about three pawns)
 /// is given a probability of win of 0.75, and a value of -600 is given a probability
 /// of win of 0.25
-Reward UCT::value_to_reward(Value v)
-{
+Reward UCT::value_to_reward(Value v) {
     const double k = -0.00183102048111;
     double r = 1.0 / (1 + exp(k * int(v)));
     return Reward(r);
 }
 
+
 /// UCT::reward_to_value() transforms a reward in [0..1] to a Stockfish value.
 /// The scale is such that a reward of 0.75 corresponds to 600 (about three pawns),
 /// and a reward of 0.25 corresponds to -600 (about minus three pawns).
-Value UCT::reward_to_value(Reward r)
-{
+Value UCT::reward_to_value(Reward r) {
     if (r > 0.99) return  VALUE_KNOWN_WIN;
     if (r < 0.01) return -VALUE_KNOWN_WIN;
 
     const double g = 546.14353597715121;  //  this is 1 / k
     double v = g * log(r / (1.0 - r)) ;
     return Value(int(v));
+}
+
+
+/// UCT::set_exploration_constant() changes the exploration constant of the UCB formula.
+///
+/// This constant sets the balance between the exploitation of past results and the
+/// exploration of new branches in the UCT tree. The higher the constant, the more
+/// likely is the algorithm to explore new parts of the tree, whereas lower values
+/// of the constant makes an algorithm which focuses more on the already explored
+/// parts of the tree. Default value is 10.0
+void UCT::set_exploration_constant(double C) {
+    explorationConstant = C;
+}
+
+
+/// UCT::get_exploration_constant() returns the exploration constant of the UCB formula
+double UCT::get_exploration_constant() {
+    return explorationConstant;
 }
 
 
@@ -473,6 +481,7 @@ void UCT::print_stats() {
    cerr << "doMoveCnt  = " << doMoveCnt  << endl;
    cerr << "priorCnt   = " << priorCnt   << endl;
 }
+
 
 /// UCT::print_node()
 void UCT::print_node(Node node) {
