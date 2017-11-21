@@ -108,7 +108,7 @@ struct Edge {
   int     visits;
   Reward  prior;
   Reward  actionValue;
-  Reward  meanAcionValue;
+  Reward  meanActionValue;
 };
 
 /// NodeInfo struct stores information in a node of the UCT tree

@@ -176,7 +176,8 @@ Node UCT::tree_policy() {
 
 
 /// UCT::playout_policy() expand the selected node, plays a semi random game starting 
-/// from there, and return the reward of this playout.
+/// from there, and return the reward of this playout from the point of view of the
+/// player to move in the expanded move.
 Reward UCT::playout_policy(Node node) {
 
     
@@ -191,6 +192,8 @@ Reward UCT::playout_policy(Node node) {
     assert(current_node()->visits == 1);
     assert(current_node()->sons > 0);
     assert(current_node() == old);
+    
+    // TODO : what if there is no legal moves? Handle stalemate and mate !!
 
     return get_list_of_edges(current_node())[0].prior;
 }
@@ -254,6 +257,7 @@ Move UCT::best_move(Node node, double C) {
     cerr << "selecting move " << UCI::move(best, pos.is_chess960())
          << " with UCB " << bestValue
          << endl;
+    cerr << "...exiting best_move()" << endl;
 
     return best;
 }
@@ -309,11 +313,11 @@ void UCT::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
    int n = node->sons;
    if (n < MAX_EDGES)
    {
-       node->edges[n].visits         = 0;
-       node->edges[n].move           = m;
-       node->edges[n].prior          = prior;
-       node->edges[n].actionValue    = 0.0;
-       node->edges[n].meanAcionValue = 0.0;
+       node->edges[n].visits          = 0;
+       node->edges[n].move            = m;
+       node->edges[n].prior           = prior;
+       node->edges[n].actionValue     = 0.0;
+       node->edges[n].meanActionValue = 0.0;
        node->sons++;
 
        cerr << "Adding move #" << n << ": "
