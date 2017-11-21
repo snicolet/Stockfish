@@ -136,7 +136,8 @@ void UCT::create_root() {
        generate_moves();
 
     assert(ply == 1);
-    assert(root == nodes[0]);
+    assert(root == nodes[ply]);
+    assert(root == current_node());
 }
 
 
@@ -154,7 +155,6 @@ Node UCT::tree_policy() {
     assert(current_node() == root);
 
     descentCnt++;
-
 
     double C = get_exploration_constant();
 
