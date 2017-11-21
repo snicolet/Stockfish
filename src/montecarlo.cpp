@@ -47,7 +47,6 @@
 //     https://www.nature.com/articles/nature24270.epdf?author_access_token=VJXbVjaSHxFoctQQ4p2k4tRgN0jAjWel9jnR3ZoTv0PVW4gB86EEpGqTRDtpIz-2rmo8-KG06gqVobU5NSCFeHILHcVFUeMsbvwS-lxjqQGg98faovwjxeTUgZAUMnRQ
 
 
-
 using namespace std;
 using std::string;
 
@@ -152,8 +151,8 @@ bool UCT::computational_budget() {
 
 /// UCT::tree_policy() selects the next node to be expanded
 Node UCT::tree_policy() {
-    assert(current_node() == root);
 
+    assert(current_node() == root);
     descentCnt++;
 
     double C = get_exploration_constant();
@@ -166,8 +165,8 @@ Node UCT::tree_policy() {
         assert(pos.legal(m));
 
         do_move(m);
-        nodes[ply] = get_node(pos);
-
+        
+        nodes[ply] = get_node(pos); // Set current node
     }
 
     assert(current_node()->visits == 0);
@@ -176,16 +175,24 @@ Node UCT::tree_policy() {
 }
 
 
-/// UCT::playout_policy() plays a semi random game starting from the last extended node
+/// UCT::playout_policy() expand the selected node, plays a semi random game starting 
+/// from there, and return the reward of this playout.
 Reward UCT::playout_policy(Node node) {
 
+    
+    assert(current_node()->visits == 0);
     playoutCnt++;
+    
+    Node old = current_node();
 
     generate_moves();
-
     print_stats();
+    
+    assert(current_node()->visits == 1);
+    assert(current_node()->sons > 0);
+    assert(current_node() == old);
 
-    return 1.0;
+    return get_list_of_edges(current_node())[0].prior;
 }
 
 
@@ -216,7 +223,7 @@ void UCT::backup(Node node, Reward r) {
 }
 
 
-/// UCT::best_move() selects the best child of a node according to the UCT formula
+/// UCT::best_move() selects the best child of a node according to the UCB formula
 Move UCT::best_move(Node node, double C) {
 
     cerr << "Entering best_move()..." << endl;
@@ -275,6 +282,8 @@ Node UCT::current_node() {
 
 /// UCT::do_move() plays a move in the search tree from the current position
 void UCT::do_move(Move m) {
+
+    doMoveCnt++;
 
     stack[ply].ply         = ply;
     stack[ply].currentMove = m;
@@ -383,8 +392,8 @@ void UCT::generate_moves() {
 }
 
 /// UCT::evaluate_with_minimax() evaluates the current position in the tree
-/// with a small minimax search of the given depth. Use depth==DEPTH_ZERO
-/// for a direct quiescence value.
+/// with a small minimax search of the given depth. Note : you can use 
+/// depth==DEPTH_ZERO for a direct quiescence value.
 Value UCT::evaluate_with_minimax(Depth depth) {
 
     stack[ply].ply          = ply;
@@ -405,7 +414,8 @@ Reward UCT::calculate_prior(Move move, int n) {
     priorCnt++;
 
     do_move(move);
-    Reward prior = value_to_reward(evaluate_with_minimax(3 * ONE_PLY));
+    //Reward prior = value_to_reward(evaluate_with_minimax(3 * ONE_PLY));
+    Reward prior = value_to_reward(evaluate_with_minimax(DEPTH_ZERO));
     undo_move();
 
     return prior;
