@@ -97,7 +97,7 @@ namespace {
   };
 
   Value DrawValue[COLOR_NB];
-  Value Contempt[COLOR_NB];
+  int Contempt[COLOR_NB];
 
   template <NodeType NT>
   Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode, bool skipEarlyPruning);
@@ -189,7 +189,8 @@ void Search::clear() {
 /// Search::contempt calculates the dynamic contempt for given side
 
 Value Search::contempt(const Position& pos, Color c) {
-   return Contempt[c] * Material::probe(pos)->game_phase() / PHASE_MIDGAME;
+   int contempt = Contempt[c] * (25 + pos.count<ALL_PIECES>());
+   return Value(contempt * Material::probe(pos)->game_phase() / PHASE_MIDGAME);
 }
 
 
@@ -210,8 +211,11 @@ void MainThread::search() {
   TT.new_search();
 
   int base_contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
-  Contempt[ us] =  Value(base_contempt);
-  Contempt[~us] = -Value(base_contempt);
+  base_contempt = 1;
+
+  Contempt[ us] =  base_contempt > 0 ?  1 :
+                   base_contempt < 0 ? -1 : 0;
+  Contempt[~us] = -Contempt[ us];
   DrawValue[ us] = VALUE_DRAW - contempt(rootPos, us);
   DrawValue[~us] = VALUE_DRAW + contempt(rootPos, us);
 
