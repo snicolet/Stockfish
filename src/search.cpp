@@ -189,7 +189,7 @@ void Search::clear() {
 /// Search::contempt calculates the dynamic contempt for given side
 
 Value Search::contempt(const Position& pos, Color c) {
-   int contempt = Contempt[c] * (25 + pos.count<ALL_PIECES>());
+   int contempt = Contempt[c] * (38 + pos.count<PAWN>());
    return Value(contempt * Material::probe(pos)->game_phase() / PHASE_MIDGAME);
 }
 
