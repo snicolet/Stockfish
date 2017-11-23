@@ -768,12 +768,12 @@ namespace {
                    + 12 * pawns
                    + 16 * bothFlanks;
 
-    initiative_mg = StockfishIsAttacking ? pieces : 0;
+    initiative_mg = StockfishIsAttacking ? 15 : -15;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the midgame/endgame values, and that we carefully cap the bonus
     // so that the values will never change sign after the bonus.
-    int u = ((mg > 0) - (mg < 0)) * std::max(initiative_mg, -abs(mg));
+    int u = ((mg > 0) - (mg < 0)) * initiative_mg;
     int v = ((eg > 0) - (eg < 0)) * std::max(initiative_eg, -abs(eg));
 
     Score score = make_score(u, v);
