@@ -444,10 +444,10 @@ namespace {
                     + 102 * kingAdjacentZoneAttacksCount[Them]
                     + 191 * popcount(kingRing[Us] & weak)
                     + 143 * !!pos.pinned_pieces(Us)
-                    - 900 * !pos.count<QUEEN>(Them)
+                    - 848 * !pos.count<QUEEN>(Them)
                     -   9 * mg_value(score) / 8
                     +   4 * pos.count<PAWN>(Them)
-                    +  30;
+                    +  10;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
