@@ -751,6 +751,8 @@ namespace {
   template<Tracing T>
   Score Evaluation<T>::evaluate_initiative(Value eg) {
 
+    eg += mg_value(Eval::Contempt);
+
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
