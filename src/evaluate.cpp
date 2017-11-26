@@ -751,7 +751,7 @@ namespace {
   template<Tracing T>
   Score Evaluation<T>::evaluate_initiative(Value eg) {
 
-    eg += mg_value(Eval::Contempt);
+    eg += Eval::Contempt;
 
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
@@ -828,7 +828,7 @@ namespace {
     // Initialize score by reading the incrementally updated scores included in
     // the position object (material + piece square tables) and the material
     // imbalance. Score is computed internally from the white point of view.
-    Score score = pos.psq_score() + me->imbalance() + Eval::Contempt;
+    Score score = pos.psq_score() + me->imbalance() + make_score(Eval::Contempt, 0);
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
@@ -891,7 +891,7 @@ namespace {
 
 } // namespace
 
-Score Eval::Contempt = SCORE_ZERO;
+Value Eval::Contempt = VALUE_ZERO;
 
 /// evaluate() is the evaluator for the outer world. It returns a static evaluation
 /// of the position from the point of view of the side to move.

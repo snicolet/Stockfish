@@ -201,8 +201,7 @@ void MainThread::search() {
 
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
 
-  Eval::Contempt = (us == WHITE ? make_score( contempt, 0)
-                                : make_score(-contempt, 0));
+  Eval::Contempt = (us == WHITE ? Value(contempt) : -Value(contempt));
 
   if (rootMoves.empty())
   {
