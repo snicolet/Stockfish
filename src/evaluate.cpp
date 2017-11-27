@@ -625,7 +625,7 @@ namespace {
     score += ThreatByAttackOnQueen * popcount(b & safeThreats);
 
     // Add a bonus for domination of opponent's majors
-    b =  ~pos.pieces(Us) 
+    b =  ~pos.pieces() 
        & ~attackedBy2[Them]
        &  (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN])
        &  (attackedBy2[Us] | attackedBy[Us][PAWN] | attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
