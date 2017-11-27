@@ -53,6 +53,9 @@ using std::string;
 
 UCTHashTable UCTTable;
 
+const Reward REWARD_NONE = Reward(0.0);
+Edge EDGE_NONE = {MOVE_NONE, 0, REWARD_NONE, REWARD_NONE, REWARD_NONE};
+
 /// get_node() probe the UCT hash table to know if we can find the node 
 /// for the given position.
 Node get_node(const Position& pos) {
@@ -68,19 +71,19 @@ Node get_node(const Position& pos) {
    // Otherwise create a new node. This will overwrite any node in the
    // hash table in the same location.
 
-   node->key1         = key1;
-   node->key2         = key2;
-   node->visits       = 0;         // number of visits by the UCT algorithm
-   node->sons         = 0;         // total number of legal moves
-   node->expandedSons = 0;         // number of sons expanded by the UCT algorithm
-   node->lastMove     = MOVE_NONE; // the move between the parent and this node
+   node->key1                = key1;
+   node->key2                = key2;
+   node->visits              = 0;         // number of visits by the UCT algorithm
+   node->number_of_sons      = 0;         // total number of legal moves
+   node->expandedSons        = 0;         // number of sons expanded by the UCT algorithm
+   node->lastMove            = MOVE_NONE; // the move between the parent and this node
 
    return node;
 }
 
 Move move_of(Node node) { return node->last_move(); }
-Edge* get_list_of_edges(Node node) { return node->edges_list(); }
-int number_of_sons(Node node) { return node->sons; }
+Edge* get_list_of_children(Node node) { return node->children_list(); }
+int number_of_sons(Node node) { return node->number_of_sons; }
 
 
 // UCT::search() is the main function of UCT algorithm.
@@ -95,7 +98,7 @@ Move UCT::search() {
        backup(node, reward);
     }
 
-    return best_move(root, 0.0);
+    return best_child(root, 0.0)->move;
 }
 
 
@@ -163,7 +166,9 @@ Node UCT::tree_policy() {
     while (current_node()->visits > 0) {
 
         C = get_exploration_constant();
-        Move m = best_move(current_node(), C);
+        
+        edges[ply] = best_child(current_node(), C);
+        Move m = edges[ply]->move;
 
         assert(pos.legal(m));
 
@@ -196,7 +201,7 @@ Reward UCT::playout_policy(Node node) {
     // TODO : what if there is no legal moves? Handle stalemate and mate !!
     
     assert(current_node()->visits == 1);
-    assert(current_node()->sons > 0);
+    assert(current_node()->number_of_sons > 0);
     assert(current_node() == old);
     
     // Now implement a play-out policy from the newly expanded node,
@@ -207,7 +212,7 @@ Reward UCT::playout_policy(Node node) {
     // and just return the prior value of the first legal moves (the legal
     // moves were sorted by reward in the generate_moves() call).
 
-    return get_list_of_edges(current_node())[0].prior;
+    return get_list_of_children(current_node())[0].prior;
 }
 
 
@@ -234,45 +239,49 @@ double UCT::UCB(Node node, Edge& edge, double C) {
 /// after a playout.
 void UCT::backup(Node node, Reward r) {
 
+   
 
    assert(current_node() == root);
 }
 
 
-/// UCT::best_move() selects the best child of a node according to the UCB formula
-Move UCT::best_move(Node node, double C) {
+/// UCT::best_child() selects the best child of a node according to the UCB formula
+Edge* UCT::best_child(Node node, double C) {
 
-    cerr << "Entering best_move()..." << endl;
+    cerr << "Entering best_child()..." << endl;
     cerr << pos << endl;
+    
+    if (number_of_sons(node) <= 0)
+       return &EDGE_NONE;
 
-    Edge* edges = get_list_of_edges(node);
-    Move best = MOVE_NONE;
+    Edge* children = get_list_of_children(node);
 
     for (int k = 0 ; k < number_of_sons(node) ; k++)
     {
         cerr << "move #" << k << ": "
-            << UCI::move(edges[k].move, pos.is_chess960())
-            << " with prior " << edges[k].prior
+            << UCI::move(children[k].move, pos.is_chess960())
+            << " with prior " << children[k].prior
             << endl;
     }
 
+    int best = -1;
     double bestValue = -100000000.0;
     for (int k = 0 ; k < number_of_sons(node) ; k++)
     {
-        double r = UCB(node, edges[k], C);
+        double r = UCB(node, children[k], C);
         if ( r > bestValue )
         {
             bestValue = r;
-            best = edges[k].move;
+            best = k;
         }
     }
 
-    cerr << "selecting move " << UCI::move(best, pos.is_chess960())
+    cerr << "selecting move " << UCI::move(children[best].move, pos.is_chess960())
          << " with UCB " << bestValue
          << endl;
-    cerr << "...exiting best_move()" << endl;
+    cerr << "... exiting best_child()" << endl;
 
-    return best;
+    return &children[best];
 }
 
 
@@ -307,28 +316,28 @@ void UCT::undo_move() {
 /// UCT::add_prior_to_node() adds the given (move,prior) pair as a new son for a node
 void UCT::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
 
-   assert(node->sons < MAX_EDGES);
+   assert(node->number_of_sons < MAX_CHILDREN);
 
-   int n = node->sons;
-   if (n < MAX_EDGES)
+   int n = node->number_of_sons;
+   if (n < MAX_CHILDREN)
    {
-       node->edges[n].visits          = 0;
-       node->edges[n].move            = m;
-       node->edges[n].prior           = prior;
-       node->edges[n].actionValue     = 0.0;
-       node->edges[n].meanActionValue = 0.0;
-       node->sons++;
+       node->children[n].visits          = 0;
+       node->children[n].move            = m;
+       node->children[n].prior           = prior;
+       node->children[n].actionValue     = 0.0;
+       node->children[n].meanActionValue = 0.0;
+       node->number_of_sons++;
 
        cerr << "Adding move #" << n << ": "
             << UCI::move(m, pos.is_chess960())
             << " with prior " << prior
             << endl;
 
-       assert(node->sons == moveCount);
+       assert(node->number_of_sons == moveCount);
    }
    else
    {
-        cerr << "ERROR : too many sons (" << node->sons << ") in add_prior_to_node()" << endl;
+        cerr << "ERROR : too many sons (" << node->number_of_sons << ") in add_prior_to_node()" << endl;
    }
 }
 
@@ -384,14 +393,16 @@ void UCT::generate_moves() {
     int n = number_of_sons(current_node());
     if (n > 0)
     {
-        Edge* edges = get_list_of_edges(current_node());
-        std::sort(edges, edges + n, ComparePrior);
+        Edge* children = get_list_of_children(current_node());
+        std::sort(children, children + n, ComparePrior);
     }
 
     // Indicate that we have just expanded the current node
     Node s = current_node();
     s->visits       = 1;
     s->expandedSons = 0;
+    
+    cerr << "... exiting generate_moves()" << endl;
 }
 
 
@@ -477,7 +488,7 @@ void UCT::test() {
 
    search();
 
-   cerr << "...end of UCT testing!" << endl;
+   cerr << "... end of UCT testing!" << endl;
    cerr << "---------------------------------------------------------------------------------" << endl;
 }
 
@@ -499,7 +510,7 @@ void UCT::print_node(Node node) {
    cerr << "key1         = " << node->key1               << endl;
    cerr << "key2         = " << node->key2               << endl;
    cerr << "visits       = " << node->visits             << endl;
-   cerr << "sons         = " << node->sons               << endl;
+   cerr << "sons         = " << node->number_of_sons     << endl;
    cerr << "expandedSons = " << node->expandedSons       << endl;
 }
 
