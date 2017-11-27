@@ -178,25 +178,34 @@ Node UCT::tree_policy() {
 }
 
 
-/// UCT::playout_policy() expand the selected node, plays a semi random game starting 
+/// UCT::playout_policy() expands the selected node, plays a semi random game starting 
 /// from there, and return the reward of this playout from the point of view of the
 /// player to move in the expanded move.
 Reward UCT::playout_policy(Node node) {
 
-    
-    assert(current_node()->visits == 0);
     playoutCnt++;
     
+    // Expand the current node, generating the legal moves and
+    // calculating their prior value.
+    assert(current_node()->visits == 0);
+    
     Node old = current_node();
-
     generate_moves();
     print_stats();
+    
+    // TODO : what if there is no legal moves? Handle stalemate and mate !!
     
     assert(current_node()->visits == 1);
     assert(current_node()->sons > 0);
     assert(current_node() == old);
     
-    // TODO : what if there is no legal moves? Handle stalemate and mate !!
+    // Now implement a play-out policy from the newly expanded node,
+    // and return the reward of the play-out from the point of view
+    // of the side to play in that node.
+
+    // In this initial implementation we do not really make any play-out,
+    // and just return the prior value of the first legal moves (the legal
+    // moves were sorted by reward in the generate_moves() call).
 
     return get_list_of_edges(current_node())[0].prior;
 }
