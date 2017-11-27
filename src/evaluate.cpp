@@ -227,6 +227,7 @@ namespace {
   const Score WeakUnopposedPawn     = S(  5, 25);
   const Score ThreatByPawnPush      = S( 38, 22);
   const Score ThreatByAttackOnQueen = S( 38, 22);
+  const Score HinderMajor           = S(  5,  3);
   const Score HinderPassedPawn      = S(  7,  0);
   const Score TrappedBishopA1H1     = S( 50, 50);
 
@@ -622,6 +623,14 @@ namespace {
        | (attackedBy[Us][ROOK  ] & attackedBy[Them][QUEEN] & ~attackedBy[Them][QUEEN_DIAGONAL]);
 
     score += ThreatByAttackOnQueen * popcount(b & safeThreats);
+
+    // Add a bonus for domination of opponent's majors
+    b =  ~pos.pieces(Us) 
+       & ~attackedBy2[Them]
+       &  (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN])
+       &  (attackedBy2[Us] | attackedBy[Us][PAWN] | attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
+
+    score += HinderMajor * popcount(b);
 
     if (T)
         Trace::add(THREAT, Us, score);
