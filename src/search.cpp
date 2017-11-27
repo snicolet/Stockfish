@@ -1475,22 +1475,23 @@ moves_loop: // When in check search starts from here
 
 
   // minimax_value() is a wrapper around the search() and qsearch() functions
-  // used to compute the minimax evaluation of a position at the given depth.
-  // It does not compute PV nor emit anything on the output stream.
-  // Use depth == DEPTH_ZERO to compute the quiescence value of the position.
+  // used to compute the minimax evaluation of a position at the given depth,
+  // from the point of view of the side to move. It does not compute PV nor 
+  // emit anything on the output stream. Note: you can call this function 
+  // with depth == DEPTH_ZERO to compute the quiescence value of the position.
 
   Value minimax_value(Position& pos, Search::Stack* ss, Depth depth) {
 
-    Threads.stopOnPonderhit = Threads.stop = false;;
+    Threads.stopOnPonderhit = Threads.stop = false;
     Value alpha = -VALUE_INFINITE;
     Value beta = VALUE_INFINITE;
     Move pv[MAX_PLY+1];
     ss->pv = pv;
 
     Value value = depth <   ONE_PLY ?
-                     pos.checkers() ? -qsearch<PV,  true>(pos, ss, alpha, beta)
-                                    : -qsearch<PV, false>(pos, ss, alpha, beta)
-                                    : - search<PV>(pos, ss, alpha, beta, depth, false, false);
+                     pos.checkers() ? qsearch<PV,  true>(pos, ss, alpha, beta)
+                                    : qsearch<PV, false>(pos, ss, alpha, beta)
+                                    :  search<PV>(pos, ss, alpha, beta, depth, false, false);
 
     return value;
   }

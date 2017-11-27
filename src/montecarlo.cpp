@@ -410,8 +410,8 @@ Reward UCT::calculate_prior(Move move, int n) {
     priorCnt++;
 
     do_move(move);
-    //Reward prior = value_to_reward(evaluate_with_minimax(3 * ONE_PLY));
-    Reward prior = value_to_reward(evaluate_with_minimax(DEPTH_ZERO));
+    Reward prior = value_to_reward(-evaluate_with_minimax(3 * ONE_PLY));
+    //Reward prior = value_to_reward(-evaluate_with_minimax(DEPTH_ZERO));
     undo_move();
 
     return prior;

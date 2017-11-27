@@ -160,10 +160,10 @@ namespace {
         if (token == "go")
         {
             cerr << "\nPosition: " << cnt++ << '/' << num << endl;
+            UCT(pos).test();
             //go(pos, is, states);
             //Threads.main()->wait_for_search_finished();
             nodes += Threads.nodes_searched();
-            UCT(pos).test();
         }
         else if (token == "setoption")  setoption(is);
         else if (token == "position")   position(pos, is, states);
