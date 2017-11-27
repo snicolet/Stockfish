@@ -227,7 +227,7 @@ namespace {
   const Score WeakUnopposedPawn     = S(  5, 25);
   const Score ThreatByPawnPush      = S( 38, 22);
   const Score ThreatByAttackOnQueen = S( 38, 22);
-  const Score HinderMajor           = S(  5,  3);
+  const Score HinderMajor           = S( 10,  6);
   const Score HinderPassedPawn      = S(  7,  0);
   const Score TrappedBishopA1H1     = S( 50, 50);
 
