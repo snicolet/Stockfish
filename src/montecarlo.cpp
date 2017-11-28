@@ -338,6 +338,8 @@ Node UCT::current_node() {
 /// UCT::do_move() plays a move in the search tree from the current position
 void UCT::do_move(Move m) {
 
+    assert(ply < MAX_PLY);
+
     doMoveCnt++;
 
     stack[ply].ply         = ply;
@@ -352,6 +354,9 @@ void UCT::do_move(Move m) {
 
 /// UCT::undo_move() undo the current move in the search tree
 void UCT::undo_move() {
+
+    assert(ply > 1);
+
     ply--;
     pos.undo_move(stack[ply].currentMove);
 }
