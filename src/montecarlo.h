@@ -94,10 +94,10 @@ private:
 
   // Stack to do/undo the moves: for compatibility with the alpha-beta search implementation,
   // we want to be able to reference from stack[-4] to stack[MAX_PLY + 2].
-  Search::Stack   stackBuffer [MAX_PLY+7],  *stack   = stackBuffer  + 4;
-  StateInfo       statesBuffer[MAX_PLY+7],  *states  = statesBuffer + 4;
   Node            nodesBuffer [MAX_PLY+7],  *nodes   = nodesBuffer  + 4;
   Edge*           edgesBuffer [MAX_PLY+7],  **edges  = edgesBuffer  + 4;
+  Search::Stack   stackBuffer [MAX_PLY+7],  *stack   = stackBuffer  + 4;
+  StateInfo       statesBuffer[MAX_PLY+7],  *states  = statesBuffer + 4;
 };
 
 
@@ -117,18 +117,18 @@ struct Edge {
 struct NodeInfo {
 public:
 
-  Move           last_move()      { return lastMove; }
-  Edge*          children_list()  { return &(children[0]); }
+  Move     last_move()      { return lastMove; }
+  Edge*    children_list()  { return &(children[0]); }
 
   // Data members
   // At initialization time we fill them with artificial values to make debugging easier
-  Key            key1           = -99;
-  Key            key2           = -553;
-  int            visits         = -373;      // number of visits by the UCT algorithm
-  int            number_of_sons = -1003;     // total number of legal moves
-  int            expandedSons   = -5977;     // number of sons expanded by the UCT algorithm
-  Move           lastMove       = MOVE_NONE; // the move between the parent and this node
-  Edge           children[MAX_CHILDREN];
+  Key      key1           = -99;
+  Key      key2           = -553;
+  int      visits         = -373;      // number of visits by the UCT algorithm
+  int      number_of_sons = -1003;     // total number of legal moves
+  int      expandedSons   = -5977;     // number of sons expanded by the UCT algorithm
+  Move     lastMove       = MOVE_NONE; // the move between the parent and this node
+  Edge     children[MAX_CHILDREN];
 };
 
 

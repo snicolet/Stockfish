@@ -53,7 +53,11 @@ using std::string;
 
 UCTHashTable UCTTable;
 
-const Reward REWARD_NONE = Reward(0.0);
+const Reward REWARD_NONE  = Reward(0.0);
+const Reward REWARD_MATED = Reward(0.0);
+const Reward REWARD_DRAW  = Reward(0.5);
+const Reward REWARD_MATE  = Reward(1.0);
+
 Edge EDGE_NONE = {MOVE_NONE, 0, REWARD_NONE, REWARD_NONE, REWARD_NONE};
 
 /// get_node() probe the UCT hash table to know if we can find the node
@@ -163,21 +167,22 @@ Node UCT::tree_policy() {
 
     double C = get_exploration_constant();
 
-    while (current_node()->visits > 0) {
+    while (   current_node()->visits > 0
+           && number_of_sons(current_node()) > 0) {
 
         C = get_exploration_constant();
 
         edges[ply] = best_child(current_node(), C);
         Move m = edges[ply]->move;
 
+        assert(is_ok(m));
         assert(pos.legal(m));
 
         do_move(m);
-
         nodes[ply] = get_node(pos); // Set current node
     }
 
-    assert(current_node()->visits == 0);
+    assert(current_node()->visits == 0 || number_of_sons(current_node()) == 0);
 
     return current_node();
 }
@@ -189,20 +194,25 @@ Node UCT::tree_policy() {
 Reward UCT::playout_policy(Node node) {
 
     playoutCnt++;
+    assert(current_node() == node);
+
+    if (node->visits > 0 && number_of_sons(node) == 0)
+    	return pos.checkers() ? REWARD_MATED : REWARD_DRAW;
+
+    assert(current_node()->visits == 0);
 
     // Expand the current node, generating the legal moves and
     // calculating their prior value.
-    assert(current_node() == node);
-    assert(current_node()->visits == 0);
-
     Node old = current_node();
     generate_moves();
-    
-    // TODO : what if there is no legal moves? Handle stalemate and mate !!
+    assert(current_node() == old);
+
+    if (number_of_sons(node) == 0)
+        return pos.checkers() ? REWARD_MATED : REWARD_DRAW;
+
     print_stats();
     assert(current_node()->visits == 1);
     assert(current_node()->number_of_sons > 0);
-    assert(current_node() == old);
 
     // Now implement a play-out policy from the newly expanded node,
     // and return the reward of the play-out from the point of view
@@ -263,9 +273,9 @@ void UCT::backup(Node node, Reward r) {
        edge->actionValue     = edge->actionValue + r;
        edge->meanActionValue = edge->actionValue / edge->visits;
 
-       print_edge(*e);
+       print_edge(*edge);
 
-       assert(stack[ply].currentMove == e->move);
+       assert(stack[ply].currentMove == edge->move);
    }
 
 
@@ -283,7 +293,10 @@ Edge* UCT::best_child(Node node, double C) {
     cerr << pos << endl;
 
     if (number_of_sons(node) <= 0)
+    {
+       cerr << "... exiting best_child()" << endl;
        return &EDGE_NONE;
+    }
 
     Edge* children = get_list_of_children(node);
 
@@ -307,7 +320,7 @@ Edge* UCT::best_child(Node node, double C) {
         }
     }
 
-    cerr << "selecting move " << UCI::move(children[best].move, pos.is_chess960())
+    cerr << "=> Selecting move " << UCI::move(children[best].move, pos.is_chess960())
          << " with UCB " << bestValue
          << endl;
     cerr << "... exiting best_child()" << endl;
@@ -476,6 +489,8 @@ Reward UCT::calculate_prior(Move move, int n) {
 Reward UCT::value_to_reward(Value v) {
     const double k = -0.00183102048111;
     double r = 1.0 / (1 + exp(k * int(v)));
+
+    assert(REWARD_MATED <= r && r <= REWARD_MATE);
     return Reward(r);
 }
 
