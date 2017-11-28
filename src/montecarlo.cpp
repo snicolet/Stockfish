@@ -164,13 +164,16 @@ Node UCT::tree_policy() {
 
     assert(current_node() == root);
     descentCnt++;
-    
+
     if (number_of_sons(current_node()) == 0)
        return current_node();
 
-    while (current_node()->visits > 0) 
+    while (current_node()->visits > 0)
     {
         if (number_of_sons(current_node()) == 0)
+            return current_node();
+
+        if (pos.is_draw(ply - 1))
             return current_node();
 
         double C = get_exploration_constant();
@@ -201,6 +204,9 @@ Reward UCT::playout_policy(Node node) {
 
     if (node->visits > 0 && number_of_sons(node) == 0)
     	return pos.checkers() ? REWARD_MATED : REWARD_DRAW;
+
+    if (pos.is_draw(ply - 1))
+        return REWARD_DRAW;
 
     assert(current_node()->visits == 0);
 
@@ -259,8 +265,9 @@ void UCT::backup(Node node, Reward r) {
    print_node(current_node());
 
    assert(node == current_node());
+   assert(ply >= 1);
 
-   while (current_node() != root)
+   while (ply != 1) // root ?
    {
 
        undo_move();
@@ -585,7 +592,6 @@ void UCT::print_edge(Edge e) {
 // 1. ttMove = MOVE_NONE    in generate_moves()
 // 2. what to do with killers in create_root()
 // 3. setupStates should probably come the caller, as a global in create_root()
-// 4. what about repetitions? Handle in playout_policy()
 
 
 
