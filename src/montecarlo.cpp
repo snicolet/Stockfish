@@ -164,13 +164,16 @@ Node UCT::tree_policy() {
 
     assert(current_node() == root);
     descentCnt++;
+    
+    if (number_of_sons(current_node()) == 0)
+       return current_node();
 
-    double C = get_exploration_constant();
+    while (current_node()->visits > 0) 
+    {
+        if (number_of_sons(current_node()) == 0)
+            return current_node();
 
-    while (   current_node()->visits > 0
-           && number_of_sons(current_node()) > 0) {
-
-        C = get_exploration_constant();
+        double C = get_exploration_constant();
 
         edges[ply] = best_child(current_node(), C);
         Move m = edges[ply]->move;
@@ -182,7 +185,7 @@ Node UCT::tree_policy() {
         nodes[ply] = get_node(pos); // Set current node
     }
 
-    assert(current_node()->visits == 0 || number_of_sons(current_node()) == 0);
+    assert(current_node()->visits == 0);
 
     return current_node();
 }
