@@ -580,7 +580,12 @@ void UCT::print_edge(Edge e) {
         << endl;
 }
 
-
+// List of FIXME/TODO for the monte-carlo branch
+//
+// 1. ttMove = MOVE_NONE    in generate_moves()
+// 2. what to do with killers in create_root()
+// 3. setupStates should probably come the caller, as a global in create_root()
+// 4. what about repetitions? Handle in playout_policy()
 
 
 
