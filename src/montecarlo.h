@@ -74,6 +74,7 @@ public:
   // Testing and debugging
   void print_stats();
   void print_node(Node node);
+  void print_edge(Edge edge);
   void test();
 
 private:
@@ -82,7 +83,7 @@ private:
   Position&       pos;                  // The current position of the tree, changes during search
   Position        rootPosition;         // A full copy of the position used to initialise the class
   Node            root;                 // A pointer to the root
-  double          explorationConstant = 10.0;   // Default value for the UCB formula
+  double          exploration = 10.0;   // Default value for the UCB formula
 
   // Counters
   int             ply;
@@ -106,7 +107,7 @@ const int MAX_CHILDREN = 64;
 /// Edge struct stores the statistics of one edge between nodes in the UCT tree
 struct Edge {
   Move    move;
-  int     visits;
+  double  visits;
   Reward  prior;
   Reward  actionValue;
   Reward  meanActionValue;

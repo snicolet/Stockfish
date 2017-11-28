@@ -44,7 +44,9 @@
 //     https://www.ke.tu-darmstadt.de/lehre/arbeiten/bachelor/2012/Arenz_Oleg.pdf
 //     https://dke.maastrichtuniversity.nl/m.winands/publications.html
 //     https://www.ru.is/faculty/yngvi/pdf/WinandsB11a.pdf
-//     https://www.nature.com/articles/nature24270.epdf?author_access_token=VJXbVjaSHxFoctQQ4p2k4tRgN0jAjWel9jnR3ZoTv0PVW4gB86EEpGqTRDtpIz-2rmo8-KG06gqVobU5NSCFeHILHcVFUeMsbvwS-lxjqQGg98faovwjxeTUgZAUMnRQ
+//     https://www.nature.com/articles/nature24270.epdf?author_access_token=
+//           VJXbVjaSHxFoctQQ4p2k4tRgN0jAjWel9jnR3ZoTv0PVW4gB86EEpGqTRDtpIz-2rmo8-
+//           KG06gqVobU5NSCFeHILHcVFUeMsbvwS-lxjqQGg98faovwjxeTUgZAUMnRQ
 
 
 using namespace std;
@@ -56,7 +58,7 @@ UCTHashTable UCTTable;
 const Reward REWARD_NONE = Reward(0.0);
 Edge EDGE_NONE = {MOVE_NONE, 0, REWARD_NONE, REWARD_NONE, REWARD_NONE};
 
-/// get_node() probe the UCT hash table to know if we can find the node 
+/// get_node() probe the UCT hash table to know if we can find the node
 /// for the given position.
 Node get_node(const Position& pos) {
 
@@ -151,7 +153,7 @@ void UCT::create_root() {
 bool UCT::computational_budget() {
     assert(current_node() == root);
 
-    return (descentCnt < 5);
+    return (descentCnt < 100);
 }
 
 
@@ -166,14 +168,14 @@ Node UCT::tree_policy() {
     while (current_node()->visits > 0) {
 
         C = get_exploration_constant();
-        
+
         edges[ply] = best_child(current_node(), C);
         Move m = edges[ply]->move;
 
         assert(pos.legal(m));
 
         do_move(m);
-        
+
         nodes[ply] = get_node(pos); // Set current node
     }
 
@@ -183,27 +185,27 @@ Node UCT::tree_policy() {
 }
 
 
-/// UCT::playout_policy() expands the selected node, plays a semi random game starting 
+/// UCT::playout_policy() expands the selected node, plays a semi random game starting
 /// from there, and return the reward of this playout from the point of view of the
 /// player to move in the expanded move.
 Reward UCT::playout_policy(Node node) {
 
     playoutCnt++;
-    
+
     // Expand the current node, generating the legal moves and
     // calculating their prior value.
+    assert(current_node() == node);
     assert(current_node()->visits == 0);
-    
+
     Node old = current_node();
     generate_moves();
-    print_stats();
     
     // TODO : what if there is no legal moves? Handle stalemate and mate !!
-    
+    print_stats();
     assert(current_node()->visits == 1);
     assert(current_node()->number_of_sons > 0);
     assert(current_node() == old);
-    
+
     // Now implement a play-out policy from the newly expanded node,
     // and return the reward of the play-out from the point of view
     // of the side to play in that node.
@@ -227,9 +229,9 @@ double UCT::UCB(Node node, Edge& edge, double C) {
     double result = 0.0;
 
     if (edge.visits)
-        result += edge.actionValue / edge.visits;
+        result += edge.meanActionValue;
 
-    result += C * edge.prior * sqrt(fatherVisits) / (1 + edge.visits);
+    result += C * edge.prior * sqrt(fatherVisits) / (1 + edge.visits);  // (or 1 + edge.losses)
 
     return result;
 }
@@ -239,8 +241,39 @@ double UCT::UCB(Node node, Edge& edge, double C) {
 /// after a playout.
 void UCT::backup(Node node, Reward r) {
 
-   
+   cerr << "Entering backup()..." << endl;
+   cerr << pos << endl;
+   cerr << "reward r = " << r << endl;
+   print_stats();
+   print_node(current_node());
 
+   assert(node == current_node());
+
+   while (current_node() != root)
+   {
+
+       undo_move();
+
+       r = 1.0 - r;
+
+       // Update the stats of the edge
+       Edge* edge = edges[ply];
+
+       print_edge(*edge);
+
+       edge->visits          = edge->visits + 1.0;
+       edge->actionValue     = edge->actionValue + r;
+       edge->meanActionValue = edge->actionValue / edge->visits;
+
+       print_edge(*e);
+
+       assert(stack[ply].currentMove == e->move);
+   }
+
+
+   cerr << "... exiting backup()" << endl;
+
+   assert(ply == 1);
    assert(current_node() == root);
 }
 
@@ -250,7 +283,7 @@ Edge* UCT::best_child(Node node, double C) {
 
     cerr << "Entering best_child()..." << endl;
     cerr << pos << endl;
-    
+
     if (number_of_sons(node) <= 0)
        return &EDGE_NONE;
 
@@ -401,13 +434,13 @@ void UCT::generate_moves() {
     Node s = current_node();
     s->visits       = 1;
     s->expandedSons = 0;
-    
+
     cerr << "... exiting generate_moves()" << endl;
 }
 
 
 /// UCT::evaluate_with_minimax() evaluates the current position in the tree
-/// with a small minimax search of the given depth. Note : you can use 
+/// with a small minimax search of the given depth. Note : you can use
 /// depth==DEPTH_ZERO for a direct quiescence value.
 Value UCT::evaluate_with_minimax(Depth depth) {
 
@@ -470,13 +503,13 @@ Value UCT::reward_to_value(Reward r) {
 /// of the constant makes an algorithm which focuses more on the already explored
 /// parts of the tree. Default value is 10.0
 void UCT::set_exploration_constant(double C) {
-    explorationConstant = C;
+    exploration = C;
 }
 
 
 /// UCT::get_exploration_constant() returns the exploration constant of the UCB formula
 double UCT::get_exploration_constant() {
-    return explorationConstant;
+    return exploration;
 }
 
 
@@ -512,6 +545,18 @@ void UCT::print_node(Node node) {
    cerr << "visits       = " << node->visits             << endl;
    cerr << "sons         = " << node->number_of_sons     << endl;
    cerr << "expandedSons = " << node->expandedSons       << endl;
+}
+
+
+/// UCT::print_edge()
+void UCT::print_edge(Edge e) {
+   cerr << "edge = { "
+        << UCI::move(e.move, pos.is_chess960()) << " , "
+        << "N = " << e.visits                     << " , "
+        << "P = " << e.prior                      << " , "
+        << "W = " << e.actionValue                << " , "
+        << "Q = " << e.meanActionValue            << " }"
+        << endl;
 }
 
 
