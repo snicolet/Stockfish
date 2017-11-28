@@ -44,9 +44,7 @@
 //     https://www.ke.tu-darmstadt.de/lehre/arbeiten/bachelor/2012/Arenz_Oleg.pdf
 //     https://dke.maastrichtuniversity.nl/m.winands/publications.html
 //     https://www.ru.is/faculty/yngvi/pdf/WinandsB11a.pdf
-//     https://www.nature.com/articles/nature24270.epdf?author_access_token=
-//           VJXbVjaSHxFoctQQ4p2k4tRgN0jAjWel9jnR3ZoTv0PVW4gB86EEpGqTRDtpIz-2rmo8-
-//           KG06gqVobU5NSCFeHILHcVFUeMsbvwS-lxjqQGg98faovwjxeTUgZAUMnRQ
+//     http://cassio.free.fr/pdf/alphago-zero-nature.pdf
 
 
 using namespace std;
