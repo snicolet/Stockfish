@@ -433,6 +433,7 @@ help:
 
 build: config-sanity
 	$(MAKE) ARCH=$(ARCH) COMP=$(COMP) all
+	strip $(EXE)
 
 profile-build: config-sanity objclean profileclean
 	@echo ""
