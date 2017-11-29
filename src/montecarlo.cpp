@@ -258,9 +258,9 @@ double UCT::UCB(Node node, Edge& edge, double C) {
 /// after a playout.
 void UCT::backup(Node node, Reward r) {
 
-   cerr << "Entering backup()..." << endl;
-   cerr << pos << endl;
-   cerr << "reward r = " << r << endl;
+   debug << "Entering backup()..." << endl;
+   debug << pos << endl;
+   debug << "reward r = " << r << endl;
    print_stats();
    print_node(current_node());
 
@@ -289,7 +289,7 @@ void UCT::backup(Node node, Reward r) {
    }
 
 
-   cerr << "... exiting backup()" << endl;
+   debug << "... exiting backup()" << endl;
 
    assert(ply == 1);
    assert(current_node() == root);
@@ -299,12 +299,12 @@ void UCT::backup(Node node, Reward r) {
 /// UCT::best_child() selects the best child of a node according to the UCB formula
 Edge* UCT::best_child(Node node, double C) {
 
-    cerr << "Entering best_child()..." << endl;
-    cerr << pos << endl;
+    debug << "Entering best_child()..." << endl;
+    debug << pos << endl;
 
     if (number_of_sons(node) <= 0)
     {
-       cerr << "... exiting best_child()" << endl;
+       debug << "... exiting best_child()" << endl;
        return &EDGE_NONE;
     }
 
@@ -312,10 +312,10 @@ Edge* UCT::best_child(Node node, double C) {
 
     for (int k = 0 ; k < number_of_sons(node) ; k++)
     {
-        cerr << "move #" << k << ": "
-            << UCI::move(children[k].move, pos.is_chess960())
-            << " with prior " << children[k].prior
-            << endl;
+        debug << "move #" << k << ": "
+              << UCI::move(children[k].move, pos.is_chess960())
+              << " with prior " << children[k].prior
+              << endl;
     }
 
     int best = -1;
@@ -330,10 +330,10 @@ Edge* UCT::best_child(Node node, double C) {
         }
     }
 
-    cerr << "=> Selecting move " << UCI::move(children[best].move, pos.is_chess960())
-         << " with UCB " << bestValue
-         << endl;
-    cerr << "... exiting best_child()" << endl;
+    debug << "=> Selecting move " << UCI::move(children[best].move, pos.is_chess960())
+          << " with UCB " << bestValue
+          << endl;
+    debug << "... exiting best_child()" << endl;
 
     return &children[best];
 }
@@ -387,16 +387,16 @@ void UCT::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
        node->children[n].meanActionValue = 0.0;
        node->number_of_sons++;
 
-       cerr << "Adding move #" << n << ": "
-            << UCI::move(m, pos.is_chess960())
-            << " with prior " << prior
-            << endl;
+       debug << "Adding move #" << n << ": "
+             << UCI::move(m, pos.is_chess960())
+             << " with prior " << prior
+             << endl;
 
        assert(node->number_of_sons == moveCount);
    }
    else
    {
-        cerr << "ERROR : too many sons (" << node->number_of_sons << ") in add_prior_to_node()" << endl;
+        debug << "ERROR : too many sons (" << node->number_of_sons << ") in add_prior_to_node()" << endl;
    }
 }
 
@@ -411,8 +411,8 @@ void UCT::generate_moves() {
 
     assert(current_node()->visits == 0);
 
-    cerr << "Entering generate_moves()..." << endl;
-    cerr << pos << endl;
+    debug << "Entering generate_moves()..." << endl;
+    debug << pos << endl;
 
     print_node(current_node());
 
@@ -461,7 +461,7 @@ void UCT::generate_moves() {
     s->visits       = 1;
     s->expandedSons = 0;
 
-    cerr << "... exiting generate_moves()" << endl;
+    debug << "... exiting generate_moves()" << endl;
 }
 
 
@@ -543,48 +543,48 @@ double UCT::get_exploration_constant() {
 
 /// UCT::test()
 void UCT::test() {
-   cerr << "---------------------------------------------------------------------------------" << endl;
-   cerr << "Testing UCT for position..." << endl;
-   cerr << pos << endl;
+   debug << "---------------------------------------------------------------------------------" << endl;
+   debug << "Testing UCT for position..." << endl;
+   debug << pos << endl;
 
    search();
 
-   cerr << "... end of UCT testing!" << endl;
-   cerr << "---------------------------------------------------------------------------------" << endl;
+   debug << "... end of UCT testing!" << endl;
+   debug << "---------------------------------------------------------------------------------" << endl;
 }
 
 
 /// UCT::print_stats()
 void UCT::print_stats() {
-   cerr << "ply        = " << ply        << endl;
-   cerr << "descentCnt = " << descentCnt << endl;
-   cerr << "playoutCnt = " << playoutCnt << endl;
-   cerr << "doMoveCnt  = " << doMoveCnt  << endl;
-   cerr << "priorCnt   = " << priorCnt   << endl;
+   debug << "ply        = " << ply        << endl;
+   debug << "descentCnt = " << descentCnt << endl;
+   debug << "playoutCnt = " << playoutCnt << endl;
+   debug << "doMoveCnt  = " << doMoveCnt  << endl;
+   debug << "priorCnt   = " << priorCnt   << endl;
 }
 
 
 /// UCT::print_node()
 void UCT::print_node(Node node) {
-   cerr << "isCurrent    = " << (node == current_node()) << endl;
-   cerr << "isRoot       = " << (node == root)           << endl;
-   cerr << "key1         = " << node->key1               << endl;
-   cerr << "key2         = " << node->key2               << endl;
-   cerr << "visits       = " << node->visits             << endl;
-   cerr << "sons         = " << node->number_of_sons     << endl;
-   cerr << "expandedSons = " << node->expandedSons       << endl;
+   debug << "isCurrent    = " << (node == current_node()) << endl;
+   debug << "isRoot       = " << (node == root)           << endl;
+   debug << "key1         = " << node->key1               << endl;
+   debug << "key2         = " << node->key2               << endl;
+   debug << "visits       = " << node->visits             << endl;
+   debug << "sons         = " << node->number_of_sons     << endl;
+   debug << "expandedSons = " << node->expandedSons       << endl;
 }
 
 
 /// UCT::print_edge()
 void UCT::print_edge(Edge e) {
-   cerr << "edge = { "
-        << UCI::move(e.move, pos.is_chess960()) << " , "
-        << "N = " << e.visits                     << " , "
-        << "P = " << e.prior                      << " , "
-        << "W = " << e.actionValue                << " , "
-        << "Q = " << e.meanActionValue            << " }"
-        << endl;
+   debug << "edge = { "
+         << UCI::move(e.move, pos.is_chess960()) << " , "
+         << "N = " << e.visits                     << " , "
+         << "P = " << e.prior                      << " , "
+         << "W = " << e.actionValue                << " , "
+         << "Q = " << e.meanActionValue            << " }"
+         << endl;
 }
 
 // List of FIXME/TODO for the monte-carlo branch

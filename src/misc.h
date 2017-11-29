@@ -62,6 +62,14 @@ std::ostream& operator<<(std::ostream&, SyncCout);
 #define sync_endl std::endl << IO_UNLOCK
 
 
+/// Debug macro to write to std::err if NDEBUG flag is set, and do nothing otherwise
+#ifndef NDEBUG
+#define debug std::cerr
+#else
+#define debug 0 && std::cerr
+#endif
+
+
 /// xorshift64star Pseudo-Random Number Generator
 /// This class is based on original code written and dedicated
 /// to the public domain by Sebastiano Vigna (2014).
