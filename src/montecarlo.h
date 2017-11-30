@@ -122,8 +122,8 @@ public:
 
   // Data members
   // At initialization time we fill them with artificial values to make debugging easier
-  Key      key1           = -99;
-  Key      key2           = -553;
+  Key      key1           =  0;
+  Key      key2           =  0;
   int      visits         = -373;      // number of visits by the UCT algorithm
   int      number_of_sons = -1003;     // total number of legal moves
   int      expandedSons   = -5977;     // number of sons expanded by the UCT algorithm

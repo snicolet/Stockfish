@@ -74,6 +74,9 @@ Node get_node(const Position& pos) {
 
    // Otherwise create a new node. This will overwrite any node in the
    // hash table in the same location.
+   
+   assert(node->key1 == 0);
+   assert(node->key2 == 0);
 
    node->key1                = key1;
    node->key2                = key2;
@@ -161,6 +164,7 @@ bool UCT::computational_budget() {
 
 /// UCT::tree_policy() selects the next node to be expanded
 Node UCT::tree_policy() {
+    debug << "Entering tree_policy()..." << endl;
 
     assert(current_node() == root);
     descentCnt++;
@@ -180,15 +184,26 @@ Node UCT::tree_policy() {
 
         edges[ply] = best_child(current_node(), C);
         Move m = edges[ply]->move;
+        
+        debug << "edges[" << ply << "].move = " 
+             << UCI::move(edges[ply]->move, pos.is_chess960()) 
+             << std::endl;
 
         assert(is_ok(m));
         assert(pos.legal(m));
 
         do_move(m);
+        
+        debug << "stack[" << ply-1 << "].currentMove = " 
+             << UCI::move(stack[ply-1].currentMove, pos.is_chess960()) 
+             << std::endl;
+             
         nodes[ply] = get_node(pos); // Set current node
     }
 
     assert(current_node()->visits == 0);
+    
+    debug << "... exiting tree_policy()" << endl;
 
     return current_node();
 }
@@ -277,6 +292,9 @@ void UCT::backup(Node node, Reward r) {
        // Update the stats of the edge
        Edge* edge = edges[ply];
 
+       debug << "stack[" << ply << "].currentMove = " 
+             << UCI::move(stack[ply].currentMove, pos.is_chess960()) 
+             << std::endl;
        print_edge(*edge);
 
        edge->visits          = edge->visits + 1.0;
