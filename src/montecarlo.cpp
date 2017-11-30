@@ -24,6 +24,7 @@
 #include <cstring> // For std::memset, std::memcmp
 #include <iostream>
 #include <sstream>
+#include <unordered_map>
 
 #include "misc.h"
 #include "montecarlo.h"
@@ -60,32 +61,44 @@ const Reward REWARD_MATE  = Reward(1.0);
 
 Edge EDGE_NONE = {MOVE_NONE, 0, REWARD_NONE, REWARD_NONE, REWARD_NONE};
 
-/// get_node() probe the UCT hash table to know if we can find the node
+/// get_node() probes the UCT hash table to know if we can find the node
 /// for the given position.
 Node get_node(const Position& pos) {
 
    Key key1 = pos.key();
    Key key2 = pos.pawn_key();
-   Node node = UCTTable[key1];
 
-   // If node already exists, return it
-   if (node->key1 == key1 && node->key2 == key2)
-       return node;
+   auto range = UCTTable.equal_range(key1);
+   auto it1 = range.first;
+   auto it2 = range.second;
 
-   // Otherwise create a new node. This will overwrite any node in the
-   // hash table in the same location.
+   while (it1 != it2)
+   {
+       Node node = &(it1->second);
+
+       if (node->key1 == key1 && node->key2 == key2)
+           return node;
+
+       it1++;
+   }
+
+   // Node was not found, so we have to create a new one
+   NodeInfo infos;
    
-   assert(node->key1 == 0);
-   assert(node->key2 == 0);
+   assert(infos.key1 == 0);
+   assert(infos.key2 == 0);
 
-   node->key1                = key1;
-   node->key2                = key2;
-   node->visits              = 0;         // number of visits by the UCT algorithm
-   node->number_of_sons      = 0;         // total number of legal moves
-   node->expandedSons        = 0;         // number of sons expanded by the UCT algorithm
-   node->lastMove            = MOVE_NONE; // the move between the parent and this node
-
-   return node;
+   infos.key1                = key1;
+   infos.key2                = key2;
+   infos.visits              = 0;         // number of visits by the UCT algorithm
+   infos.number_of_sons      = 0;         // total number of legal moves
+   infos.expandedSons        = 0;         // number of sons expanded by the UCT algorithm
+   infos.lastMove            = MOVE_NONE; // the move between the parent and this node
+   
+   debug << "inserting into the hash table: key = " << key1 << endl;
+   
+   auto it = UCTTable.insert(make_pair(key1, infos));
+   return &(it->second);
 }
 
 Move move_of(Node node) { return node->last_move(); }
@@ -574,11 +587,12 @@ void UCT::test() {
 
 /// UCT::print_stats()
 void UCT::print_stats() {
-   debug << "ply        = " << ply        << endl;
-   debug << "descentCnt = " << descentCnt << endl;
-   debug << "playoutCnt = " << playoutCnt << endl;
-   debug << "doMoveCnt  = " << doMoveCnt  << endl;
-   debug << "priorCnt   = " << priorCnt   << endl;
+   debug << "ply        = " << ply             << endl;
+   debug << "descentCnt = " << descentCnt      << endl;
+   debug << "playoutCnt = " << playoutCnt      << endl;
+   debug << "doMoveCnt  = " << doMoveCnt       << endl;
+   debug << "priorCnt   = " << priorCnt        << endl;
+   debug << "hash size  = " << UCTTable.size() << endl;
 }
 
 

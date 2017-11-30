@@ -21,6 +21,7 @@
 #ifndef MONTECARLO_H_INCLUDED
 #define MONTECARLO_H_INCLUDED
 
+#include <unordered_map>
 
 #include "position.h"
 #include "thread.h"
@@ -136,8 +137,7 @@ public:
 struct { bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }} ComparePrior;
 
 // The UCT tree is stored implicitly in one big hash table
-const int UCT_HASH_SIZE = 8192;
-typedef HashTable<NodeInfo, UCT_HASH_SIZE> UCTHashTable;
+typedef std::unordered_multimap<Key, NodeInfo> UCTHashTable;
 
 
 #endif // #ifndef MONTECARLO_H_INCLUDED
