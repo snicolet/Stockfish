@@ -61,6 +61,7 @@ const Reward REWARD_MATE  = Reward(1.0);
 
 Edge EDGE_NONE = {MOVE_NONE, 0, REWARD_NONE, REWARD_NONE, REWARD_NONE};
 
+
 /// get_node() probes the UCT hash table to know if we can find the node
 /// for the given position.
 Node get_node(const Position& pos) {
@@ -72,6 +73,8 @@ Node get_node(const Position& pos) {
    auto it1 = range.first;
    auto it2 = range.second;
 
+   // If the node already already exists (in the range of all the
+   // hash table entries with key "key1"), return it.
    while (it1 != it2)
    {
        Node node = &(it1->second);
