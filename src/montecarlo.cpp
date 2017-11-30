@@ -38,7 +38,7 @@
 
 // UCT is a class implementing Monte-Carlo Tree Search for Stockfish.
 // We are following the survey http://mcts.ai/pubs/mcts-survey-master.pdf
-// for the Monte-Carlo algorithm description and the notations used.
+// for the notations and the description of the Monte-Carlo algorithm.
 
 // Bibliography:
 //     http://mcts.ai/pubs/mcts-survey-master.pdf
@@ -88,12 +88,12 @@ Node get_node(const Position& pos) {
    // Node was not found, so we have to create a new one
    NodeInfo infos;
 
-   infos.key1                = key1;
-   infos.key2                = key2;
-   infos.visits              = 0;         // number of visits by the UCT algorithm
-   infos.number_of_sons      = 0;         // total number of legal moves
-   infos.expandedSons        = 0;         // number of sons expanded by the UCT algorithm
-   infos.lastMove            = MOVE_NONE; // the move between the parent and this node
+   infos.key1             = key1;      // Zobrist hash of all pieces, including pawns
+   infos.key2             = key2;      // Zobrist hash of pawns
+   infos.visits           = 0;         // number of visits by the UCT algorithm
+   infos.number_of_sons   = 0;         // total number of legal moves
+   infos.expandedSons     = 0;         // number of sons expanded by the UCT algorithm
+   infos.lastMove         = MOVE_NONE; // the move between the parent and this node
    
    debug << "inserting into the hash table: key = " << key1 << endl;
    
@@ -101,6 +101,7 @@ Node get_node(const Position& pos) {
    return &(it->second);
 }
 
+// Helpers functions
 Move move_of(Node node) { return node->last_move(); }
 Edge* get_list_of_children(Node node) { return node->children_list(); }
 int number_of_sons(Node node) { return node->number_of_sons; }
@@ -187,9 +188,11 @@ Node UCT::tree_policy() {
 
     while (current_node()->visits > 0)
     {
+        // Check for mate or stalemate
         if (number_of_sons(current_node()) == 0)
             return current_node();
 
+        // Check for draw by repetition or draw by 50 moves rule
         if (pos.is_draw(ply - 1))
             return current_node();
 
@@ -297,7 +300,6 @@ void UCT::backup(Node node, Reward r) {
 
    while (ply != 1) // root ?
    {
-
        undo_move();
 
        r = 1.0 - r;
@@ -345,7 +347,9 @@ Edge* UCT::best_child(Node node, double C) {
     {
         debug << "move #" << k << ": "
               << UCI::move(children[k].move, pos.is_chess960())
-              << " with prior " << children[k].prior
+              << " with " << children[k].visits 
+              << (children[k].visits > 0 ? " visits":" visit")
+              << " and prior " << children[k].prior
               << endl;
     }
 
@@ -420,6 +424,7 @@ void UCT::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
 
        debug << "Adding move #" << n << ": "
              << UCI::move(m, pos.is_chess960())
+             << " with " << 0 << " visit"
              << " with prior " << prior
              << endl;
 

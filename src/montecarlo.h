@@ -93,8 +93,8 @@ private:
   int             doMoveCnt;
   int             priorCnt;
 
-  // Stack to do/undo the moves: for compatibility with the alpha-beta search implementation,
-  // we want to be able to reference from stack[-4] to stack[MAX_PLY + 2].
+  // Some stacks to do/undo the moves: for compatibility with the alpha-beta search
+  // implementation, we want to be able to reference from stack[-4] to stack[MAX_PLY+2].
   Node            nodesBuffer [MAX_PLY+7],  *nodes   = nodesBuffer  + 4;
   Edge*           edgesBuffer [MAX_PLY+7],  **edges  = edgesBuffer  + 4;
   Search::Stack   stackBuffer [MAX_PLY+7],  *stack   = stackBuffer  + 4;
@@ -114,6 +114,10 @@ struct Edge {
   Reward  meanActionValue;
 };
 
+// Comparison function for edges
+struct { bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }} ComparePrior;
+
+
 /// NodeInfo struct stores information in a node of the UCT tree
 struct NodeInfo {
 public:
@@ -122,19 +126,15 @@ public:
   Edge*    children_list()  { return &(children[0]); }
 
   // Data members
-  // At initialization time we fill them with artificial values to make debugging easier
-  Key      key1           =  0;
-  Key      key2           =  0;
-  int      visits         = -373;      // number of visits by the UCT algorithm
-  int      number_of_sons = -1003;     // total number of legal moves
-  int      expandedSons   = -5977;     // number of sons expanded by the UCT algorithm
-  Move     lastMove       = MOVE_NONE; // the move between the parent and this node
+  Key      key1            = 0;     // Zobrist hash of all pieces, including pawns
+  Key      key2            = 0;     // Zobrist hash of pawns
+  int      visits          = 0;     // number of visits by the UCT algorithm
+  int      number_of_sons  = 0;     // total number of legal moves
+  int      expandedSons    = 0;     // number of sons expanded by the UCT algorithm
+  Move     lastMove        = MOVE_NONE; // the move between the parent and this node
   Edge     children[MAX_CHILDREN];
 };
 
-
-// Comparison function for edges
-struct { bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }} ComparePrior;
 
 // The UCT tree is stored implicitly in one big hash table
 typedef std::unordered_multimap<Key, NodeInfo> UCTHashTable;
