@@ -87,9 +87,6 @@ Node get_node(const Position& pos) {
 
    // Node was not found, so we have to create a new one
    NodeInfo infos;
-   
-   assert(infos.key1 == 0);
-   assert(infos.key2 == 0);
 
    infos.key1                = key1;
    infos.key2                = key2;
