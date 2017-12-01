@@ -44,7 +44,7 @@ public:
   // The main function of the class
   Move search();
 
-  // The high-level description of the MonteCarlo algorithm
+  // The high-level description of the Monte-Carlo algorithm
   void create_root();
   bool computational_budget();
   Node tree_policy();
