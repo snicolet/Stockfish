@@ -96,6 +96,7 @@ public:
   template<PieceType Pt> int count() const;
   template<PieceType Pt> const Square* squares(Color c) const;
   template<PieceType Pt> Square square(Color c) const;
+  template<PieceType Pt> Square square(Color c, int k) const;
 
   // Castling
   int can_castle(Color c) const;
@@ -249,6 +250,11 @@ template<PieceType Pt> inline const Square* Position::squares(Color c) const {
 template<PieceType Pt> inline Square Position::square(Color c) const {
   assert(pieceCount[make_piece(c, Pt)] == 1);
   return pieceList[make_piece(c, Pt)][0];
+}
+
+template<PieceType Pt> inline Square Position::square(Color c, int k) const {
+  assert(k <= pieceCount[make_piece(c, Pt)]);
+  return pieceList[make_piece(c, Pt)][k-1];
 }
 
 inline Square Position::ep_square() const {

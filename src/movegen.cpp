@@ -372,17 +372,20 @@ ExtMove* generate<EVASIONS>(const Position& pos, ExtMove* moveList) {
   Bitboard sliderAttacks = 0;
   Bitboard sliders = pos.checkers() & ~pos.pieces(KNIGHT, PAWN);
 
-  // Find all the squares attacked by slider checkers. We will remove them from
-  // the king evasions in order to skip known illegal moves, which avoids any
-  // useless legality checks later on.
+  // Find all the squares attacked by slider checkers, including x-ray through the king
   while (sliders)
   {
       Square checksq = pop_lsb(&sliders);
       sliderAttacks |= LineBB[checksq][ksq] ^ checksq;
   }
 
-  if (pos.count<QUEEN>(~us) == 1)
-      sliderAttacks |= pos.attacks_from<QUEEN>(pos.square<QUEEN>(~us));
+  // Find all squares directly attacked by sliders
+  for (int k = 1; k <= pos.count<QUEEN>(~us); ++k)
+      sliderAttacks |= pos.attacks_from<QUEEN>(pos.square<QUEEN>(~us, k));
+  for (int k = 1; k <= pos.count<ROOK>(~us); ++k)
+      sliderAttacks |= pos.attacks_from<ROOK>(pos.square<ROOK>(~us, k));
+  for (int k = 1; k <= pos.count<BISHOP>(~us); ++k)
+      sliderAttacks |= pos.attacks_from<BISHOP>(pos.square<BISHOP>(~us, k));
 
   // Generate evasions for king, capture and non capture moves
   Bitboard b = pos.attacks_from<KING>(ksq) & ~pos.pieces(us) & ~sliderAttacks;
