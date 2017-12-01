@@ -425,7 +425,7 @@ void UCT::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
        debug << "Adding move #" << n << ": "
              << UCI::move(m, pos.is_chess960())
              << " with " << 0 << " visit"
-             << " with prior " << prior
+             << " and prior " << prior
              << endl;
 
        assert(node->number_of_sons == moveCount);
@@ -510,7 +510,12 @@ Value UCT::evaluate_with_minimax(Depth depth) {
     stack[ply].currentMove  = MOVE_NONE;
     stack[ply].excludedMove = MOVE_NONE;
 
-    return minimax_value(pos, &stack[ply], depth);
+    Value v = minimax_value(pos, &stack[ply], depth);
+    
+    debug << pos << endl;
+    debug << "minimax value = " << v << endl;
+    
+    return v;
 }
 
 
@@ -629,7 +634,7 @@ void UCT::print_edge(Edge e) {
 // 1. ttMove = MOVE_NONE    in generate_moves()
 // 2. what to do with killers in create_root()
 // 3. setupStates should probably come the caller, as a global in create_root()
-
+// 4. debug the priors for the following key : 5DB5F8476356FB19
 
 
 
