@@ -36,7 +36,7 @@
 
 
 
-// UCT is a class implementing Monte-Carlo Tree Search for Stockfish.
+// MonteCarlo is a class implementing Monte-Carlo Tree Search for Stockfish.
 // We are following the survey http://mcts.ai/pubs/mcts-survey-master.pdf
 // for the notations and the description of the Monte-Carlo algorithm.
 
@@ -52,7 +52,7 @@ using namespace std;
 using std::string;
 
 
-UCTHashTable UCTTable;
+MCTSHashTable MCTS;
 
 const Reward REWARD_NONE  = Reward(0.0);
 const Reward REWARD_MATED = Reward(0.0);
@@ -62,14 +62,14 @@ const Reward REWARD_MATE  = Reward(1.0);
 Edge EDGE_NONE = {MOVE_NONE, 0, REWARD_NONE, REWARD_NONE, REWARD_NONE};
 
 
-/// get_node() probes the UCT hash table to know if we can find the node
+/// get_node() probes the MonteCarlo hash table to know if we can find the node
 /// for the given position.
 Node get_node(const Position& pos) {
 
    Key key1 = pos.key();
    Key key2 = pos.pawn_key();
 
-   auto range = UCTTable.equal_range(key1);
+   auto range = MCTS.equal_range(key1);
    auto it1 = range.first;
    auto it2 = range.second;
 
@@ -90,14 +90,14 @@ Node get_node(const Position& pos) {
 
    infos.key1             = key1;      // Zobrist hash of all pieces, including pawns
    infos.key2             = key2;      // Zobrist hash of pawns
-   infos.visits           = 0;         // number of visits by the UCT algorithm
+   infos.visits           = 0;         // number of visits by the MonteCarlo algorithm
    infos.number_of_sons   = 0;         // total number of legal moves
-   infos.expandedSons     = 0;         // number of sons expanded by the UCT algorithm
+   infos.expandedSons     = 0;         // number of sons expanded by the MonteCarlo algorithm
    infos.lastMove         = MOVE_NONE; // the move between the parent and this node
 
    debug << "inserting into the hash table: key = " << key1 << endl;
 
-   auto it = UCTTable.insert(make_pair(key1, infos));
+   auto it = MCTS.insert(make_pair(key1, infos));
    return &(it->second);
 }
 
@@ -107,8 +107,8 @@ Edge* get_list_of_children(Node node) { return node->children_list(); }
 int number_of_sons(Node node) { return node->number_of_sons; }
 
 
-// UCT::search() is the main function of UCT algorithm.
-Move UCT::search() {
+// MonteCarlo::search() is the main function of MonteCarlo algorithm.
+Move MonteCarlo::search() {
 
     create_root();
 
@@ -123,14 +123,14 @@ Move UCT::search() {
 }
 
 
-/// UCT::UCT() is the constructor for the UCT class
-UCT::UCT(Position& p) : pos(p) {
+/// MonteCarlo::MonteCarlo() is the constructor for the MonteCarlo class
+MonteCarlo::MonteCarlo(Position& p) : pos(p) {
     create_root();
 }
 
 
-/// UCT::create_root() initializes the UCT tree with the given position
-void UCT::create_root() {
+/// MonteCarlo::create_root() initializes the MonteCarlo tree with the given position
+void MonteCarlo::create_root() {
 
     // Initialize the global counters
     doMoveCnt  = 0;
@@ -168,17 +168,17 @@ void UCT::create_root() {
 }
 
 
-/// UCT::computational_budget() stops the search if the computational budget
+/// MonteCarlo::computational_budget() stops the search if the computational budget
 /// has been reached (time limit, or number of nodes, etc.)
-bool UCT::computational_budget() {
+bool MonteCarlo::computational_budget() {
     assert(current_node() == root);
 
     return (descentCnt < 100);
 }
 
 
-/// UCT::tree_policy() selects the next node to be expanded
-Node UCT::tree_policy() {
+/// MonteCarlo::tree_policy() selects the next node to be expanded
+Node MonteCarlo::tree_policy() {
     debug << "Entering tree_policy()..." << endl;
 
     assert(current_node() == root);
@@ -226,10 +226,10 @@ Node UCT::tree_policy() {
 }
 
 
-/// UCT::playout_policy() expands the selected node, plays a semi random game starting
+/// MonteCarlo::playout_policy() expands the selected node, plays a semi random game starting
 /// from there, and return the reward of this playout from the point of view of the
 /// player to move in the expanded move.
-Reward UCT::playout_policy(Node node) {
+Reward MonteCarlo::playout_policy(Node node) {
 
     playoutCnt++;
     assert(current_node() == node);
@@ -267,9 +267,9 @@ Reward UCT::playout_policy(Node node) {
 }
 
 
-/// UCT::UCB() calculates the upper confidence bound formula for the son
+/// MonteCarlo::UCB() calculates the upper confidence bound formula for the son
 /// which we reach from node "node" by following the edge "edge".
-double UCT::UCB(Node node, Edge& edge, double C) {
+double MonteCarlo::UCB(Node node, Edge& edge, double C) {
 
     int fatherVisits = node->visits;
 
@@ -286,9 +286,9 @@ double UCT::UCB(Node node, Edge& edge, double C) {
 }
 
 
-/// UCT::backup() implements the strategy for accumulating rewards up the tree
+/// MonteCarlo::backup() implements the strategy for accumulating rewards up the tree
 /// after a playout.
-void UCT::backup(Node node, Reward r) {
+void MonteCarlo::backup(Node node, Reward r) {
 
    debug << "Entering backup()..." << endl;
    debug << pos << endl;
@@ -330,8 +330,8 @@ void UCT::backup(Node node, Reward r) {
 }
 
 
-/// UCT::best_child() selects the best child of a node according to the UCB formula
-Edge* UCT::best_child(Node node, double C) {
+/// MonteCarlo::best_child() selects the best child of a node according to the UCB formula
+Edge* MonteCarlo::best_child(Node node, double C) {
 
     debug << "Entering best_child()..." << endl;
     debug << pos << endl;
@@ -374,8 +374,8 @@ Edge* UCT::best_child(Node node, double C) {
     return &children[best];
 }
 
-/// UCT::emit_pv() checks if it should write the pv of the game tree.
-void UCT::emit_pv(bool forced) {
+/// MonteCarlo::emit_pv() checks if it should write the pv of the game tree.
+void MonteCarlo::emit_pv(bool forced) {
 
     bool emission;
 
@@ -402,14 +402,14 @@ void UCT::emit_pv(bool forced) {
 
 
 
-/// UCT::current_node() is the current node of our tree exploration
-Node UCT::current_node() {
+/// MonteCarlo::current_node() is the current node of our tree exploration
+Node MonteCarlo::current_node() {
     return nodes[ply];
 }
 
 
-/// UCT::do_move() plays a move in the search tree from the current position
-void UCT::do_move(Move m) {
+/// MonteCarlo::do_move() plays a move in the search tree from the current position
+void MonteCarlo::do_move(Move m) {
 
     assert(ply < MAX_PLY);
 
@@ -425,8 +425,8 @@ void UCT::do_move(Move m) {
 }
 
 
-/// UCT::undo_move() undo the current move in the search tree
-void UCT::undo_move() {
+/// MonteCarlo::undo_move() undo the current move in the search tree
+void MonteCarlo::undo_move() {
 
     assert(ply > 1);
 
@@ -435,8 +435,8 @@ void UCT::undo_move() {
 }
 
 
-/// UCT::add_prior_to_node() adds the given (move,prior) pair as a new son for a node
-void UCT::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
+/// MonteCarlo::add_prior_to_node() adds the given (move,prior) pair as a new son for a node
+void MonteCarlo::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
 
    assert(node->number_of_sons < MAX_CHILDREN);
 
@@ -465,13 +465,13 @@ void UCT::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
 }
 
 
-/// UCT::generate_moves() does some Stockfish gimmick to iterate over legal moves
+/// MonteCarlo::generate_moves() does some Stockfish gimmick to iterate over legal moves
 /// of the current position, in a sensible order.
 /// For historical reasons, it is not so easy to get a MovePicker object to
 /// generate moves if we want to have a decent order (captures first, then
 /// quiet moves, etc.). We have to pass various history tables to the MovePicker
 /// constructor, like in the alpha-beta implementation of move ordering.
-void UCT::generate_moves() {
+void MonteCarlo::generate_moves() {
 
     assert(current_node()->visits == 0);
 
@@ -532,10 +532,10 @@ void UCT::generate_moves() {
 }
 
 
-/// UCT::evaluate_with_minimax() evaluates the current position in the tree
+/// MonteCarlo::evaluate_with_minimax() evaluates the current position in the tree
 /// with a small minimax search of the given depth. Note : you can use
 /// depth==DEPTH_ZERO for a direct quiescence value.
-Value UCT::evaluate_with_minimax(Depth depth) {
+Value MonteCarlo::evaluate_with_minimax(Depth depth) {
 
     stack[ply].ply          = ply;
     stack[ply].currentMove  = MOVE_NONE;
@@ -550,11 +550,11 @@ Value UCT::evaluate_with_minimax(Depth depth) {
 }
 
 
-/// UCT::calculate_prior() returns the a-priori reward of the move leading to
+/// MonteCarlo::calculate_prior() returns the a-priori reward of the move leading to
 /// the n-th son of the current node. Here we use the evaluation function to
 /// estimate this prior, we could use other strategies too (like the rank n of
 /// the son, or the type of the move (good capture/quiet/bad capture), etc).
-Reward UCT::calculate_prior(Move move, int n) {
+Reward MonteCarlo::calculate_prior(Move move, int n) {
 
     assert(n >= 0);
 
@@ -569,11 +569,11 @@ Reward UCT::calculate_prior(Move move, int n) {
 }
 
 
-/// UCT::value_to_reward() transforms a Stockfish value to a reward in [0..1]
+/// MonteCarlo::value_to_reward() transforms a Stockfish value to a reward in [0..1]
 /// We scale the logistic function such that a value of 600 (about three pawns)
 /// is given a probability of win of 0.75, and a value of -600 is given a probability
 /// of win of 0.25
-Reward UCT::value_to_reward(Value v) {
+Reward MonteCarlo::value_to_reward(Value v) {
     const double k = -0.00183102048111;
     double r = 1.0 / (1 + exp(k * int(v)));
 
@@ -582,10 +582,10 @@ Reward UCT::value_to_reward(Value v) {
 }
 
 
-/// UCT::reward_to_value() transforms a reward in [0..1] to a Stockfish value.
+/// MonteCarlo::reward_to_value() transforms a reward in [0..1] to a Stockfish value.
 /// The scale is such that a reward of 0.75 corresponds to 600 (about three pawns),
 /// and a reward of 0.25 corresponds to -600 (about minus three pawns).
-Value UCT::reward_to_value(Reward r) {
+Value MonteCarlo::reward_to_value(Reward r) {
     if (r > 0.99) return  VALUE_KNOWN_WIN;
     if (r < 0.01) return -VALUE_KNOWN_WIN;
 
@@ -595,50 +595,50 @@ Value UCT::reward_to_value(Reward r) {
 }
 
 
-/// UCT::set_exploration_constant() changes the exploration constant of the UCB formula.
+/// MonteCarlo::set_exploration_constant() changes the exploration constant of the UCB formula.
 ///
 /// This constant sets the balance between the exploitation of past results and the
-/// exploration of new branches in the UCT tree. The higher the constant, the more
+/// exploration of new branches in the MonteCarlo tree. The higher the constant, the more
 /// likely is the algorithm to explore new parts of the tree, whereas lower values
 /// of the constant makes an algorithm which focuses more on the already explored
 /// parts of the tree. Default value is 10.0
-void UCT::set_exploration_constant(double C) {
+void MonteCarlo::set_exploration_constant(double C) {
     exploration = C;
 }
 
 
-/// UCT::get_exploration_constant() returns the exploration constant of the UCB formula
-double UCT::get_exploration_constant() {
+/// MonteCarlo::get_exploration_constant() returns the exploration constant of the UCB formula
+double MonteCarlo::get_exploration_constant() {
     return exploration;
 }
 
 
-/// UCT::test()
-void UCT::test() {
+/// MonteCarlo::test()
+void MonteCarlo::test() {
    debug << "---------------------------------------------------------------------------------" << endl;
-   debug << "Testing UCT for position..." << endl;
+   debug << "Testing MonteCarlo for position..." << endl;
    debug << pos << endl;
 
    search();
 
-   debug << "... end of UCT testing!" << endl;
+   debug << "... end of MonteCarlo testing!" << endl;
    debug << "---------------------------------------------------------------------------------" << endl;
 }
 
 
-/// UCT::print_stats()
-void UCT::print_stats() {
+/// MonteCarlo::print_stats()
+void MonteCarlo::print_stats() {
    debug << "ply        = " << ply             << endl;
    debug << "descentCnt = " << descentCnt      << endl;
    debug << "playoutCnt = " << playoutCnt      << endl;
    debug << "doMoveCnt  = " << doMoveCnt       << endl;
    debug << "priorCnt   = " << priorCnt        << endl;
-   debug << "hash size  = " << UCTTable.size() << endl;
+   debug << "hash size  = " << MCTS.size()     << endl;
 }
 
 
-/// UCT::print_node()
-void UCT::print_node(Node node) {
+/// MonteCarlo::print_node()
+void MonteCarlo::print_node(Node node) {
    debug << "isCurrent    = " << (node == current_node()) << endl;
    debug << "isRoot       = " << (node == root)           << endl;
    debug << "key1         = " << node->key1               << endl;
@@ -649,8 +649,8 @@ void UCT::print_node(Node node) {
 }
 
 
-/// UCT::print_edge()
-void UCT::print_edge(Edge e) {
+/// MonteCarlo::print_edge()
+void MonteCarlo::print_edge(Edge e) {
    debug << "edge = { "
          << UCI::move(e.move, pos.is_chess960()) << " , "
          << "N = " << e.visits                     << " , "

@@ -160,7 +160,7 @@ namespace {
         if (token == "go")
         {
             cerr << "\nPosition: " << cnt++ << '/' << num << endl;
-            UCT(pos).test();
+            MonteCarlo(pos).test();
             //go(pos, is, states);
             //Threads.main()->wait_for_search_finished();
             nodes += Threads.nodes_searched();
@@ -237,7 +237,7 @@ void UCI::loop(int argc, char* argv[]) {
       // Additional custom non-UCI commands, mainly for debugging
       else if (token == "flip")  pos.flip();
       else if (token == "bench") bench(pos, is, states);
-      else if (token == "uct")   UCT(pos).test();
+      else if (token == "uct")   MonteCarlo(pos).test();
       else if (token == "d")     sync_cout << pos << sync_endl;
       else if (token == "eval")  sync_cout << Eval::trace(pos) << sync_endl;
       else

@@ -35,16 +35,16 @@ typedef double Reward;
 typedef NodeInfo* Node;
 
 
-class UCT {
+class MonteCarlo {
 public:
 
   // Constructors
-  UCT(Position& p);
+  MonteCarlo(Position& p);
 
   // The main function of the class
   Move search();
 
-  // The high-level description of the UCT algorithm
+  // The high-level description of the MonteCarlo algorithm
   void create_root();
   bool computational_budget();
   Node tree_policy();
@@ -109,7 +109,7 @@ private:
 const int MAX_CHILDREN = 64;
 
 
-/// Edge struct stores the statistics of one edge between nodes in the UCT tree
+/// Edge struct stores the statistics of one edge between nodes in the MonteCarlo tree
 struct Edge {
   Move    move;
   double  visits;
@@ -122,7 +122,7 @@ struct Edge {
 struct { bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }} ComparePrior;
 
 
-/// NodeInfo struct stores information in a node of the UCT tree
+/// NodeInfo struct stores information in a node of the MonteCarlo tree
 struct NodeInfo {
 public:
 
@@ -132,16 +132,16 @@ public:
   // Data members
   Key      key1            = 0;     // Zobrist hash of all pieces, including pawns
   Key      key2            = 0;     // Zobrist hash of pawns
-  int      visits          = 0;     // number of visits by the UCT algorithm
+  int      visits          = 0;     // number of visits by the MonteCarlo algorithm
   int      number_of_sons  = 0;     // total number of legal moves
-  int      expandedSons    = 0;     // number of sons expanded by the UCT algorithm
+  int      expandedSons    = 0;     // number of sons expanded by the MonteCarlo algorithm
   Move     lastMove        = MOVE_NONE; // the move between the parent and this node
   Edge     children[MAX_CHILDREN];
 };
 
 
-// The UCT tree is stored implicitly in one big hash table
-typedef std::unordered_multimap<Key, NodeInfo> UCTHashTable;
+// The MonteCarlo tree is stored implicitly in one big hash table
+typedef std::unordered_multimap<Key, NodeInfo> MCTSHashTable;
 
 
 #endif // #ifndef MONTECARLO_H_INCLUDED
