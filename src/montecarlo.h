@@ -68,9 +68,12 @@ public:
   Reward value_to_reward(Value v);
   Value reward_to_value(Reward r);
 
-  // Other helpers
-  double get_exploration_constant();
+  // Tweaking the exploration algorithm
   void set_exploration_constant(double C);
+  double get_exploration_constant();
+
+  // Output of results
+  void emit_pv(bool forced);
 
   // Testing and debugging
   void print_stats();
@@ -86,12 +89,13 @@ private:
   Node            root;                 // A pointer to the root
   double          exploration = 10.0;   // Default value for the UCB formula
 
-  // Counters
+  // Counters for time and statistics
   int             ply;
   int             descentCnt;
   int             playoutCnt;
   int             doMoveCnt;
   int             priorCnt;
+  TimePoint       startTime;
 
   // Some stacks to do/undo the moves: for compatibility with the alpha-beta search
   // implementation, we want to be able to reference from stack[-4] to stack[MAX_PLY+2].

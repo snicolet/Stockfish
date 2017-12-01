@@ -806,9 +806,6 @@ moves_loop: // When in check search starts from here
       if (rootNode && !std::count(thisThread->rootMoves.begin() + thisThread->PVIdx,
                                   thisThread->rootMoves.end(), move))
           continue;
-    
-      //if (!rootNode && !pos.legal(move))
-        //  continue;
 
       ss->moveCount = ++moveCount;
 
@@ -1498,7 +1495,7 @@ moves_loop: // When in check search starts from here
     Value beta = VALUE_INFINITE;
     Move pv[MAX_PLY+1];
     ss->pv = pv;
-    
+
     if (pos.should_debug())
     {
         debug << "Entering minimax_value() for the following position:" << std::endl;
@@ -1510,7 +1507,7 @@ moves_loop: // When in check search starts from here
                      pos.checkers() ? qsearch<PV,  true>(pos, ss, alpha, beta)
                                     : qsearch<PV, false>(pos, ss, alpha, beta)
                                     :  search<PV>(pos, ss, alpha, beta, depth, false, false);
-    
+
     if (pos.should_debug())
     {
         debug << pos << std::endl;

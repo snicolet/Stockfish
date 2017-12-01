@@ -1142,18 +1142,22 @@ int Position::hamming_distance(const Position& other) const {
 /// Position::should_debug() is a helper in which you can specify a FEN to debug
 
 bool Position::should_debug() const {
-
+#ifndef NDEBUG
     StateInfo state;
     Position other;
-    
+
     //std::string fen = "bb1n1rkr/ppp3pp/3n1p2/3p4/3P4/4Q1Pq/PPP1PP1P/BB1NNRKR b HFhf - 1 5";
     //std::string fen = "bb1n1rkr/ppp1Q1pp/3n1p2/3p4/3P4/4P1Pq/PPP2P1P/BB1NNRKR b HFhf - 0 5";
     std::string fen = "bb1n1rkr/ppp1Q1pp/3n1p2/3p4/3P4/P5P1/1PP1PP1P/BB1NNqKR w Hhf - 0 6";
-    
+
     other.set(fen, true, &state, nullptr);
-    
+
     return hamming_distance(other) <= 0;
+#else
+    return false;
+#endif
 }
+
 
 /// Position::pos_is_ok() performs some consistency checks for the
 /// position object and raises an asserts if something wrong is detected.

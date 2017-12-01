@@ -94,9 +94,9 @@ Node get_node(const Position& pos) {
    infos.number_of_sons   = 0;         // total number of legal moves
    infos.expandedSons     = 0;         // number of sons expanded by the UCT algorithm
    infos.lastMove         = MOVE_NONE; // the move between the parent and this node
-   
+
    debug << "inserting into the hash table: key = " << key1 << endl;
-   
+
    auto it = UCTTable.insert(make_pair(key1, infos));
    return &(it->second);
 }
@@ -137,6 +137,7 @@ void UCT::create_root() {
     descentCnt = 0;
     playoutCnt = 0;
     priorCnt   = 0;
+    startTime  = now();
 
     // Prepare the stack to go down and up in the game tree
     ply = 1;
@@ -200,25 +201,25 @@ Node UCT::tree_policy() {
 
         edges[ply] = best_child(current_node(), C);
         Move m = edges[ply]->move;
-        
-        debug << "edges[" << ply << "].move = " 
-             << UCI::move(edges[ply]->move, pos.is_chess960()) 
+
+        debug << "edges[" << ply << "].move = "
+             << UCI::move(edges[ply]->move, pos.is_chess960())
              << std::endl;
 
         assert(is_ok(m));
         assert(pos.legal(m));
 
         do_move(m);
-        
-        debug << "stack[" << ply-1 << "].currentMove = " 
-             << UCI::move(stack[ply-1].currentMove, pos.is_chess960()) 
+
+        debug << "stack[" << ply-1 << "].currentMove = "
+             << UCI::move(stack[ply-1].currentMove, pos.is_chess960())
              << std::endl;
-             
+
         nodes[ply] = get_node(pos); // Set current node
     }
 
     assert(current_node()->visits == 0);
-    
+
     debug << "... exiting tree_policy()" << endl;
 
     return current_node();
@@ -307,8 +308,8 @@ void UCT::backup(Node node, Reward r) {
        // Update the stats of the edge
        Edge* edge = edges[ply];
 
-       debug << "stack[" << ply << "].currentMove = " 
-             << UCI::move(stack[ply].currentMove, pos.is_chess960()) 
+       debug << "stack[" << ply << "].currentMove = "
+             << UCI::move(stack[ply].currentMove, pos.is_chess960())
              << std::endl;
        print_edge(*edge);
 
@@ -347,7 +348,7 @@ Edge* UCT::best_child(Node node, double C) {
     {
         debug << "move #" << k << ": "
               << UCI::move(children[k].move, pos.is_chess960())
-              << " with " << children[k].visits 
+              << " with " << children[k].visits
               << (children[k].visits > 0 ? " visits":" visit")
               << " and prior " << children[k].prior
               << endl;
@@ -372,6 +373,33 @@ Edge* UCT::best_child(Node node, double C) {
 
     return &children[best];
 }
+
+/// UCT::emit_pv() checks if it should write the pv of the game tree.
+void UCT::emit_pv(bool forced) {
+
+    bool emission;
+
+    if (forced)
+        emission = true;
+    else
+    {
+        TimePoint elapsed = now() - startTime + 1;  // in milliseconds
+        emission = false;
+        if (elapsed < 1000)            emission |= (elapsed % 500) == 0;
+        if (elapsed < 10 * 1000)       emission |= (elapsed % 1000) == 0;
+        if (elapsed < 60 * 1000)       emission |= (elapsed % 10000) == 0;
+        if (elapsed < 5 * 60 * 1000)   emission |= (elapsed % 30000) == 0;
+        if (elapsed < 60 * 60 * 1000)  emission |= (elapsed % 60000) == 0;
+        if (elapsed >= 60 * 60 * 1000) emission |= (elapsed % 600000) == 0;
+    }
+
+   if (emission)
+   {
+       const Search::RootMoves& rootMoves = pos.this_thread()->rootMoves;
+   }
+
+}
+
 
 
 /// UCT::current_node() is the current node of our tree exploration
@@ -449,7 +477,7 @@ void UCT::generate_moves() {
 
     debug << "Entering generate_moves()..." << endl;
     debug << pos << endl;
-    
+
     if (pos.should_debug())
        hit_any_key();
 
@@ -514,10 +542,10 @@ Value UCT::evaluate_with_minimax(Depth depth) {
     stack[ply].excludedMove = MOVE_NONE;
 
     Value v = minimax_value(pos, &stack[ply], depth);
-    
+
     debug << pos << endl;
     debug << "minimax value = " << v << endl;
-    
+
     return v;
 }
 
