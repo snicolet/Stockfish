@@ -369,26 +369,28 @@ ExtMove* generate<EVASIONS>(const Position& pos, ExtMove* moveList) {
 
   Color us = pos.side_to_move();
   Square ksq = pos.square<KING>(us);
-  Bitboard sliderAttacks = 0;
-  Bitboard sliders = pos.checkers() & ~pos.pieces(KNIGHT, PAWN);
+  Bitboard attacked = pos.attacks_from<KING>(pos.square<KING>(~us));
 
   // Find all the squares attacked by slider checkers, including x-ray through the king
+  Bitboard sliders = pos.checkers() & ~pos.pieces(KNIGHT, PAWN);
   while (sliders)
   {
       Square checksq = pop_lsb(&sliders);
-      sliderAttacks |= LineBB[checksq][ksq] ^ checksq;
+      attacked |= LineBB[checksq][ksq] ^ checksq;
   }
 
-  // Find all squares directly attacked by sliders
+  // Find all squares directly attacked by the opponent pieces
   for (int k = 1; k <= pos.count<QUEEN>(~us); ++k)
-      sliderAttacks |= pos.attacks_from<QUEEN>(pos.square<QUEEN>(~us, k));
+      attacked |= pos.attacks_from<QUEEN>(pos.square<QUEEN>(~us, k));
   for (int k = 1; k <= pos.count<ROOK>(~us); ++k)
-      sliderAttacks |= pos.attacks_from<ROOK>(pos.square<ROOK>(~us, k));
+      attacked |= pos.attacks_from<ROOK>(pos.square<ROOK>(~us, k));
   for (int k = 1; k <= pos.count<BISHOP>(~us); ++k)
-      sliderAttacks |= pos.attacks_from<BISHOP>(pos.square<BISHOP>(~us, k));
+      attacked |= pos.attacks_from<BISHOP>(pos.square<BISHOP>(~us, k));
+  for (int k = 1; k <= pos.count<KNIGHT>(~us); ++k)
+      attacked |= pos.attacks_from<KNIGHT>(pos.square<KNIGHT>(~us, k));
 
   // Generate evasions for king, capture and non capture moves
-  Bitboard b = pos.attacks_from<KING>(ksq) & ~pos.pieces(us) & ~sliderAttacks;
+  Bitboard b = pos.attacks_from<KING>(ksq) & ~pos.pieces(us) & ~attacked;
   while (b)
       *moveList++ = make_move(ksq, pop_lsb(&b));
 
