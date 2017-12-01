@@ -451,7 +451,7 @@ void UCT::generate_moves() {
     debug << pos << endl;
     
     if (pos.should_debug())
-       assert(0);
+       system("read");
 
     print_node(current_node());
 

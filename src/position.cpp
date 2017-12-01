@@ -1143,12 +1143,12 @@ int Position::hamming_distance(const Position& other) const {
 
 bool Position::should_debug() const {
 
-    
-    std::string fen = "bb1n1rkr/ppp3pp/3n1p2/3p4/3P4/4Q1Pq/PPP1PP1P/BB1NNRKR b HFhf - 1 5";
-    StateInfo si;
+    StateInfo state;
     Position other;
     
-    other.set(fen, true, &si, nullptr);
+    std::string fen = "bb1n1rkr/ppp3pp/3n1p2/3p4/3P4/4Q1Pq/PPP1PP1P/BB1NNRKR b HFhf - 1 5";
+    
+    other.set(fen, true, &state, nullptr);
     
     return hamming_distance(other) <= 5;
 }
