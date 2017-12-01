@@ -161,6 +161,7 @@ public:
   // Position consistency check, for debugging
   bool pos_is_ok() const;
   void flip();
+  int hamming_distance(const Position& other);
 
 private:
   // Initialization helpers (used while setting up a position)

@@ -1117,6 +1117,28 @@ void Position::flip() {
 }
 
 
+/// Position::hamming_distance() calculate the Hamming distance between two positions
+
+int Position::hamming_distance(const Position& other) {
+
+    int d = popcount(pieces(WHITE, PAWN)   ^ other.pieces(WHITE, PAWN))
+          + popcount(pieces(BLACK, PAWN)   ^ other.pieces(BLACK, PAWN))
+          + popcount(pieces(WHITE, KNIGHT) ^ other.pieces(WHITE, KNIGHT))
+          + popcount(pieces(BLACK, KNIGHT) ^ other.pieces(BLACK, KNIGHT))
+          + popcount(pieces(WHITE, BISHOP) ^ other.pieces(WHITE, BISHOP))
+          + popcount(pieces(BLACK, BISHOP) ^ other.pieces(BLACK, BISHOP))
+          + popcount(pieces(WHITE, ROOK)   ^ other.pieces(WHITE, ROOK))
+          + popcount(pieces(BLACK, ROOK)   ^ other.pieces(BLACK, ROOK))
+          + popcount(pieces(WHITE, QUEEN)  ^ other.pieces(WHITE, QUEEN))
+          + popcount(pieces(BLACK, QUEEN)  ^ other.pieces(BLACK, QUEEN))
+          + popcount(pieces(WHITE, KING)   ^ other.pieces(WHITE, KING))
+          + popcount(pieces(BLACK, KING)   ^ other.pieces(BLACK, KING))
+          + (side_to_move() != other.side_to_move());
+
+    return d;
+}
+
+
 /// Position::pos_is_ok() performs some consistency checks for the
 /// position object and raises an asserts if something wrong is detected.
 /// This is meant to be helpful when debugging.
