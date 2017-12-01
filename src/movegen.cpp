@@ -381,6 +381,9 @@ ExtMove* generate<EVASIONS>(const Position& pos, ExtMove* moveList) {
       sliderAttacks |= LineBB[checksq][ksq] ^ checksq;
   }
 
+  // if (pos.count<QUEEN>(~us) == 1)
+  //    sliderAttacks |= pos.attacks_from<QUEEN>(pos.square<QUEEN>(~us));
+
   // Generate evasions for king, capture and non capture moves
   Bitboard b = pos.attacks_from<KING>(ksq) & ~pos.pieces(us) & ~sliderAttacks;
   while (b)
