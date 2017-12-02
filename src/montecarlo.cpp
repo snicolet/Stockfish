@@ -112,7 +112,7 @@ Move MonteCarlo::search() {
     create_root();
 
     while (computational_budget()) {
-       print_stats();
+       debug_tree_stats();
        Node node = tree_policy();
        Reward reward = playout_policy(node);
        backup(node, reward);
@@ -250,7 +250,7 @@ Reward MonteCarlo::playout_policy(Node node) {
     if (number_of_sons(node) == 0)
         return pos.checkers() ? REWARD_MATED : REWARD_DRAW;
 
-    print_stats();
+    debug_tree_stats();
     assert(current_node()->visits == 1);
     assert(current_node()->number_of_sons > 0);
 
@@ -296,8 +296,8 @@ void MonteCarlo::backup(Node node, Reward r) {
    debug << "Entering backup()..." << endl;
    debug << pos << endl;
    debug << "reward r = " << r << endl;
-   print_stats();
-   print_node(current_node());
+   debug_tree_stats();
+   debug_node(current_node());
 
    assert(node == current_node());
    assert(ply >= 1);
@@ -314,13 +314,13 @@ void MonteCarlo::backup(Node node, Reward r) {
        debug << "stack[" << ply << "].currentMove = "
              << UCI::move(stack[ply].currentMove, pos.is_chess960())
              << std::endl;
-       print_edge(*edge);
+       debug_edge(*edge);
 
        edge->visits          = edge->visits + 1.0;
        edge->actionValue     = edge->actionValue + r;
        edge->meanActionValue = edge->actionValue / edge->visits;
 
-       print_edge(*edge);
+       debug_edge(*edge);
 
        assert(stack[ply].currentMove == edge->move);
    }
@@ -492,7 +492,7 @@ void MonteCarlo::generate_moves() {
     if (pos.should_debug())
        hit_any_key();
 
-    print_node(current_node());
+    debug_node(current_node());
 
     Thread*  thread      = pos.this_thread();
     Square   prevSq      = to_sq(stack[ply-1].currentMove);
@@ -637,8 +637,8 @@ void MonteCarlo::test() {
 }
 
 
-/// MonteCarlo::print_stats()
-void MonteCarlo::print_stats() {
+/// MonteCarlo::debug_tree_stats()
+void MonteCarlo::debug_tree_stats() {
    debug << "ply        = " << ply             << endl;
    debug << "descentCnt = " << descentCnt      << endl;
    debug << "playoutCnt = " << playoutCnt      << endl;
@@ -648,8 +648,8 @@ void MonteCarlo::print_stats() {
 }
 
 
-/// MonteCarlo::print_node()
-void MonteCarlo::print_node(Node node) {
+/// MonteCarlo::debug_node()
+void MonteCarlo::debug_node(Node node) {
    debug << "isCurrent    = " << (node == current_node()) << endl;
    debug << "isRoot       = " << is_root(current_node())  << endl;
    debug << "key1         = " << node->key1               << endl;
@@ -660,8 +660,8 @@ void MonteCarlo::print_node(Node node) {
 }
 
 
-/// MonteCarlo::print_edge()
-void MonteCarlo::print_edge(Edge e) {
+/// MonteCarlo::debug_edge()
+void MonteCarlo::debug_edge(Edge e) {
    debug << "edge = { "
          << UCI::move(e.move, pos.is_chess960()) << " , "
          << "N = " << e.visits                     << " , "

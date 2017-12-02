@@ -78,9 +78,9 @@ public:
   void emit_pv();
 
   // Testing and debugging
-  void print_stats();
-  void print_node(Node node);
-  void print_edge(Edge edge);
+  void debug_node(Node node);
+  void debug_edge(Edge edge);
+  void debug_tree_stats();
   void test();
 
 private:
