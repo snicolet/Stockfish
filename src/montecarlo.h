@@ -91,8 +91,9 @@ private:
   Node            root;                 // A pointer to the root
   double          exploration = 10.0;   // Default value for the UCB formula
 
-  // Counters for time and statistics
+  // Counters and statistics
   int             ply;
+  int             maximumPly;
   int             descentCnt;
   int             playoutCnt;
   int             doMoveCnt;
@@ -120,8 +121,10 @@ struct Edge {
   Reward  meanActionValue;
 };
 
-// Comparison function for edges
+// Comparison functions for edges
 struct { bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }} ComparePrior;
+struct { bool operator()(Edge a, Edge b) const { return a.visits > b.visits; }} CompareVisits;
+struct { bool operator()(Edge a, Edge b) const { return a.meanActionValue > b.meanActionValue;}} CompareMeanAction;
 
 
 /// NodeInfo struct stores information in a node of the Monte-Carlo tree

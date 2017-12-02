@@ -117,6 +117,7 @@ Move MonteCarlo::search() {
        Reward reward = playout_policy(node);
        backup(node, reward);
     }
+    emit_pv();
 
     return best_child(root, 0.0)->move;
 }
@@ -132,6 +133,8 @@ MonteCarlo::MonteCarlo(Position& p) : pos(p) {
 void MonteCarlo::create_root() {
 
     // Initialize the global counters
+    ply        = 1;
+    maximumPly = ply;
     doMoveCnt  = 0;
     descentCnt = 0;
     playoutCnt = 0;
@@ -139,7 +142,6 @@ void MonteCarlo::create_root() {
     startTime  = now();
 
     // Prepare the stack to go down and up in the game tree
-    ply = 1;
     std::memset(stackBuffer, 0, sizeof(stackBuffer));
     for (int i = -4; i <= MAX_PLY + 2; i++)
       stack[i].contHistory = &(pos.this_thread()->contHistory[NO_PIECE][0]); // Use as sentinel
@@ -260,7 +262,7 @@ Reward MonteCarlo::playout_policy(Node node) {
 
     // In this initial implementation we do not really make any play-out,
     // and just return the prior value of the first legal moves (the legal
-    // moves were sorted by reward in the generate_moves() call).
+    // moves were sorted by prior in the generate_moves() call).
 
     return get_list_of_children(current_node())[0].prior;
 }
@@ -398,9 +400,24 @@ void MonteCarlo::emit_pv() {
     assert(is_root(current_node()));
     assert(number_of_sons(root) > 0);
 
-    const Search::RootMoves& rootMoves = pos.this_thread()->rootMoves;
+    int n = number_of_sons(root);
     Edge* children = get_list_of_children(root);
 
+    // Make a local copy of the children of the root, and sort by number of visits
+    Edge copy[MAX_CHILDREN];
+    for (int k = 0; k < n; k++)
+        copy[k] = children[k];
+    std::sort(copy, copy + n, CompareVisits);
+    
+    // Transfer this list in the global list of moves for root (Search::RootMoves)
+    /*
+    Search::RootMoves& rootMoves = pos.this_thread()->rootMoves;
+    rootMoves.clear();
+    for (int k = 0; k < n; k++)
+    {
+        Search::RootMove rm = rootMoves[k];
+    }
+    */
 }
 
 
@@ -433,6 +450,8 @@ void MonteCarlo::do_move(Move m) {
     pos.do_move(m, states[ply]);
 
     ply++;
+    if (ply > maximumPly)
+        maximumPly = ply;
 }
 
 
@@ -640,6 +659,7 @@ void MonteCarlo::test() {
 /// MonteCarlo::debug_tree_stats()
 void MonteCarlo::debug_tree_stats() {
    debug << "ply        = " << ply             << endl;
+   debug << "maximumPly = " << maximumPly      << endl;
    debug << "descentCnt = " << descentCnt      << endl;
    debug << "playoutCnt = " << playoutCnt      << endl;
    debug << "doMoveCnt  = " << doMoveCnt       << endl;
