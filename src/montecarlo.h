@@ -110,7 +110,7 @@ private:
 const int MAX_CHILDREN = 64;
 
 
-/// Edge struct stores the statistics of one edge between nodes in the MonteCarlo tree
+/// Edge struct stores the statistics of one edge between nodes in the Monte-Carlo tree
 struct Edge {
   Move    move;
   double  visits;
@@ -123,7 +123,7 @@ struct Edge {
 struct { bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }} ComparePrior;
 
 
-/// NodeInfo struct stores information in a node of the MonteCarlo tree
+/// NodeInfo struct stores information in a node of the Monte-Carlo tree
 struct NodeInfo {
 public:
 
@@ -133,15 +133,15 @@ public:
   // Data members
   Key      key1            = 0;     // Zobrist hash of all pieces, including pawns
   Key      key2            = 0;     // Zobrist hash of pawns
-  int      visits          = 0;     // number of visits by the MonteCarlo algorithm
+  int      visits          = 0;     // number of visits by the Monte-Carlo algorithm
   int      number_of_sons  = 0;     // total number of legal moves
-  int      expandedSons    = 0;     // number of sons expanded by the MonteCarlo algorithm
+  int      expandedSons    = 0;     // number of sons expanded by the Monte-Carlo algorithm
   Move     lastMove        = MOVE_NONE; // the move between the parent and this node
   Edge     children[MAX_CHILDREN];
 };
 
 
-// The MonteCarlo tree is stored implicitly in one big hash table
+// The Monte-Carlo tree is stored implicitly in one big hash table
 typedef std::unordered_multimap<Key, NodeInfo> MCTSHashTable;
 
 

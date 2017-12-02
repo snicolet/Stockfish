@@ -62,7 +62,7 @@ const Reward REWARD_MATE  = Reward(1.0);
 Edge EDGE_NONE = {MOVE_NONE, 0, REWARD_NONE, REWARD_NONE, REWARD_NONE};
 
 
-/// get_node() probes the MonteCarlo hash table to know if find the node
+/// get_node() probes the Monte-Carlo hash table to know if find the node
 /// for the given position, otherwise it creates a new entry in the hash table.
 Node get_node(const Position& pos) {
 
@@ -89,9 +89,9 @@ Node get_node(const Position& pos) {
 
    infos.key1             = key1;      // Zobrist hash of all pieces, including pawns
    infos.key2             = key2;      // Zobrist hash of pawns
-   infos.visits           = 0;         // number of visits by the MonteCarlo algorithm
+   infos.visits           = 0;         // number of visits by the Monte-Carlo algorithm
    infos.number_of_sons   = 0;         // total number of legal moves
-   infos.expandedSons     = 0;         // number of sons expanded by the MonteCarlo algorithm
+   infos.expandedSons     = 0;         // number of sons expanded by the Monte-Carlo algorithm
    infos.lastMove         = MOVE_NONE; // the move between the parent and this node
 
    debug << "inserting into the hash table: key = " << key1 << endl;
@@ -106,7 +106,7 @@ Edge* get_list_of_children(Node node) { return node->children_list(); }
 int number_of_sons(Node node) { return node->number_of_sons; }
 
 
-// MonteCarlo::search() is the main function of MonteCarlo algorithm.
+// MonteCarlo::search() is the main function of Monte-Carlo algorithm.
 Move MonteCarlo::search() {
 
     create_root();
@@ -128,7 +128,7 @@ MonteCarlo::MonteCarlo(Position& p) : pos(p) {
 }
 
 
-/// MonteCarlo::create_root() initializes the MonteCarlo tree with the given position
+/// MonteCarlo::create_root() initializes the Monte-Carlo tree with the given position
 void MonteCarlo::create_root() {
 
     // Initialize the global counters
@@ -279,7 +279,11 @@ double MonteCarlo::UCB(Node node, Edge& edge, double C) {
     if (edge.visits)
         result += edge.meanActionValue;
 
-    result += C * edge.prior * sqrt(fatherVisits) / (1 + edge.visits);  // (or 1 + edge.losses)
+    double visits = edge.visits;
+    double losses = edge.visits - edge.actionValue;
+
+    result += C * edge.prior * sqrt(fatherVisits) / (1 + visits);
+    //result += C * edge.prior * sqrt(fatherVisits) / (1 + losses); // Mark Winands prefers this
 
     return result;
 }
@@ -396,6 +400,7 @@ void MonteCarlo::emit_pv(bool forced) {
    if (emission)
    {
        const Search::RootMoves& rootMoves = pos.this_thread()->rootMoves;
+       
    }
 
 }
@@ -408,7 +413,7 @@ Node MonteCarlo::current_node() {
 }
 
 
-/// MonteCarlo::is_root() returns true iff node is the current node and the root
+/// MonteCarlo::is_root() returns true iff "node" is both the current node and the root
 bool MonteCarlo::is_root(Node node) {
     return (   ply == 1 
             && node == current_node() 
@@ -606,8 +611,8 @@ Value MonteCarlo::reward_to_value(Reward r) {
 /// MonteCarlo::set_exploration_constant() changes the exploration constant of the UCB formula.
 ///
 /// This constant sets the balance between the exploitation of past results and the
-/// exploration of new branches in the MonteCarlo tree. The higher the constant, the more
-/// likely is the algorithm to explore new parts of the tree, whereas lower values
+/// exploration of new branches in the Monte-Carlo tree. The higher the constant, the 
+/// more likely is the algorithm to explore new parts of the tree, whereas lower values
 /// of the constant makes an algorithm which focuses more on the already explored
 /// parts of the tree. Default value is 10.0
 void MonteCarlo::set_exploration_constant(double C) {
