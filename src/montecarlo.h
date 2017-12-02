@@ -57,6 +57,7 @@ public:
 
   // Playing moves
   Node current_node();
+  bool is_root(Node node);
   void do_move(Move move);
   void undo_move();
   void generate_moves();

@@ -62,19 +62,18 @@ const Reward REWARD_MATE  = Reward(1.0);
 Edge EDGE_NONE = {MOVE_NONE, 0, REWARD_NONE, REWARD_NONE, REWARD_NONE};
 
 
-/// get_node() probes the MonteCarlo hash table to know if we can find the node
-/// for the given position.
+/// get_node() probes the MonteCarlo hash table to know if find the node
+/// for the given position, otherwise it creates a new entry in the hash table.
 Node get_node(const Position& pos) {
 
    Key key1 = pos.key();
    Key key2 = pos.pawn_key();
 
+   // If the node already exists in the hash table, we want to return it.
+   // We search in the range of all the hash table entries with key "key1".
    auto range = MCTS.equal_range(key1);
    auto it1 = range.first;
    auto it2 = range.second;
-
-   // If the node already already exists (in the range of all the
-   // hash table entries with key "key1"), return it.
    while (it1 != it2)
    {
        Node node = &(it1->second);
@@ -171,7 +170,7 @@ void MonteCarlo::create_root() {
 /// MonteCarlo::computational_budget() stops the search if the computational budget
 /// has been reached (time limit, or number of nodes, etc.)
 bool MonteCarlo::computational_budget() {
-    assert(current_node() == root);
+    assert(is_root(current_node()));
 
     return (descentCnt < 100);
 }
@@ -181,7 +180,7 @@ bool MonteCarlo::computational_budget() {
 Node MonteCarlo::tree_policy() {
     debug << "Entering tree_policy()..." << endl;
 
-    assert(current_node() == root);
+    assert(is_root(current_node()));
     descentCnt++;
 
     if (number_of_sons(current_node()) == 0)
@@ -299,7 +298,7 @@ void MonteCarlo::backup(Node node, Reward r) {
    assert(node == current_node());
    assert(ply >= 1);
 
-   while (ply != 1) // root ?
+   while (!is_root(current_node()))
    {
        undo_move();
 
@@ -325,8 +324,7 @@ void MonteCarlo::backup(Node node, Reward r) {
 
    debug << "... exiting backup()" << endl;
 
-   assert(ply == 1);
-   assert(current_node() == root);
+   assert(is_root(current_node()));
 }
 
 
@@ -377,6 +375,8 @@ Edge* MonteCarlo::best_child(Node node, double C) {
 /// MonteCarlo::emit_pv() checks if it should write the pv of the game tree.
 void MonteCarlo::emit_pv(bool forced) {
 
+    assert(is_root(current_node()));
+
     bool emission;
 
     if (forced)
@@ -405,6 +405,14 @@ void MonteCarlo::emit_pv(bool forced) {
 /// MonteCarlo::current_node() is the current node of our tree exploration
 Node MonteCarlo::current_node() {
     return nodes[ply];
+}
+
+
+/// MonteCarlo::is_root() returns true iff node is the current node and the root
+bool MonteCarlo::is_root(Node node) {
+    return (   ply == 1 
+            && node == current_node() 
+            && node == root);
 }
 
 
@@ -640,7 +648,7 @@ void MonteCarlo::print_stats() {
 /// MonteCarlo::print_node()
 void MonteCarlo::print_node(Node node) {
    debug << "isCurrent    = " << (node == current_node()) << endl;
-   debug << "isRoot       = " << (node == root)           << endl;
+   debug << "isRoot       = " << is_root(current_node())  << endl;
    debug << "key1         = " << node->key1               << endl;
    debug << "key2         = " << node->key2               << endl;
    debug << "visits       = " << node->visits             << endl;
