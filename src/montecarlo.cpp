@@ -280,10 +280,10 @@ double MonteCarlo::UCB(Node node, Edge& edge, double C) {
         result += edge.meanActionValue;
 
     double visits = edge.visits;
-    double losses = edge.visits - edge.actionValue;
-
     result += C * edge.prior * sqrt(fatherVisits) / (1 + visits);
-    //result += C * edge.prior * sqrt(fatherVisits) / (1 + losses); // Mark Winands prefers this
+
+    // double losses = edge.visits - edge.actionValue;
+    // result += C * edge.prior * sqrt(fatherVisits) / (1 + losses); // Mark Winands prefers this
 
     return result;
 }
@@ -376,32 +376,30 @@ Edge* MonteCarlo::best_child(Node node, double C) {
     return &children[best];
 }
 
-/// MonteCarlo::emit_pv() checks if it should write the pv of the game tree.
-void MonteCarlo::emit_pv(bool forced) {
+/// MonteCarlo::should_output_result() checks if it should write the pv of the game tree
+bool MonteCarlo::should_output_result() {
+
+    TimePoint elapsed = now() - startTime + 1;  // in milliseconds
+
+    if (elapsed < 1000)            return (elapsed % 500) == 0;
+    if (elapsed < 10 * 1000)       return (elapsed % 1000) == 0;
+    if (elapsed < 60 * 1000)       return (elapsed % 10000) == 0;
+    if (elapsed < 5 * 60 * 1000)   return (elapsed % 30000) == 0;
+    if (elapsed < 60 * 60 * 1000)  return (elapsed % 60000) == 0;
+
+    return (elapsed % 600000) == 0;
+}
+
+
+/// MonteCarlo::emit_pv() emits the pv of the game tree on the standard output stream,
+/// as requested by the UCI protocol.
+void MonteCarlo::emit_pv() {
 
     assert(is_root(current_node()));
+    assert(number_of_sons(root) > 0);
 
-    bool emission;
-
-    if (forced)
-        emission = true;
-    else
-    {
-        TimePoint elapsed = now() - startTime + 1;  // in milliseconds
-        emission = false;
-        if (elapsed < 1000)            emission |= (elapsed % 500) == 0;
-        if (elapsed < 10 * 1000)       emission |= (elapsed % 1000) == 0;
-        if (elapsed < 60 * 1000)       emission |= (elapsed % 10000) == 0;
-        if (elapsed < 5 * 60 * 1000)   emission |= (elapsed % 30000) == 0;
-        if (elapsed < 60 * 60 * 1000)  emission |= (elapsed % 60000) == 0;
-        if (elapsed >= 60 * 60 * 1000) emission |= (elapsed % 600000) == 0;
-    }
-
-   if (emission)
-   {
-       const Search::RootMoves& rootMoves = pos.this_thread()->rootMoves;
-       
-   }
+    const Search::RootMoves& rootMoves = pos.this_thread()->rootMoves;
+    Edge* children = get_list_of_children(root);
 
 }
 
@@ -415,8 +413,8 @@ Node MonteCarlo::current_node() {
 
 /// MonteCarlo::is_root() returns true iff "node" is both the current node and the root
 bool MonteCarlo::is_root(Node node) {
-    return (   ply == 1 
-            && node == current_node() 
+    return (   ply == 1
+            && node == current_node()
             && node == root);
 }
 
@@ -611,7 +609,7 @@ Value MonteCarlo::reward_to_value(Reward r) {
 /// MonteCarlo::set_exploration_constant() changes the exploration constant of the UCB formula.
 ///
 /// This constant sets the balance between the exploitation of past results and the
-/// exploration of new branches in the Monte-Carlo tree. The higher the constant, the 
+/// exploration of new branches in the Monte-Carlo tree. The higher the constant, the
 /// more likely is the algorithm to explore new parts of the tree, whereas lower values
 /// of the constant makes an algorithm which focuses more on the already explored
 /// parts of the tree. Default value is 10.0

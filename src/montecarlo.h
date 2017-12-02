@@ -74,7 +74,8 @@ public:
   double get_exploration_constant();
 
   // Output of results
-  void emit_pv(bool forced);
+  bool should_output_result();
+  void emit_pv();
 
   // Testing and debugging
   void print_stats();
