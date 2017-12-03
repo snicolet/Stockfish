@@ -668,6 +668,21 @@ bool Position::gives_check(Move m) const {
 }
 
 
+/// Position::attacked_by() returns the squares attacked by a pseudo-legal move.
+/// Only direct attacks from the destination square are handled, not discovered 
+/// attacks and other special cases like attacks after castling.
+
+Bitboard Position::attacked_by(Move m) const {
+
+    assert(is_ok(m));
+    assert(color_of(moved_piece(m)) == sideToMove);
+
+    PieceType pt = type_of(moved_piece(m));
+
+    return pt == PAWN ? attacks_from<PAWN>(to_sq(m), sideToMove)
+                      : attacks_from(pt, to_sq(m));
+}
+
 /// Position::do_move() makes a move, and saves all information necessary
 /// to a StateInfo object. The move is assumed to be legal. Pseudo-legal
 /// moves should be filtered out before this function is called.

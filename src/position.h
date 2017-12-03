@@ -126,6 +126,7 @@ public:
   bool advanced_pawn_push(Move m) const;
   Piece moved_piece(Move m) const;
   Piece captured_piece() const;
+  Bitboard attacked_by(Move m) const;
 
   // Piece specific
   bool pawn_passed(Color c, Square s) const;
