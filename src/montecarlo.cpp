@@ -112,10 +112,11 @@ Move MonteCarlo::search() {
     create_root();
 
     while (computational_budget()) {
-       debug_tree_stats();
        Node node = tree_policy();
        Reward reward = playout_policy(node);
        backup(node, reward);
+       if (should_output_result())
+           emit_pv();
     }
     emit_pv();
 
@@ -133,13 +134,14 @@ MonteCarlo::MonteCarlo(Position& p) : pos(p) {
 void MonteCarlo::create_root() {
 
     // Initialize the global counters
-    ply        = 1;
-    maximumPly = ply;
-    doMoveCnt  = 0;
-    descentCnt = 0;
-    playoutCnt = 0;
-    priorCnt   = 0;
-    startTime  = now();
+    ply            = 1;
+    maximumPly     = ply;
+    doMoveCnt      = 0;
+    descentCnt     = 0;
+    playoutCnt     = 0;
+    priorCnt       = 0;
+    startTime      = now();
+    lastOutputTime = startTime;
 
     // Prepare the stack to go down and up in the game tree
     std::memset(stackBuffer, 0, sizeof(stackBuffer));
@@ -382,20 +384,23 @@ Edge* MonteCarlo::best_child(Node node, double C) {
 bool MonteCarlo::should_output_result() {
 
     TimePoint elapsed = now() - startTime + 1;  // in milliseconds
+    TimePoint outputDelay = now() - lastOutputTime;
 
-    if (elapsed < 1000)            return (elapsed % 500) == 0;
-    if (elapsed < 10 * 1000)       return (elapsed % 1000) == 0;
-    if (elapsed < 60 * 1000)       return (elapsed % 10000) == 0;
-    if (elapsed < 5 * 60 * 1000)   return (elapsed % 30000) == 0;
-    if (elapsed < 60 * 60 * 1000)  return (elapsed % 60000) == 0;
+    if (elapsed < 1000)            return outputDelay >= 500;
+    if (elapsed < 10 * 1000)       return outputDelay >= 1000;
+    if (elapsed < 60 * 1000)       return outputDelay >= 10000;
+    if (elapsed < 5 * 60 * 1000)   return outputDelay >= 30000;
+    if (elapsed < 60 * 60 * 1000)  return outputDelay >= 60000;
 
-    return (elapsed % 600000) == 0;
+    return outputDelay >= 60000;
 }
 
 
 /// MonteCarlo::emit_pv() emits the pv of the game tree on the standard output stream,
 /// as requested by the UCI protocol.
 void MonteCarlo::emit_pv() {
+
+    debug << "Entering emit_pv() ..." << endl;
 
     assert(is_root(current_node()));
     assert(number_of_sons(root) > 0);
@@ -404,20 +409,37 @@ void MonteCarlo::emit_pv() {
     Edge* children = get_list_of_children(root);
 
     // Make a local copy of the children of the root, and sort by number of visits
-    Edge copy[MAX_CHILDREN];
+    Edge list[MAX_CHILDREN];
     for (int k = 0; k < n; k++)
-        copy[k] = children[k];
-    std::sort(copy, copy + n, CompareVisits);
-    
+        list[k] = children[k];
+    std::sort(list, list + n, CompareVisits);
+
     // Transfer this list in the global list of moves for root (Search::RootMoves)
-    /*
     Search::RootMoves& rootMoves = pos.this_thread()->rootMoves;
     rootMoves.clear();
     for (int k = 0; k < n; k++)
     {
-        Search::RootMove rm = rootMoves[k];
+        Search::RootMove rm(list[k].move);
+
+        rm.previousScore = reward_to_value(list[k].meanActionValue);
+        rm.score = rm.score;
+        rm.selDepth = maximumPly;
+
+        rootMoves.push_back(rm);
     }
-    */
+
+    debug << "Before calling UCI::pv()" << endl;
+
+    string pv = UCI::pv(pos, maximumPly * ONE_PLY, -VALUE_INFINITE, VALUE_INFINITE);
+    sync_cout << pv << sync_endl;
+
+    lastOutputTime = now();
+
+    debug << "pv = " << pv << endl;
+    debug << "... exiting emit_pv()" << endl;
+    hit_any_key();
+
+    assert(int(rootMoves.size()) == number_of_sons(root));
 }
 
 
@@ -542,7 +564,6 @@ void MonteCarlo::generate_moves() {
             prior = calculate_prior(move, moveCount);
 
             add_prior_to_node(current_node(), move, prior, moveCount);
-
         }
 
     // Sort the moves according to their prior value
@@ -573,8 +594,8 @@ Value MonteCarlo::evaluate_with_minimax(Depth depth) {
 
     Value v = minimax_value(pos, &stack[ply], depth);
 
-    debug << pos << endl;
-    debug << "minimax value = " << v << endl;
+    // debug << pos << endl;
+    // debug << "minimax value = " << v << endl;
 
     return v;
 }
@@ -693,11 +714,11 @@ void MonteCarlo::debug_edge(Edge e) {
 
 // List of FIXME/TODO for the monte-carlo branch
 //
-// 1. ttMove = MOVE_NONE    in generate_moves()
-// 2. what to do with killers in create_root()
-// 3. setupStates should probably come the caller, as a global in create_root()
-// 4. debug the priors for the following key : 5DB5F8476356FB19
-
+// 1. ttMove = MOVE_NONE in generate_moves() ?
+// 2. what to do with killers in create_root() ?
+// 3. setupStates should probably come the caller, as a global in create_root() ?
+// 4. debug the priors for the following key : 5DB5F8476356FB19 ?
+// 5. should we set rm.score to -VALUE_INFINITE for moves >= 2 in emit_pv() ?
 
 
 

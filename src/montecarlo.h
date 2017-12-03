@@ -99,6 +99,7 @@ private:
   int             doMoveCnt;
   int             priorCnt;
   TimePoint       startTime;
+  TimePoint       lastOutputTime;
 
   // Some stacks to do/undo the moves: for compatibility with the alpha-beta search
   // implementation, we want to be able to reference from stack[-4] to stack[MAX_PLY+2].
