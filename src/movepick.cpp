@@ -139,7 +139,7 @@ void MovePicker::score() {
                    + (*contHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    + (*contHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    + (*contHistory[3])[pos.moved_piece(m)][to_sq(m)]
-                   + 100 * !!(pos.attacked_by(m) & pos.pieces(~pos.side_to_move(), QUEEN));
+                   + 100 * !!(pos.attacked_by(m) & pos.pieces(~pos.side_to_move(), QUEEN, ROOK));
 
       else // Type == EVASIONS
       {
