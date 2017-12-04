@@ -62,8 +62,9 @@ const Reward REWARD_MATE  = Reward(1.0);
 Edge EDGE_NONE = {MOVE_NONE, 0, REWARD_NONE, REWARD_NONE, REWARD_NONE};
 
 
-/// get_node() probes the Monte-Carlo hash table to know if find the node
-/// for the given position, otherwise it creates a new entry in the hash table.
+/// get_node() probes the Monte-Carlo hash table to find the node with the given
+/// position, creating a new entry if it doesn't exist yet in the table.
+/// The returned node is always valid.
 Node get_node(const Position& pos) {
 
    Key key1 = pos.key();

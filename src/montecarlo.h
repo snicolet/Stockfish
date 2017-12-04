@@ -132,17 +132,17 @@ struct { bool operator()(Edge a, Edge b) const { return a.meanActionValue > b.me
 struct NodeInfo {
 public:
 
-  Move     last_move()      { return lastMove; }
-  Edge*    children_list()  { return &(children[0]); }
+  Move  last_move()      { return lastMove; }
+  Edge* children_list()  { return &(children[0]); }
 
   // Data members
-  Key      key1            = 0;     // Zobrist hash of all pieces, including pawns
-  Key      key2            = 0;     // Zobrist hash of pawns
-  int      visits          = 0;     // number of visits by the Monte-Carlo algorithm
-  int      number_of_sons  = 0;     // total number of legal moves
-  int      expandedSons    = 0;     // number of sons expanded by the Monte-Carlo algorithm
-  Move     lastMove        = MOVE_NONE; // the move between the parent and this node
-  Edge     children[MAX_CHILDREN];
+  Key   key1            = 0;         // Zobrist hash of all pieces, including pawns
+  Key   key2            = 0;         // Zobrist hash of pawns
+  int   visits          = 0;         // number of visits by the Monte-Carlo algorithm
+  int   number_of_sons  = 0;         // total number of legal moves
+  int   expandedSons    = 0;         // number of sons expanded by the Monte-Carlo algorithm
+  Move  lastMove        = MOVE_NONE; // the move between the parent and this node
+  Edge  children[MAX_CHILDREN];
 };
 
 
