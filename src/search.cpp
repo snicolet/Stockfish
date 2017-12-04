@@ -163,6 +163,9 @@ void Search::init() {
   {
       FutilityMoveCounts[0][d] = int(2.4 + 0.74 * pow(d, 1.78));
       FutilityMoveCounts[1][d] = int(5.0 + 1.00 * pow(d, 2.00));
+
+      // std::cerr << "d = " << d << "  FutilityMoveCounts[0][d] = " << FutilityMoveCounts[0][d] << std::endl;
+      // std::cerr << "d = " << d << "  FutilityMoveCounts[1][d] = " << FutilityMoveCounts[1][d] << std::endl;
   }
 }
 
@@ -816,7 +819,7 @@ moves_loop: // When in check search starts from here
                   : pos.gives_check(move);
 
       moveCountPruning =   depth < 16 * ONE_PLY
-                        && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
+                        && moveCount >= FutilityMoveCounts[1][depth / ONE_PLY];
 
       // Step 12. Singular and Gives Check Extensions
 
