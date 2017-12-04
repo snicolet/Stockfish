@@ -160,7 +160,7 @@ void Search::init() {
           }
 
   for (int d = 0; d < 16; ++d)
-      FutilityMoveCounts[d] = int(2.4 + 0.74 * pow(d, 1.78));
+      FutilityMoveCounts[d] = int(3.7 + 0.87 * pow(d, 1.9));
 }
 
 
