@@ -417,6 +417,7 @@ void MonteCarlo::emit_principal_variation() {
     Edge list[MAX_CHILDREN];
     for (int k = 0; k < n; k++)
         list[k] = children[k];
+
     std::sort(list, list + n, CompareVisits);
 
     // Clear the global list of moves for root (Search::RootMoves)
