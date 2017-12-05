@@ -58,11 +58,13 @@ public:
   // Playing moves
   Node current_node();
   bool is_root(Node node);
+  bool is_terminal(Node node);
   void do_move(Move move);
   void undo_move();
   void generate_moves();
 
   // Evaluations of nodes in the tree
+  //Value evaluate_terminal();
   Value evaluate_with_minimax(Depth d);
   Reward calculate_prior(Move m, int moveCount);
   void add_prior_to_node(Node node, Move m, Reward prior, int moveCount);

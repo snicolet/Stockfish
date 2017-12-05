@@ -188,17 +188,12 @@ Node MonteCarlo::tree_policy() {
     assert(is_root(current_node()));
     descentCnt++;
 
-    if (number_of_sons(current_node()) == 0)
-       return current_node();
+    if (number_of_sons(root) == 0)
+        return root;
 
     while (current_node()->visits > 0)
     {
-        // Check for mate or stalemate
-        if (number_of_sons(current_node()) == 0)
-            return current_node();
-
-        // Check for draw by repetition or draw by 50 moves rule
-        if (pos.is_draw(ply - 1))
+        if (is_terminal(current_node()))
             return current_node();
 
         double C = get_exploration_constant();
@@ -464,13 +459,27 @@ Node MonteCarlo::current_node() {
 }
 
 
-/// MonteCarlo::is_root() returns true iff "node" is both the current node and the root
+/// MonteCarlo::is_root() returns true when node is both the current node and the root
 bool MonteCarlo::is_root(Node node) {
     return (   ply == 1
             && node == current_node()
             && node == root);
 }
 
+
+/// MonteCarlo::is_terminal() returns true when node is a terminal node for the search
+bool MonteCarlo::is_terminal(Node node) {
+    
+    assert(node == current_node());
+
+    if (number_of_sons(current_node()) == 0)
+        return current_node();   // mate or stalemate
+
+    if (pos.is_draw(ply - 1))
+        return current_node();   // draw by repetition or draw by 50 moves rule
+
+    return false;
+}
 
 /// MonteCarlo::do_move() plays a move in the search tree from the current position
 void MonteCarlo::do_move(Move m) {
