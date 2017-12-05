@@ -65,7 +65,7 @@ std::ostream& operator<<(std::ostream&, SyncCout);
 
 /// Debug macro to write to std::err if NDEBUG flag is set, and do nothing otherwise
 #ifndef NDEBUG
-#define debug std::cerr
+#define debug 0 && std::cerr
 #else
 #define debug 0 && std::cerr
 #endif

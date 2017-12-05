@@ -249,7 +249,9 @@ Reward MonteCarlo::playout_policy(Node node) {
     // Expand the current node, generating the legal moves and
     // calculating their prior value.
     Node old = current_node();
+
     generate_moves();
+
     assert(current_node() == old);
 
     if (number_of_sons(node) == 0)
@@ -345,7 +347,7 @@ Edge* MonteCarlo::best_child(Node node, double C) {
 
     if (number_of_sons(node) <= 0)
     {
-       debug << "... exiting best_child()" << endl;
+       debug << "... exiting best_child() with EDGE_NONE" << endl;
        return &EDGE_NONE;
     }
 
