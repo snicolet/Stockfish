@@ -75,7 +75,7 @@ public:
 
   // Output of results
   bool should_output_result();
-  void emit_pv();
+  void emit_principal_variation();
 
   // Testing and debugging
   void debug_node(Node node);

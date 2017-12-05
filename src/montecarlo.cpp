@@ -117,9 +117,9 @@ Move MonteCarlo::search() {
        Reward reward = playout_policy(node);
        backup(node, reward);
        if (should_output_result())
-           emit_pv();
+           emit_principal_variation();
     }
-    emit_pv();
+    emit_principal_variation();
 
     return best_child(root, 0.0)->move;
 }
@@ -397,17 +397,17 @@ bool MonteCarlo::should_output_result() {
 }
 
 
-/// MonteCarlo::emit_pv() emits the pv of the game tree on the standard output stream,
+/// MonteCarlo::emit_principal_variation() emits the pv of the game tree on the standard output stream,
 /// as requested by the UCI protocol.
-void MonteCarlo::emit_pv() {
+void MonteCarlo::emit_principal_variation() {
 
-    debug << "Entering emit_pv() ..." << endl;
+    debug << "Entering emit_principal_variation() ..." << endl;
 
     assert(is_root(current_node()));
-    assert(number_of_sons(root) > 0);
 
-    int n = number_of_sons(root);
+    string pv;
     Edge* children = get_list_of_children(root);
+    int n = number_of_sons(root);
 
     // Make a local copy of the children of the root, and sort by number of visits
     Edge list[MAX_CHILDREN];
@@ -415,32 +415,43 @@ void MonteCarlo::emit_pv() {
         list[k] = children[k];
     std::sort(list, list + n, CompareVisits);
 
-    // Transfer this list in the global list of moves for root (Search::RootMoves)
+    // Clear the global list of moves for root (Search::RootMoves)
     Search::RootMoves& rootMoves = pos.this_thread()->rootMoves;
     rootMoves.clear();
-    for (int k = 0; k < n; k++)
+
+    if (n > 0)
     {
-        Search::RootMove rm(list[k].move);
+        // Copy the list of moves given by the Monte-Carlo algorithm to the global list
+        for (int k = 0; k < n; k++)
+        {
+            Search::RootMove rm(list[k].move);
 
-        rm.previousScore = reward_to_value(list[k].meanActionValue);
-        rm.score = rm.score;
-        rm.selDepth = maximumPly;
+            rm.previousScore = reward_to_value(list[k].meanActionValue);
+            rm.score = rm.score;
+            rm.selDepth = maximumPly;
 
-        rootMoves.push_back(rm);
+            rootMoves.push_back(rm);
+        }
+
+        assert(int(rootMoves.size()) == number_of_sons(root));
+        debug << "Before calling UCI::pv()" << endl;
+
+        pv = UCI::pv(pos, maximumPly * ONE_PLY, -VALUE_INFINITE, VALUE_INFINITE);
+    }
+    else
+    {
+        // Mate or stalemate: we put a virtual move in the list
+        rootMoves.emplace_back(MOVE_NONE);
+        pv = "info depth 0 score " + UCI::value(pos.checkers() ? -VALUE_MATE : VALUE_DRAW);
     }
 
-    debug << "Before calling UCI::pv()" << endl;
-
-    string pv = UCI::pv(pos, maximumPly * ONE_PLY, -VALUE_INFINITE, VALUE_INFINITE);
+    // Emit the principal variation!
     sync_cout << pv << sync_endl;
 
     lastOutputTime = now();
 
     debug << "pv = " << pv << endl;
-    debug << "... exiting emit_pv()" << endl;
-    //hit_any_key();
-
-    assert(int(rootMoves.size()) == number_of_sons(root));
+    debug << "... exiting emit_principal_variation()" << endl;
 }
 
 
