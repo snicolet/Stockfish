@@ -242,7 +242,7 @@ Reward MonteCarlo::playout_policy(Node node) {
 
     // Step 1. Expand the current node
     // We generate the legal moves and calculate their prior values.
-    
+
     assert(current_node()->visits == 0);
     Node old = current_node();
 
