@@ -34,6 +34,7 @@ struct Edge;
 typedef double Reward;
 typedef NodeInfo* Node;
 
+enum EdgeStatistic {STAT_UCB, STAT_VISITS};
 
 class MonteCarlo {
 public:
@@ -48,12 +49,12 @@ public:
   void create_root();
   bool computational_budget();
   Node tree_policy();
-  Edge* best_child(Node node, double C);
+  Edge* best_child(Node node, EdgeStatistic statistic);
   Reward playout_policy(Node node);
   void backup(Node node, Reward r);
 
   // The UCB formula
-  double UCB(Node node, Edge& edge, double C);
+  double UCB(Node node, Edge& edge);
 
   // Playing moves
   Node current_node();

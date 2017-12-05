@@ -119,9 +119,10 @@ Move MonteCarlo::search() {
        if (should_output_result())
            emit_principal_variation();
     }
+
     emit_principal_variation();
 
-    return best_child(root, 0.0)->move;
+    return best_child(root, STAT_VISITS)->move;
 }
 
 
@@ -196,9 +197,7 @@ Node MonteCarlo::tree_policy() {
         if (is_terminal(current_node()))
             return current_node();
 
-        double C = get_exploration_constant();
-
-        edges[ply] = best_child(current_node(), C);
+        edges[ply] = best_child(current_node(), STAT_UCB);
         Move m = edges[ply]->move;
 
         debug << "edges[" << ply << "].move = "
@@ -272,7 +271,7 @@ Reward MonteCarlo::playout_policy(Node node) {
 
 /// MonteCarlo::UCB() calculates the upper confidence bound formula for the son
 /// which we reach from node "node" by following the edge "edge".
-double MonteCarlo::UCB(Node node, Edge& edge, double C) {
+double MonteCarlo::UCB(Node node, Edge& edge) {
 
     int fatherVisits = node->visits;
 
@@ -284,6 +283,7 @@ double MonteCarlo::UCB(Node node, Edge& edge, double C) {
         result += edge.meanActionValue;
 
     double visits = edge.visits;
+    double C = get_exploration_constant();
     result += C * edge.prior * sqrt(fatherVisits) / (1 + visits);
 
     // double losses = edge.visits - edge.actionValue;
@@ -336,8 +336,10 @@ void MonteCarlo::backup(Node node, Reward r) {
 }
 
 
-/// MonteCarlo::best_child() selects the best child of a node according to the UCB formula
-Edge* MonteCarlo::best_child(Node node, double C) {
+/// MonteCarlo::best_child() selects the best child of a node according
+/// the given statistic. For instance, the statistic can be the UCB 
+/// formula or the number of visits.
+Edge* MonteCarlo::best_child(Node node, EdgeStatistic statistic) {
 
     debug << "Entering best_child()..." << endl;
     debug << pos << endl;
@@ -364,7 +366,10 @@ Edge* MonteCarlo::best_child(Node node, double C) {
     double bestValue = -100000000.0;
     for (int k = 0 ; k < number_of_sons(node) ; k++)
     {
-        double r = UCB(node, children[k], C);
+        double r = (  statistic == STAT_VISITS ? children[k].visits
+                    : statistic == STAT_UCB    ? UCB(node, children[k])
+                                               : 0.0                  );
+
         if ( r > bestValue )
         {
             bestValue = r;
