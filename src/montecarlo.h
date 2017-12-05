@@ -64,12 +64,12 @@ public:
   void generate_moves();
 
   // Evaluations of nodes in the tree
-  //Value evaluate_terminal();
-  Value evaluate_with_minimax(Depth d);
-  Reward calculate_prior(Move m, int moveCount);
-  void add_prior_to_node(Node node, Move m, Reward prior, int moveCount);
   Reward value_to_reward(Value v);
   Value reward_to_value(Reward r);
+  Value evaluate_with_minimax(Depth d);
+  Reward evaluate_terminal();
+  Reward calculate_prior(Move m, int moveCount);
+  void add_prior_to_node(Node node, Move m, Reward prior, int moveCount);
 
   // Tweaking the exploration algorithm
   void set_exploration_constant(double C);

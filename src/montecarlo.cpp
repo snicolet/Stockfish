@@ -234,10 +234,10 @@ Reward MonteCarlo::playout_policy(Node node) {
     assert(current_node() == node);
 
     if (node->visits > 0 && number_of_sons(node) == 0)
-    	return pos.checkers() ? REWARD_MATED : REWARD_DRAW;
+    	return evaluate_terminal();
 
     if (pos.is_draw(ply - 1))
-        return REWARD_DRAW;
+        return evaluate_terminal();
 
     assert(current_node()->visits == 0);
 
@@ -250,7 +250,7 @@ Reward MonteCarlo::playout_policy(Node node) {
     assert(current_node() == old);
 
     if (number_of_sons(node) == 0)
-        return pos.checkers() ? REWARD_MATED : REWARD_DRAW;
+        return evaluate_terminal();
 
     debug_tree_stats();
     assert(current_node()->visits == 1);
@@ -467,16 +467,22 @@ bool MonteCarlo::is_root(Node node) {
 }
 
 
-/// MonteCarlo::is_terminal() returns true when node is a terminal node for the search
+/// MonteCarlo::is_terminal() checks whether a node is a terminal node for the search tree
 bool MonteCarlo::is_terminal(Node node) {
-    
+
     assert(node == current_node());
 
-    if (number_of_sons(current_node()) == 0)
-        return current_node();   // mate or stalemate
+    // Mate or stalemate?
+    if (number_of_sons(node) == 0)
+        return node;
 
+    // Have we have reached the search depth limit?
+    if (ply >= MAX_PLY)
+        return node;
+
+    // Draw by repetition or draw by 50 moves rule?
     if (pos.is_draw(ply - 1))
-        return current_node();   // draw by repetition or draw by 50 moves rule
+        return node;
 
     return false;
 }
@@ -603,6 +609,26 @@ void MonteCarlo::generate_moves() {
     s->expandedSons = 0;
 
     debug << "... exiting generate_moves()" << endl;
+}
+
+
+/// MonteCarlo::evaluate_terminal() evaluate a terminal node of the search tree
+Reward MonteCarlo::evaluate_terminal() {
+
+    Node node = current_node();
+
+    assert(is_terminal(node));
+
+    // Mate or stalemate?
+    if (number_of_sons(node) == 0)
+        return pos.checkers() ? REWARD_MATED : REWARD_DRAW;
+
+    // Have we reached search depth limit?
+    if (ply >= MAX_PLY)
+        return REWARD_DRAW;
+
+    // This must be draw by repetition or draw by 50 moves rule (no need to check again!)
+    return REWARD_DRAW;
 }
 
 
