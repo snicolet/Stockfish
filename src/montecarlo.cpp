@@ -286,8 +286,9 @@ double MonteCarlo::UCB(Node node, Edge& edge) {
     double C = get_exploration_constant();
     result += C * edge.prior * sqrt(fatherVisits) / (1 + visits);
 
+    // Mark Winands prefers the following
     // double losses = edge.visits - edge.actionValue;
-    // result += C * edge.prior * sqrt(fatherVisits) / (1 + losses); // Mark Winands prefers this
+    // result += C * edge.prior * sqrt(fatherVisits) / (1 + losses); 
 
     return result;
 }
