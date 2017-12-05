@@ -25,7 +25,6 @@
 
 #include "evaluate.h"
 #include "movegen.h"
-#include "montecarlo.h"
 #include "position.h"
 #include "search.h"
 #include "thread.h"
@@ -160,9 +159,8 @@ namespace {
         if (token == "go")
         {
             cerr << "\nPosition: " << cnt++ << '/' << num << endl;
-            MonteCarlo(pos).test();
-            //go(pos, is, states);
-            //Threads.main()->wait_for_search_finished();
+            go(pos, is, states);
+            Threads.main()->wait_for_search_finished();
             nodes += Threads.nodes_searched();
         }
         else if (token == "setoption")  setoption(is);
@@ -237,7 +235,6 @@ void UCI::loop(int argc, char* argv[]) {
       // Additional custom non-UCI commands, mainly for debugging
       else if (token == "flip")  pos.flip();
       else if (token == "bench") bench(pos, is, states);
-      else if (token == "uct")   MonteCarlo(pos).test();
       else if (token == "d")     sync_cout << pos << sync_endl;
       else if (token == "eval")  sync_cout << Eval::trace(pos) << sync_endl;
       else

@@ -27,6 +27,7 @@
 
 #include "evaluate.h"
 #include "misc.h"
+#include "montecarlo.h"
 #include "movegen.h"
 #include "movepick.h"
 #include "position.h"
@@ -314,6 +315,12 @@ void Thread::search() {
       multiPV = std::max(multiPV, (size_t)4);
 
   multiPV = std::min(multiPV, rootMoves.size());
+
+  bool USE_MONTE_CARLO = true;
+
+  if (USE_MONTE_CARLO)
+      MonteCarlo(rootPos).test();
+  else
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   (rootDepth += ONE_PLY) < DEPTH_MAX

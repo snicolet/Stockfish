@@ -49,9 +49,9 @@ public:
   void create_root();
   bool computational_budget();
   Node tree_policy();
-  Edge* best_child(Node node, EdgeStatistic statistic);
   Reward playout_policy(Node node);
   void backup(Node node, Reward r);
+  Edge* best_child(Node node, EdgeStatistic statistic);
 
   // The UCB formula
   double UCB(Node node, Edge& edge);

@@ -113,11 +113,13 @@ Move MonteCarlo::search() {
     create_root();
 
     while (computational_budget()) {
+
        Node node = tree_policy();
        Reward reward = playout_policy(node);
        backup(node, reward);
        if (should_output_result())
            emit_principal_variation();
+
     }
 
     emit_principal_variation();
@@ -178,7 +180,7 @@ void MonteCarlo::create_root() {
 bool MonteCarlo::computational_budget() {
     assert(is_root(current_node()));
 
-    return (descentCnt < 100);
+    return (descentCnt < 10000);
 }
 
 
@@ -282,13 +284,14 @@ double MonteCarlo::UCB(Node node, Edge& edge) {
     if (edge.visits)
         result += edge.meanActionValue;
 
-    double visits = edge.visits;
     double C = get_exploration_constant();
-    result += C * edge.prior * sqrt(fatherVisits) / (1 + visits);
+
+    //double visits = edge.visits;
+    //result += C * edge.prior * sqrt(fatherVisits) / (1 + visits);
 
     // Mark Winands prefers the following
-    // double losses = edge.visits - edge.actionValue;
-    // result += C * edge.prior * sqrt(fatherVisits) / (1 + losses); 
+    double losses = edge.visits - edge.actionValue;
+    result += C * edge.prior * sqrt(fatherVisits) / (1 + losses);
 
     return result;
 }
@@ -338,7 +341,7 @@ void MonteCarlo::backup(Node node, Reward r) {
 
 
 /// MonteCarlo::best_child() selects the best child of a node according
-/// the given statistic. For instance, the statistic can be the UCB 
+/// the given statistic. For instance, the statistic can be the UCB
 /// formula or the number of visits.
 Edge* MonteCarlo::best_child(Node node, EdgeStatistic statistic) {
 
@@ -392,7 +395,7 @@ bool MonteCarlo::should_output_result() {
     TimePoint elapsed = now() - startTime + 1;  // in milliseconds
     TimePoint outputDelay = now() - lastOutputTime;
 
-    if (elapsed < 1000)            return outputDelay >= 500;
+    if (elapsed < 1000)            return outputDelay >= 100;
     if (elapsed < 10 * 1000)       return outputDelay >= 1000;
     if (elapsed < 60 * 1000)       return outputDelay >= 10000;
     if (elapsed < 5 * 60 * 1000)   return outputDelay >= 30000;
@@ -402,8 +405,8 @@ bool MonteCarlo::should_output_result() {
 }
 
 
-/// MonteCarlo::emit_principal_variation() emits the pv of the game tree on the standard output stream,
-/// as requested by the UCI protocol.
+/// MonteCarlo::emit_principal_variation() emits the pv of the game tree on the
+/// standard output stream, as requested by the UCI protocol.
 void MonteCarlo::emit_principal_variation() {
 
     debug << "Entering emit_principal_variation() ..." << endl;
@@ -670,8 +673,8 @@ Reward MonteCarlo::calculate_prior(Move move, int n) {
     priorCnt++;
 
     do_move(move);
-    Reward prior = value_to_reward(-evaluate_with_minimax(3 * ONE_PLY));
-    //Reward prior = value_to_reward(-evaluate_with_minimax(DEPTH_ZERO));
+    //Reward prior = value_to_reward(-evaluate_with_minimax(7 * ONE_PLY));
+    Reward prior = value_to_reward(-evaluate_with_minimax(DEPTH_ZERO));
     undo_move();
 
     return prior;
