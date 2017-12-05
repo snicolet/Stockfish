@@ -802,7 +802,9 @@ namespace {
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                return more_than_one(pos.pieces(PAWN)) ? ScaleFactor(31) : ScaleFactor(9);
+                return  more_than_one(pe->passed_pawns(strongSide)) ? ScaleFactor(50) 
+                       :more_than_one(pos.pieces(PAWN))             ? ScaleFactor(31) 
+                                                                    : ScaleFactor(9);
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
