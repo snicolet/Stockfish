@@ -438,7 +438,7 @@ void MonteCarlo::emit_pv() {
 
     debug << "pv = " << pv << endl;
     debug << "... exiting emit_pv()" << endl;
-    hit_any_key();
+    //hit_any_key();
 
     assert(int(rootMoves.size()) == number_of_sons(root));
 }
