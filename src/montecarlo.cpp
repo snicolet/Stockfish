@@ -235,11 +235,8 @@ Reward MonteCarlo::playout_policy(Node node) {
     assert(current_node() == node);
 
     // Step 0. Check for terminal nodes
-    if (node->visits > 0 && number_of_sons(node) == 0)
+    if (is_terminal(node))
     	return evaluate_terminal();
-
-    if (pos.is_draw(ply - 1))
-        return evaluate_terminal();
 
     // Step 1. Expand the current node
     // We generate the legal moves and calculate their prior values.
@@ -249,6 +246,7 @@ Reward MonteCarlo::playout_policy(Node node) {
 
     generate_moves();
 
+    assert(current_node()->visits == 1);
     assert(current_node() == old);
 
     if (number_of_sons(node) == 0)
@@ -258,7 +256,6 @@ Reward MonteCarlo::playout_policy(Node node) {
     // Now implement a play-out policy from the newly expanded node
 
     debug_tree_stats();
-    assert(current_node()->visits == 1);
     assert(current_node()->number_of_sons > 0);
 
     // Step 3. Return reward
@@ -485,16 +482,16 @@ bool MonteCarlo::is_terminal(Node node) {
     assert(node == current_node());
 
     // Mate or stalemate?
-    if (number_of_sons(node) == 0)
-        return node;
+    if (node->visits > 0 && number_of_sons(node) == 0)
+        return true;
 
     // Have we have reached the search depth limit?
     if (ply >= MAX_PLY)
-        return node;
+        return true;
 
     // Draw by repetition or draw by 50 moves rule?
     if (pos.is_draw(ply - 1))
-        return node;
+        return true;
 
     return false;
 }
