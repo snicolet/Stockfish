@@ -180,7 +180,7 @@ void MonteCarlo::create_root() {
 bool MonteCarlo::computational_budget() {
     assert(is_root(current_node()));
 
-    return (descentCnt < 10000);
+    return (descentCnt < 100);
 }
 
 
@@ -670,8 +670,8 @@ Reward MonteCarlo::calculate_prior(Move move, int n) {
     priorCnt++;
 
     do_move(move);
-    //Reward prior = value_to_reward(-evaluate_with_minimax(7 * ONE_PLY));
-    Reward prior = value_to_reward(-evaluate_with_minimax(DEPTH_ZERO));
+    Reward prior = value_to_reward(-evaluate_with_minimax(7 * ONE_PLY));
+    //Reward prior = value_to_reward(-evaluate_with_minimax(DEPTH_ZERO));
     undo_move();
 
     return prior;
