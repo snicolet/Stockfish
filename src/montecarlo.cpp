@@ -194,9 +194,9 @@ Node MonteCarlo::tree_policy() {
         edges[ply] = best_child(current_node(), STAT_UCB);
         Move m = edges[ply]->move;
 
-        current_node()->lock.acquire();
-
         Edge* edge = edges[ply];
+
+        current_node()->lock.acquire();
 
         // Add a virtual loss to this edge. This will help load balancing
         // in the parallel MCTS.
@@ -318,7 +318,6 @@ void MonteCarlo::backup(Node node, Reward r) {
        r = 1.0 - r;
 
        // Update the statistics of the edge
-       node->lock.acquire();
 
        Edge* edge = edges[ply];
 
@@ -327,13 +326,15 @@ void MonteCarlo::backup(Node node, Reward r) {
              << std::endl;
        debug_edge(*edge);
 
+       node->lock.acquire();
+
        edge->visits          = edge->visits; // no need to increase visits because of virtual loss
        edge->actionValue     = edge->actionValue + r;
        edge->meanActionValue = edge->actionValue / edge->visits;
 
-       debug_edge(*edge);
-
        node->lock.release();
+
+       debug_edge(*edge);
 
        assert(stack[ply].currentMove == edge->move);
    }
