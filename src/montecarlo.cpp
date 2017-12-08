@@ -306,6 +306,8 @@ void MonteCarlo::backup(Node node, Reward r) {
        r = 1.0 - r;
 
        // Update the stats of the edge
+       node->lock.acquire();
+
        Edge* edge = edges[ply];
 
        debug << "stack[" << ply << "].currentMove = "
@@ -318,6 +320,8 @@ void MonteCarlo::backup(Node node, Reward r) {
        edge->meanActionValue = edge->actionValue / edge->visits;
 
        debug_edge(*edge);
+
+       node->lock.release();
 
        assert(stack[ply].currentMove == edge->move);
    }
@@ -555,8 +559,6 @@ void MonteCarlo::add_prior_to_node(Node node, Move m, Reward prior, int moveCoun
 /// constructor, like in the alpha-beta implementation of move ordering.
 void MonteCarlo::generate_moves() {
 
-    assert(current_node()->visits == 0);
-
     debug << "Entering generate_moves()..." << endl;
     debug << pos << endl;
 
@@ -564,6 +566,10 @@ void MonteCarlo::generate_moves() {
        hit_any_key();
 
     debug_node(current_node());
+
+    current_node()->lock.acquire();
+
+    assert(current_node()->visits == 0);
 
     Thread*  thread      = pos.this_thread();
     Square   prevSq      = to_sq(stack[ply-1].currentMove);
@@ -608,6 +614,8 @@ void MonteCarlo::generate_moves() {
     Node s = current_node();
     s->visits       = 1;
     s->expandedSons = 0;
+
+    current_node()->lock.release();
 
     debug << "... exiting generate_moves()" << endl;
 }
