@@ -90,7 +90,6 @@ private:
 
   // Data members
   Position&       pos;                  // The current position of the tree, changes during search
-  Position        rootPosition;         // A full copy of the position used to initialise the class
   Node            root;                 // A pointer to the root
   double          exploration = 10.0;   // Default value for the UCB formula
 

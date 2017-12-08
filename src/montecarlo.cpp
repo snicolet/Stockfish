@@ -154,14 +154,6 @@ void MonteCarlo::create_root() {
 
     // TODO : what to do with killers ???
 
-    // TODO : setupStates should probably come the caller, as a global ???
-    StateListPtr setupStates(new std::deque<StateInfo>(1));
-
-    // Save a hard copy of the root position
-    StateInfo tmp = setupStates->back();
-    rootPosition.set(pos.fen(), pos.is_chess960(), &setupStates->back(), pos.this_thread());
-    setupStates->back() = tmp;
-
     // Erase the list of nodes, and set the current node to the root node
     std::memset(nodesBuffer, 0, sizeof(nodesBuffer));
     root = nodes[ply] = get_node(pos);
@@ -774,9 +766,8 @@ void MonteCarlo::debug_edge(Edge e) {
 //
 // 1. ttMove = MOVE_NONE in generate_moves() ?
 // 2. what to do with killers in create_root() ?
-// 3. setupStates should probably come the caller, as a global in create_root() ?
-// 4. debug the priors for the following key : 5DB5F8476356FB19 ?
-// 5. should we set rm.score to -VALUE_INFINITE for moves >= 2 in emit_pv() ?
+// 3. debug the priors for the following key : 5DB5F8476356FB19 ?
+// 4. should we set rm.score to -VALUE_INFINITE for moves >= 2 in emit_pv() ?
 
 
 
