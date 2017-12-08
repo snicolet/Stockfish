@@ -90,7 +90,7 @@ Node get_node(const Position& pos) {
 
    infos.key1             = key1;      // Zobrist hash of all pieces, including pawns
    infos.key2             = key2;      // Zobrist hash of pawns
-   infos.visits           = 0;         // number of visits by the Monte-Carlo algorithm
+   infos.node_visits      = 0;         // number of visits by the Monte-Carlo algorithm
    infos.number_of_sons   = 0;         // total number of legal moves
    infos.expandedSons     = 0;         // number of sons expanded by the Monte-Carlo algorithm
    infos.lastMove         = MOVE_NONE; // the move between the parent and this node
@@ -158,7 +158,7 @@ void MonteCarlo::create_root() {
     std::memset(nodesBuffer, 0, sizeof(nodesBuffer));
     root = nodes[ply] = get_node(pos);
 
-    if (current_node()->visits == 0)
+    if (current_node()->node_visits == 0)
        generate_moves();
 
     assert(ply == 1);
@@ -186,7 +186,7 @@ Node MonteCarlo::tree_policy() {
     if (number_of_sons(root) == 0)
         return root;
 
-    while (current_node()->visits > 0)
+    while (current_node()->node_visits > 0)
     {
         if (is_terminal(current_node()))
             return current_node();
@@ -200,6 +200,11 @@ Node MonteCarlo::tree_policy() {
 
         // Add a virtual loss to this edge. This will help load balancing
         // in the parallel MCTS.
+        
+        dbg_mean_of(current_node()->node_visits);
+        
+        current_node()->node_visits++;
+        
         edge->visits          = edge->visits + 1.0;
         edge->actionValue     = edge->actionValue;
         edge->meanActionValue = edge->actionValue / edge->visits;
@@ -222,7 +227,7 @@ Node MonteCarlo::tree_policy() {
         nodes[ply] = get_node(pos); // Set current node
     }
 
-    assert(current_node()->visits == 0);
+    assert(current_node()->node_visits == 0);
 
     debug << "... exiting tree_policy()" << endl;
 
@@ -245,12 +250,12 @@ Reward MonteCarlo::playout_policy(Node node) {
     // Step 1. Expand the current node
     // We generate the legal moves and calculate their prior values.
 
-    assert(current_node()->visits == 0);
+    assert(current_node()->node_visits == 0);
     Node old = current_node();
 
     generate_moves();
 
-    assert(current_node()->visits == 1);
+    assert(current_node()->node_visits == 1);
     assert(current_node() == old);
 
     if (number_of_sons(node) == 0)
@@ -276,7 +281,8 @@ Reward MonteCarlo::playout_policy(Node node) {
 /// which we reach from node "node" by following the edge "edge".
 double MonteCarlo::UCB(Node node, Edge& edge) {
 
-    int fatherVisits = node->visits;
+    // int fatherVisits = node->node_visits;
+    int fatherVisits = 1;
 
     assert(fatherVisits > 0);
 
@@ -491,7 +497,7 @@ bool MonteCarlo::is_terminal(Node node) {
     assert(node == current_node());
 
     // Mate or stalemate?
-    if (node->visits > 0 && number_of_sons(node) == 0)
+    if (node->node_visits > 0 && number_of_sons(node) == 0)
         return true;
 
     // Have we have reached the search depth limit?
@@ -582,7 +588,7 @@ void MonteCarlo::generate_moves() {
 
     current_node()->lock.acquire();
 
-    assert(current_node()->visits == 0);
+    assert(current_node()->node_visits == 0);
 
     Thread*  thread      = pos.this_thread();
     Square   prevSq      = to_sq(stack[ply-1].currentMove);
@@ -625,7 +631,7 @@ void MonteCarlo::generate_moves() {
 
     // Indicate that we have just expanded the current node
     Node s = current_node();
-    s->visits       = 1;
+    s->node_visits  = 1;
     s->expandedSons = 0;
 
     current_node()->lock.release();
@@ -766,7 +772,7 @@ void MonteCarlo::debug_node(Node node) {
    debug << "isRoot       = " << is_root(current_node())  << endl;
    debug << "key1         = " << node->key1               << endl;
    debug << "key2         = " << node->key2               << endl;
-   debug << "visits       = " << node->visits             << endl;
+   debug << "visits       = " << node->node_visits        << endl;
    debug << "sons         = " << node->number_of_sons     << endl;
    debug << "expandedSons = " << node->expandedSons       << endl;
 }
