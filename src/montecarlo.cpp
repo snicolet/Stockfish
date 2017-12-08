@@ -194,6 +194,18 @@ Node MonteCarlo::tree_policy() {
         edges[ply] = best_child(current_node(), STAT_UCB);
         Move m = edges[ply]->move;
 
+        current_node()->lock.acquire();
+
+        Edge* edge = edges[ply];
+
+        // Add a virtual loss to this edge. This will help load balancing
+        // in the parallel MCTS.
+        edge->visits          = edge->visits + 1.0;
+        edge->actionValue     = edge->actionValue;
+        edge->meanActionValue = edge->actionValue / edge->visits;
+
+        current_node()->lock.release();
+
         debug << "edges[" << ply << "].move = "
              << UCI::move(edges[ply]->move, pos.is_chess960())
              << std::endl;
@@ -305,7 +317,7 @@ void MonteCarlo::backup(Node node, Reward r) {
 
        r = 1.0 - r;
 
-       // Update the stats of the edge
+       // Update the statistics of the edge
        node->lock.acquire();
 
        Edge* edge = edges[ply];
@@ -315,7 +327,7 @@ void MonteCarlo::backup(Node node, Reward r) {
              << std::endl;
        debug_edge(*edge);
 
-       edge->visits          = edge->visits + 1.0;
+       edge->visits          = edge->visits; // no need to increase visits because of virtual loss
        edge->actionValue     = edge->actionValue + r;
        edge->meanActionValue = edge->actionValue / edge->visits;
 
@@ -442,7 +454,7 @@ void MonteCarlo::emit_principal_variation() {
     }
     else
     {
-        // Mate or stalemate: we put a virtual move in the list
+        // Mate or stalemate: we put a empty move in the global list of moves at root
         rootMoves.emplace_back(MOVE_NONE);
         pv = "info depth 0 score " + UCI::value(pos.checkers() ? -VALUE_MATE : VALUE_DRAW);
     }
