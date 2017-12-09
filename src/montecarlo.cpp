@@ -172,7 +172,7 @@ void MonteCarlo::create_root() {
 bool MonteCarlo::computational_budget() {
     assert(is_root(current_node()));
 
-    return    (descentCnt < 1000000)
+    return    (descentCnt < 100000000)
            && !Threads.stop.load(std::memory_order_relaxed);
 }
 
@@ -280,8 +280,8 @@ Reward MonteCarlo::playout_policy(Node node) {
 /// which we reach from node "node" by following the edge "edge".
 double MonteCarlo::UCB(Node node, Edge& edge) {
 
-    // int fatherVisits = node->node_visits;
-    int fatherVisits = 1;
+    int fatherVisits = node->node_visits;
+    //int fatherVisits = 1;
 
     assert(fatherVisits > 0);
 
@@ -688,7 +688,7 @@ Reward MonteCarlo::calculate_prior(Move move, int n) {
     priorCnt++;
 
     do_move(move);
-    Reward prior = value_to_reward(-evaluate_with_minimax(7 * ONE_PLY));
+    Reward prior = value_to_reward(-evaluate_with_minimax(3 * ONE_PLY));
     //Reward prior = value_to_reward(-evaluate_with_minimax(DEPTH_ZERO));
     undo_move();
 
