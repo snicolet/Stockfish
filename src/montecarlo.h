@@ -165,5 +165,7 @@ public:
 // The Monte-Carlo tree is stored implicitly in one big hash table
 typedef std::unordered_multimap<Key, NodeInfo> MCTSHashTable;
 
+extern MCTSHashTable MCTS;
+
 
 #endif // #ifndef MONTECARLO_H_INCLUDED
