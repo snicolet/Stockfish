@@ -74,8 +74,8 @@ public:
   Value reward_to_value(Reward r);
   Value evaluate_with_minimax(Depth d);
   Reward evaluate_terminal();
-  Reward calculate_prior(Move m, int moveCount);
-  void add_prior_to_node(Node node, Move m, Reward prior, int moveCount);
+  Reward calculate_prior(Move m, long moveCount);
+  void add_prior_to_node(Node node, Move m, Reward prior, long moveCount);
 
   // Tweaking the exploration algorithm
   void set_exploration_constant(double C);
@@ -100,16 +100,16 @@ private:
   // Counters and statistics
   int             ply;
   int             maximumPly;
-  int             descentCnt;
-  int             playoutCnt;
-  int             doMoveCnt;
-  int             priorCnt;
+  long            descentCnt;
+  long            playoutCnt;
+  long            doMoveCnt;
+  long            priorCnt;
   TimePoint       startTime;
   TimePoint       lastOutputTime;
 
   // Flags and limits to tweak the algorithm
   // During the testing period, most of them are set in the MonteCarlo::test() function
-  int    MAX_DESCENTS;
+  long   MAX_DESCENTS;
   int    PRIOR_DEPTH;
   double UCB_EXPLORATION_CONSTANT;
   bool   UCB_USE_FATHER_VISITS;
@@ -124,7 +124,7 @@ private:
 };
 
 
-const int MAX_CHILDREN = 128;
+const long MAX_CHILDREN = 128;
 
 
 /// Edge struct stores the statistics of one edge between nodes in the Monte-Carlo tree
@@ -154,9 +154,9 @@ public:
   Spinlock lock;                        // A spin lock for parallelization
   Key      key1            = 0;         // Zobrist hash of all pieces, including pawns
   Key      key2            = 0;         // Zobrist hash of pawns
-  int      node_visits     = 0;         // number of visits by the Monte-Carlo algorithm
-  int      number_of_sons  = 0;         // total number of legal moves
-  int      expandedSons    = 0;         // number of sons expanded by the Monte-Carlo algorithm
+  long     node_visits     = 0;         // number of visits by the Monte-Carlo algorithm
+  long     number_of_sons  = 0;         // total number of legal moves
+  long     expandedSons    = 0;         // number of sons expanded by the Monte-Carlo algorithm
   Move     lastMove        = MOVE_NONE; // the move between the parent and this node
   Edge     children[MAX_CHILDREN];
 };

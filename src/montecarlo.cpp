@@ -104,7 +104,7 @@ Node get_node(const Position& pos) {
 // Helpers functions
 Move move_of(Node node) { return node->last_move(); }
 Edge* get_list_of_children(Node node) { return node->children_list(); }
-int number_of_sons(Node node) { return node->number_of_sons; }
+long number_of_sons(Node node) { return node->number_of_sons; }
 
 
 // MonteCarlo::search() is the main function of Monte-Carlo algorithm.
@@ -280,7 +280,7 @@ Reward MonteCarlo::playout_policy(Node node) {
 /// which we reach from node "node" by following the edge "edge".
 double MonteCarlo::UCB(Node node, Edge& edge) {
 
-    int fatherVisits = UCB_USE_FATHER_VISITS ? node->node_visits : 1;
+    long fatherVisits = UCB_USE_FATHER_VISITS ? node->node_visits : 1;
 
     assert(fatherVisits > 0);
 
@@ -380,7 +380,7 @@ Edge* MonteCarlo::best_child(Node node, EdgeStatistic statistic) {
               << endl;
     }
 
-    int best = -1;
+    long best = -1;
     double bestValue = -100000000.0;
     for (int k = 0 ; k < number_of_sons(node) ; k++)
     {
@@ -429,7 +429,7 @@ void MonteCarlo::emit_principal_variation() {
 
     string pv;
     Edge* children = get_list_of_children(root);
-    int n = number_of_sons(root);
+    long n = number_of_sons(root);
 
     // Make a local copy of the children of the root, and sort by number of visits
     Edge list[MAX_CHILDREN];
@@ -456,7 +456,7 @@ void MonteCarlo::emit_principal_variation() {
             rootMoves.push_back(rm);
         }
 
-        assert(int(rootMoves.size()) == number_of_sons(root));
+        assert(long(rootMoves.size()) == number_of_sons(root));
         debug << "Before calling UCI::pv()" << endl;
 
         pv = UCI::pv(pos, maximumPly * ONE_PLY, -VALUE_INFINITE, VALUE_INFINITE);
@@ -544,11 +544,11 @@ void MonteCarlo::undo_move() {
 
 
 /// MonteCarlo::add_prior_to_node() adds the given (move,prior) pair as a new son for a node
-void MonteCarlo::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
+void MonteCarlo::add_prior_to_node(Node node, Move m, Reward prior, long moveCount) {
 
    assert(node->number_of_sons < MAX_CHILDREN);
 
-   int n = node->number_of_sons;
+   long n = node->number_of_sons;
    if (n < MAX_CHILDREN)
    {
        node->children[n].visits          = 0;
@@ -611,7 +611,7 @@ void MonteCarlo::generate_moves() {
 
         Move move;
         Reward prior;
-        int moveCount = 0;
+        long moveCount = 0;
 
         // Generate the legal moves and calculate their priors
         while ((move = mp.next_move()) != MOVE_NONE)
@@ -625,7 +625,7 @@ void MonteCarlo::generate_moves() {
             }
 
         // Sort the moves according to their prior value
-        int n = number_of_sons(current_node());
+        long n = number_of_sons(current_node());
         if (n > 0)
         {
             Edge* children = get_list_of_children(current_node());
@@ -686,7 +686,7 @@ Value MonteCarlo::evaluate_with_minimax(Depth depth) {
 /// the n-th son of the current node. Here we use the evaluation function to
 /// estimate this prior, we could use other strategies too (like the rank n of
 /// the son, or the type of the move (good capture/quiet/bad capture), etc).
-Reward MonteCarlo::calculate_prior(Move move, int n) {
+Reward MonteCarlo::calculate_prior(Move move, long n) {
 
     assert(n >= 0);
 
