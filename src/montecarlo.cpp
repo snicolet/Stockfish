@@ -789,9 +789,9 @@ void MonteCarlo::test() {
    UCB_EXPLORATION_CONSTANT = 2.0;
    UCB_USE_FATHER_VISITS    = false;
    UCB_LOSSES_AVOIDANCE     = true;
-   
+
    sync_cout << "MAX_DESCENTS = " << MAX_DESCENTS << sync_endl;
-   
+
    search();
 
    debug << "... end of MonteCarlo testing!" << endl;
