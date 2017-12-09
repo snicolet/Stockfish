@@ -1552,6 +1552,8 @@ moves_loop: // When in check search starts from here
     if (Threads.ponder)
         return;
 
+    elapsed = 4 * elapsed;
+
     if (   (Limits.use_time_management() && elapsed > Time.maximum())
         || (Limits.movetime && elapsed >= Limits.movetime)
         || (Limits.nodes && Threads.nodes_searched() >= (uint64_t)Limits.nodes))

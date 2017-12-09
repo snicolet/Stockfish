@@ -172,7 +172,7 @@ void MonteCarlo::create_root() {
 bool MonteCarlo::computational_budget() {
     assert(is_root(current_node()));
 
-    return    (descentCnt < 100)
+    return    (descentCnt < 1000000)
            && !Threads.stop.load(std::memory_order_relaxed);
 }
 
@@ -688,7 +688,7 @@ Reward MonteCarlo::calculate_prior(Move move, int n) {
     priorCnt++;
 
     do_move(move);
-    Reward prior = value_to_reward(-evaluate_with_minimax(3 * ONE_PLY));
+    Reward prior = value_to_reward(-evaluate_with_minimax(7 * ONE_PLY));
     //Reward prior = value_to_reward(-evaluate_with_minimax(DEPTH_ZERO));
     undo_move();
 
