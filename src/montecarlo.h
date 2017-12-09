@@ -106,7 +106,7 @@ private:
   int             priorCnt;
   TimePoint       startTime;
   TimePoint       lastOutputTime;
-  
+
   // Flags and limits to tweak the algorithm
   // During the testing period, most of them are set in the MonteCarlo::test() function
   int    MAX_DESCENTS;
@@ -139,7 +139,7 @@ struct Edge {
 // Comparison functions for edges
 struct { bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }} ComparePrior;
 struct { bool operator()(Edge a, Edge b) const { return a.visits > b.visits; }} CompareVisits;
-struct { bool operator()(Edge a, Edge b) const { return a.meanActionValue > b.meanActionValue;}} 
+struct { bool operator()(Edge a, Edge b) const { return a.meanActionValue > b.meanActionValue;}}
    CompareMeanAction;
 
 

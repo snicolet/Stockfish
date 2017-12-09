@@ -769,7 +769,7 @@ void MonteCarlo::debug_node(Node node) {
 /// MonteCarlo::debug_edge()
 void MonteCarlo::debug_edge(Edge e) {
    debug << "edge = { "
-         << UCI::move(e.move, pos.is_chess960()) << " , "
+         << UCI::move(e.move, pos.is_chess960())   << " , "
          << "N = " << e.visits                     << " , "
          << "P = " << e.prior                      << " , "
          << "W = " << e.actionValue                << " , "
@@ -789,9 +789,9 @@ void MonteCarlo::test() {
    UCB_EXPLORATION_CONSTANT = 0.8;
    UCB_USE_FATHER_VISITS    = true;
    UCB_LOSSES_AVOIDANCE     = true;
-   
+
    sync_cout << "MAX_DESCENTS = " << MAX_DESCENTS << sync_endl;
-   
+
    search();
 
    debug << "... end of MonteCarlo testing!" << endl;
