@@ -254,7 +254,7 @@ Reward MonteCarlo::playout_policy(Node node) {
 
     generate_moves();
 
-    assert(current_node()->node_visits == 1);
+    assert(current_node()->node_visits >= 1);
     assert(current_node() == old);
 
     if (number_of_sons(node) == 0)
@@ -591,51 +591,52 @@ void MonteCarlo::generate_moves() {
 
     current_node()->lock.acquire();
 
-    assert(current_node()->node_visits == 0);
+    if (current_node()->node_visits == 0)
+    {
+        Thread*  thread      = pos.this_thread();
+        Square   prevSq      = to_sq(stack[ply-1].currentMove);
+        Move     countermove = thread->counterMoves[pos.piece_on(prevSq)][prevSq];
+        Move     ttMove      = MOVE_NONE;  // FIXME
+        Move*    killers     = stack[ply].killers;
+        Depth    depth       = 30 * ONE_PLY;
 
-    Thread*  thread      = pos.this_thread();
-    Square   prevSq      = to_sq(stack[ply-1].currentMove);
-    Move     countermove = thread->counterMoves[pos.piece_on(prevSq)][prevSq];
-    Move     ttMove      = MOVE_NONE;  // FIXME
-    Move*    killers     = stack[ply].killers;
-    Depth    depth       = 30 * ONE_PLY;
-
-    const CapturePieceToHistory* cph   = &thread->captureHistory;
-    const ButterflyHistory* mh         = &thread->mainHistory;
-    const PieceToHistory*   contHist[] = { stack[ply-1].contHistory,
+        const CapturePieceToHistory* cph   = &thread->captureHistory;
+        const ButterflyHistory* mh         = &thread->mainHistory;
+        const PieceToHistory*   contHist[] = { stack[ply-1].contHistory,
                                            stack[ply-2].contHistory,
                                            nullptr,
                                            stack[ply-4].contHistory };
 
-    MovePicker mp(pos, ttMove, depth, mh, cph, contHist, countermove, killers);
+        MovePicker mp(pos, ttMove, depth, mh, cph, contHist, countermove, killers);
 
-    Move move;
-    Reward prior;
-    int moveCount = 0;
+        Move move;
+        Reward prior;
+        int moveCount = 0;
 
-    // Generate the legal moves and calculate their priors
-    while ((move = mp.next_move()) != MOVE_NONE)
-        if (pos.legal(move))
+        // Generate the legal moves and calculate their priors
+        while ((move = mp.next_move()) != MOVE_NONE)
+            if (pos.legal(move))
+            {
+                stack[ply].moveCount = ++moveCount;
+
+                prior = calculate_prior(move, moveCount);
+
+                add_prior_to_node(current_node(), move, prior, moveCount);
+            }
+
+        // Sort the moves according to their prior value
+        int n = number_of_sons(current_node());
+        if (n > 0)
         {
-            stack[ply].moveCount = ++moveCount;
-
-            prior = calculate_prior(move, moveCount);
-
-            add_prior_to_node(current_node(), move, prior, moveCount);
+            Edge* children = get_list_of_children(current_node());
+            std::sort(children, children + n, ComparePrior);
         }
 
-    // Sort the moves according to their prior value
-    int n = number_of_sons(current_node());
-    if (n > 0)
-    {
-        Edge* children = get_list_of_children(current_node());
-        std::sort(children, children + n, ComparePrior);
+        // Indicate that we have just expanded the current node
+        Node s = current_node();
+        s->node_visits  = 1;
+        s->expandedSons = 0;
     }
-
-    // Indicate that we have just expanded the current node
-    Node s = current_node();
-    s->node_visits  = 1;
-    s->expandedSons = 0;
 
     current_node()->lock.release();
 
@@ -785,8 +786,8 @@ void MonteCarlo::test() {
    debug << pos << endl;
 
    MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 10000000;
-   PRIOR_DEPTH              = 7;
-   UCB_EXPLORATION_CONSTANT = 0.8;
+   PRIOR_DEPTH              = 3;
+   UCB_EXPLORATION_CONSTANT = 100.0;
    UCB_USE_FATHER_VISITS    = true;
    UCB_LOSSES_AVOIDANCE     = true;
 
