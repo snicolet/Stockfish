@@ -167,12 +167,13 @@ void MonteCarlo::create_root() {
 }
 
 
-/// MonteCarlo::computational_budget() stops the search if the computational budget
-/// has been reached (time limit, or number of nodes, etc.)
+/// MonteCarlo::computational_budget() returns true the search is still 
+/// in the computational budget (time limit, or number of nodes, etc.)
 bool MonteCarlo::computational_budget() {
     assert(is_root(current_node()));
 
-    return (descentCnt < 100);
+    return    (descentCnt < 100)
+           && !Threads.stop.load(std::memory_order_relaxed);
 }
 
 
@@ -407,11 +408,11 @@ bool MonteCarlo::should_output_result() {
     TimePoint elapsed = now() - startTime + 1;  // in milliseconds
     TimePoint outputDelay = now() - lastOutputTime;
 
-    if (elapsed < 1000)            return outputDelay >= 100;
-    if (elapsed < 10 * 1000)       return outputDelay >= 1000;
-    if (elapsed < 60 * 1000)       return outputDelay >= 10000;
-    if (elapsed < 5 * 60 * 1000)   return outputDelay >= 30000;
-    if (elapsed < 60 * 60 * 1000)  return outputDelay >= 60000;
+    if (elapsed < 1100)            return outputDelay >= 100;
+    if (elapsed < 11 * 1000)       return outputDelay >= 1000;
+    if (elapsed < 61 * 1000)       return outputDelay >= 10000;
+    if (elapsed < 6 * 60 * 1000)   return outputDelay >= 30000;
+    if (elapsed < 61 * 60 * 1000)  return outputDelay >= 60000;
 
     return outputDelay >= 60000;
 }
