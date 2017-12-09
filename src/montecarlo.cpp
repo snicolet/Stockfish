@@ -795,7 +795,7 @@ void MonteCarlo::debug_edge(Edge e) {
 //
 // 1. ttMove = MOVE_NONE in generate_moves() ?
 // 2. what to do with killers in create_root() ?
-// 3. debug the priors for the following key : 5DB5F8476356FB19 ?
+// 3. why do we get losses on time with small prior depths ?
 // 4. should we set rm.score to -VALUE_INFINITE for moves >= 2 in emit_pv() ?
 
 
