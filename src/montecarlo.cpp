@@ -172,7 +172,7 @@ void MonteCarlo::create_root() {
 bool MonteCarlo::computational_budget() {
     assert(is_root(current_node()));
 
-    return    (descentCnt < 100000000)
+    return    (descentCnt < MAX_DESCENTS)
            && !Threads.stop.load(std::memory_order_relaxed);
 }
 
@@ -280,7 +280,7 @@ Reward MonteCarlo::playout_policy(Node node) {
 /// which we reach from node "node" by following the edge "edge".
 double MonteCarlo::UCB(Node node, Edge& edge) {
 
-    int fatherVisits = MCTS_UCB_USE_FATHER_VISITS ? node->node_visits : 1;
+    int fatherVisits = UCB_USE_FATHER_VISITS ? node->node_visits : 1;
 
     assert(fatherVisits > 0);
 
@@ -291,7 +291,7 @@ double MonteCarlo::UCB(Node node, Edge& edge) {
 
     double C = get_exploration_constant();
 
-    if (MCTS_UCB_LOSSES_AVOIDANCE)
+    if (UCB_LOSSES_AVOIDANCE)
     {
         double losses = edge.visits - edge.actionValue;
         result += C * edge.prior * sqrt(fatherVisits) / (1 + losses);  // Mark Winands
@@ -474,12 +474,13 @@ void MonteCarlo::emit_principal_variation() {
     lastOutputTime = now();
 
     debug << "pv = " << pv << endl;
+    debug << "descentCnt = " << descentCnt << endl;
     debug << "... exiting emit_principal_variation()" << endl;
 }
 
 
 
-/// MonteCarlo::current_node() is the current node of our tree exploration
+/// MonteCarlo::current_node() is the current node of our tree
 Node MonteCarlo::current_node() {
     return nodes[ply];
 }
@@ -673,8 +674,8 @@ Value MonteCarlo::evaluate_with_minimax(Depth depth) {
 
     Value v = minimax_value(pos, &stack[ply], depth);
 
-    // debug << pos << endl;
-    // debug << "minimax value = " << v << endl;
+    debug << pos << endl;
+    debug << "minimax value = " << v << endl;
 
     return v;
 }
@@ -691,7 +692,7 @@ Reward MonteCarlo::calculate_prior(Move move, int n) {
     priorCnt++;
 
     do_move(move);
-    Reward prior = value_to_reward(-evaluate_with_minimax(MCTS_PRIOR_DEPTH * ONE_PLY));
+    Reward prior = value_to_reward(-evaluate_with_minimax(PRIOR_DEPTH * ONE_PLY));
     undo_move();
 
     return prior;
@@ -732,29 +733,14 @@ Value MonteCarlo::reward_to_value(Reward r) {
 /// of the constant makes an algorithm which focuses more on the already explored
 /// parts of the tree. Default value is 10.0
 void MonteCarlo::set_exploration_constant(double C) {
-    exploration = C;
+    UCB_EXPLORATION_CONSTANT = C;
 }
 
 
 /// MonteCarlo::get_exploration_constant() returns the exploration constant of the UCB formula
 double MonteCarlo::get_exploration_constant() {
-    return exploration;
+    return UCB_EXPLORATION_CONSTANT;
 }
-
-
-/// MonteCarlo::test()
-void MonteCarlo::test() {
-   debug << "---------------------------------------------------------------------------------" << endl;
-   debug << "Testing MonteCarlo for position..." << endl;
-   debug << pos << endl;
-
-   set_exploration_constant(MCTS_UCB_EXPLORATION_CONSTANT);
-   search();
-
-   debug << "... end of MonteCarlo testing!" << endl;
-   debug << "---------------------------------------------------------------------------------" << endl;
-}
-
 
 /// MonteCarlo::debug_tree_stats()
 void MonteCarlo::debug_tree_stats() {
@@ -791,22 +777,34 @@ void MonteCarlo::debug_edge(Edge e) {
          << endl;
 }
 
+
+/// MonteCarlo::test()
+void MonteCarlo::test() {
+   debug << "---------------------------------------------------------------------------------" << endl;
+   debug << "Testing MonteCarlo for position..." << endl;
+   debug << pos << endl;
+
+   MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 10000000;
+   PRIOR_DEPTH              = 7;
+   UCB_EXPLORATION_CONSTANT = 0.7;
+   UCB_USE_FATHER_VISITS    = true;
+   UCB_LOSSES_AVOIDANCE     = true;
+   
+   sync_cout << "MAX_DESCENTS = " << MAX_DESCENTS << sync_endl;
+   
+   search();
+
+   debug << "... end of MonteCarlo testing!" << endl;
+   debug << "---------------------------------------------------------------------------------" << endl;
+}
+
+
 // List of FIXME/TODO for the monte-carlo branch
 //
 // 1. ttMove = MOVE_NONE in generate_moves() ?
 // 2. what to do with killers in create_root() ?
 // 3. why do we get losses on time with small prior depths ?
 // 4. should we set rm.score to -VALUE_INFINITE for moves >= 2 in emit_pv() ?
-
-
-
-
-
-
-
-
-
-
 
 
 

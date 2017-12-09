@@ -27,14 +27,11 @@
 #include "thread.h"
 #include "types.h"
 
-// Some flags and constants to test the Monte-Carlo algorithm
-const bool   USE_MONTE_CARLO                = true;
+// Global flag
 
-const int    MCTS_PRIOR_DEPTH               = 7;
-const double MCTS_UCB_EXPLORATION_CONSTANT  = 0.7;
-const bool   MCTS_UCB_USE_FATHER_VISITS     = true;
-const bool   MCTS_UCB_LOSSES_AVOIDANCE      = true;
+const bool USE_MONTE_CARLO = true;
 
+// The data structures for the Monte Carlo algorithm
 
 struct NodeInfo;
 struct Edge;
@@ -97,9 +94,8 @@ public:
 private:
 
   // Data members
-  Position&       pos;                  // The current position of the tree, changes during search
+  Position&       pos;                  // The current position of the tree
   Node            root;                 // A pointer to the root
-  double          exploration = 10.0;   // Default value for the UCB formula
 
   // Counters and statistics
   int             ply;
@@ -110,6 +106,14 @@ private:
   int             priorCnt;
   TimePoint       startTime;
   TimePoint       lastOutputTime;
+  
+  // Flags and limits to tweak the algorithm
+  // During the testing period, most of them are set in the MonteCarlo::test() function
+  int    MAX_DESCENTS;
+  int    PRIOR_DEPTH;
+  double UCB_EXPLORATION_CONSTANT;
+  bool   UCB_USE_FATHER_VISITS;
+  bool   UCB_LOSSES_AVOIDANCE;
 
   // Some stacks to do/undo the moves: for compatibility with the alpha-beta search
   // implementation, we want to be able to reference from stack[-4] to stack[MAX_PLY+2].
@@ -135,7 +139,8 @@ struct Edge {
 // Comparison functions for edges
 struct { bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }} ComparePrior;
 struct { bool operator()(Edge a, Edge b) const { return a.visits > b.visits; }} CompareVisits;
-struct { bool operator()(Edge a, Edge b) const { return a.meanActionValue > b.meanActionValue;}} CompareMeanAction;
+struct { bool operator()(Edge a, Edge b) const { return a.meanActionValue > b.meanActionValue;}} 
+   CompareMeanAction;
 
 
 /// NodeInfo struct stores information in a node of the Monte-Carlo tree
