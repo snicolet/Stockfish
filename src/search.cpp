@@ -316,7 +316,6 @@ void Thread::search() {
 
   multiPV = std::min(multiPV, rootMoves.size());
 
-  bool USE_MONTE_CARLO = true;
 
   if (USE_MONTE_CARLO)
       MonteCarlo(rootPos).test();
@@ -1552,7 +1551,8 @@ moves_loop: // When in check search starts from here
     if (Threads.ponder)
         return;
 
-    elapsed = 4 * elapsed;
+    if (USE_MONTE_CARLO)
+        elapsed = 3 * elapsed;
 
     if (   (Limits.use_time_management() && elapsed > Time.maximum())
         || (Limits.movetime && elapsed >= Limits.movetime)

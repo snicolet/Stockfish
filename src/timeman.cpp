@@ -20,6 +20,7 @@
 
 #include <algorithm>
 
+#include "montecarlo.h"
 #include "search.h"
 #include "timeman.h"
 #include "uci.h"
@@ -63,6 +64,9 @@ namespace {
         double k = 1 + 20 * moveNum / (500.0 + moveNum);
         ratio = (type == OptimumTime ? 0.017 : 0.07) * (k + inc / myTime);
     }
+
+    if (USE_MONTE_CARLO)
+        ratio = 0.25 * ratio;
 
     int time = int(std::min(1.0, ratio) * std::max(0, myTime - moveOverhead));
 

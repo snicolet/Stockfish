@@ -27,6 +27,14 @@
 #include "thread.h"
 #include "types.h"
 
+// Some flags and constants to test the Monte-Carlo algorithm
+const bool   USE_MONTE_CARLO                = true;
+
+const int    MCTS_PRIOR_DEPTH               = 7;
+const double MCTS_UCB_EXPLORATION_CONSTANT  = 0.5;
+const bool   MCTS_UCB_USE_FATHER_VISITS     = true;
+const bool   MCTS_UCB_LOSSES_AVOIDANCE      = true;
+
 
 struct NodeInfo;
 struct Edge;
@@ -112,7 +120,7 @@ private:
 };
 
 
-const int MAX_CHILDREN = 64;
+const int MAX_CHILDREN = 128;
 
 
 /// Edge struct stores the statistics of one edge between nodes in the Monte-Carlo tree

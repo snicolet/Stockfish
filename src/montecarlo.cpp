@@ -280,8 +280,7 @@ Reward MonteCarlo::playout_policy(Node node) {
 /// which we reach from node "node" by following the edge "edge".
 double MonteCarlo::UCB(Node node, Edge& edge) {
 
-    int fatherVisits = node->node_visits;
-    //int fatherVisits = 1;
+    int fatherVisits = MCTS_UCB_USE_FATHER_VISITS ? node->node_visits : 1;
 
     assert(fatherVisits > 0);
 
@@ -292,12 +291,16 @@ double MonteCarlo::UCB(Node node, Edge& edge) {
 
     double C = get_exploration_constant();
 
-    //double visits = edge.visits;
-    //result += C * edge.prior * sqrt(fatherVisits) / (1 + visits);
-
-    // Mark Winands prefers the following
-    double losses = edge.visits - edge.actionValue;
-    result += C * edge.prior * sqrt(fatherVisits) / (1 + losses);
+    if (MCTS_UCB_LOSSES_AVOIDANCE)
+    {
+        double losses = edge.visits - edge.actionValue;
+        result += C * edge.prior * sqrt(fatherVisits) / (1 + losses);  // Mark Winands
+    }
+    else
+    {
+        double visits = edge.visits;
+        result += C * edge.prior * sqrt(fatherVisits) / (1 + visits);
+    }
 
     return result;
 }
@@ -500,7 +503,7 @@ bool MonteCarlo::is_terminal(Node node) {
         return true;
 
     // Have we have reached the search depth limit?
-    if (ply >= MAX_PLY)
+    if (ply >= MAX_PLY - 2)
         return true;
 
     // Draw by repetition or draw by 50 moves rule?
@@ -651,7 +654,7 @@ Reward MonteCarlo::evaluate_terminal() {
         return pos.checkers() ? REWARD_MATED : REWARD_DRAW;
 
     // Have we reached search depth limit?
-    if (ply >= MAX_PLY)
+    if (ply >= MAX_PLY - 2)
         return REWARD_DRAW;
 
     // This must be draw by repetition or draw by 50 moves rule (no need to check again!)
@@ -688,8 +691,7 @@ Reward MonteCarlo::calculate_prior(Move move, int n) {
     priorCnt++;
 
     do_move(move);
-    Reward prior = value_to_reward(-evaluate_with_minimax(3 * ONE_PLY));
-    //Reward prior = value_to_reward(-evaluate_with_minimax(DEPTH_ZERO));
+    Reward prior = value_to_reward(-evaluate_with_minimax(MCTS_PRIOR_DEPTH * ONE_PLY));
     undo_move();
 
     return prior;
@@ -746,6 +748,7 @@ void MonteCarlo::test() {
    debug << "Testing MonteCarlo for position..." << endl;
    debug << pos << endl;
 
+   set_exploration_constant(MCTS_UCB_EXPLORATION_CONSTANT);
    search();
 
    debug << "... end of MonteCarlo testing!" << endl;
