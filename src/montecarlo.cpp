@@ -167,7 +167,7 @@ void MonteCarlo::create_root() {
 }
 
 
-/// MonteCarlo::computational_budget() returns true the search is still 
+/// MonteCarlo::computational_budget() returns true the search is still
 /// in the computational budget (time limit, or number of nodes, etc.)
 bool MonteCarlo::computational_budget() {
     assert(is_root(current_node()));
@@ -201,11 +201,9 @@ Node MonteCarlo::tree_policy() {
 
         // Add a virtual loss to this edge. This will help load balancing
         // in the parallel MCTS.
-        
-        dbg_mean_of(current_node()->node_visits);
-        
+
         current_node()->node_visits++;
-        
+
         edge->visits          = edge->visits + 1.0;
         edge->actionValue     = edge->actionValue;
         edge->meanActionValue = edge->actionValue / edge->visits;
