@@ -31,7 +31,7 @@
 const bool   USE_MONTE_CARLO                = true;
 
 const int    MCTS_PRIOR_DEPTH               = 7;
-const double MCTS_UCB_EXPLORATION_CONSTANT  = 0.5;
+const double MCTS_UCB_EXPLORATION_CONSTANT  = 0.6;
 const bool   MCTS_UCB_USE_FATHER_VISITS     = true;
 const bool   MCTS_UCB_LOSSES_AVOIDANCE      = true;
 
