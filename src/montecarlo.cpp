@@ -785,7 +785,7 @@ void MonteCarlo::test() {
    debug << "Testing MonteCarlo for position..." << endl;
    debug << pos << endl;
 
-   MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 10000000;
+   MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 100000000000000;
    PRIOR_DEPTH              = 3;
    UCB_EXPLORATION_CONSTANT = 100.0;
    UCB_USE_FATHER_VISITS    = true;
