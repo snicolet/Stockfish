@@ -789,7 +789,6 @@ void MonteCarlo::test() {
    debug << "Testing MonteCarlo for position..." << endl;
    debug << pos << endl;
 
-   default_parameters();
    search();
 
    debug << "... end of MonteCarlo testing!" << endl;
@@ -804,7 +803,7 @@ void MonteCarlo::default_parameters() {
    PRIOR_DEPTH_NORMAL       = 3;
    PRIOR_DEPTH_TACTICAL     = 9;
    UCB_EXPLORATION_CONSTANT = 0.7;
-   UCB_USE_FATHER_VISITS    = false;
+   UCB_USE_FATHER_VISITS    = true;
    UCB_LOSSES_AVOIDANCE     = true;
 
    sync_cout << "MAX_DESCENTS = " << MAX_DESCENTS << sync_endl;

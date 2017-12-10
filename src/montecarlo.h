@@ -109,7 +109,6 @@ private:
   TimePoint       lastOutputTime;
 
   // Flags and limits to tweak the algorithm
-  // During the testing period, most of them are set in the MonteCarlo::test() function
   long   MAX_DESCENTS;
   double UCB_EXPLORATION_CONSTANT;
   bool   UCB_USE_FATHER_VISITS;
