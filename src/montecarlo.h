@@ -74,8 +74,8 @@ public:
   Value reward_to_value(Reward r);
   Value evaluate_with_minimax(Depth d);
   Reward evaluate_terminal();
-  Reward calculate_prior(Move m, long moveCount);
-  void add_prior_to_node(Node node, Move m, Reward prior, long moveCount);
+  Reward calculate_prior(Move m, int moveCount);
+  void add_prior_to_node(Node node, Move m, Reward prior, int moveCount);
 
   // Tweaking the exploration algorithm
   void set_exploration_constant(double C);
@@ -124,7 +124,7 @@ private:
 };
 
 
-const long MAX_CHILDREN = 128;
+const int MAX_CHILDREN = 128;
 
 
 /// Edge struct stores the statistics of one edge between nodes in the Monte-Carlo tree
@@ -155,8 +155,8 @@ public:
   Key      key1            = 0;         // Zobrist hash of all pieces, including pawns
   Key      key2            = 0;         // Zobrist hash of pawns
   long     node_visits     = 0;         // number of visits by the Monte-Carlo algorithm
-  long     number_of_sons  = 0;         // total number of legal moves
-  long     expandedSons    = 0;         // number of sons expanded by the Monte-Carlo algorithm
+  int      number_of_sons  = 0;         // total number of legal moves
+  int      expandedSons    = 0;         // number of sons expanded by the Monte-Carlo algorithm
   Move     lastMove        = MOVE_NONE; // the move between the parent and this node
   Edge     children[MAX_CHILDREN];
 };
