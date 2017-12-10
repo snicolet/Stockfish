@@ -835,7 +835,6 @@ moves_loop: // When in check search starts from here
               extension = ONE_PLY;
       }
       else if (    givesCheck
-               && !moveCountPruning
                &&  pos.see_ge(move))
           extension = ONE_PLY;
 
