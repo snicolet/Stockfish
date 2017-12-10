@@ -130,6 +130,7 @@ Move MonteCarlo::search() {
 
 /// MonteCarlo::MonteCarlo() is the constructor for the MonteCarlo class
 MonteCarlo::MonteCarlo(Position& p) : pos(p) {
+    default_parameters();
     create_root();
 }
 
@@ -692,8 +693,11 @@ Reward MonteCarlo::calculate_prior(Move move, int n) {
 
     priorCnt++;
 
+    int depth = (pos.capture(move) || pos.gives_check(move)) ? PRIOR_DEPTH_TACTICAL
+                                                             : PRIOR_DEPTH_NORMAL;
+
     do_move(move);
-    Reward prior = value_to_reward(-evaluate_with_minimax(PRIOR_DEPTH * ONE_PLY));
+    Reward prior = value_to_reward(-evaluate_with_minimax(depth * ONE_PLY));
     undo_move();
 
     return prior;
@@ -785,18 +789,25 @@ void MonteCarlo::test() {
    debug << "Testing MonteCarlo for position..." << endl;
    debug << pos << endl;
 
-   MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 100000000000000;
-   PRIOR_DEPTH              = 3;
-   UCB_EXPLORATION_CONSTANT = 100.0;
-   UCB_USE_FATHER_VISITS    = true;
-   UCB_LOSSES_AVOIDANCE     = true;
-
-   sync_cout << "MAX_DESCENTS = " << MAX_DESCENTS << sync_endl;
-
+   default_parameters();
    search();
 
    debug << "... end of MonteCarlo testing!" << endl;
    debug << "---------------------------------------------------------------------------------" << endl;
+}
+
+
+/// MonteCarlo::default_parameters() set the default parameters for the MCTS search
+void MonteCarlo::default_parameters() {
+
+   MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 100000000000000;
+   PRIOR_DEPTH_NORMAL       = 3;
+   PRIOR_DEPTH_TACTICAL     = 9;
+   UCB_EXPLORATION_CONSTANT = 0.7;
+   UCB_USE_FATHER_VISITS    = false;
+   UCB_LOSSES_AVOIDANCE     = true;
+
+   sync_cout << "MAX_DESCENTS = " << MAX_DESCENTS << sync_endl;
 }
 
 

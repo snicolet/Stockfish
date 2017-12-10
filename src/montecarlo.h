@@ -78,6 +78,7 @@ public:
   void add_prior_to_node(Node node, Move m, Reward prior, int moveCount);
 
   // Tweaking the exploration algorithm
+  void default_parameters();
   void set_exploration_constant(double C);
   double get_exploration_constant();
 
@@ -110,10 +111,11 @@ private:
   // Flags and limits to tweak the algorithm
   // During the testing period, most of them are set in the MonteCarlo::test() function
   long   MAX_DESCENTS;
-  int    PRIOR_DEPTH;
   double UCB_EXPLORATION_CONSTANT;
   bool   UCB_USE_FATHER_VISITS;
   bool   UCB_LOSSES_AVOIDANCE;
+  int    PRIOR_DEPTH_NORMAL;
+  int    PRIOR_DEPTH_TACTICAL;
 
   // Some stacks to do/undo the moves: for compatibility with the alpha-beta search
   // implementation, we want to be able to reference from stack[-4] to stack[MAX_PLY+2].
