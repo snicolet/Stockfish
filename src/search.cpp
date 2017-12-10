@@ -834,8 +834,7 @@ moves_loop: // When in check search starts from here
           if (value < rBeta)
               extension = ONE_PLY;
       }
-      else if (    givesCheck
-               && !moveCountPruning)
+      else if (givesCheck)
           extension = ONE_PLY;
 
       // Calculate new depth for this move
