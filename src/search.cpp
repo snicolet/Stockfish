@@ -835,7 +835,7 @@ moves_loop: // When in check search starts from here
               extension = ONE_PLY;
       }
       else if (    givesCheck
-               &&  pos.see_ge(move))
+               && !moveCountPruning)
           extension = ONE_PLY;
 
       // Calculate new depth for this move
