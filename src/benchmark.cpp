@@ -31,15 +31,6 @@ namespace {
 
 const vector<string> Defaults = {
   "setoption name UCI_Chess960 value false",
-
-   // for testing the MonteCarlo algorithm
-  "setoption name UCI_Chess960 value true",
-  "bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1 moves g2g3 d7d5 d2d4 c8h3 c1g5 e8d6 g5e7 f7f6",
-  "setoption name UCI_Chess960 value false",
-  "1rb2rk1/pp2bpp1/2np1nqp/P1p1p3/2B1P3/1QPPB1N1/1P1N1PPP/RR4K1 b - - 21 11",
-  "1rb2rk1/pp2bpp1/2np1nqp/P1p1p3/2B1P3/1QPPB1N1/1P1N1PPP/R4RK1 w - - 20 11",
-
-  // normal bench of Stockfish continues here
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10",
   "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 11",
@@ -96,6 +87,16 @@ const vector<string> Defaults = {
   "setoption name UCI_Chess960 value false"
 };
 
+
+const vector<string> MonteCarlo = {
+  "setoption name UCI_Chess960 value false",
+
+  // For testing the MonteCarlo algorithm
+  // Two mate combinaisons
+  "6k1/3b3r/1p1p4/p1n2p2/1PPNpP1q/P3Q1p1/1R1RB1P1/5K2 b - - 0 1",
+  "r2r1n2/pp2bk2/2p1p2p/3q4/3PN1QP/2P3R1/P4PP1/5RK1 w - - 0 1",
+};
+
 } // namespace
 
 /// setup_bench() builds a list of UCI commands to be run by bench. There
@@ -129,6 +130,9 @@ vector<string> setup_bench(const Position& current, istream& is) {
 
   else if (fenFile == "current")
       fens.push_back(current.fen());
+
+  else if (fenFile == "montecarlo")
+      fens = MonteCarlo;
 
   else
   {

@@ -130,6 +130,7 @@ Move MonteCarlo::search() {
 
 /// MonteCarlo::MonteCarlo() is the constructor for the MonteCarlo class
 MonteCarlo::MonteCarlo(Position& p) : pos(p) {
+    default_parameters();
     create_root();
 }
 
@@ -172,6 +173,9 @@ void MonteCarlo::create_root() {
 bool MonteCarlo::computational_budget() {
     assert(is_root(current_node()));
 
+    if (pos.this_thread() == Threads.main())
+        static_cast<MainThread*>(pos.this_thread())->check_time();
+
     return    (descentCnt < MAX_DESCENTS)
            && !Threads.stop.load(std::memory_order_relaxed);
 }
@@ -199,11 +203,9 @@ Node MonteCarlo::tree_policy() {
 
         current_node()->lock.acquire();
 
-        // Add a virtual loss to this edge. This will help load balancing
-        // in the parallel MCTS.
-
         current_node()->node_visits++;
 
+        // Add a virtual loss to this edge (for load balancing in the parallel MCTS)
         edge->visits          = edge->visits + 1.0;
         edge->actionValue     = edge->actionValue;
         edge->meanActionValue = edge->actionValue / edge->visits;
@@ -254,7 +256,7 @@ Reward MonteCarlo::playout_policy(Node node) {
 
     generate_moves();
 
-    assert(current_node()->node_visits == 1);
+    assert(current_node()->node_visits >= 1);
     assert(current_node() == old);
 
     if (number_of_sons(node) == 0)
@@ -275,37 +277,6 @@ Reward MonteCarlo::playout_policy(Node node) {
     return get_list_of_children(current_node())[0].prior;
 }
 
-
-/// MonteCarlo::UCB() calculates the upper confidence bound formula for the son
-/// which we reach from node "node" by following the edge "edge".
-double MonteCarlo::UCB(Node node, Edge& edge) {
-
-    int fatherVisits = UCB_USE_FATHER_VISITS ? node->node_visits : 1;
-
-    assert(fatherVisits > 0);
-
-    double result = 0.0;
-
-    if (edge.visits)
-        result += edge.meanActionValue;
-
-    double C = get_exploration_constant();
-
-    if (UCB_LOSSES_AVOIDANCE)
-    {
-        double losses = edge.visits - edge.actionValue;
-        result += C * edge.prior * sqrt(fatherVisits) / (1 + losses);  // Mark Winands
-    }
-    else
-    {
-        double visits = edge.visits;
-        result += C * edge.prior * sqrt(fatherVisits) / (1 + visits);
-    }
-
-    return result;
-}
-
-
 /// MonteCarlo::backup() implements the strategy for accumulating rewards up the tree
 /// after a playout.
 void MonteCarlo::backup(Node node, Reward r) {
@@ -325,8 +296,6 @@ void MonteCarlo::backup(Node node, Reward r) {
 
        r = 1.0 - r;
 
-       // Update the statistics of the edge
-
        Edge* edge = edges[ply];
 
        debug << "stack[" << ply << "].currentMove = "
@@ -336,7 +305,11 @@ void MonteCarlo::backup(Node node, Reward r) {
 
        node->lock.acquire();
 
-       edge->visits          = edge->visits; // no need to increase visits because of virtual loss
+       // Compensate the virtual loss we had set in tree_policy()
+       edge->visits = edge->visits - 1.0;
+
+       // Update the statistics of the edge
+       edge->visits          = edge->visits + 1.0;
        edge->actionValue     = edge->actionValue + r;
        edge->meanActionValue = edge->actionValue / edge->visits;
 
@@ -456,7 +429,31 @@ void MonteCarlo::emit_principal_variation() {
             rootMoves.push_back(rm);
         }
 
+        // Extract from the tree the principal variation of the best move
+        Move move = rootMoves[0].pv[0];
+        int cnt = 0;
+        while (pos.legal(move))
+        {
+            cnt++;
+            do_move(move);
+
+            nodes[ply] = get_node(pos);
+
+            if (  is_terminal(current_node())
+               || number_of_sons(current_node()) <= 0
+               || current_node()->node_visits <= 0)
+               break;
+
+            move = best_child(current_node(), STAT_VISITS)->move;
+
+            if (pos.legal(move))
+                rootMoves[0].pv.push_back(move);
+        }
+        for (int k = 0; k < cnt ; k++)
+            undo_move();
+
         assert(int(rootMoves.size()) == number_of_sons(root));
+        assert(is_root(current_node()));
         debug << "Before calling UCI::pv()" << endl;
 
         pv = UCI::pv(pos, maximumPly * ONE_PLY, -VALUE_INFINITE, VALUE_INFINITE);
@@ -547,6 +544,7 @@ void MonteCarlo::undo_move() {
 void MonteCarlo::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
 
    assert(node->number_of_sons < MAX_CHILDREN);
+   assert(prior >= 0 && prior <= 1.0);
 
    int n = node->number_of_sons;
    if (n < MAX_CHILDREN)
@@ -591,51 +589,52 @@ void MonteCarlo::generate_moves() {
 
     current_node()->lock.acquire();
 
-    assert(current_node()->node_visits == 0);
+    if (current_node()->node_visits == 0)
+    {
+        Thread*  thread      = pos.this_thread();
+        Square   prevSq      = to_sq(stack[ply-1].currentMove);
+        Move     countermove = thread->counterMoves[pos.piece_on(prevSq)][prevSq];
+        Move     ttMove      = MOVE_NONE;  // FIXME
+        Move*    killers     = stack[ply].killers;
+        Depth    depth       = 30 * ONE_PLY;
 
-    Thread*  thread      = pos.this_thread();
-    Square   prevSq      = to_sq(stack[ply-1].currentMove);
-    Move     countermove = thread->counterMoves[pos.piece_on(prevSq)][prevSq];
-    Move     ttMove      = MOVE_NONE;  // FIXME
-    Move*    killers     = stack[ply].killers;
-    Depth    depth       = 30 * ONE_PLY;
+        const CapturePieceToHistory* cph   = &thread->captureHistory;
+        const ButterflyHistory* mh         = &thread->mainHistory;
+        const PieceToHistory*   contHist[] = { stack[ply-1].contHistory,
+                                               stack[ply-2].contHistory,
+                                               nullptr,
+                                               stack[ply-4].contHistory };
 
-    const CapturePieceToHistory* cph   = &thread->captureHistory;
-    const ButterflyHistory* mh         = &thread->mainHistory;
-    const PieceToHistory*   contHist[] = { stack[ply-1].contHistory,
-                                           stack[ply-2].contHistory,
-                                           nullptr,
-                                           stack[ply-4].contHistory };
+        MovePicker mp(pos, ttMove, depth, mh, cph, contHist, countermove, killers);
 
-    MovePicker mp(pos, ttMove, depth, mh, cph, contHist, countermove, killers);
+        Move move;
+        Reward prior;
+        int moveCount = 0;
 
-    Move move;
-    Reward prior;
-    int moveCount = 0;
+        // Generate the legal moves and calculate their priors
+        while ((move = mp.next_move()) != MOVE_NONE)
+            if (pos.legal(move))
+            {
+                stack[ply].moveCount = ++moveCount;
 
-    // Generate the legal moves and calculate their priors
-    while ((move = mp.next_move()) != MOVE_NONE)
-        if (pos.legal(move))
+                prior = calculate_prior(move, moveCount);
+
+                add_prior_to_node(current_node(), move, prior, moveCount);
+            }
+
+        // Sort the moves according to their prior value
+        int n = number_of_sons(current_node());
+        if (n > 0)
         {
-            stack[ply].moveCount = ++moveCount;
-
-            prior = calculate_prior(move, moveCount);
-
-            add_prior_to_node(current_node(), move, prior, moveCount);
+            Edge* children = get_list_of_children(current_node());
+            std::sort(children, children + n, ComparePrior);
         }
 
-    // Sort the moves according to their prior value
-    int n = number_of_sons(current_node());
-    if (n > 0)
-    {
-        Edge* children = get_list_of_children(current_node());
-        std::sort(children, children + n, ComparePrior);
+        // Indicate that we have just expanded the current node
+        Node s = current_node();
+        s->node_visits  = 1;
+        s->expandedSons = 0;
     }
-
-    // Indicate that we have just expanded the current node
-    Node s = current_node();
-    s->node_visits  = 1;
-    s->expandedSons = 0;
 
     current_node()->lock.release();
 
@@ -691,20 +690,25 @@ Reward MonteCarlo::calculate_prior(Move move, int n) {
 
     priorCnt++;
 
+    int depth = (   ply <= 2
+                 || pos.capture(move)
+                 || pos.gives_check(move)) ? PRIOR_SLOW_EVAL_DEPTH
+                                           : PRIOR_FAST_EVAL_DEPTH;
+
     do_move(move);
-    Reward prior = value_to_reward(-evaluate_with_minimax(PRIOR_DEPTH * ONE_PLY));
+    Reward prior = value_to_reward(-evaluate_with_minimax(depth * ONE_PLY));
     undo_move();
 
     return prior;
 }
 
 
-/// MonteCarlo::value_to_reward() transforms a Stockfish value to a reward in [0..1]
-/// We scale the logistic function such that a value of 600 (about three pawns)
-/// is given a probability of win of 0.75, and a value of -600 is given a probability
-/// of win of 0.25
+/// MonteCarlo::value_to_reward() transforms a Stockfish value to a reward in [0..1].
+/// We scale the logistic function such that a value of 600 (about three pawns) is
+/// given a probability of win of 0.95, and a value of -600 is given a probability
+/// of win of 0.05
 Reward MonteCarlo::value_to_reward(Value v) {
-    const double k = -0.00183102048111;
+    const double k = -0.00490739829861;
     double r = 1.0 / (1 + exp(k * int(v)));
 
     assert(REWARD_MATED <= r && r <= REWARD_MATE);
@@ -713,13 +717,13 @@ Reward MonteCarlo::value_to_reward(Value v) {
 
 
 /// MonteCarlo::reward_to_value() transforms a reward in [0..1] to a Stockfish value.
-/// The scale is such that a reward of 0.75 corresponds to 600 (about three pawns),
-/// and a reward of 0.25 corresponds to -600 (about minus three pawns).
+/// The scale is such that a reward of 0.95 corresponds to 600 (about three pawns),
+/// and a reward of 0.05 corresponds to -600 (about minus three pawns).
 Value MonteCarlo::reward_to_value(Reward r) {
     if (r > 0.99) return  VALUE_KNOWN_WIN;
     if (r < 0.01) return -VALUE_KNOWN_WIN;
 
-    const double g = 546.14353597715121;  //  this is 1 / k
+    const double g = 203.77396313709564;  //  this is 1 / k
     double v = g * log(r / (1.0 - r)) ;
     return Value(int(v));
 }
@@ -737,8 +741,8 @@ void MonteCarlo::set_exploration_constant(double C) {
 }
 
 
-/// MonteCarlo::get_exploration_constant() returns the exploration constant of the UCB formula
-double MonteCarlo::get_exploration_constant() {
+/// MonteCarlo::exploration_constant() returns the exploration constant of the UCB formula
+double MonteCarlo::exploration_constant() {
     return UCB_EXPLORATION_CONSTANT;
 }
 
@@ -784,18 +788,65 @@ void MonteCarlo::test() {
    debug << "Testing MonteCarlo for position..." << endl;
    debug << pos << endl;
 
-   MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 10000000;
-   PRIOR_DEPTH              = 7;
-   UCB_EXPLORATION_CONSTANT = 2.0;
-   UCB_USE_FATHER_VISITS    = false;
-   UCB_LOSSES_AVOIDANCE     = true;
-
-   sync_cout << "MAX_DESCENTS = " << MAX_DESCENTS << sync_endl;
-
    search();
 
    debug << "... end of MonteCarlo testing!" << endl;
    debug << "---------------------------------------------------------------------------------" << endl;
+}
+
+
+/// MonteCarlo::UCB() calculates the upper confidence bound formula for the son
+/// which we reach from node "node" by following the edge "edge".
+double MonteCarlo::UCB(Node node, Edge& edge) {
+
+    long fatherVisits = node->node_visits;
+    assert(fatherVisits > 0);
+
+    double result = 0.0;
+
+    if (edge.visits)
+        result += edge.meanActionValue;
+    else
+        result += 1000000.0;
+
+    double C = UCB_USE_FATHER_VISITS ? exploration_constant() * sqrt(fatherVisits)
+                                     : exploration_constant();
+
+    if (UCB_LOSSES_AVOIDANCE)
+    {
+        double losses = edge.visits - edge.actionValue;
+        double visits = edge.visits;
+        
+        //result +=  C * edge.prior / (1 + losses);  // Mark Winands
+        
+        result +=  C * edge.prior / (1 + (visits + losses)/2);  // SN
+    }
+    else
+    {
+        double visits = edge.visits;
+        result += C * edge.prior / (1 + visits);
+    }
+
+/*
+    double visits = edge.visits;
+    result += 2.0 * sqrt(log(fatherVisits) / (1 + visits));
+*/
+
+    return result;
+}
+
+
+/// MonteCarlo::default_parameters() set the default parameters for the MCTS search
+void MonteCarlo::default_parameters() {
+
+   MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 100000000000000;
+   PRIOR_FAST_EVAL_DEPTH    = 3;
+   PRIOR_SLOW_EVAL_DEPTH    = 8;
+   UCB_EXPLORATION_CONSTANT = 1.7;
+   UCB_USE_FATHER_VISITS    = true;
+   UCB_LOSSES_AVOIDANCE     = true;
+
+   sync_cout << "MAX_DESCENTS = " << MAX_DESCENTS << sync_endl;
 }
 
 
@@ -804,7 +855,8 @@ void MonteCarlo::test() {
 // 1. ttMove = MOVE_NONE in generate_moves() ?
 // 2. what to do with killers in create_root() ?
 // 3. why do we get losses on time with small prior depths ?
-// 4. should we set rm.score to -VALUE_INFINITE for moves >= 2 in emit_pv() ?
+// 4. should we set rm.score to -VALUE_INFINITE for moves >= 2 in emit_principal_variation() ?
+// 5. r1br2k1/1p3pp1/p5n1/2pnq1Np/P3p2P/1PN1Q3/2P1B1P1/R1K4R w - - 34 18
 
 
 

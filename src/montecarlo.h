@@ -78,8 +78,9 @@ public:
   void add_prior_to_node(Node node, Move m, Reward prior, int moveCount);
 
   // Tweaking the exploration algorithm
+  void default_parameters();
   void set_exploration_constant(double C);
-  double get_exploration_constant();
+  double exploration_constant();
 
   // Output of results
   bool should_output_result();
@@ -100,20 +101,20 @@ private:
   // Counters and statistics
   int             ply;
   int             maximumPly;
-  int             descentCnt;
-  int             playoutCnt;
-  int             doMoveCnt;
-  int             priorCnt;
+  long            descentCnt;
+  long            playoutCnt;
+  long            doMoveCnt;
+  long            priorCnt;
   TimePoint       startTime;
   TimePoint       lastOutputTime;
-  
+
   // Flags and limits to tweak the algorithm
-  // During the testing period, most of them are set in the MonteCarlo::test() function
-  int    MAX_DESCENTS;
-  int    PRIOR_DEPTH;
+  long   MAX_DESCENTS;
   double UCB_EXPLORATION_CONSTANT;
   bool   UCB_USE_FATHER_VISITS;
   bool   UCB_LOSSES_AVOIDANCE;
+  int    PRIOR_FAST_EVAL_DEPTH;
+  int    PRIOR_SLOW_EVAL_DEPTH;
 
   // Some stacks to do/undo the moves: for compatibility with the alpha-beta search
   // implementation, we want to be able to reference from stack[-4] to stack[MAX_PLY+2].
@@ -122,9 +123,6 @@ private:
   Search::Stack   stackBuffer [MAX_PLY+7],  *stack   = stackBuffer  + 4;
   StateInfo       statesBuffer[MAX_PLY+7],  *states  = statesBuffer + 4;
 };
-
-
-const int MAX_CHILDREN = 128;
 
 
 /// Edge struct stores the statistics of one edge between nodes in the Monte-Carlo tree
@@ -139,14 +137,15 @@ struct Edge {
 // Comparison functions for edges
 struct { bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }} ComparePrior;
 struct { bool operator()(Edge a, Edge b) const { return a.visits > b.visits; }} CompareVisits;
-struct { bool operator()(Edge a, Edge b) const { return a.meanActionValue > b.meanActionValue;}} 
+struct { bool operator()(Edge a, Edge b) const { return a.meanActionValue > b.meanActionValue;}}
    CompareMeanAction;
 
+
+const int MAX_CHILDREN = 128;
 
 /// NodeInfo struct stores information in a node of the Monte-Carlo tree
 struct NodeInfo {
 public:
-
   Move  last_move()      { return lastMove; }
   Edge* children_list()  { return &(children[0]); }
 
@@ -154,7 +153,7 @@ public:
   Spinlock lock;                        // A spin lock for parallelization
   Key      key1            = 0;         // Zobrist hash of all pieces, including pawns
   Key      key2            = 0;         // Zobrist hash of pawns
-  int      node_visits     = 0;         // number of visits by the Monte-Carlo algorithm
+  long     node_visits     = 0;         // number of visits by the Monte-Carlo algorithm
   int      number_of_sons  = 0;         // total number of legal moves
   int      expandedSons    = 0;         // number of sons expanded by the Monte-Carlo algorithm
   Move     lastMove        = MOVE_NONE; // the move between the parent and this node
@@ -164,6 +163,8 @@ public:
 
 // The Monte-Carlo tree is stored implicitly in one big hash table
 typedef std::unordered_multimap<Key, NodeInfo> MCTSHashTable;
+
+extern MCTSHashTable MCTS;
 
 
 #endif // #ifndef MONTECARLO_H_INCLUDED
