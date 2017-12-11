@@ -152,7 +152,7 @@ struct {
 
 struct { 
   bool operator()(Edge a, Edge b) const 
-      { return (0.1 * a.visits + a.prior > 0.1 * b.visits + b.prior); }
+      { return (10 * a.visits + a.prior > 10 * b.visits + b.prior); }
 } CompareRobustChoice;
 
 

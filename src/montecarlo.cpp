@@ -425,8 +425,8 @@ void MonteCarlo::emit_principal_variation() {
             Search::RootMove rm(list[k].move);
 
             rm.previousScore = reward_to_value(list[k].meanActionValue);
-            rm.score = rm.score;
-            rm.selDepth = maximumPly;
+            rm.score         = rm.previousScore;
+            rm.selDepth      = maximumPly;
 
             rootMoves.push_back(rm);
         }
