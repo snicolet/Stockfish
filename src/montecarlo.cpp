@@ -172,6 +172,9 @@ void MonteCarlo::create_root() {
 /// in the computational budget (time limit, or number of nodes, etc.)
 bool MonteCarlo::computational_budget() {
     assert(is_root(current_node()));
+    
+    if (pos.this_thread() == Threads.main())
+        static_cast<MainThread*>(pos.this_thread())->check_time();
 
     return    (descentCnt < MAX_DESCENTS)
            && !Threads.stop.load(std::memory_order_relaxed);
@@ -275,37 +278,6 @@ Reward MonteCarlo::playout_policy(Node node) {
 
     return get_list_of_children(current_node())[0].prior;
 }
-
-
-/// MonteCarlo::UCB() calculates the upper confidence bound formula for the son
-/// which we reach from node "node" by following the edge "edge".
-double MonteCarlo::UCB(Node node, Edge& edge) {
-
-    long fatherVisits = node->node_visits;
-    assert(fatherVisits > 0);
-
-    double result = 0.0;
-
-    if (edge.visits)
-        result += edge.meanActionValue;
-
-    double C = UCB_USE_FATHER_VISITS ? exploration_constant() * sqrt(fatherVisits)
-                                     : exploration_constant();
-       
-    if (UCB_LOSSES_AVOIDANCE)
-    {
-        double losses = edge.visits - edge.actionValue;
-        result +=  C * edge.prior / (1 + losses);  // Mark Winands
-    }
-    else
-    {
-        double visits = edge.visits;
-        result += C * edge.prior / (1 + visits);
-    }
-
-    return result;
-}
-
 
 /// MonteCarlo::backup() implements the strategy for accumulating rewards up the tree
 /// after a playout.
@@ -819,6 +791,39 @@ void MonteCarlo::test() {
 
    debug << "... end of MonteCarlo testing!" << endl;
    debug << "---------------------------------------------------------------------------------" << endl;
+}
+
+
+/// MonteCarlo::UCB() calculates the upper confidence bound formula for the son
+/// which we reach from node "node" by following the edge "edge".
+double MonteCarlo::UCB(Node node, Edge& edge) {
+
+    long fatherVisits = node->node_visits;
+    assert(fatherVisits > 0);
+
+    double result = 0.0;
+
+    if (edge.visits)
+        result += edge.meanActionValue;
+
+    double C = UCB_USE_FATHER_VISITS ? exploration_constant() * sqrt(fatherVisits)
+                                     : exploration_constant();
+       
+    if (UCB_LOSSES_AVOIDANCE)
+    {
+        double losses = edge.visits - edge.actionValue;
+        result +=  C * edge.prior / (1 + losses);  // Mark Winands
+    }
+    else
+    {
+        double visits = edge.visits;
+        result += C * edge.prior / (1 + visits);
+    }
+    
+    double visits = edge.visits;
+    result += 2.0 * sqrt(log(fatherVisits) / (1 + visits));
+
+    return result;
 }
 
 
