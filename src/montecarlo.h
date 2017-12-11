@@ -80,7 +80,7 @@ public:
   // Tweaking the exploration algorithm
   void default_parameters();
   void set_exploration_constant(double C);
-  double get_exploration_constant();
+  double exploration_constant();
 
   // Output of results
   bool should_output_result();

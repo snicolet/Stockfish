@@ -281,8 +281,7 @@ Reward MonteCarlo::playout_policy(Node node) {
 /// which we reach from node "node" by following the edge "edge".
 double MonteCarlo::UCB(Node node, Edge& edge) {
 
-    long fatherVisits = UCB_USE_FATHER_VISITS ? node->node_visits : 1;
-
+    long fatherVisits = node->node_visits;
     assert(fatherVisits > 0);
 
     double result = 0.0;
@@ -290,17 +289,18 @@ double MonteCarlo::UCB(Node node, Edge& edge) {
     if (edge.visits)
         result += edge.meanActionValue;
 
-    double C = get_exploration_constant();
-
+    double C = UCB_USE_FATHER_VISITS ? exploration_constant() * sqrt(fatherVisits)
+                                     : exploration_constant();
+       
     if (UCB_LOSSES_AVOIDANCE)
     {
         double losses = edge.visits - edge.actionValue;
-        result += C * edge.prior * sqrt(fatherVisits) / (1 + losses);  // Mark Winands
+        result +=  C * edge.prior / (1 + losses);  // Mark Winands
     }
     else
     {
         double visits = edge.visits;
-        result += C * edge.prior * sqrt(fatherVisits) / (1 + visits);
+        result += C * edge.prior / (1 + visits);
     }
 
     return result;
@@ -768,8 +768,8 @@ void MonteCarlo::set_exploration_constant(double C) {
 }
 
 
-/// MonteCarlo::get_exploration_constant() returns the exploration constant of the UCB formula
-double MonteCarlo::get_exploration_constant() {
+/// MonteCarlo::exploration_constant() returns the exploration constant of the UCB formula
+double MonteCarlo::exploration_constant() {
     return UCB_EXPLORATION_CONSTANT;
 }
 
