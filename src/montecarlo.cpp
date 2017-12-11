@@ -172,7 +172,7 @@ void MonteCarlo::create_root() {
 /// in the computational budget (time limit, or number of nodes, etc.)
 bool MonteCarlo::computational_budget() {
     assert(is_root(current_node()));
-    
+
     if (pos.this_thread() == Threads.main())
         static_cast<MainThread*>(pos.this_thread())->check_time();
 
@@ -203,11 +203,9 @@ Node MonteCarlo::tree_policy() {
 
         current_node()->lock.acquire();
 
-        // Add a virtual loss to this edge. This will help load balancing
-        // in the parallel MCTS.
-
         current_node()->node_visits++;
 
+        // Add a virtual loss to this edge (for load balancing in the parallel MCTS)
         edge->visits          = edge->visits + 1.0;
         edge->actionValue     = edge->actionValue;
         edge->meanActionValue = edge->actionValue / edge->visits;
@@ -298,8 +296,6 @@ void MonteCarlo::backup(Node node, Reward r) {
 
        r = 1.0 - r;
 
-       // Update the statistics of the edge
-
        Edge* edge = edges[ply];
 
        debug << "stack[" << ply << "].currentMove = "
@@ -309,7 +305,11 @@ void MonteCarlo::backup(Node node, Reward r) {
 
        node->lock.acquire();
 
-       edge->visits          = edge->visits; // no need to increase visits because of virtual loss
+       // Compensate the virtual loss we had set in tree_policy()
+       edge->visits = edge->visits - 1.0;
+
+       // Update the statistics of the edge
+       edge->visits          = edge->visits + 1.0;
        edge->actionValue     = edge->actionValue + r;
        edge->meanActionValue = edge->actionValue / edge->visits;
 
@@ -690,7 +690,7 @@ Reward MonteCarlo::calculate_prior(Move move, int n) {
     priorCnt++;
 
     int depth = (   ply <= 2
-                 || pos.capture(move) 
+                 || pos.capture(move)
                  || pos.gives_check(move)) ? PRIOR_SLOW_EVAL_DEPTH
                                            : PRIOR_FAST_EVAL_DEPTH;
 
@@ -808,7 +808,7 @@ double MonteCarlo::UCB(Node node, Edge& edge) {
 
     double C = UCB_USE_FATHER_VISITS ? exploration_constant() * sqrt(fatherVisits)
                                      : exploration_constant();
-       
+
     if (UCB_LOSSES_AVOIDANCE)
     {
         double losses = edge.visits - edge.actionValue;
@@ -819,9 +819,11 @@ double MonteCarlo::UCB(Node node, Edge& edge) {
         double visits = edge.visits;
         result += C * edge.prior / (1 + visits);
     }
-    
+
+/*
     double visits = edge.visits;
     result += 2.0 * sqrt(log(fatherVisits) / (1 + visits));
+*/
 
     return result;
 }
