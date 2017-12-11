@@ -628,9 +628,9 @@ void MonteCarlo::generate_moves() {
         const CapturePieceToHistory* cph   = &thread->captureHistory;
         const ButterflyHistory* mh         = &thread->mainHistory;
         const PieceToHistory*   contHist[] = { stack[ply-1].contHistory,
-                                           stack[ply-2].contHistory,
-                                           nullptr,
-                                           stack[ply-4].contHistory };
+                                               stack[ply-2].contHistory,
+                                               nullptr,
+                                               stack[ply-4].contHistory };
 
         MovePicker mp(pos, ttMove, depth, mh, cph, contHist, countermove, killers);
 
@@ -717,8 +717,10 @@ Reward MonteCarlo::calculate_prior(Move move, int n) {
 
     priorCnt++;
 
-    int depth = (pos.capture(move) || pos.gives_check(move)) ? PRIOR_DEPTH_TACTICAL
-                                                             : PRIOR_DEPTH_NORMAL;
+    int depth = (   ply <= 2
+                 || pos.capture(move) 
+                 || pos.gives_check(move)) ? PRIOR_SLOW_EVAL_DEPTH
+                                           : PRIOR_FAST_EVAL_DEPTH;
 
     do_move(move);
     Reward prior = value_to_reward(-evaluate_with_minimax(depth * ONE_PLY));
@@ -824,8 +826,8 @@ void MonteCarlo::test() {
 void MonteCarlo::default_parameters() {
 
    MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 100000000000000;
-   PRIOR_DEPTH_NORMAL       = 3;
-   PRIOR_DEPTH_TACTICAL     = 9;
+   PRIOR_FAST_EVAL_DEPTH    = 3;
+   PRIOR_SLOW_EVAL_DEPTH    = 8;
    UCB_EXPLORATION_CONSTANT = 0.7;
    UCB_USE_FATHER_VISITS    = true;
    UCB_LOSSES_AVOIDANCE     = true;

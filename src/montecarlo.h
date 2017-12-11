@@ -113,8 +113,8 @@ private:
   double UCB_EXPLORATION_CONSTANT;
   bool   UCB_USE_FATHER_VISITS;
   bool   UCB_LOSSES_AVOIDANCE;
-  int    PRIOR_DEPTH_NORMAL;
-  int    PRIOR_DEPTH_TACTICAL;
+  int    PRIOR_FAST_EVAL_DEPTH;
+  int    PRIOR_SLOW_EVAL_DEPTH;
 
   // Some stacks to do/undo the moves: for compatibility with the alpha-beta search
   // implementation, we want to be able to reference from stack[-4] to stack[MAX_PLY+2].
@@ -123,9 +123,6 @@ private:
   Search::Stack   stackBuffer [MAX_PLY+7],  *stack   = stackBuffer  + 4;
   StateInfo       statesBuffer[MAX_PLY+7],  *states  = statesBuffer + 4;
 };
-
-
-const int MAX_CHILDREN = 128;
 
 
 /// Edge struct stores the statistics of one edge between nodes in the Monte-Carlo tree
@@ -144,10 +141,11 @@ struct { bool operator()(Edge a, Edge b) const { return a.meanActionValue > b.me
    CompareMeanAction;
 
 
+const int MAX_CHILDREN = 128;
+
 /// NodeInfo struct stores information in a node of the Monte-Carlo tree
 struct NodeInfo {
 public:
-
   Move  last_move()      { return lastMove; }
   Edge* children_list()  { return &(children[0]); }
 
