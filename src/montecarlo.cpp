@@ -457,7 +457,31 @@ void MonteCarlo::emit_principal_variation() {
             rootMoves.push_back(rm);
         }
 
+        // Extract from the tree the principal variation of the best move
+        Move move = rootMoves[0].pv[0];
+        int cnt = 0;
+        while (pos.legal(move))
+        {
+            do_move(move);
+            cnt++;
+
+            nodes[ply] = get_node(pos);
+
+            if (  is_terminal(current_node())
+               || number_of_sons(current_node()) <= 0
+               || current_node()->node_visits <= 0)
+               break;
+
+            move = best_child(current_node(), STAT_VISITS)->move;
+
+            if (pos.legal(move))
+                rootMoves[0].pv.push_back(move);
+        }
+        for (int k = 0; k < cnt ; k++)
+            undo_move();
+
         assert(int(rootMoves.size()) == number_of_sons(root));
+        assert(is_root(current_node()));
         debug << "Before calling UCI::pv()" << endl;
 
         pv = UCI::pv(pos, maximumPly * ONE_PLY, -VALUE_INFINITE, VALUE_INFINITE);
@@ -815,7 +839,7 @@ void MonteCarlo::default_parameters() {
 // 1. ttMove = MOVE_NONE in generate_moves() ?
 // 2. what to do with killers in create_root() ?
 // 3. why do we get losses on time with small prior depths ?
-// 4. should we set rm.score to -VALUE_INFINITE for moves >= 2 in emit_pv() ?
+// 4. should we set rm.score to -VALUE_INFINITE for moves >= 2 in emit_principal_variation() ?
 
 
 
