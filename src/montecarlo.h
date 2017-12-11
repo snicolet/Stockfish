@@ -135,10 +135,25 @@ struct Edge {
 };
 
 // Comparison functions for edges
-struct { bool operator()(Edge a, Edge b) const { return a.prior > b.prior; }} ComparePrior;
-struct { bool operator()(Edge a, Edge b) const { return a.visits > b.visits; }} CompareVisits;
-struct { bool operator()(Edge a, Edge b) const { return a.meanActionValue > b.meanActionValue;}}
-   CompareMeanAction;
+struct { 
+  bool operator()(Edge a, Edge b) const 
+      { return a.prior > b.prior; }
+} ComparePrior;
+
+struct { 
+  bool operator()(Edge a, Edge b) const 
+      { return (a.visits > b.visits) || (a.visits == b.visits && a.prior > b.prior); }
+} CompareVisits;
+
+struct { 
+  bool operator()(Edge a, Edge b) const 
+      { return a.meanActionValue > b.meanActionValue;}
+} CompareMeanAction;
+
+struct { 
+  bool operator()(Edge a, Edge b) const 
+      { return (0.1 * a.visits + a.prior > 0.1 * b.visits + b.prior); }
+} CompareRobustChoice;
 
 
 const int MAX_CHILDREN = 128;

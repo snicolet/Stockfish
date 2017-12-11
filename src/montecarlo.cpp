@@ -117,9 +117,9 @@ Move MonteCarlo::search() {
        Node node = tree_policy();
        Reward reward = playout_policy(node);
        backup(node, reward);
+
        if (should_output_result())
            emit_principal_variation();
-
     }
 
     emit_principal_variation();
@@ -356,7 +356,7 @@ Edge* MonteCarlo::best_child(Node node, EdgeStatistic statistic) {
     }
 
     int best = -1;
-    double bestValue = -100000000.0;
+    double bestValue = -1000000000000.0;
     for (int k = 0 ; k < number_of_sons(node) ; k++)
     {
         double r = (  statistic == STAT_VISITS ? children[k].visits
@@ -411,7 +411,7 @@ void MonteCarlo::emit_principal_variation() {
     for (int k = 0; k < n; k++)
         list[k] = children[k];
 
-    std::sort(list, list + n, CompareVisits);
+    std::sort(list, list + n, CompareRobustChoice);
 
     // Clear the global list of moves for root (Search::RootMoves)
     Search::RootMoves& rootMoves = pos.this_thread()->rootMoves;
@@ -858,7 +858,7 @@ void MonteCarlo::default_parameters() {
 // 2. what to do with killers in create_root() ?
 // 3. why do we get losses on time with small prior depths ?
 // 4. should we set rm.score to -VALUE_INFINITE for moves >= 2 in emit_principal_variation() ?
-// 5. r1br2k1/1p3pp1/p5n1/2pnq1Np/P3p2P/1PN1Q3/2P1B1P1/R1K4R w - - 34 18
+// 5. r2qk2r/1p1b1pb1/4p2p/1p1p4/1n1P4/NQ3PP1/PP2N2P/R1B2RK1 b kq - 23 12
 
 
 
