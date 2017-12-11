@@ -704,12 +704,12 @@ Reward MonteCarlo::calculate_prior(Move move, int n) {
 }
 
 
-/// MonteCarlo::value_to_reward() transforms a Stockfish value to a reward in [0..1]
-/// We scale the logistic function such that a value of 600 (about three pawns)
-/// is given a probability of win of 0.75, and a value of -600 is given a probability
-/// of win of 0.25
+/// MonteCarlo::value_to_reward() transforms a Stockfish value to a reward in [0..1].
+/// We scale the logistic function such that a value of 600 (about three pawns) is
+/// given a probability of win of 0.95, and a value of -600 is given a probability
+/// of win of 0.05
 Reward MonteCarlo::value_to_reward(Value v) {
-    const double k = -0.00183102048111;
+    const double k = -0.00490739829861;
     double r = 1.0 / (1 + exp(k * int(v)));
 
     assert(REWARD_MATED <= r && r <= REWARD_MATE);
@@ -718,13 +718,13 @@ Reward MonteCarlo::value_to_reward(Value v) {
 
 
 /// MonteCarlo::reward_to_value() transforms a reward in [0..1] to a Stockfish value.
-/// The scale is such that a reward of 0.75 corresponds to 600 (about three pawns),
-/// and a reward of 0.25 corresponds to -600 (about minus three pawns).
+/// The scale is such that a reward of 0.95 corresponds to 600 (about three pawns),
+/// and a reward of 0.05 corresponds to -600 (about minus three pawns).
 Value MonteCarlo::reward_to_value(Reward r) {
     if (r > 0.99) return  VALUE_KNOWN_WIN;
     if (r < 0.01) return -VALUE_KNOWN_WIN;
 
-    const double g = 546.14353597715121;  //  this is 1 / k
+    const double g = 203.77396313709564;  //  this is 1 / k
     double v = g * log(r / (1.0 - r)) ;
     return Value(int(v));
 }
