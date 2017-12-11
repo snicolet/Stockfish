@@ -434,8 +434,8 @@ void MonteCarlo::emit_principal_variation() {
         int cnt = 0;
         while (pos.legal(move))
         {
-            do_move(move);
             cnt++;
+            do_move(move);
 
             nodes[ply] = get_node(pos);
 
@@ -544,6 +544,7 @@ void MonteCarlo::undo_move() {
 void MonteCarlo::add_prior_to_node(Node node, Move m, Reward prior, int moveCount) {
 
    assert(node->number_of_sons < MAX_CHILDREN);
+   assert(prior >= 0 && prior <= 1.0);
 
    int n = node->number_of_sons;
    if (n < MAX_CHILDREN)
@@ -805,6 +806,8 @@ double MonteCarlo::UCB(Node node, Edge& edge) {
 
     if (edge.visits)
         result += edge.meanActionValue;
+    else
+        result += 1000000.0;
 
     double C = UCB_USE_FATHER_VISITS ? exploration_constant() * sqrt(fatherVisits)
                                      : exploration_constant();
@@ -812,7 +815,11 @@ double MonteCarlo::UCB(Node node, Edge& edge) {
     if (UCB_LOSSES_AVOIDANCE)
     {
         double losses = edge.visits - edge.actionValue;
-        result +=  C * edge.prior / (1 + losses);  // Mark Winands
+        double visits = edge.visits;
+        
+        //result +=  C * edge.prior / (1 + losses);  // Mark Winands
+        
+        result +=  C * edge.prior / (1 + (visits + losses)/2);  // SN
     }
     else
     {
@@ -835,7 +842,7 @@ void MonteCarlo::default_parameters() {
    MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 100000000000000;
    PRIOR_FAST_EVAL_DEPTH    = 3;
    PRIOR_SLOW_EVAL_DEPTH    = 8;
-   UCB_EXPLORATION_CONSTANT = 0.7;
+   UCB_EXPLORATION_CONSTANT = 1.7;
    UCB_USE_FATHER_VISITS    = true;
    UCB_LOSSES_AVOIDANCE     = true;
 
@@ -849,6 +856,7 @@ void MonteCarlo::default_parameters() {
 // 2. what to do with killers in create_root() ?
 // 3. why do we get losses on time with small prior depths ?
 // 4. should we set rm.score to -VALUE_INFINITE for moves >= 2 in emit_principal_variation() ?
+// 5. r1br2k1/1p3pp1/p5n1/2pnq1Np/P3p2P/1PN1Q3/2P1B1P1/R1K4R w - - 34 18
 
 
 
