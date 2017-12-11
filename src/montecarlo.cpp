@@ -289,6 +289,8 @@ void MonteCarlo::backup(Node node, Reward r) {
 
    assert(node == current_node());
    assert(ply >= 1);
+   
+   double weight = 1.0;
 
    while (!is_root(current_node()))
    {
@@ -309,8 +311,8 @@ void MonteCarlo::backup(Node node, Reward r) {
        edge->visits = edge->visits - 1.0;
 
        // Update the statistics of the edge
-       edge->visits          = edge->visits + 1.0;
-       edge->actionValue     = edge->actionValue + r;
+       edge->visits          = edge->visits + weight;
+       edge->actionValue     = edge->actionValue + weight * r;
        edge->meanActionValue = edge->actionValue / edge->visits;
 
        node->lock.release();
