@@ -130,6 +130,7 @@ Move MonteCarlo::search() {
 
 /// MonteCarlo::MonteCarlo() is the constructor for the MonteCarlo class
 MonteCarlo::MonteCarlo(Position& p) : pos(p) {
+
     default_parameters();
     create_root();
 }
@@ -289,7 +290,7 @@ void MonteCarlo::backup(Node node, Reward r) {
 
    assert(node == current_node());
    assert(ply >= 1);
-   
+
    double weight = 1.0;
 
    while (!is_root(current_node()))
@@ -314,12 +315,13 @@ void MonteCarlo::backup(Node node, Reward r) {
        edge->visits          = edge->visits + weight;
        edge->actionValue     = edge->actionValue + weight * r;
        edge->meanActionValue = edge->actionValue / edge->visits;
-       
+
        assert(edge->meanActionValue >= 0.0);
        assert(edge->meanActionValue <= 1.0);
 
-       // Propagate the minimax value up the tree
-       r = best_child(current_node(), STAT_MEAN)->meanActionValue;
+       // Propagate the minimax value up the tree instead of the playout value ?
+       if (BACKUP_MINIMAX)
+          r = best_child(current_node(), STAT_MEAN)->meanActionValue;
 
        current_node()->lock.release();
 
@@ -755,6 +757,25 @@ double MonteCarlo::exploration_constant() {
     return UCB_EXPLORATION_CONSTANT;
 }
 
+/// MonteCarlo::params() returns a debug string with the current Monte Carlo parameters.
+/// Note: to see it in a terminal, type "./stockfish" then "params".
+std::string MonteCarlo::params() {
+    stringstream s;
+
+    s << "\nMAX_DESCENTS = "           << MAX_DESCENTS             << endl;
+    s << "BACKUP_MINIMAX = "           << BACKUP_MINIMAX           << endl;
+    s << "PRIOR_FAST_EVAL_DEPTH = "    << PRIOR_FAST_EVAL_DEPTH    << endl;
+    s << "PRIOR_SLOW_EVAL_DEPTH = "    << PRIOR_SLOW_EVAL_DEPTH    << endl;
+    s << "UCB_UNEXPANDED_NODE = "      << UCB_UNEXPANDED_NODE      << endl;
+    s << "UCB_EXPLORATION_CONSTANT = " << UCB_EXPLORATION_CONSTANT << endl;
+    s << "UCB_LOSSES_AVOIDANCE = "     << UCB_LOSSES_AVOIDANCE     << endl;
+    s << "UCB_LOG_TERM_FACTOR = "      << UCB_LOG_TERM_FACTOR      << endl;
+    s << "UCB_USE_FATHER_VISITS = "    << UCB_USE_FATHER_VISITS    << endl;
+
+    return s.str();
+}
+
+
 /// MonteCarlo::debug_tree_stats()
 void MonteCarlo::debug_tree_stats() {
    debug << "ply        = " << ply             << endl;
@@ -816,30 +837,18 @@ double MonteCarlo::UCB(Node node, Edge& edge) {
     if (edge.visits)
         result += edge.meanActionValue;
     else
-        result += 1000000.0;
+        result += UCB_UNEXPANDED_NODE;
 
     double C = UCB_USE_FATHER_VISITS ? exploration_constant() * sqrt(fatherVisits)
                                      : exploration_constant();
 
-    if (UCB_LOSSES_AVOIDANCE)
-    {
-        double losses = edge.visits - edge.actionValue;
-        double visits = edge.visits;
-        
-        //result +=  C * edge.prior / (1 + losses);  // Mark Winands
-        
-        result +=  C * edge.prior / (1 + (visits + losses)/2);  // SN
-    }
-    else
-    {
-        double visits = edge.visits;
-        result += C * edge.prior / (1 + visits);
-    }
-
-/*
+    double losses = edge.visits - edge.actionValue;
     double visits = edge.visits;
-    result += 2.0 * sqrt(log(fatherVisits) / (1 + visits));
-*/
+
+    double divisor = losses * UCB_LOSSES_AVOIDANCE + visits * (1.0 - UCB_LOSSES_AVOIDANCE);
+    result += C * edge.prior / (1 + divisor);
+
+    result += UCB_LOG_TERM_FACTOR * sqrt(log(fatherVisits) / (1 + visits));
 
     return result;
 }
@@ -849,13 +858,14 @@ double MonteCarlo::UCB(Node node, Edge& edge) {
 void MonteCarlo::default_parameters() {
 
    MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 100000000000000;
+   BACKUP_MINIMAX           = true;
    PRIOR_FAST_EVAL_DEPTH    = 3;
    PRIOR_SLOW_EVAL_DEPTH    = 8;
+   UCB_UNEXPANDED_NODE      = 100000000.0;
    UCB_EXPLORATION_CONSTANT = 0.7;
+   UCB_LOSSES_AVOIDANCE     = 0.5;
+   UCB_LOG_TERM_FACTOR      = 0.0;
    UCB_USE_FATHER_VISITS    = true;
-   UCB_LOSSES_AVOIDANCE     = true;
-
-   sync_cout << "MAX_DESCENTS = " << MAX_DESCENTS << sync_endl;
 }
 
 

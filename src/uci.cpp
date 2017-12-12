@@ -24,6 +24,7 @@
 #include <string>
 
 #include "evaluate.h"
+#include "montecarlo.h"
 #include "movegen.h"
 #include "position.h"
 #include "search.h"
@@ -237,6 +238,7 @@ void UCI::loop(int argc, char* argv[]) {
       else if (token == "bench") bench(pos, is, states);
       else if (token == "d")     sync_cout << pos << sync_endl;
       else if (token == "eval")  sync_cout << Eval::trace(pos) << sync_endl;
+      else if (token == "params")sync_cout << MonteCarlo(pos).params() << sync_endl;
       else
           sync_cout << "Unknown command: " << cmd << sync_endl;
 

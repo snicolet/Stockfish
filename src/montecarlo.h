@@ -87,6 +87,7 @@ public:
   void emit_principal_variation();
 
   // Testing and debugging
+  std::string params();
   void debug_node(Node node);
   void debug_edge(Edge edge);
   void debug_tree_stats();
@@ -110,9 +111,12 @@ private:
 
   // Flags and limits to tweak the algorithm
   long   MAX_DESCENTS;
+  bool   BACKUP_MINIMAX;
+  double UCB_UNEXPANDED_NODE;
   double UCB_EXPLORATION_CONSTANT;
+  double UCB_LOSSES_AVOIDANCE;
+  double UCB_LOG_TERM_FACTOR;
   bool   UCB_USE_FATHER_VISITS;
-  bool   UCB_LOSSES_AVOIDANCE;
   int    PRIOR_FAST_EVAL_DEPTH;
   int    PRIOR_SLOW_EVAL_DEPTH;
 
@@ -135,23 +139,23 @@ struct Edge {
 };
 
 // Comparison functions for edges
-struct { 
-  bool operator()(Edge a, Edge b) const 
+struct {
+  bool operator()(Edge a, Edge b) const
       { return a.prior > b.prior; }
 } ComparePrior;
 
-struct { 
-  bool operator()(Edge a, Edge b) const 
+struct {
+  bool operator()(Edge a, Edge b) const
       { return (a.visits > b.visits) || (a.visits == b.visits && a.prior > b.prior); }
 } CompareVisits;
 
-struct { 
-  bool operator()(Edge a, Edge b) const 
+struct {
+  bool operator()(Edge a, Edge b) const
       { return a.meanActionValue > b.meanActionValue;}
 } CompareMeanAction;
 
-struct { 
-  bool operator()(Edge a, Edge b) const 
+struct {
+  bool operator()(Edge a, Edge b) const
       { return (10 * a.visits + a.prior > 10 * b.visits + b.prior); }
 } CompareRobustChoice;
 
