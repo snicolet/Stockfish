@@ -851,7 +851,7 @@ void MonteCarlo::default_parameters() {
    MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 100000000000000;
    PRIOR_FAST_EVAL_DEPTH    = 3;
    PRIOR_SLOW_EVAL_DEPTH    = 8;
-   UCB_EXPLORATION_CONSTANT = 1.4;
+   UCB_EXPLORATION_CONSTANT = 0.7;
    UCB_USE_FATHER_VISITS    = true;
    UCB_LOSSES_AVOIDANCE     = true;
 
