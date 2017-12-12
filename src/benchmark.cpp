@@ -94,6 +94,7 @@ const vector<string> MonteCarlo = {
   // For testing the MonteCarlo algorithm
 
   // Some tactical blunders
+  "4rrk1/1p1nq3/p7/2p1P1pp/3P2bp/3Q1Bn1/PPPB4/1K2R1NR w - - 40 21", // not e6??, but rather Rh2!
   "r2qk2r/1p1b1pb1/4p2p/1p1p4/1n1P4/NQ3PP1/PP2N2P/R1B2RK1 b kq - 23 12",  // not ...Rxa3??
 
   // Two mate combinaisons
