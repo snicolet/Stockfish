@@ -39,7 +39,7 @@ struct Edge;
 typedef double Reward;
 typedef NodeInfo* Node;
 
-enum EdgeStatistic {STAT_UCB, STAT_VISITS};
+enum EdgeStatistic {STAT_UCB, STAT_VISITS, STAT_MEAN};
 
 class MonteCarlo {
 public:

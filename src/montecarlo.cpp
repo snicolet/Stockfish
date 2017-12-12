@@ -305,7 +305,7 @@ void MonteCarlo::backup(Node node, Reward r) {
              << std::endl;
        debug_edge(*edge);
 
-       node->lock.acquire();
+       current_node()->lock.acquire();
 
        // Compensate the virtual loss we had set in tree_policy()
        edge->visits = edge->visits - 1.0;
@@ -317,8 +317,11 @@ void MonteCarlo::backup(Node node, Reward r) {
        
        assert(edge->meanActionValue >= 0.0);
        assert(edge->meanActionValue <= 1.0);
+       
+       //r = (r + best_child(current_node(), STAT_MEAN)->meanActionValue) / 2;
+       r = best_child(current_node(), STAT_MEAN)->meanActionValue;
 
-       node->lock.release();
+       current_node()->lock.release();
 
        debug_edge(*edge);
 
@@ -363,6 +366,7 @@ Edge* MonteCarlo::best_child(Node node, EdgeStatistic statistic) {
     for (int k = 0 ; k < number_of_sons(node) ; k++)
     {
         double r = (  statistic == STAT_VISITS ? children[k].visits
+                    : statistic == STAT_MEAN   ? children[k].meanActionValue
                     : statistic == STAT_UCB    ? UCB(node, children[k])
                                                : 0.0                  );
 
