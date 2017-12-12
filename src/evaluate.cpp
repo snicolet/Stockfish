@@ -241,6 +241,7 @@ namespace {
   const int RookSafeCheck   = 880;
   const int BishopSafeCheck = 435;
   const int KnightSafeCheck = 790;
+  const int UnsafeCheck     = 143;
 
   // Threshold for lazy and space evaluation
   const Value LazyThreshold  = Value(1500);
@@ -428,7 +429,7 @@ namespace {
                                         : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard weak, b, b1, b2, safe, unsafeChecks;
+    Bitboard weak, b, b1, b2, safe, unsafe;
     int kingDanger;
 
     // King shelter and enemy pawns storm
@@ -442,11 +443,16 @@ namespace {
               & ~attackedBy2[Us]
               & (attackedBy[Us][KING] | attackedBy[Us][QUEEN] | ~attackedBy[Us][ALL_PIECES]);
 
-        kingDanger = unsafeChecks = 0;
+        kingDanger = 0;
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
+
+        // Unsafe or occupied checking squares will also be considered, as long as
+        // the square is not defended by our pawns or occupied by a blocked pawn.
+        unsafe = ~(   attackedBy[Us][PAWN]
+                   | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
 
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
@@ -455,37 +461,28 @@ namespace {
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
             kingDanger += QueenSafeCheck;
 
-        b1 &= attackedBy[Them][ROOK];
-        b2 &= attackedBy[Them][BISHOP];
-
         // Enemy rooks checks
-        if (b1 & safe)
-            kingDanger += RookSafeCheck;
-        else
-            unsafeChecks |= b1;
+        b = b1 & attackedBy[Them][ROOK];
+        if (b)
+            kingDanger += (b & safe)   ? RookSafeCheck :
+                          (b & unsafe) ? UnsafeCheck   : 0;
 
         // Enemy bishops checks
-        if (b2 & safe)
-            kingDanger += BishopSafeCheck;
-        else
-            unsafeChecks |= b2;
+        b = b2 & attackedBy[Them][BISHOP];
+        if (b)
+            kingDanger += (b & safe)   ? BishopSafeCheck :
+                          (b & unsafe) ? UnsafeCheck     : 0;
 
         // Enemy knights checks
         b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
-        if (b & safe)
-            kingDanger += KnightSafeCheck;
-        else
-            unsafeChecks |= b;
-
-        // Unsafe or occupied checking squares will also be considered, as long as
-        // the square is not defended by our pawns or occupied by a blocked pawn.
-        unsafeChecks &= ~(   attackedBy[Us][PAWN]
-                          | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
+        if (b)
+            kingDanger += (b & safe)   ? KnightSafeCheck :
+                          (b & unsafe) ? UnsafeCheck     : 0;
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      + 102 * kingAdjacentZoneAttacksCount[Them]
                      + 191 * popcount(kingRing[Us] & weak)
-                     + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
+                     + 143 * popcount(pos.pinned_pieces(Us))
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
                      +  40;
