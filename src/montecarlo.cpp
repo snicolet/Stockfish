@@ -314,6 +314,9 @@ void MonteCarlo::backup(Node node, Reward r) {
        edge->visits          = edge->visits + weight;
        edge->actionValue     = edge->actionValue + weight * r;
        edge->meanActionValue = edge->actionValue / edge->visits;
+       
+       assert(edge->meanActionValue >= 0.0);
+       assert(edge->meanActionValue <= 1.0);
 
        node->lock.release();
 
