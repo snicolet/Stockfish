@@ -455,9 +455,9 @@ namespace {
         checkingSquares |= ~(   attackedBy[Us][PAWN]
                              | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN))));
 
-        b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN)) & checkingSquares;
-        b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN)) & checkingSquares;
-        b3 = pos.attacks_from<KNIGHT>(ksq) & checkingSquares;
+        b1 = checkingSquares & attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
+        b2 = checkingSquares & attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
+        b3 = checkingSquares & pos.attacks_from<KNIGHT>(ksq);
 
         // Enemy queen safe checks
         b = (b1 | b2) & attackedBy[Them][QUEEN] & ~attackedBy[Us][QUEEN];
