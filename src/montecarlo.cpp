@@ -317,8 +317,8 @@ void MonteCarlo::backup(Node node, Reward r) {
        
        assert(edge->meanActionValue >= 0.0);
        assert(edge->meanActionValue <= 1.0);
-       
-       //r = (r + best_child(current_node(), STAT_MEAN)->meanActionValue) / 2;
+
+       // Propagate the minimax value up the tree
        r = best_child(current_node(), STAT_MEAN)->meanActionValue;
 
        current_node()->lock.release();
