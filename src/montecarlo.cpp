@@ -477,6 +477,8 @@ void MonteCarlo::emit_principal_variation() {
     }
 
     // Emit the principal variation!
+    if (Search::Limits.depth)
+        sync_cout << "info descents " << descentCnt << sync_endl;
     sync_cout << pv << sync_endl;
 
     lastOutputTime = now();
@@ -859,8 +861,8 @@ void MonteCarlo::default_parameters() {
 
    MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 100000000000000;
    BACKUP_MINIMAX           = true;
-   PRIOR_FAST_EVAL_DEPTH    = 3;
-   PRIOR_SLOW_EVAL_DEPTH    = 8;
+   PRIOR_FAST_EVAL_DEPTH    = 1;
+   PRIOR_SLOW_EVAL_DEPTH    = 1;
    UCB_UNEXPANDED_NODE      = 100000000.0;
    UCB_EXPLORATION_CONSTANT = 2.0;
    UCB_LOSSES_AVOIDANCE     = 1.0;
