@@ -241,7 +241,7 @@ namespace {
   const int RookSafeCheck   = 880;
   const int BishopSafeCheck = 435;
   const int KnightSafeCheck = 790;
-  const int UnsafeCheck     = 135;
+  const int UnsafeCheck     = 150;
 
   // Threshold for lazy and space evaluation
   const Value LazyThreshold  = Value(1500);
