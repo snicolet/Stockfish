@@ -46,6 +46,7 @@
 //     https://dke.maastrichtuniversity.nl/m.winands/publications.html
 //     https://www.ru.is/faculty/yngvi/pdf/WinandsB11a.pdf
 //     http://cassio.free.fr/pdf/alphago-zero-nature.pdf
+//     https://arxiv.org/abs/1712.01815
 
 
 using namespace std;
