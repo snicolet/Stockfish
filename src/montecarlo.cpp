@@ -319,9 +319,10 @@ void MonteCarlo::backup(Node node, Reward r) {
        assert(edge->meanActionValue >= 0.0);
        assert(edge->meanActionValue <= 1.0);
 
+       double minimax = best_child(current_node(), STAT_MEAN)->meanActionValue;
+
        // Propagate the minimax value up the tree instead of the playout value ?
-       if (BACKUP_MINIMAX)
-          r = best_child(current_node(), STAT_MEAN)->meanActionValue;
+       r = r * (1.0 - BACKUP_MINIMAX) + minimax * BACKUP_MINIMAX;
 
        current_node()->lock.release();
 
@@ -860,7 +861,7 @@ double MonteCarlo::UCB(Node node, Edge& edge) {
 void MonteCarlo::default_parameters() {
 
    MAX_DESCENTS             = Search::Limits.depth ? Search::Limits.depth : 100000000000000;
-   BACKUP_MINIMAX           = true;
+   BACKUP_MINIMAX           = 1.0;
    PRIOR_FAST_EVAL_DEPTH    = 1;
    PRIOR_SLOW_EVAL_DEPTH    = 1;
    UCB_UNEXPANDED_NODE      = 100000000.0;

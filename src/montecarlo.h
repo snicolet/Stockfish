@@ -111,7 +111,7 @@ private:
 
   // Flags and limits to tweak the algorithm
   long   MAX_DESCENTS;
-  bool   BACKUP_MINIMAX;
+  double BACKUP_MINIMAX;
   double UCB_UNEXPANDED_NODE;
   double UCB_EXPLORATION_CONSTANT;
   double UCB_LOSSES_AVOIDANCE;
