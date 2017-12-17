@@ -865,7 +865,7 @@ void MonteCarlo::default_parameters() {
    BACKUP_MINIMAX           = 1.0;
    PRIOR_FAST_EVAL_DEPTH    = 1;
    PRIOR_SLOW_EVAL_DEPTH    = 1;
-   UCB_UNEXPANDED_NODE      = 100000000.0;
+   UCB_UNEXPANDED_NODE      = 0.5;
    UCB_EXPLORATION_CONSTANT = 2.0;
    UCB_LOSSES_AVOIDANCE     = 1.0;
    UCB_LOG_TERM_FACTOR      = 0.0;
