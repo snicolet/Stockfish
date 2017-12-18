@@ -866,7 +866,7 @@ void MonteCarlo::default_parameters() {
    PRIOR_FAST_EVAL_DEPTH    = 1;
    PRIOR_SLOW_EVAL_DEPTH    = 1;
    UCB_UNEXPANDED_NODE      = 0.5;
-   UCB_EXPLORATION_CONSTANT = 0.2;
+   UCB_EXPLORATION_CONSTANT = 0.7;
    UCB_LOSSES_AVOIDANCE     = 1.0;
    UCB_LOG_TERM_FACTOR      = 0.0;
    UCB_USE_FATHER_VISITS    = true;
