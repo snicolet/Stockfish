@@ -110,15 +110,15 @@ private:
   TimePoint       lastOutputTime;
 
   // Flags and limits to tweak the algorithm
-  long   MAX_DESCENTS;
-  double BACKUP_MINIMAX;
-  double UCB_UNEXPANDED_NODE;
-  double UCB_EXPLORATION_CONSTANT;
-  double UCB_LOSSES_AVOIDANCE;
-  double UCB_LOG_TERM_FACTOR;
-  bool   UCB_USE_FATHER_VISITS;
-  int    PRIOR_FAST_EVAL_DEPTH;
-  int    PRIOR_SLOW_EVAL_DEPTH;
+  long            MAX_DESCENTS;
+  double          BACKUP_MINIMAX;
+  double          UCB_UNEXPANDED_NODE;
+  double          UCB_EXPLORATION_CONSTANT;
+  double          UCB_LOSSES_AVOIDANCE;
+  double          UCB_LOG_TERM_FACTOR;
+  bool            UCB_USE_FATHER_VISITS;
+  int             PRIOR_FAST_EVAL_DEPTH;
+  int             PRIOR_SLOW_EVAL_DEPTH;
 
   // Some stacks to do/undo the moves: for compatibility with the alpha-beta search
   // implementation, we want to be able to reference from stack[-4] to stack[MAX_PLY+2].
