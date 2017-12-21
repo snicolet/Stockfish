@@ -176,6 +176,7 @@ void Search::clear() {
 
   Time.availableNodes = 0;
   TT.clear();
+  // sync_cout << MCTS.size() << sync_endl;
   MCTS.clear();
 
   for (Thread* th : Threads)
