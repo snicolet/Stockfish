@@ -209,7 +209,7 @@ namespace {
   };
 
   // KingProtector[PieceType-2] contains a bonus according to distance from king
-  const Score KingProtector[] = { S(-8, -10), S(-5, -4), S(-8, 0), S(-2, 1) };
+  const Score KingProtector[] = { S(-12, -14), S(-5, -4), S(-5, 0), S(-2, 1) };
 
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn       = S( 16,  0);
