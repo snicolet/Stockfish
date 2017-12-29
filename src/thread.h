@@ -103,6 +103,7 @@ struct ThreadPool : public std::vector<Thread*> {
   MainThread* main()        const { return static_cast<MainThread*>(front()); }
   uint64_t nodes_searched() const { return accumulate(&Thread::nodes); }
   uint64_t tb_hits()        const { return accumulate(&Thread::tbHits); }
+  Depth lowest_depth();
 
   std::atomic_bool stop, ponder, stopOnPonderhit;
 

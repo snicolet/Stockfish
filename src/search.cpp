@@ -307,6 +307,10 @@ void Thread::search() {
       multiPV = std::max(multiPV, (size_t)4);
 
   multiPV = std::min(multiPV, rootMoves.size());
+  
+  // UCI options specify 500 as the max MultiPv option
+  int consecutiveEarlyExits[501] = {0};
+  int consecutiveFailHighs = 0;
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   (rootDepth += ONE_PLY) < DEPTH_MAX
@@ -335,6 +339,9 @@ void Thread::search() {
       {
           // Reset UCI info selDepth for each depth and each PV line
           selDepth = 0;
+          
+          // Reset the number of consecutive fail highs for this depth and PVIdx
+          consecutiveFailHighs = 0;
 
           // Reset aspiration window starting size
           if (rootDepth >= 5 * ONE_PLY)
@@ -386,10 +393,21 @@ void Thread::search() {
                       Threads.stopOnPonderhit = false;
                   }
               }
-              else if (bestValue >= beta)
+              
+              else if (   bestValue >= beta 
+                       && (   rootDepth != Threads.lowest_depth()
+                           || lastBestMove != rootMoves[0].pv[0]
+                           || consecutiveFailHighs < consecutiveEarlyExits[PVIdx]))
+              {
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
+                  consecutiveFailHighs++;
+              }
+              
               else
+              {
+                  consecutiveEarlyExits[PVIdx] = (bestValue >= beta) ? consecutiveEarlyExits[PVIdx] + 1 : 0;
                   break;
+              }
 
               delta += delta / 4 + 5;
 
@@ -453,7 +471,7 @@ void Thread::search() {
               unstablePvFactor *=  std::pow(mainThread->previousTimeReduction, 0.51) / timeReduction;
 
               if (   rootMoves.size() == 1
-                  || Time.elapsed() > Time.optimum() * unstablePvFactor * improvingFactor / 628)
+                  || Time.elapsed() > Time.optimum() * unstablePvFactor * improvingFactor / 600)
               {
                   // If we are allowed to ponder do not stop the search now but
                   // keep pondering until the GUI sends "ponderhit" or "stop".

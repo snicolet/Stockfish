@@ -199,3 +199,12 @@ void ThreadPool::start_thinking(Position& pos, StateListPtr& states,
 
   main()->start_searching();
 }
+
+/// ThreadPool::lowest_depth() returns the minimal depth among the threads
+
+Depth ThreadPool::lowest_depth() {
+    Depth lowest = DEPTH_MAX;
+    for (Thread* th: *this)
+        lowest = std::min(lowest, th->rootDepth);
+    return lowest;
+  } 
