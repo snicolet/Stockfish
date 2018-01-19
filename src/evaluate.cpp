@@ -212,7 +212,7 @@ namespace {
   const Score KingProtector[] = { S(-3, -5), S(-4, -3), S(-3, 0), S(-1, 1) };
 
   // Assorted bonuses and penalties used by evaluation
-  const Score MinorProtectedByPawn  = S( 10,  5);
+  const Score MinorProtectedByPawn  = S(  5, 10);
   const Score MinorBehindPawn       = S( 16,  0);
   const Score BishopPawns           = S(  8, 12);
   const Score LongRangedBishop      = S( 22,  0);
