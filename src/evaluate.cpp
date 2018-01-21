@@ -359,6 +359,11 @@ namespace {
                 // Penalty for pawns on the same color square as the bishop
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
 
+                // Double the penalty if opponent has the same colored bishop
+                Bitboard colorSquares = DarkSquares & s ? DarkSquares : ~DarkSquares;
+                if (colorSquares & pos.pieces(Them, BISHOP))
+                    score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
+
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(Center & (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) | s)))
                     score += LongRangedBishop;
