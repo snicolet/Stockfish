@@ -214,6 +214,7 @@ namespace {
   // Assorted bonuses and penalties used by evaluation
   const Score MinorBehindPawn       = S( 16,  0);
   const Score BishopPawns           = S(  8, 12);
+  const Score PairedBishopPawns     = S(  4,  6);
   const Score LongRangedBishop      = S( 22,  0);
   const Score RookOnPawn            = S(  8, 24);
   const Score TrappedRook           = S( 92,  0);
@@ -359,12 +360,13 @@ namespace {
                 // Penalty for pawns on the same color square as the bishop
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
 
-                // Double the penalty if opponent has the same colored bishop
+                // Increase the penalty if we still have the bishop pair and the
+                // opponent has the same colored bishop.
                 if (pos.count<BISHOP>(Us) >= 2)
                 {
                     Bitboard colorSquares = DarkSquares & s ? DarkSquares : ~DarkSquares;
-                    if ((colorSquares & pos.pieces(Them, BISHOP)))
-                        score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
+                    if (colorSquares & pos.pieces(Them, BISHOP))
+                        score -= PairedBishopPawns * pe->pawns_on_same_color_squares(Us, s);
                 }
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
