@@ -363,7 +363,7 @@ namespace {
                 if (pos.count<BISHOP>(Us) >= 2)
                 {
                     Bitboard colorSquares = DarkSquares & s ? DarkSquares : ~DarkSquares;
-                    if (colorSquares & pos.pieces(Them, BISHOP))
+                    if ((colorSquares & pos.pieces(Them, BISHOP)))
                         score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s);
                 }
 
