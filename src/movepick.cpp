@@ -237,68 +237,6 @@ void MovePicker::generate_next_stage() {
   }
 }
 
-// 
-// template<Stages oldStage>
-// void MovePicker::generate_next_stage()
-// {
-//   assert(oldStage != STOP);
-//   assert(int(stage) == int(oldStage));
-//   
-//   constexpr Stages newStage = Stages(oldStage + 1);
-//   
-//   cur = moves;
-//   ++stage;
-//   
-//   if (newStage == GOOD_CAPTURES     || newStage == QCAPTURES_1 || newStage == QCAPTURES_2 ||
-//       newStage ==  PROBCUT_CAPTURES || newStage == RECAPTURES)
-//   {
-//       endMoves = generate<CAPTURES>(pos, moves);
-//       score<CAPTURES>();
-//   }
-// 
-//   else if (newStage == KILLERS)
-//   {
-//       killers[0] = ss->killers[0];
-//       killers[1] = ss->killers[1];
-//       killers[2] = countermove;
-//       cur = killers;
-//       endMoves = cur + 2 + (countermove != killers[0] && countermove != killers[1]);
-//   }
-// 
-//   else if (newStage == QUIET)
-//   {
-//       endMoves = generate<QUIETS>(pos, moves);
-//       score<QUIETS>();
-//       if (depth < 3 * ONE_PLY)
-//       {
-//           ExtMove* goodQuiet = std::partition(cur, endMoves, [](const ExtMove& m)
-//                                              { return m.value > VALUE_ZERO; });
-//           insertion_sort(cur, goodQuiet);
-//       } else
-//           insertion_sort(cur, endMoves);
-//   }
-// 
-//   else if (newStage == BAD_CAPTURES)
-//   {
-//       // Just pick them in reverse order to get correct ordering
-//       cur = moves + MAX_MOVES - 1;
-//       endMoves = endBadCaptures;
-//   }
-// 
-//   else if (newStage == ALL_EVASIONS)
-//   {
-//       endMoves = generate<EVASIONS>(pos, moves);
-//       if (endMoves - moves > 1)
-//           score<EVASIONS>();
-//   }
-// 
-//   else if (newStage == CHECKS)
-//       endMoves = generate<QUIET_CHECKS>(pos, moves);
-// 
-//   else if (newStage == EVASION || newStage == QSEARCH_WITH_CHECKS || newStage == QSEARCH_WITHOUT_CHECKS ||
-//       newStage == PROBCUT || newStage == RECAPTURE)
-//       stage = STOP;
-// }
 
 #define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
 #define generate_next_stage(stage)  CALL_MEMBER_FN(*this, generators[stage])()
