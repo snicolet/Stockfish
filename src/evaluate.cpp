@@ -763,12 +763,12 @@ namespace {
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
 
     // Compute the initiative bonus for the attacking side
-    int initiative = 8 * (pe->pawn_asymmetry() + kingDistance - 17) + 16 * (pos.count<PAWN>() + bothFlanks);
+    int initiative = 8 * (pe->pawn_asymmetry() + kingDistance - 17) + 12 * pos.count<PAWN>() + 16 * bothFlanks;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
-    int v = ((eg > 0) - (eg < 0)) * std::max(initiative, -abs(eg));
+    int v = ((eg > 10) - (eg < -10)) * std::max(initiative, -abs(eg));
 
     if (T)
         Trace::add(INITIATIVE, make_score(0, v));
