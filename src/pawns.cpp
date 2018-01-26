@@ -189,6 +189,10 @@ namespace {
             score += Lever[relative_rank(Us, s)];
     }
 
+    // Count the number of holes in our pawn structure
+    b = e->semiopenFiles[Us] ^ 0xFF;
+    e->holes[Us] = popcount(b & ~(b >> 1));
+
     return score;
   }
 
