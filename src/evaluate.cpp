@@ -761,10 +761,10 @@ namespace {
     int kingDistance =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                       - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
     bool bothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
-    int holes = pe->pawn_holes(WHITE) + pe->pawn_holes(BLACK);
+    int islands = pe->pawn_islands(WHITE) + pe->pawn_islands(BLACK);
 
     // Compute the initiative bonus for the attacking side
-    int initiative =   8 * (pe->pawn_asymmetry() + kingDistance + holes - 21) 
+    int initiative =   8 * (pe->pawn_asymmetry() + kingDistance + islands - 21) 
                     + 12 * pos.count<PAWN>() 
                     + 16 * bothFlanks;
 
