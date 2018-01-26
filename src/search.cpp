@@ -825,8 +825,10 @@ moves_loop: // When in check search starts from here
           &&  move == ttMove
           &&  pos.legal(move))
       {
-          Value rBeta = std::max(ttValue - 2 * depth / ONE_PLY, -VALUE_MATE);
+          Value margin = Value(std::min(24, 2 * depth / ONE_PLY));
+          Value rBeta = std::max(ttValue - margin, -VALUE_MATE);
           Depth d = (depth / (2 * ONE_PLY)) * ONE_PLY;
+
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, rBeta - 1, rBeta, d, cutNode, true);
           ss->excludedMove = MOVE_NONE;
@@ -835,9 +837,9 @@ moves_loop: // When in check search starts from here
               extension = ONE_PLY;
       }
       else if (    givesCheck
-               && (!moveCountPruning || type_of(movedPiece) == QUEEN)
+               && !moveCountPruning
                &&  pos.see_ge(move))
-          extension = ONE_PLY / 2;
+          extension = ONE_PLY;
 
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
