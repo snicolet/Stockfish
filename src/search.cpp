@@ -837,7 +837,7 @@ moves_loop: // When in check search starts from here
       else if (    givesCheck
                && (!moveCountPruning || type_of(movedPiece) == QUEEN)
                &&  pos.see_ge(move))
-          extension = ONE_PLY;
+          extension = ONE_PLY / 2;
 
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
