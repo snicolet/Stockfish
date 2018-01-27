@@ -670,7 +670,7 @@ namespace {
             
             // Caping distance:
             // ebonus += (king_distance(Them, blockSq) * 5 - king_distance(Us, blockSq) * 2) * rr;  
-            
+
             // Without caping distance:
             ebonus +=  distance(pos.square<KING>(Them), blockSq) * 5 * rr - distance(pos.square<KING>(  Us), blockSq) * 2 * rr;
 
@@ -679,7 +679,7 @@ namespace {
             {
                 // Caping distance:
                 // ebonus -= king_distance(Us, blockSq + Up) * rr;  
-                
+
                 // Without caping distance:
                 ebonus -= distance(pos.square<KING>(Us), blockSq + Up) * rr;
             }
