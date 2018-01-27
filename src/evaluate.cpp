@@ -764,8 +764,9 @@ namespace {
     int islands = pe->pawn_islands(WHITE) + pe->pawn_islands(BLACK);
 
     // Compute the initiative bonus for the attacking side
-    int initiative =   8 * (pe->pawn_asymmetry() + kingDistance - 23) 
-                    + 12 * (pos.count<PAWN>() + islands) 
+    int initiative =   4 * islands
+                    +  8 * (pe->pawn_asymmetry() + kingDistance - 19) 
+                    + 12 * pos.count<PAWN>()
                     + 16 * bothFlanks;
 
     // Now apply the bonus: note that we find the attacking side by extracting

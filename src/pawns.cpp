@@ -190,7 +190,7 @@ namespace {
     }
 
     // Count the number of islands in our pawn structure
-    b = e->semiopenFiles[Us];
+    b = e->semiopenFiles[Us] ^ 0xFF;
     e->islands[Us] = popcount(b & ~(b >> 1));
 
     return score;
