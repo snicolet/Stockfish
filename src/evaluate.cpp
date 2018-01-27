@@ -665,11 +665,22 @@ namespace {
             Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
-            ebonus += (king_distance(Them, blockSq) * 5 - king_distance(Us, blockSq) * 2) * rr;
+            
+            // Caping distance:
+            // ebonus += (king_distance(Them, blockSq) * 5 - king_distance(Us, blockSq) * 2) * rr;  
+            
+            // Without caping distance:
+            ebonus +=  distance(pos.square<KING>(Them), blockSq) * 5 * rr - distance(pos.square<KING>(  Us), blockSq) * 2 * rr;
 
             // If blockSq is not the queening square then consider also a second push
             if (r != RANK_7)
-                ebonus -= king_distance(Us, blockSq + Up) * rr;
+            {
+                // Caping distance:
+                // ebonus -= king_distance(Us, blockSq + Up) * rr;  
+                
+                // Without caping distance:
+                ebonus -= distance(pos.square<KING>(Us), blockSq + Up) * rr;
+            }
 
             // If the pawn is free to advance, then increase the bonus
             if (pos.empty(blockSq))
@@ -703,6 +714,7 @@ namespace {
             }
             else if (pos.pieces(Us) & blockSq)
                 mbonus += rr + r * 2, ebonus += rr + r * 2;
+            
         } // rr != 0
 
         // Scale down bonus for candidate passers which need more than one
