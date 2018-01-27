@@ -97,7 +97,7 @@ namespace {
     template<Color Us> void initialize();
     template<Color Us> Score evaluate_king();
     template<Color Us> Score evaluate_threats();
-    int king_distance(Color c, Square s);
+    //int king_distance(Color c, Square s);
     template<Color Us> Score evaluate_passed_pawns();
     template<Color Us> Score evaluate_space();
     template<Color Us, PieceType Pt> Score evaluate_pieces();
@@ -627,10 +627,12 @@ namespace {
   }
 
   // helper used by evaluate_passed_pawns to cap the distance
+  /*
   template<Tracing T>
   int Evaluation<T>::king_distance(Color c, Square s) {
     return std::min(distance(pos.square<KING>(c), s), 5);
   }
+  */
 
   // evaluate_passed_pawns() evaluates the passed pawns and candidate passed
   // pawns of the given color.
