@@ -626,10 +626,24 @@ namespace {
     return score;
   }
 
-  // helper used by evaluate_passed_pawns to cap the distance
+  // king_distance() is an helper function to estimate the distance 
+  // that a given king has to run to reach square s.
   template<Tracing T>
-  int Evaluation<T>::king_distance(Color c, Square s) {
-    return std::min(distance(pos.square<KING>(c), s), 5);
+  int Evaluation<T>::king_distance(Color kingColor, Square s) {
+
+    int d = distance(pos.square<KING>(kingColor), s);
+    if (d <= 1) return d;
+
+    // Squares where the king could potentially come closer to s
+    Bitboard target =   DistanceRingBB[s][d - 2] 
+                     &  attackedBy[kingColor][KING]
+                     & ~attackedBy[~kingColor][ALL_PIECES]
+                     &  mobilityArea[kingColor];
+
+    // If king can't come closer, increase the distance estimation
+    d += !target;
+
+    return std::min(d, 5);
   }
 
   // evaluate_passed_pawns() evaluates the passed pawns and candidate passed
