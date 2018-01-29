@@ -985,19 +985,21 @@ Key Position::key_after(Move m) const {
   return k ^ Zobrist::psq[pc][to] ^ Zobrist::psq[pc][from];
 }
 
+
 /// Position::set_key_for_root_color() sets a different hash key at the root
-/// position of a search, in case we want different hash paths for searches trees
-/// rooted with Black or White.
+/// position of a search, in case we want different hash paths for searches
+/// trees rooted with Black or White.
+
 void Position::set_key_for_root_color(Color c)
 {
    StateInfo si;
    Position p;
    p.set(fen(), is_chess960(), &si, this_thread());
-   
+
    assert(   (p.key() ^ key()) == 0
           || (p.key() ^ key()) == Zobrist::rootSwap);
-   
-   // The Zobrist key are calculated in p.set() for White rooted trees,
+
+   // The Zobrist key is calculated in p.set() for White rooted trees,
    // so change the key of the current position if necessary.
    if (   (BLACK == c && (key() ^ p.key()) == 0)
        || (WHITE == c && (key() ^ p.key()) == Zobrist::rootSwap))
