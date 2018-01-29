@@ -199,6 +199,9 @@ void MainThread::search() {
   Eval::Contempt = (us == WHITE ?  make_score(contempt, contempt / 2)
                                 : -make_score(contempt, contempt / 2));
 
+  if (y != -x)
+      rootPos.set_key_for_root_color(us);
+
   if (rootMoves.empty())
   {
       rootMoves.emplace_back(MOVE_NONE);
