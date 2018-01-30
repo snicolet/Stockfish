@@ -43,6 +43,13 @@ namespace {
   // Doubled pawn penalty
   const Score Doubled = S(18, 38);
 
+  // Levers bonus by unsupported flag and rank
+  const Score Lever[2][RANK_NB] = {
+    { S( 0,  0), S( 0,  0), S(0, 10), S(0, 20),
+      S(16, 40), S(32, 80), S(0,  0), S(0,  0) },
+    { S( 0,  0), S( 0,-30), S(0,-30), S(0,-20),
+      S(16,  6), S(32, 22), S(0,  0), S(0,  0) } };
+
   // Weakness of our pawn shelter in front of the king by [isKingFile][distance from edge][rank].
   // RANK_1 = 0 is used for files where we have no pawns or our pawn is behind our king.
   const Value ShelterWeakness[][int(FILE_NB) / 2][RANK_NB] = {
@@ -178,6 +185,9 @@ namespace {
 
         if (doubled && !supported)
             score -= Doubled;
+
+        if (lever)
+            score += Lever[!supported][relative_rank(Us, s)];
     }
 
     return score;
