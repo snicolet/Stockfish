@@ -222,7 +222,7 @@ namespace {
   const Score RookOnPawn            = S(  8, 24);
   const Score TrappedRook           = S( 92,  0);
   const Score WeakQueen             = S( 50, 10);
-  const Score CloseEnemies          = S(  7,  0);
+  const Score CloseEnemies          = S(  4,  0);
   const Score PawnlessFlank         = S( 20, 80);
   const Score ThreatBySafePawn      = S(192,175);
   const Score ThreatByRank          = S( 16,  3);
@@ -435,6 +435,20 @@ namespace {
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
 
+    // King tropism: firstly, find squares that opponent attacks in our king flank
+    File kf = file_of(ksq);
+    b = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
+
+    assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
+    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
+
+    // Secondly, add the squares which are attacked twice in that flank and
+    // which are not defended by our pawns.
+    b =  (Us == WHITE ? b << 4 : b >> 4)
+       | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
+
+    int tropism = popcount(b);
+
     // Main king safety evaluation
     if (kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
     {
@@ -488,7 +502,7 @@ namespace {
                      + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
-                     +  40;
+                     +  24 * tropism;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
@@ -499,19 +513,7 @@ namespace {
         }
     }
 
-    // King tropism: firstly, find squares that opponent attacks in our king flank
-    File kf = file_of(ksq);
-    b = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
-
-    assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
-    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
-
-    // Secondly, add the squares which are attacked twice in that flank and
-    // which are not defended by our pawns.
-    b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
-
-    score -= CloseEnemies * popcount(b);
+    score -= CloseEnemies * tropism;
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
