@@ -191,9 +191,11 @@ namespace Pawns {
 /// hard-coded tables, when makes sense, we prefer to calculate them with a formula
 /// to reduce independent parameters and to allow easier tuning and better insight.
 
+int Seed[RANK_NB] = { 0, 13, 24, 18, 76, 100, 175, 330 };
+
 void init() {
 
-  static const int Seed[RANK_NB] = { 0, 13, 24, 18, 76, 100, 175, 330 };
+ // static const int Seed[RANK_NB] = { 0, 13, 24, 18, 76, 100, 175, 330 };
 
   for (int opposed = 0; opposed <= 1; ++opposed)
       for (int phalanx = 0; phalanx <= 1; ++phalanx)
@@ -207,6 +209,7 @@ void init() {
   }
 }
 
+TUNE(Seed, Pawns::init);
 
 /// Pawns::probe() looks up the current position's pawns configuration in
 /// the pawns hash table. It returns a pointer to the Entry if the position
