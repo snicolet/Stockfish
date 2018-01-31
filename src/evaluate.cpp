@@ -502,7 +502,9 @@ namespace {
                      + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
-                     +  24 * tropism;
+                     +   4 * tropism;
+                    
+        //  dbg_mean_of(kingDanger);
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
@@ -514,6 +516,7 @@ namespace {
     }
 
     score -= CloseEnemies * tropism;
+    //score -= make_score(7,0) * tropism;
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
