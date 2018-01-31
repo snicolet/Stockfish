@@ -193,7 +193,7 @@ namespace Pawns {
 
 void init() {
 
-  static const int Seed[RANK_NB] = { 0, 13, 24, 18, 72, 97, 172, 345 };
+  static const int Seed[RANK_NB] = { 0, 13, 25, 18, 71, 95, 171, 344 };
 
   for (int opposed = 0; opposed <= 1; ++opposed)
       for (int phalanx = 0; phalanx <= 1; ++phalanx)
