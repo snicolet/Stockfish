@@ -194,6 +194,15 @@ void MainThread::search() {
 
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
 
+  // Follow user preference for contempt in analysis mode
+  if (Limits.infinite || Options["UCI_AnalyseMode"])
+      contempt = Options["Analysis Contempt"] == "Off"  ? 0 :
+                 Options["Analysis Contempt"] == "Both" ? contempt :
+                 Options["Analysis Contempt"] == "Black" && us == WHITE ? -contempt :
+                 Options["Analysis Contempt"] == "White" && us == BLACK ? -contempt :
+                 contempt;
+
+  // In evaluate.cpp the evaluation is from the white point of view
   Eval::Contempt = (us == WHITE ?  make_score(contempt, contempt / 2)
                                 : -make_score(contempt, contempt / 2));
 
