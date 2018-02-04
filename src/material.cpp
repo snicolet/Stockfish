@@ -39,7 +39,7 @@ namespace {
     {  32,  255,  -3                    }, // Knight      OUR PIECES
     {   0,  104,   4,    0              }, // Bishop
     { -26,   -2,  47,   105,  -149      }, // Rook
-    {-189,   24, 117,   133,  -134, -10 }  // Queen
+    {-189,   24, 156,   104,  -134, -10 }  // Queen
   };
 
   const int QuadraticTheirs[][PIECE_TYPE_NB] = {
