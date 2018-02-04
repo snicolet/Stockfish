@@ -808,6 +808,11 @@ namespace {
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
                 sf = more_than_one(pos.pieces(PAWN)) ? 31 : 9;
+
+            // Endgame with opposite-colored bishops, but also other pieces. Still
+            // a bit drawish, but not as drawish as with only the two bishops.
+            else 
+                sf = 46;
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
