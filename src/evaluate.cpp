@@ -500,10 +500,10 @@ namespace {
                      + 102 * kingAdjacentZoneAttacksCount[Them]
                      + 191 * popcount(kingRing[Us] & weak)
                      + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
-                     - 848 * !pos.count<QUEEN>(Them)
+                     - 868 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
                      +   4 * tropism
-                     +  20 ;
+                     +  15 ;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
