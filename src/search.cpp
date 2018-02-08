@@ -278,6 +278,7 @@ void Thread::search() {
   Depth lastBestMoveDepth = DEPTH_ZERO;
   MainThread* mainThread = (this == Threads.main() ? Threads.main() : nullptr);
   double timeReduction = 1.0;
+  Color us = rootPos.side_to_move();
 
   std::memset(ss-4, 0, 7 * sizeof(Stack));
   for (int i = 4; i > 0; i--)
@@ -303,8 +304,8 @@ void Thread::search() {
   multiPV = std::min(multiPV, rootMoves.size());
 
   int contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
-  Eval::Contempt = (rootPos.side_to_move() == WHITE ?  make_score(contempt, contempt / 2)
-                                                    : -make_score(contempt, contempt / 2));
+  Eval::Contempt = (us == WHITE ?  make_score(contempt, contempt / 2)
+                                : -make_score(contempt, contempt / 2));
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   (rootDepth += ONE_PLY) < DEPTH_MAX
@@ -338,16 +339,16 @@ void Thread::search() {
           if (rootDepth >= 5 * ONE_PLY)
           {
               delta = Value(18);
-              alpha = std::max(rootMoves[PVIdx].previousScore - delta,-VALUE_INFINITE);
-              beta  = std::min(rootMoves[PVIdx].previousScore + delta, VALUE_INFINITE);
+              alpha = std::max(rootMoves[PVIdx].previousScore - delta, -VALUE_INFINITE);
+              beta  = std::min(rootMoves[PVIdx].previousScore + delta,  VALUE_INFINITE);
 
-              // Adjust contempt based on current situation
-              int modification = bestValue >  500?  50:
-                                 bestValue < -500? -50:
-                                 bestValue/10;
-              contempt = Options["Contempt"] * PawnValueEg / 100 + modification; // From centipawns
-              Eval::Contempt = (rootPos.side_to_move() == WHITE ?  make_score(contempt, contempt / 2)
-                                                                : -make_score(contempt, contempt / 2));
+              contempt = Options["Contempt"] * PawnValueEg / 100; // From centipawns
+              contempt += bestValue >  2 * PawnValueEg ?  50 :    // Dynamic contempt
+                          bestValue < -2 * PawnValueEg ? -50 :
+                          bestValue / 10;
+
+              Eval::Contempt = (us == WHITE ?  make_score(contempt, contempt / 2)
+                                            : -make_score(contempt, contempt / 2));
 
           }
 
@@ -443,7 +444,6 @@ void Thread::search() {
                                 bestValue - mainThread->previousScore };
               int improvingFactor = std::max(229, std::min(715, 357 + 119 * F[0] - 6 * F[1]));
 
-              Color us = rootPos.side_to_move();
               bool thinkHard =    bestValue == VALUE_DRAW
                                && Limits.time[us] - Time.elapsed() > Limits.time[~us]
                                && ::pv_is_draw(rootPos);

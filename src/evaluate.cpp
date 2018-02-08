@@ -19,11 +19,11 @@
 */
 
 #include <algorithm>
+#include <atomic>
 #include <cassert>
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-#include <atomic>
 
 #include "bitboard.h"
 #include "evaluate.h"
