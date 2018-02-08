@@ -809,8 +809,7 @@ namespace {
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
             else
-                sf = pos.pieces(QUEEN) ? 55
-                                       : 42 + 4 * pos.count<KNIGHT>(strongSide);
+                sf = 42 + 4 * pos.count<KNIGHT>(strongSide) + 32 * pos.count<QUEEN>(strongSide);
         }
         // Endings where weaker side can place his king in front of the opponent's
         // pawns are drawish.
