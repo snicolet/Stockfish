@@ -514,7 +514,8 @@ namespace {
     score -= CloseEnemies * popcount(b);
 
     // Penalty when our king is on a pawnless flank
-    if (!(pos.pieces(PAWN) & KingFlank[kf]))
+    if (   !(pos.pieces(PAWN) & KingFlank[kf])
+        && !(pe->passed_pawns(Us) | pe->passed_pawns(Them)))
         score -= PawnlessFlank;
 
     if (T)
