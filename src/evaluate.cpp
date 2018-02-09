@@ -430,7 +430,13 @@ namespace {
                                         : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard weak, b, b1, b2, safe, unsafeChecks;
+    Bitboard weak, b, b1, b2, safe, unsafeChecks, levers;
+
+    File kf = file_of(ksq);
+    levers =  KingFlank[kf]
+            & Camp
+            & pos.pieces(Us, PAWN)
+            & attackedBy[Them][PAWN];
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
@@ -500,7 +506,6 @@ namespace {
     }
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
-    File kf = file_of(ksq);
     b = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
 
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
@@ -509,7 +514,8 @@ namespace {
     // Secondly, add the squares which are attacked twice in that flank and
     // which are not defended by our pawns.
     b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
+       | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN])
+       | levers;
 
     score -= CloseEnemies * popcount(b);
 
