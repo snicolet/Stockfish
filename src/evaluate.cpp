@@ -434,7 +434,6 @@ namespace {
 
     File kf = file_of(ksq);
     levers =  KingFlank[kf]
-            & Camp
             & pos.pieces(Us, PAWN)
             & attackedBy[Them][PAWN];
 
@@ -492,7 +491,7 @@ namespace {
                      + 102 * kingAdjacentZoneAttacksCount[Them]
                      + 191 * popcount(kingRing[Us] & weak)
                      + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
-                     +  64 * popcount(levers)
+                     +  32 * popcount(levers)
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
                      +  40;
