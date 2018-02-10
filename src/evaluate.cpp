@@ -428,15 +428,12 @@ namespace {
     const Color     Them = (Us == WHITE ? BLACK : WHITE);
     const Bitboard  Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                         : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-
     const Square ksq = pos.square<KING>(Us);
+    const Bitboard flank = KingFlank[file_of(ksq)];
+
     Bitboard weak, b, b1, b2, safe, unsafeChecks, levers;
 
-    File kf = file_of(ksq);
-    levers =  KingFlank[kf]
-            & Camp
-            & pos.pieces(Us, PAWN)
-            & attackedBy[Them][PAWN];
+    levers = flank & Camp & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN];
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
@@ -507,7 +504,7 @@ namespace {
     }
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
-    b = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
+    b = flank & Camp & attackedBy[Them][ALL_PIECES];
 
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
     assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
@@ -520,7 +517,7 @@ namespace {
     score -= CloseEnemies * popcount(b);
 
     // Penalty when our king is on a pawnless flank
-    if (!(pos.pieces(PAWN) & KingFlank[kf]))
+    if (!(pos.pieces(PAWN) & flank))
         score -= PawnlessFlank;
 
     if (T)
