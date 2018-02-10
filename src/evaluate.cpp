@@ -222,14 +222,14 @@ namespace {
   const Score RookOnPawn            = S(  8, 24);
   const Score TrappedRook           = S( 92,  0);
   const Score WeakQueen             = S( 50, 10);
-  const Score CloseEnemies          = S(  7,  0);
+  const Score CloseEnemies          = S(  5,  0);
   const Score PawnlessFlank         = S( 20, 80);
   const Score ThreatBySafePawn      = S(175,168);
   const Score ThreatByRank          = S( 16,  3);
   const Score Hanging               = S( 52, 30);
   const Score WeakUnopposedPawn     = S(  5, 25);
   const Score ThreatByPawnPush      = S( 47, 26);
-  const Score ThreatByAttackOnQueen = S( 42, 21);
+  const Score ThreatOfAttackOnQueen = S( 42, 21);
   const Score HinderPassedPawn      = S(  8,  1);
   const Score TrappedBishopA1H1     = S( 50, 50);
 
@@ -435,6 +435,21 @@ namespace {
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
 
+    // King tropism: firstly, find squares that opponent attacks in our king flank
+    File kf = file_of(ksq);
+    b = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
+
+    assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
+    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
+
+    // The levers in that flank, and the squares which are attacked twice in that
+    // flank but are not defended by our pawns, count double.
+    b =  (Us == WHITE ? b << 4 : b >> 4)
+       | (b & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN])
+       | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
+
+    int tropism = popcount(b);
+
     // Main king safety evaluation
     if (kingAttackersCount[Them] > (1 - pos.count<QUEEN>(Them)))
     {
@@ -488,7 +503,7 @@ namespace {
                      + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
-                     +  40;
+                     +   4 * tropism;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
@@ -499,19 +514,7 @@ namespace {
         }
     }
 
-    // King tropism: firstly, find squares that opponent attacks in our king flank
-    File kf = file_of(ksq);
-    b = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
-
-    assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
-    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
-
-    // Secondly, add the squares which are attacked twice in that flank and
-    // which are not defended by our pawns.
-    b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
-
-    score -= CloseEnemies * popcount(b);
+    score -= CloseEnemies * tropism;
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
@@ -618,7 +621,7 @@ namespace {
     b =  (attackedBy[Us][BISHOP] & attackedBy[Them][QUEEN_DIAGONAL])
        | (attackedBy[Us][ROOK  ] & attackedBy[Them][QUEEN] & ~attackedBy[Them][QUEEN_DIAGONAL]);
 
-    score += ThreatByAttackOnQueen * popcount(b & safeThreats);
+    score += ThreatOfAttackOnQueen * popcount(b & safeThreats);
 
     if (T)
         Trace::add(THREAT, Us, score);
