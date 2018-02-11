@@ -442,10 +442,9 @@ namespace {
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
     assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
 
-    // The levers in that flank, and the squares which are attacked twice in that
-    // flank but are not defended by our pawns, count double.
+    // The squares which are attacked twice in that flank but are not defended
+    // by our pawns count double.
     b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN])
        | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
 
     int tropism = popcount(b);
@@ -503,7 +502,8 @@ namespace {
                      + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
-                     +   4 * tropism;
+                     +   4 * (pos.count<ALL_PIECES>(Them) + tropism)
+                     -  30 ;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
