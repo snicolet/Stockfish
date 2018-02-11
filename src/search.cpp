@@ -194,7 +194,6 @@ void MainThread::search() {
   
   int ct = Options["Contempt"] * PawnValueEg / 100; // From centipawns
   
-  ct = 0;
   DrawValue[ us] = VALUE_DRAW - Value(ct);
   DrawValue[~us] = VALUE_DRAW + Value(ct);
 
