@@ -865,11 +865,19 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
-    int mob = eg_value(mobility[WHITE] - mobility[BLACK]);
-    int mob2 = abs(mob) * mob / 1024;
+    // Negative non linear mobility terms, to avoid overvalue 
+    // of mobility when we have one piece more.
+    int mob, mob2;
+    
+    mob = mg_value(mobility[WHITE] - mobility[BLACK]);
+    mob2 = abs(mob) * mob / 1024;
+    score += make_score(-mob2, 0);
     //dbg_mean_of(abs(mob2));
-
-    score += make_score(0, mob2);
+    
+    mob = eg_value(mobility[WHITE] - mobility[BLACK]);
+    mob2 = abs(mob) * mob / 512;
+    score += make_score(0, -mob2);
+    //dbg_mean_of(abs(y2));
 
     score +=  evaluate_king<WHITE>()
             - evaluate_king<BLACK>();
@@ -885,12 +893,6 @@ namespace {
                 - evaluate_space<BLACK>();
 
     score += evaluate_initiative(eg_value(score));
-
-    int x = mg_value(score);
-    int x2 = abs(x) * x / 16384;
-    //dbg_mean_of(abs(x2));
-
-    score += make_score(x2, 0);
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = evaluate_scale_factor(eg_value(score));
