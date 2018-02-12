@@ -430,7 +430,8 @@ namespace {
                                         : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard weak, b, b1, b2, safe, unsafeChecks;
+    const File kf = file_of(ksq);
+    Bitboard weak, b, b1, b2, safe, unsafeChecks, levers;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
@@ -482,9 +483,15 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        levers =  KingFlank[kf]
+                & Camp
+                & pos.pieces(Us, PAWN)
+                & attackedBy[Them][PAWN];
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      + 102 * kingAdjacentZoneAttacksCount[Them]
                      + 191 * popcount(kingRing[Us] & weak)
+                     +  32 * bool(kingRing[Us] & levers)
                      + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
@@ -500,7 +507,6 @@ namespace {
     }
 
     // King tropism: firstly, find squares that opponent attacks in our king flank
-    File kf = file_of(ksq);
     b = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
 
     assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
