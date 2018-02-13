@@ -685,11 +685,11 @@ namespace {
         &&  eval - 30 > beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
     {
-        if (depth < 4 * ONE_PLY)
-            depth = std::max(DEPTH_ZERO, depth - ONE_PLY);
-
         if (eval - futility_margin(depth) >= beta)
             return eval;
+
+        if (depth < 4 * ONE_PLY)
+            depth = std::max(DEPTH_ZERO, depth - ONE_PLY);
     }
 
     assert(depth >= DEPTH_ZERO);
