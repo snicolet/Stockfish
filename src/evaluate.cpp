@@ -485,7 +485,7 @@ namespace {
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      + 102 * kingAdjacentZoneAttacksCount[Them]
                      + 191 * popcount(kingRing[Us] & weak)
-                     +  64 * bool(kingRing[Us] & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN])
+                     +  32 * bool(kingRing[Us] & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN])
                      + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
@@ -510,6 +510,7 @@ namespace {
     // Secondly, add the squares which are attacked twice in that flank and
     // which are not defended by our pawns.
     b =  (Us == WHITE ? b << 4 : b >> 4)
+       | (b & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN])
        | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
 
     score -= CloseEnemies * popcount(b);
