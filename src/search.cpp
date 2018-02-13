@@ -665,7 +665,22 @@ namespace {
     if (skipEarlyPruning || !pos.non_pawn_material(pos.side_to_move()))
         goto moves_loop;
 
-    // Step 7. Razoring (skipped when in check)
+    // Step 7. Futility pruning: child node (skipped when in check)
+    if (   !rootNode
+        &&  depth < 7 * ONE_PLY
+        &&  eval - 30 > beta
+        &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
+    {
+        if (eval - futility_margin(depth) >= beta)
+            return eval;
+        
+        if (depth < 4 * ONE_PLY)
+            depth = std::max(DEPTH_ZERO, depth - ONE_PLY);
+    }
+    
+    assert(depth >= DEPTH_ZERO);
+
+    // Step 8. Razoring (skipped when in check)
     if (   !PvNode
         &&  depth < 4 * ONE_PLY
         &&  eval + RazorMargin <= alpha)
@@ -678,13 +693,6 @@ namespace {
         if (v <= ralpha)
             return v;
     }
-
-    // Step 8. Futility pruning: child node (skipped when in check)
-    if (   !rootNode
-        &&  depth < 7 * ONE_PLY
-        &&  eval - futility_margin(depth) >= beta
-        &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-        return eval;
 
     // Step 9. Null move search with verification search
     if (   !PvNode
