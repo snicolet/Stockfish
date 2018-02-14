@@ -488,10 +488,10 @@ namespace {
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      + 102 * kingAdjacentZoneAttacksCount[Them]
                      + 191 * popcount(kingRing[Us] & weak)
-                     +  64 * bool    (kingRing[Us] & levers)
                      + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
+                     +  64 * bool(kingRing[Us] & levers)
                      - 848 * !pos.count<QUEEN>(Them)
-                     -   5 * mg_value(score) / 4
+                     -       mg_value(score)
                      +  40;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
