@@ -486,7 +486,7 @@ namespace {
                      + 102 * kingAdjacentZoneAttacksCount[Them]
                      + 191 * popcount(kingRing[Us] & weak)
                      + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
-                     +  75 * bool(kingRing[Us] & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN])
+                     +  54 * bool(kingRing[Us] & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN])
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
                      +  40;
