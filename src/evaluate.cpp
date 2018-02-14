@@ -491,7 +491,7 @@ namespace {
                      + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
                      +  64 * bool(kingRing[Us] & levers)
                      - 848 * !pos.count<QUEEN>(Them)
-                     -       mg_value(score)
+                     -   9 * mg_value(score) / 8
                      +  40;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
