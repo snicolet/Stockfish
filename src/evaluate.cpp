@@ -499,13 +499,13 @@ namespace {
         }
     }
 
-    // Find the squares that opponent attacks in our king flank, and the squares  
-    // which are attacked twice in that flank but not defended by our pawns.
+    // Find the squares that opponent attacks in our king flank, and among them 
+    // the squares which are attacked twice but not defended by our pawns.
     File kf = file_of(ksq);
     b  = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
     b2 = b & attackedBy2[Them] & ~attackedBy[Us][PAWN];
 
-    // King tropism, to anticipate slow motion attacks on our king
+    // King tropism, the aim is to anticipate slow motion attacks on our king
     score -= CloseEnemies * (popcount(b) + popcount(b2));
 
     // Penalty when our king is on a pawnless flank
