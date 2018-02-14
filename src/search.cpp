@@ -68,7 +68,8 @@ namespace {
 
   // Razoring and futility margins
   const int RazorMargin = 600;
-  Value futility_margin(Depth d) { return Value(150 * d / ONE_PLY); }
+  const int FutilityMargin[] = { 30, 180, 330, 450, 600, 750, 900 };
+  Value futility_margin(Depth d) { return Value(FutilityMargin[d / ONE_PLY]); }
 
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
@@ -685,11 +686,11 @@ namespace {
         &&  eval - 30 > beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
     {
+        if (depth < 4 * ONE_PLY)
+            depth = std::max(DEPTH_ZERO, depth - ONE_PLY);
+
         if (eval - futility_margin(depth) >= beta)
             return eval;
-
-        if (depth < 4 * ONE_PLY)
-            depth = std::max(ONE_PLY, depth - ONE_PLY);
     }
 
     // Step 9. Null move search with verification search
