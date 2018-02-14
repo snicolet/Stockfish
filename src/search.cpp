@@ -693,6 +693,8 @@ namespace {
             return eval;
     }
 
+    assert(depth >= DEPTH_ZERO);
+
     // Step 9. Null move search with verification search
     if (   !PvNode
         &&  eval >= beta
