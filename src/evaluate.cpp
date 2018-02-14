@@ -430,7 +430,7 @@ namespace {
                                         : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard weak, safe, levers, b, b1, b2, unsafeChecks;
+    Bitboard weak, safe, b, b1, b2, unsafeChecks;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
@@ -442,9 +442,6 @@ namespace {
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
               & (attackedBy[Us][KING] | attackedBy[Us][QUEEN] | ~attackedBy[Us][ALL_PIECES]);
-
-        levers =  pos.pieces(Us, PAWN) 
-                & attackedBy[Them][PAWN];
 
         int kingDanger = unsafeChecks = 0;
 
@@ -489,10 +486,10 @@ namespace {
                      + 102 * kingAdjacentZoneAttacksCount[Them]
                      + 191 * popcount(kingRing[Us] & weak)
                      + 143 * popcount(pos.pinned_pieces(Us) | unsafeChecks)
-                     +  64 * bool(kingRing[Us] & levers)
+                     +  75 * bool(kingRing[Us] & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN])
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
-                     +  50;
+                     +  40;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
