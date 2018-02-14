@@ -68,7 +68,7 @@ namespace {
 
   // Razoring and futility margins
   const int RazorMargin = 600;
-  Value futility_margin(Depth d) { return Value(30 + 150 * d / ONE_PLY); }
+  Value futility_margin(Depth d) { return Value(150 * d / ONE_PLY); }
 
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
@@ -689,10 +689,8 @@ namespace {
             return eval;
 
         if (depth < 4 * ONE_PLY)
-            depth = std::max(DEPTH_ZERO, depth - ONE_PLY);
+            depth = std::max(ONE_PLY, depth - ONE_PLY);
     }
-
-    assert(depth >= DEPTH_ZERO);
 
     // Step 9. Null move search with verification search
     if (   !PvNode
