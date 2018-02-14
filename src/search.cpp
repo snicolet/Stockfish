@@ -68,7 +68,7 @@ namespace {
 
   // Razoring and futility margins
   const int RazorMargin = 600;
-  const int FutilityMargin[] = { 30, 180, 330, 450, 600, 750, 900 };
+  const int FutilityMargin[] = { 50, 200, 350, 450, 600, 750, 900 };
   Value futility_margin(Depth d) { return Value(FutilityMargin[d / ONE_PLY]); }
 
   // Futility and reductions lookup tables, initialized at startup
@@ -683,7 +683,7 @@ namespace {
     // Step 8. Futility pruning: child node (skipped when in check)
     if (   !rootNode
         &&  depth < 7 * ONE_PLY
-        &&  eval - 30 > beta
+        &&  eval - 50 > beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
     {
         if (depth < 4 * ONE_PLY)
