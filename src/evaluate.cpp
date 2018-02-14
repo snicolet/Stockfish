@@ -499,19 +499,14 @@ namespace {
         }
     }
 
-    // King tropism: firstly, find squares that opponent attacks in our king flank
+    // Find the squares that opponent attacks in our king flank, and the squares  
+    // which are attacked twice in that flank but not defended by our pawns.
     File kf = file_of(ksq);
-    b = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
+    b  = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
+    b2 = b & attackedBy2[Them] & ~attackedBy[Us][PAWN];
 
-    assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
-    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
-
-    // Secondly, add the squares which are attacked twice in that flank and
-    // which are not defended by our pawns.
-    b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
-
-    score -= CloseEnemies * popcount(b);
+    // King tropism, to anticipate slow motion attacks on our king
+    score -= CloseEnemies * (popcount(b) + popcount(b2));
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
