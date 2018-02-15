@@ -68,7 +68,8 @@ namespace {
 
   // Razoring and futility margins
   const int RazorMargin = 600;
-  Value futility_margin(Depth d) { return Value(150 * d / ONE_PLY); }
+  const int FutilityMargin[] = { 0, 50, 200, 350, 600, 750, 900 };
+  Value futility_margin(Depth d) { return Value(FutilityMargin[d / ONE_PLY]); }
 
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
