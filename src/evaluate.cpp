@@ -332,10 +332,18 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAdjacentZoneAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-
+        
         int mob = popcount(b & mobilityArea[Us]);
-
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+
+        // The LTB problem. Hello AlphaZero, Komodo...
+        if (eg_value(MobilityBonus[Pt - 2][mob]) < 0)
+        {
+            int imbalance =   (pos.pieces(Them, ALL_PIECES) - pos.pieces(Them, PAWN))
+                            - (pos.pieces(Us  , ALL_PIECES) - pos.pieces(Us  , PAWN));
+            if (imbalance)
+                mobility[Us] += MobilityBonus[Pt - 2][mob];
+        }
 
         // Bonus for this piece as a king protector
         score += KingProtector[Pt - 2] * distance(s, pos.square<KING>(Us));
