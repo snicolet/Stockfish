@@ -864,6 +864,13 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
+    // Negative non linear mobility terms, to avoid overvalue 
+    // of mobility when we have one piece more.
+    int mob = mg_value(mobility[WHITE] - mobility[BLACK]);
+    int mob2 = abs(mob) * mob / 512;
+    score += make_score(-mob2, 0);
+    //dbg_mean_of(abs(mob2));
+
     score +=  evaluate_king<WHITE>()
             - evaluate_king<BLACK>();
 
