@@ -773,7 +773,7 @@ namespace {
     Square bksk = pos.square<KING>(BLACK);
 
     int horizontalDistance = distance<File>(wksq, bksk);
-    int oppositeCastling   = horizontalDistance * horizontalDistance;
+    int oppositeCastling   = std::max(0, 4 * horizontalDistance - 4);
     int outflanking        = horizontalDistance - distance<Rank>(wksq, bksk);
     bool bothFlanks        = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
 
