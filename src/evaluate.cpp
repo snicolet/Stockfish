@@ -773,7 +773,7 @@ namespace {
     Square bksk = pos.square<KING>(BLACK);
 
     int horizontalDistance = distance<File>(wksq, bksk);
-    int oppositeCastling   = 16 * (horizontalDistance >= 2);
+    int oppositeCastling   = horizontalDistance * horizontalDistance;
     int outflanking        = horizontalDistance - distance<Rank>(wksq, bksk);
     bool bothFlanks        = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
 
