@@ -222,7 +222,8 @@ namespace {
   const Score RookOnPawn            = S(  8, 24);
   const Score TrappedRook           = S( 92,  0);
   const Score WeakQueen             = S( 50, 10);
-  const Score CloseEnemies          = S(  7,  0);
+  const Score KingFlankPressure     = S(  7,  0);
+  const Score KingFlankHooks        = S(  6,  0);
   const Score PawnlessFlank         = S( 20, 80);
   const Score ThreatBySafePawn      = S(175,168);
   const Score ThreatByRank          = S( 16,  3);
@@ -498,23 +499,22 @@ namespace {
         }
     }
 
-    // King tropism: firstly, find squares that opponent attacks in our king flank
-    File kf = file_of(ksq);
-    b = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
-
-    assert(((Us == WHITE ? b << 4 : b >> 4) & b) == 0);
-    assert(popcount(Us == WHITE ? b << 4 : b >> 4) == popcount(b));
-
-    // Secondly, add the squares which are attacked twice in that flank and
-    // which are not defended by our pawns.
-    b =  (Us == WHITE ? b << 4 : b >> 4)
-       | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
-
-    score -= CloseEnemies * popcount(b);
-
     // Penalty when our king is on a pawnless flank
+    File kf = file_of(ksq);
     if (!(pos.pieces(PAWN) & KingFlank[kf]))
         score -= PawnlessFlank;
+
+    // King tropism (1). Find the squares that opponent attacks in our king
+    // flank. The aim is to anticipate slow motion attacks on our king.
+    b  = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
+    score -= KingFlankPressure * popcount(b);
+
+    // King tropism (2). Find the levers and the squares which are attacked
+    // twice but not defended by our pawns in our king flank, as they may be
+    // future opponent outposts.
+    b =  (b & pos.pieces(Us, PAWN) & attackedBy[Them][PAWN])
+       | (b & attackedBy2[Them] & ~attackedBy[Us][PAWN]);
+    score -= KingFlankHooks * popcount(b);
 
     if (T)
         Trace::add(KING, Us, score);
