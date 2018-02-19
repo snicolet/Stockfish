@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -641,7 +642,7 @@ namespace {
     const Color     Them = (Us == WHITE ? BLACK : WHITE);
     const Direction Up   = (Us == WHITE ? NORTH : SOUTH);
 
-    Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
+    Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares, supported;
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
@@ -700,6 +701,20 @@ namespace {
                     k += 4;
 
                 mbonus += k * rr, ebonus += k * rr;
+
+                // Passed pawns protected by own pawns
+                supported = pos.attacks_from<PAWN>(s, Them) & pos.pieces(Us, PAWN);
+                if (   supported
+                    && pos.count<PAWN>(Us) > pos.count<PAWN>(Them))
+                {
+                    mbonus += (2 + 2 * more_than_one(supported)) * rr;
+
+                    /*
+                    std::cerr << pos << std::endl;
+                    std::cerr << Bitboards::pretty(supported | s) << std::endl;
+                    std::cerr << "================================" << std::endl;
+                    */
+                }
             }
             else if (pos.pieces(Us) & blockSq)
                 mbonus += rr + r * 2, ebonus += rr + r * 2;
