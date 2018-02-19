@@ -222,7 +222,7 @@ namespace {
   const Score RookOnPawn            = S(  8, 24);
   const Score TrappedRook           = S( 92,  0);
   const Score WeakQueen             = S( 50, 10);
-  const Score CloseEnemies          = S(  7,  0);
+  const Score CloseEnemies          = S(  6,  0);
   const Score PawnlessFlank         = S( 20, 80);
   const Score ThreatBySafePawn      = S(175,168);
   const Score ThreatByRank          = S( 16,  3);
@@ -505,7 +505,7 @@ namespace {
     b  = attackedBy[Them][ALL_PIECES] & KingFlank[kf] & Camp;
     b2 = b & attackedBy2[Them] & ~attackedBy[Us][PAWN];
 
-    // King tropism, the aim is to anticipate slow motion attacks on our king
+    // King tropism, to anticipate slow motion attacks on our king
     score -= CloseEnemies * (popcount(b) + popcount(b2));
 
     // Penalty when our king is on a pawnless flank
