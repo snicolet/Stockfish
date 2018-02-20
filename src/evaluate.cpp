@@ -704,10 +704,10 @@ namespace {
 
                 // Passed pawns protected by own pawns
                 supported = pos.attacks_from<PAWN>(s, Them) & pos.pieces(Us, PAWN);
-                if (   supported
+                if (   more_than_one(supported)
                     && pos.count<PAWN>(Us) > pos.count<PAWN>(Them))
                 {
-                    mbonus += (1 + more_than_one(supported)) * rr;
+                    mbonus += rr;
 
                     /*
                     std::cerr << pos << std::endl;
