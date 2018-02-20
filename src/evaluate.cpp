@@ -707,7 +707,7 @@ namespace {
                 if (   more_than_one(supported)
                     && pos.count<PAWN>(Us) > pos.count<PAWN>(Them))
                 {
-                    mbonus += rr;
+                    mbonus += 4 * rr;
 
                     /*
                     std::cerr << pos << std::endl;
