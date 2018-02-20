@@ -617,7 +617,7 @@ namespace {
       return std::min(distance(pos.square<KING>(c), s), 5);
     };
 
-    Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
+    Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares, supported;
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
@@ -677,6 +677,12 @@ namespace {
                     k += 4;
 
                 bonus += make_score(k * w, k * w);
+
+                // Passed pawns protected by own pawns
+                supported = pos.attacks_from<PAWN>(s, Them) & pos.pieces(Us, PAWN);
+                if (   more_than_one(supported)
+                    && pos.count<PAWN>(Us) > pos.count<PAWN>(Them))
+                    bonus += make_score(3 * w, 0);
             }
             else if (pos.pieces(Us) & blockSq)
                 bonus += make_score(w + r * 2, w + r * 2);
