@@ -676,6 +676,11 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
 
+                // Passed pawn doubly supported
+                if (   more_than_one(pos.attacks_from<PAWN>(s, Them) & pos.pieces(Us, PAWN))
+                    && pos.count<PAWN>(Us) > pos.count<PAWN>(Them))
+                    k += 3;
+
                 bonus += make_score(k * w, k * w);
             }
             else if (pos.pieces(Us) & blockSq)
