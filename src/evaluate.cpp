@@ -862,6 +862,9 @@ namespace {
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
+    score += (pos.side_to_move() == WHITE ?  make_score(Eval::Tempo, Eval::Tempo)
+                                          : -make_score(Eval::Tempo, Eval::Tempo));
+
     score += initiative(eg_value(score));
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
@@ -891,7 +894,7 @@ namespace {
 /// evaluation of the position from the point of view of the side to move.
 
 Value Eval::evaluate(const Position& pos) {
-  return Evaluation<NO_TRACE>(pos).value() + Eval::Tempo;
+  return Evaluation<NO_TRACE>(pos).value();
 }
 
 
@@ -905,7 +908,7 @@ std::string Eval::trace(const Position& pos) {
 
   Eval::Contempt = SCORE_ZERO; // Reset any dynamic contempt
 
-  Value v = Evaluation<TRACE>(pos).value() + Eval::Tempo;
+  Value v = Evaluation<TRACE>(pos).value();
 
   v = pos.side_to_move() == WHITE ? v : -v; // Trace scores are from white's point of view
 
