@@ -31,7 +31,7 @@ namespace PSQT {
 
 #define S(mg, eg) make_score(mg, eg)
 
-const Score A = S(-10, 0);
+const Score A = S(-5, 0);
 
 // Bonus[PieceType][Square / 2] contains Piece-Square scores. For each piece
 // type on a given square a (middlegame, endgame) score pair is assigned. Table
