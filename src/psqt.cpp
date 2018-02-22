@@ -31,6 +31,8 @@ namespace PSQT {
 
 #define S(mg, eg) make_score(mg, eg)
 
+const Score A = S(-10, 0);
+
 // Bonus[PieceType][Square / 2] contains Piece-Square scores. For each piece
 // type on a given square a (middlegame, endgame) score pair is assigned. Table
 // is defined for files A..D and white side: it is symmetric for black side and
@@ -57,7 +59,7 @@ const Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
    { S(-195,-109), S(-67,-89), S(-42,-50), S(-29,-13) }
   },
   { // Bishop
-   { S(-44,-58), S(-13,-31), S(-25,-37), S(-34,-19) },
+   { S(-44,-58) + A, S(-13,-31) + A, S(-25,-37) + A, S(-34,-19) + A },
    { S(-20,-34), S( 20, -9), S( 12,-14), S(  1,  4) },
    { S( -9,-23), S( 27,  0), S( 21, -3), S( 11, 16) },
    { S(-11,-26), S( 28, -3), S( 21, -5), S( 10, 16) },
