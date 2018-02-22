@@ -596,7 +596,7 @@ namespace {
 
     score += ThreatOnQueen * popcount(b & safeThreats);
 
-    score += make_score(mg_value(score) / 2, eg_value(score) / 4);
+    score += make_score(mg_value(score) / 4, eg_value(score) / 8);
 
     if (T)
         Trace::add(THREAT, Us, score);
