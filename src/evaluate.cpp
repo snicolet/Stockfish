@@ -652,7 +652,7 @@ namespace {
                 // Passed pawn doubly supported
                 if (   more_than_one(pos.attacks_from<PAWN>(s, Them) & pos.pieces(Us, PAWN))
                     && pos.count<PAWN>(Us) > pos.count<PAWN>(Them))
-                    bonus += make_score(2 * w, 4 * w);
+                    bonus += make_score(3 * w, 2 * w);
                 
                 // If there is a rook or queen attacking/defending the pawn from behind,
                 // consider all the squaresToQueen. Otherwise consider only the squares
