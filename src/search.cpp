@@ -342,7 +342,7 @@ void Thread::search() {
               ct =  Options["Contempt"] * PawnValueEg / 100;
 
               // Adjust gradient based on current bestValue
-              int eg = ct / 2 + std::max(-ct / 2, std::min(int(bestValue) / 20, ct));
+              int eg = ct / 2 + std::max(-ct / 2, std::min(int(bestValue) / 10, ct));
               // FIXME: previous line doesn't work when ct < 0 !
 
               Eval::Contempt = (us == WHITE ?  make_score(ct, eg)
