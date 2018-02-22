@@ -649,6 +649,11 @@ namespace {
             // If the pawn is free to advance, then increase the bonus
             if (pos.empty(blockSq))
             {
+                // Passed pawn doubly supported
+                if (   more_than_one(pos.attacks_from<PAWN>(s, Them) & pos.pieces(Us, PAWN))
+                    && pos.count<PAWN>(Us) > pos.count<PAWN>(Them))
+                    bonus += make_score(2 * w, 4 * w);
+                
                 // If there is a rook or queen attacking/defending the pawn from behind,
                 // consider all the squaresToQueen. Otherwise consider only the squares
                 // in the pawn's path attacked or occupied by the enemy.
@@ -673,11 +678,6 @@ namespace {
 
                 else if (defendedSquares & blockSq)
                     k += 4;
-
-                // Passed pawn doubly supported
-                if (   more_than_one(pos.attacks_from<PAWN>(s, Them) & pos.pieces(Us, PAWN))
-                    && pos.count<PAWN>(Us) > pos.count<PAWN>(Them))
-                    k += 2;
 
                 bonus += make_score(k * w, k * w);
             }
