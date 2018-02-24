@@ -413,7 +413,7 @@ namespace {
                                        : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard weak, b, b1, b2, safe, unsafeChecks;
+    Bitboard weak, b, b1, b2, safe, unsafeChecks, demolition;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
@@ -461,9 +461,15 @@ namespace {
         else
             unsafeChecks |= b;
 
+        // Find our pieces near our king which are attacked twice but badly defended
+        demolition =   pos.pieces(Us)
+                    &  kingRing[Us]
+                    &  attackedBy2[Them]
+                    & ~attackedBy2[Us];
+
         // Unsafe or occupied checking squares will also be considered, as long as
-        // the square is in the attacker's mobility area.
-        unsafeChecks &= mobilityArea[Them];
+        // the square is in the attacker's mobility area or is a demolition sacrifice.
+        unsafeChecks &= (mobilityArea[Them] | demolition);
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      + 102 * kingAdjacentZoneAttacksCount[Them]
