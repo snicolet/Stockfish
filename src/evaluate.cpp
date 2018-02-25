@@ -749,6 +749,7 @@ namespace {
   template<Tracing T>
   Score Evaluation<T>::initiative(Value eg) const {
 
+    int phalanxes   = pe->phalanx_pawns(WHITE) + pe->phalanx_pawns(BLACK);
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
@@ -756,11 +757,12 @@ namespace {
                             && (pos.pieces(PAWN) & KingSide);
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   8 * outflanking
+    int complexity =   4 * phalanxes
+                    +  8 * outflanking
                     +  8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 16 * pawnsOnBothFlanks
-                    -136 ;
+                    -150 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
