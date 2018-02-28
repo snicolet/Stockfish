@@ -171,6 +171,7 @@ namespace {
   const Score MinorBehindPawn   = S( 16,  0);
   const Score PawnlessFlank     = S( 20, 80);
   const Score RookOnPawn        = S(  8, 24);
+  const Score SemiHanging       = S(  0, 20);
   const Score ThreatByPawnPush  = S( 47, 26);
   const Score ThreatByRank      = S( 16,  3);
   const Score ThreatBySafePawn  = S(175,168);
@@ -515,7 +516,7 @@ namespace {
     const Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     const Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safeThreats;
+    Bitboard b, defended, nonPawnEnemies, safeThreats, stronglyProtected, semiHanging, weak;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies attacked by a pawn
@@ -542,6 +543,14 @@ namespace {
 
     // Enemies not strongly protected and under our attack
     weak = pos.pieces(Them) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
+
+    // Superweak pawns
+    semiHanging =   weak
+                 &  pos.pieces(Them, PAWN)
+                 & ~attackedBy2[Them]
+                 &  attackedBy2[Us];
+    if (semiHanging)
+        score += SemiHanging;
 
     // Bonus according to the kind of attacking pieces
     if (defended | weak)
