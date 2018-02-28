@@ -584,7 +584,7 @@ namespace {
     b &= ~attackedBy[Them][PAWN]
         & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
 
-    score += PawnMobility * popcount(b & CenterFiles);
+    score += PawnMobility * popcount(b & KingFlank[file_of(pos.square<KING>(Them))]);
 
     // Bonus for safe pawn threats on the next move
     b =   pawn_attacks_bb<Us>(b)
