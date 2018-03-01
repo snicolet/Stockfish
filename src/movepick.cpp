@@ -154,23 +154,12 @@ Move MovePicker::next_move(bool skipQuiets) {
 
   Move move;
 
+  while (1) 
   switch (stage) {
 
   case MAIN_SEARCH: case EVASION: case QSEARCH: case PROBCUT:
       ++stage;
       return ttMove;
-
-  case CAPTURES_INIT:
-  case PROBCUT_CAPTURES_INIT:
-  case QCAPTURES_INIT:
-  case QSEARCH_RECAPTURES:
-      endBadCaptures = cur = moves;
-      endMoves = generate<CAPTURES>(pos, cur);
-      score<CAPTURES>();
-      ++stage;
-
-      // Rebranch at the top of the switch via a recursive call
-      return next_move(skipQuiets);
 
   case GOOD_CAPTURES:
       while (cur < endMoves)
@@ -240,7 +229,7 @@ Move MovePicker::next_move(bool skipQuiets) {
   case BAD_CAPTURES:
       if (cur < endBadCaptures)
           return *cur++;
-      break;
+      return MOVE_NONE;
 
   case EVASIONS_INIT:
       cur = moves;
@@ -256,7 +245,7 @@ Move MovePicker::next_move(bool skipQuiets) {
           if (move != ttMove)
               return move;
       }
-      break;
+      return MOVE_NONE;
 
   case PROBCUT_CAPTURES:
       while (cur < endMoves)
@@ -266,7 +255,7 @@ Move MovePicker::next_move(bool skipQuiets) {
               && pos.see_ge(move, threshold))
               return move;
       }
-      break;
+      return MOVE_NONE;
 
   case QCAPTURES:
       while (cur < endMoves)
@@ -276,7 +265,7 @@ Move MovePicker::next_move(bool skipQuiets) {
               return move;
       }
       if (depth <= DEPTH_QS_NO_CHECKS)
-          break;
+          return MOVE_NONE;
       cur = moves;
       endMoves = generate<QUIET_CHECKS>(pos, cur);
       ++stage;
@@ -289,7 +278,7 @@ Move MovePicker::next_move(bool skipQuiets) {
           if (move != ttMove)
               return move;
       }
-      break;
+      return MOVE_NONE;
 
   case QRECAPTURES:
       while (cur < endMoves)
@@ -298,11 +287,15 @@ Move MovePicker::next_move(bool skipQuiets) {
           if (to_sq(move) == recaptureSquare)
               return move;
       }
-      break;
+      return MOVE_NONE;
 
-  default:
-      assert(false);
+  case CAPTURES_INIT:
+  case PROBCUT_CAPTURES_INIT:
+  case QCAPTURES_INIT:
+  case QSEARCH_RECAPTURES:
+      endBadCaptures = cur = moves;
+      endMoves = generate<CAPTURES>(pos, cur);
+      score<CAPTURES>();
+      ++stage;
   }
-
-  return MOVE_NONE;
 }
