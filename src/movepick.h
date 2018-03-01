@@ -132,6 +132,7 @@ public:
 
 private:
   template<GenType> void score();
+  void generate_and_score_captures();
   ExtMove* begin() { return cur; }
   ExtMove* end() { return endMoves; }
 
@@ -142,6 +143,7 @@ private:
   Move ttMove, countermove, killers[2];
   ExtMove *cur, *endMoves, *endBadCaptures;
   int stage;
+  bool capturesScored = false;
   Square recaptureSquare;
   Value threshold;
   Depth depth;
