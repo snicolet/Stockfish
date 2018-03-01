@@ -760,7 +760,7 @@ namespace {
                     + 12 * passedPawns
                     + 12 * pos.count<PAWN>()
                     + 16 * pawnsOnBothFlanks
-                    -130 ;
+                    -150 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
