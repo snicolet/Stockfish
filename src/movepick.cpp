@@ -169,7 +169,7 @@ Move MovePicker::next_move(bool skipQuiets) {
   case MAIN_SEARCH: case EVASION: case QSEARCH: case PROBCUT:
       ++stage;
       return ttMove;
-  
+
   case GOOD_CAPTURES:
       generate_and_score_captures();
       while (cur < endMoves)
@@ -250,7 +250,7 @@ Move MovePicker::next_move(bool skipQuiets) {
               return move;
       }
       return MOVE_NONE;
-  
+
   case PROBCUT_CAPTURES:
       generate_and_score_captures();
       while (cur < endMoves)
@@ -261,7 +261,7 @@ Move MovePicker::next_move(bool skipQuiets) {
               return move;
       }
       return MOVE_NONE;
-  
+
   case QCAPTURES:
       generate_and_score_captures();
       while (cur < endMoves)
@@ -284,7 +284,7 @@ Move MovePicker::next_move(bool skipQuiets) {
               return move;
       }
       return MOVE_NONE;
-      
+
   case QSEARCH_RECAPTURES:
       generate_and_score_captures();
       while (cur < endMoves)
