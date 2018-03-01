@@ -168,6 +168,7 @@ namespace {
   const Score Hanging           = S( 52, 30);
   const Score HinderPassedPawn  = S(  8,  1);
   const Score LongRangedBishop  = S( 22,  0);
+  const Score MajorCoordination = S( 15,  0);
   const Score MinorBehindPawn   = S( 16,  0);
   const Score PawnlessFlank     = S( 20, 80);
   const Score RookOnPawn        = S(  8, 24);
@@ -368,6 +369,12 @@ namespace {
                             : pos.piece_on(s + d + d) == make_piece(Us, PAWN) ? TrappedBishopA1H1 * 2
                                                                               : TrappedBishopA1H1;
             }
+        }
+
+        if (Pt == ROOK || Pt == QUEEN)
+        {
+            if (b & mobilityArea[Us] & pos.pieces(Us, ROOK, QUEEN))
+                score += MajorCoordination;
         }
 
         if (Pt == ROOK)
