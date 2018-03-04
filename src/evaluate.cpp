@@ -180,7 +180,7 @@ namespace {
   const Score WeakQueen         = S( 50, 10);
   const Score WeakUnopposedPawn = S(  5, 25);
   
-  Score PawnMobility      = S(  0, 12);
+  Score PawnMobility      = S( 5, 5);
 
 #undef S
 
