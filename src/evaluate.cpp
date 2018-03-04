@@ -757,15 +757,16 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    int pawnMobility = popcount(mobilePawns[WHITE] | mobilePawns[BLACK]);
+    int pawnMobility = popcount(CenterFiles & (mobilePawns[WHITE] | mobilePawns[BLACK]));
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   4 * pawnMobility
+    int complexity =   8 * pawnMobility
                     +  8 * outflanking
                     +  8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 16 * pawnsOnBothFlanks
-                    -170 ;
+                    -155 ;
+//dbg_mean_of(complexity);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
