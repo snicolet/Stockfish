@@ -196,7 +196,7 @@ namespace {
     template<Color Us> void initialize();
     template<Color Us, PieceType Pt> Score pieces();
     template<Color Us> Score king() const;
-    template<Color Us> Score threats() const;
+    template<Color Us> Score threats();
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
@@ -206,6 +206,7 @@ namespace {
     Material::Entry* me;
     Pawns::Entry* pe;
     Bitboard mobilityArea[COLOR_NB];
+    Bitboard mobilePawns[COLOR_NB];
     Score mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
 
     // attackedBy[color][piece type] is a bitboard representing all squares
@@ -507,7 +508,7 @@ namespace {
   // Evaluation::threats() assigns bonuses according to the types of the
   // attacking and the attacked pieces.
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::threats() const {
+  Score Evaluation<T>::threats() {
 
     const Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     const Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
@@ -580,6 +581,8 @@ namespace {
     // Keep only the squares which are not completely unsafe
     b &= ~attackedBy[Them][PAWN]
         & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
+
+    mobilePawns[Us] = b;
 
     // Bonus for safe pawn threats on the next move
     b =   pawn_attacks_bb<Us>(b)
@@ -754,12 +757,15 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    int pawnMobility = popcount(mobilePawns[WHITE] | mobilePawns[BLACK]);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * outflanking
+                    +  8 * pawnMobility
                     +  8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 16 * pawnsOnBothFlanks
-                    -136 ;
+                    -200 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
