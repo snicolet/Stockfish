@@ -206,7 +206,6 @@ namespace {
     Material::Entry* me;
     Pawns::Entry* pe;
     Bitboard mobilityArea[COLOR_NB];
-    int badPieces[COLOR_NB];
     Score mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
 
     // attackedBy[color][piece type] is a bitboard representing all squares
@@ -260,7 +259,6 @@ namespace {
     // Squares occupied by those pawns, by our king, or controlled by enemy pawns
     // are excluded from the mobility area.
     mobilityArea[Us] = ~(b | pos.square<KING>(Us) | pe->pawn_attacks(Them));
-    badPieces[Us] = 0;
 
     // Initialise attackedBy bitboards for kings and pawns
     attackedBy[Us][KING] = pos.attacks_from<KING>(pos.square<KING>(Us));
@@ -325,14 +323,13 @@ namespace {
             kingAdjacentZoneAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = popcount(b & mobilityArea[Us]);
+        b &= mobilityArea[Us];
+        if (Pt == BISHOP)
+            b &= ~attackedBy[Them][KNIGHT];
+
+        int mob = popcount(b);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-        if (mob <= 2)
-        {
-            mobility[Us] -= make_score(badPieces[Us], badPieces[Us]);
-            badPieces[Us]++;
-        }
 
         // Penalty if the piece is far from the king
         score -= KingProtector[Pt - 2] * distance(s, pos.square<KING>(Us));
@@ -854,10 +851,10 @@ namespace {
     initialize<BLACK>();
 
     // Pieces should be evaluated first (populate attack tables)
-    score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
-            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
-            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
-            + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
+    score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>();
+    score +=  pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>();
+    score +=  pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >();
+    score +=  pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
 
