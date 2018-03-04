@@ -179,8 +179,12 @@ namespace {
   const Score TrappedRook       = S( 92,  0);
   const Score WeakQueen         = S( 50, 10);
   const Score WeakUnopposedPawn = S(  5, 25);
+  
+  Score PawnMobility      = S(  0, 12);
 
 #undef S
+
+  TUNE(SetRange(0, 30), PawnMobility);
 
   // Evaluation class computes and stores attacks tables and other working data
   template<Tracing T>
@@ -580,6 +584,8 @@ namespace {
     // Keep only the squares which are not completely unsafe
     b &= ~attackedBy[Them][PAWN]
         & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
+
+    score += PawnMobility * popcount(b & CenterFiles);
 
     // Bonus for safe pawn threats on the next move
     b =   pawn_attacks_bb<Us>(b)
