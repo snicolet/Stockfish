@@ -324,10 +324,10 @@ namespace {
         }
 
         b &= mobilityArea[Us];
-        if (Pt == BISHOP)
-            b &= ~attackedBy[Them][KNIGHT];
-
         int mob = popcount(b);
+
+        if (Pt == BISHOP && (b & attackedBy[Them][KNIGHT]))
+            --mob;
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
