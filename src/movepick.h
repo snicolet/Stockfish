@@ -49,7 +49,7 @@ public:
   void operator<<(int bonus) {
 
     assert(abs(bonus) <= D); // Ensure range is [-W * D, W * D]
-    assert(abs(W * D) < std::numeric_limits<T>::max()); // Ensure we don't overflow
+    assert(W * D < std::numeric_limits<T>::max()); // Ensure we don't overflow
 
     entry += bonus * W - entry * abs(bonus) / D;
 
@@ -110,6 +110,8 @@ typedef Stats<PieceToHistory, W32, NOT_USED, PIECE_NB, SQUARE_NB> ContinuationHi
 /// beta algorithm, MovePicker attempts to return the moves which are most likely
 /// to get a cut-off first.
 
+enum PickType { NEXT, BEST_SCORE };
+
 class MovePicker {
 public:
   MovePicker(const MovePicker&) = delete;
@@ -120,7 +122,7 @@ public:
   Move next_move(bool skipQuiets = false);
 
 private:
-  template<bool best, typename Pred> Move next_best(Pred pred);
+  template<PickType T, typename Pred> Move select_move(Pred);
   template<GenType> void score();
   ExtMove* begin() { return cur; }
   ExtMove* end() { return endMoves; }
