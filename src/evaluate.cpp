@@ -590,7 +590,7 @@ namespace {
     score += ThreatByPawnPush * popcount(b);
 
     // Bonus for safe slider threats on the next move toward enemy queen
-    safeThreats = ~pos.pieces(Us) & ~attackedBy2[Them] & attackedBy2[Us];
+    safeThreats = ~pos.pieces(Us, PAWN, KING) & ~attackedBy2[Them] & attackedBy2[Us];
     b =  (attackedBy[Us][BISHOP] & attackedBy[Them][QUEEN_DIAGONAL])
        | (attackedBy[Us][ROOK  ] & attackedBy[Them][QUEEN] & ~attackedBy[Them][QUEEN_DIAGONAL]);
 
