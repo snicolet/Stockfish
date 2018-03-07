@@ -166,8 +166,8 @@ namespace {
   const Score BishopPawns       = S(  8, 12);
   const Score CloseEnemies      = S(  7,  0);
   const Score Hanging           = S( 52, 30);
+  const Score HarassMajors      = S( 21, 11);
   const Score HinderPassedPawn  = S(  8,  1);
-  const Score KnightOnQueen     = S( 21, 11);
   const Score LongRangedBishop  = S( 22,  0);
   const Score MinorBehindPawn   = S( 16,  0);
   const Score PawnlessFlank     = S( 20, 80);
@@ -596,15 +596,16 @@ namespace {
 
     score += ThreatOnQueen * popcount(b & safeThreats);
 
-    // Bonus for knight threats on the next moves against enemy queen
-    if (pos.count<QUEEN>(Them) == 1)
+    // Bonus for knight threats on the next moves against majors
+    b = pos.pieces(Them, QUEEN, ROOK);
+    while (b)
     {
-        b =   pos.attacks_from<KNIGHT>(pos.square<QUEEN>(Them))
-           &  attackedBy[Us][KNIGHT]
-           & ~pos.pieces(Us, PAWN, KING)
-           & ~stronglyProtected;
+        weak =   pos.attacks_from<KNIGHT>(pop_lsb(&b))
+              &  attackedBy[Us][KNIGHT]
+              & ~pos.pieces(Us, PAWN, KING)
+              & ~stronglyProtected;
 
-        score += KnightOnQueen * popcount(b);
+        score += HarassMajors * popcount(weak);
     }
 
     if (T)
