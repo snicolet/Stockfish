@@ -602,7 +602,7 @@ namespace {
         b =   pos.attacks_from<KNIGHT>(pos.square<QUEEN>(Them))
            &  attackedBy[Us][KNIGHT]
            & ~pos.pieces(Us, PAWN, KING)
-           & ~stronglyProtected;
+           & (~stronglyProtected | attackedBy2[Us]);
 
         score += KnightOnQueen * popcount(b);
     }
