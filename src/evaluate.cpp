@@ -520,7 +520,7 @@ namespace {
 
     // Queen overload
     b =   pos.pieces(Them)
-       &  attackedBy[Us][QUEEN]
+       &  attackedBy[Us][ALL_PIECES]
        &  attackedBy[Them][QUEEN]
        & ~attackedBy2[Them];
     score += QueenOverload * popcount(b);
