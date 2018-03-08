@@ -171,6 +171,7 @@ namespace {
   const Score LongRangedBishop  = S( 22,  0);
   const Score MinorBehindPawn   = S( 16,  0);
   const Score PawnlessFlank     = S( 20, 80);
+  const Score QueenOverload     = S( 40, 20);
   const Score RookOnPawn        = S(  8, 24);
   const Score ThreatByPawnPush  = S( 47, 26);
   const Score ThreatByRank      = S( 16,  3);
@@ -516,6 +517,13 @@ namespace {
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
+
+    // Queen overload
+    b =   pos.pieces(Them)
+       &  attackedBy[Us][QUEEN]
+       &  attackedBy[Them][QUEEN]
+       & ~attackedBy2[Them];
+    score += QueenOverload * popcount(b);
 
     // Non-pawn enemies attacked by a pawn
     nonPawnEnemies = pos.pieces(Them) ^ pos.pieces(Them, PAWN);
