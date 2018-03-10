@@ -588,16 +588,15 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
+
         safeThreats = mobilityArea[Us] & ~stronglyProtected;
-
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-
         score += KnightOnQueen * popcount(b & safeThreats);
 
+        safeThreats &= attackedBy2[Us] | pos.pieces(Us);
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
-
-        score += SliderOnQueen * popcount(b & safeThreats & attackedBy2[Us]);
+        score += SliderOnQueen * popcount(b & safeThreats);
     }
 
     // Connectivity: ensure that knights, bishops, rooks, and queens are protected
