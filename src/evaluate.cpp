@@ -172,7 +172,7 @@ namespace {
   const Score LongRangedBishop  = S( 22,  0);
   const Score MinorBehindPawn   = S( 16,  0);
   const Score PawnlessFlank     = S( 20, 80);
-  const Score QueenOverload     = S( 30, 20);
+  const Score QueenOverload     = S( 48,  0);
   const Score RookOnPawn        = S(  8, 24);
   const Score SliderOnQueen     = S( 42, 21);
   const Score ThreatByPawnPush  = S( 47, 26);
@@ -513,13 +513,6 @@ namespace {
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
 
-    // Queen overload
-    b =   pos.pieces(Them)
-       &  attackedBy[Us][ALL_PIECES]
-       &  attackedBy[Them][QUEEN]
-       & ~attackedBy2[Them];
-    score += QueenOverload * popcount(b);
-
     // Non-pawn enemies attacked by a pawn
     nonPawnEnemies = pos.pieces(Them) ^ pos.pieces(Them, PAWN);
     weak = nonPawnEnemies & attackedBy[Us][PAWN];
@@ -592,19 +585,25 @@ namespace {
 
     score += ThreatByPawnPush * popcount(b);
 
-    // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
+        // Queen overload
+        b =   pos.pieces(Them)
+           &  attackedBy[Us][ALL_PIECES]
+           &  attackedBy[Them][QUEEN]
+           & ~attackedBy2[Them];
+        score += QueenOverload * popcount(b);
+        score += QueenOverload * popcount(b & attackedBy2[Us]);
+
+        // Bonus for threats on the next moves against enemy queen
         Square s = pos.square<QUEEN>(Them);
         safeThreats = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-
         score += KnightOnQueen * popcount(b & safeThreats);
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
-
         score += SliderOnQueen * popcount(b & safeThreats & attackedBy2[Us]);
     }
 
