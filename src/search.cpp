@@ -766,7 +766,7 @@ namespace {
         int probCutCount = 0;
 
         while (  (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2)
+               && probCutCount < 4)
             if (pos.legal(move))
             {
                 probCutCount++;
