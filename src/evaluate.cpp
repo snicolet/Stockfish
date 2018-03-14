@@ -580,7 +580,7 @@ namespace {
 
     // Pawn mobility, to keep fluidity of position
     if (pos.count<PAWN>() >= 10)
-        score += PawnMobility * popcount(b & CenterFiles);
+        score += PawnMobility * popcount(b);
 
     // Bonus for safe pawn threats on the next move
     b =   pawn_attacks_bb<Us>(b)
