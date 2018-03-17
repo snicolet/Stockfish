@@ -509,6 +509,8 @@ namespace {
     const Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     const Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     const Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    const Bitboard  OpponentCamp = (Us == WHITE ? Rank5BB | Rank6BB | Rank7BB
+                                                : Rank4BB | Rank3BB | Rank2BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
@@ -592,13 +594,27 @@ namespace {
         safeThreats = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-
         score += KnightOnQueen * popcount(b & safeThreats);
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
-
         score += SliderOnQueen * popcount(b & safeThreats & attackedBy2[Us]);
+    }
+
+    // Threats to reach an outpost in two moves
+    constexpr Score TwoStepsOutposts = make_score(10, 0);
+    weak =  ~pos.pieces(Us) 
+          & ~pe->pawn_attacks_span(Them)
+          & KingFlank[file_of(pos.square<KING>(Them))]
+          & OpponentCamp
+          & ~stronglyProtected;
+    while (weak)
+    {
+        Square s = pop_lsb(&weak);
+        safeThreats = mobilityArea[Us] & ~stronglyProtected;
+
+        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
+        score += TwoStepsOutposts * popcount(b & safeThreats);
     }
 
     // Connectivity: ensure that knights, bishops, rooks, and queens are protected
