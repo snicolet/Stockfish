@@ -165,7 +165,7 @@ namespace {
   // Assorted bonuses and penalties
   const Score BishopPawns        = S(  8, 12);
   const Score CloseEnemies       = S(  7,  0);
-  const Score Connectivity       = S(  3,  1);
+  const Score Connectivity       = S(  3,  2);
   const Score CorneredBishop     = S( 50, 50);
   const Score Hanging            = S( 52, 30);
   const Score HinderPassedPawn   = S(  8,  1);
@@ -602,7 +602,7 @@ namespace {
     }
 
     // Connectivity: ensure that knights, bishops, rooks, and queens are protected
-    b = pos.pieces(Us) & attackedBy[Us][ALL_PIECES];
+    b = (pos.pieces(Us) ^ pos.pieces(Us, KING)) & attackedBy[Us][ALL_PIECES];
     score += Connectivity * popcount(b);
 
     if (T)
