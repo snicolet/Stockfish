@@ -490,7 +490,7 @@ namespace {
     // which are attacked twice in that flank but not defended by our pawns.
     b1 = attackedBy[Them][ALL_PIECES] & kf & Camp;
     b2 =  (b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN])
-        | (b1 & attackedBy[Us][QUEEN]);
+        | (b1 & attackedBy[Them][QUEEN]);
 
     // King tropism, to anticipate slow motion attacks on our king
     score -= CloseEnemies * (popcount(b1) + popcount(b2));
