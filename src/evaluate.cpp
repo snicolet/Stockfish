@@ -559,6 +559,12 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
+        if (pos.pieces(Us, QUEEN) & ~attackedBy[Them][ALL_PIECES])
+        {
+            b = weak & pos.pieces(Them, PAWN) & attackedBy[Us][QUEEN] & attackedBy2[Us];
+            score += make_score(0, 30) * popcount(b);
+        }
+
         score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES]);
 
         b = weak & attackedBy[Us][KING];
@@ -592,12 +598,10 @@ namespace {
         safeThreats = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-
         score += KnightOnQueen * popcount(b & safeThreats);
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
-
         score += SliderOnQueen * popcount(b & safeThreats & attackedBy2[Us]);
     }
 
