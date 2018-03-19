@@ -1209,3 +1209,8 @@ bool Position::pos_is_ok() const {
 
   return true;
 }
+
+Color Position::root_color() const
+{
+    return this_thread()->rootColor;
+}
