@@ -573,10 +573,9 @@ namespace {
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
-    b |= attackedBy[Us][PAWN] & pos.pieces(Them, PAWN);
 
     // Keep only the squares which are not completely unsafe
-    b &= ~attackedBy[Them][PAWN]
+    b &=  (~attackedBy[Them][PAWN] | (attackedBy[Us][PAWN] & attackedBy2[Us] & ~attackedBy2[Them]))
         & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
 
     // Bonus for safe pawn threats on the next move
