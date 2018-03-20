@@ -171,6 +171,7 @@ namespace {
   constexpr Score HinderPassedPawn   = S(  8,  1);
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 22,  0);
+  constexpr Score LeverSupport       = S(  3,  1);
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score PawnlessFlank      = S( 20, 80);
   constexpr Score RookOnPawn         = S(  8, 24);
@@ -601,9 +602,13 @@ namespace {
         score += SliderOnQueen * popcount(b & safeThreats & attackedBy2[Us]);
     }
 
-    // Connectivity: ensure that knights, bishops, rooks, and queens are protected
-    b = (pos.pieces(Us) ^ pos.pieces(Us, PAWN, KING)) & attackedBy[Us][ALL_PIECES];
+    // Connectivity: ensure that all our pieces are mutually protected
+    b = (pos.pieces(Us) ^ pos.pieces(Us, KING)) & attackedBy[Us][ALL_PIECES];
     score += Connectivity * popcount(b);
+
+    // Levers with support
+    b = pos.pieces(Us, PAWN) & attackedBy[Them][PAWN] & attackedBy[Us][ALL_PIECES];
+    score += LeverSupport * popcount(b);
 
     if (T)
         Trace::add(THREAT, Us, score);
