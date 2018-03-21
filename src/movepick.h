@@ -125,14 +125,14 @@ private:
   template<PickType T, typename Pred> Move select_move(Pred);
   template<GenType> void score();
   ExtMove* begin() { return cur; }
-  ExtMove* end() { return endMoves; }
+  ExtMove* end() { return last; }
 
   const Position& pos;
   const ButterflyHistory* mainHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** contHistory;
   Move ttMove;
-  ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
+  ExtMove refutations[3], *cur, *last, *endBadCaptures;
   int stage;
   Move move;
   Square recaptureSquare;

@@ -166,8 +166,8 @@ void Search::init() {
 
   for (int d = 0; d < 16; ++d)
   {
-      FutilityMoveCounts[0][d] = int(2.4 + 0.74 * pow(d, 1.78));
-      FutilityMoveCounts[1][d] = int(5.0 + 1.00 * pow(d, 2.00));
+      FutilityMoveCounts[0][d] = int(1.4 + 0.74 * pow(d, 1.78));
+      FutilityMoveCounts[1][d] = int(3.0 + 1.00 * pow(d, 2.00));
   }
 }
 
@@ -763,7 +763,6 @@ namespace {
 
         while (  (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 3)
-            if (pos.legal(move))
             {
                 probCutCount++;
 
@@ -820,8 +819,7 @@ moves_loop: // When in check, search starts from here
     ttCapture = false;
     pvExact = PvNode && ttHit && tte->bound() == BOUND_EXACT;
 
-    // Step 12. Loop through all pseudo-legal moves until no moves remain
-    // or a beta cutoff occurs.
+    // Step 12. Loop through all legal moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move(skipQuiets)) != MOVE_NONE)
     {
       assert(is_ok(move));
@@ -861,8 +859,7 @@ moves_loop: // When in check, search starts from here
       // reduced search on on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin then we will extend the ttMove.
       if (    singularExtensionNode
-          &&  move == ttMove
-          &&  pos.legal(move))
+          &&  move == ttMove)
       {
           Value rBeta = std::max(ttValue - 2 * depth / ONE_PLY, -VALUE_MATE);
           ss->excludedMove = move;
@@ -924,13 +921,6 @@ moves_loop: // When in check, search starts from here
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
-
-      // Check for legality just before making the move
-      if (!rootNode && !pos.legal(move))
-      {
-          ss->moveCount = --moveCount;
-          continue;
-      }
 
       if (move == ttMove && captureOrPromotion)
           ttCapture = true;
@@ -1293,13 +1283,6 @@ moves_loop: // When in check, search starts from here
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
-
-      // Check for legality just before making the move
-      if (!pos.legal(move))
-      {
-          moveCount--;
-          continue;
-      }
 
       ss->currentMove = move;
 

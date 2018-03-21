@@ -67,7 +67,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
   assert(d > DEPTH_ZERO);
 
   stage = pos.checkers() ? EVASION_TT : MAIN_TT;
-  ttMove = ttm && pos.pseudo_legal(ttm) ? ttm : MOVE_NONE;
+  ttMove =    ttm
+           && pos.pseudo_legal(ttm)
+           && pos.legal(ttm) ? ttm : MOVE_NONE;
   stage += (ttMove == MOVE_NONE);
 }
 
@@ -81,7 +83,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
   stage = pos.checkers() ? EVASION_TT : QSEARCH_TT;
   ttMove =    ttm
            && pos.pseudo_legal(ttm)
-           && (depth > DEPTH_QS_RECAPTURES || to_sq(ttm) == recaptureSquare) ? ttm : MOVE_NONE;
+           && (depth > DEPTH_QS_RECAPTURES || to_sq(ttm) == recaptureSquare)
+           && pos.legal(ttm) ? ttm : MOVE_NONE;
   stage += (ttMove == MOVE_NONE);
 }
 
@@ -93,10 +96,11 @@ MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePiece
   assert(!pos.checkers());
 
   stage = PROBCUT_TT;
-  ttMove =   ttm
-          && pos.pseudo_legal(ttm)
-          && pos.capture(ttm)
-          && pos.see_ge(ttm, threshold) ? ttm : MOVE_NONE;
+  ttMove =    ttm
+           && pos.pseudo_legal(ttm)
+           && pos.capture(ttm)
+           && pos.see_ge(ttm, threshold)
+           && pos.legal(ttm) ? ttm : MOVE_NONE;
   stage += (ttMove == MOVE_NONE);
 }
 
@@ -130,26 +134,26 @@ void MovePicker::score() {
 }
 
 /// MovePicker::select_move() returns the next move satisfying a predicate function.
-/// It never returns the TT move.
+/// It never returns the transposition table move or an illegal move.
 template<PickType T, typename Pred>
 Move MovePicker::select_move(Pred filter) {
 
-  while (cur < endMoves)
+  while (cur < last)
   {
       if (T == BEST_SCORE)
-          std::swap(*cur, *std::max_element(cur, endMoves));
+          std::swap(*cur, *std::max_element(cur, last));
 
       move = *cur++;
 
-      if (move != ttMove && filter())
+      if (move != ttMove && filter() && pos.legal(move))
           return move;
   }
   return move = MOVE_NONE;
 }
 
-/// MovePicker::next_move() is the most important method of the MovePicker class. It
-/// returns a new pseudo legal move every time it is called until there are no more
-/// moves left, picking the move with the highest score from a list of generated moves.
+/// MovePicker::next_move() is the most important method of the MovePicker class.
+/// It returns a new legal move every time it is called until there are no more moves
+/// left, picking the move with the highest score from a list of generated moves.
 Move MovePicker::next_move(bool skipQuiets) {
 
 top:
@@ -165,8 +169,9 @@ top:
   case CAPTURE_INIT:
   case PROBCUT_INIT:
   case QCAPTURE_INIT:
-      endBadCaptures = cur = moves;
-      endMoves = generate<CAPTURES>(pos, cur);
+      cur = endBadCaptures = moves;
+      last = generate<CAPTURES>(pos, cur);
+
       score<CAPTURES>();
       ++stage;
       goto top;
@@ -178,12 +183,13 @@ top:
           return move;
 
       // Prepare the pointers to loop over the refutations array
-      cur = std::begin(refutations), endMoves = std::end(refutations);
+      cur = std::begin(refutations);
+      last = std::end(refutations);
 
       // If the countermove is the same as a killer, skip it
       if (   refutations[0].move == refutations[2].move
           || refutations[1].move == refutations[2].move)
-          --endMoves;
+          --last;
 
       ++stage;
       /* fallthrough */
@@ -198,9 +204,10 @@ top:
 
   case QUIET_INIT:
       cur = endBadCaptures;
-      endMoves = generate<QUIETS>(pos, cur);
+      last = generate<QUIETS>(pos, cur);
+
       score<QUIETS>();
-      partial_insertion_sort(cur, endMoves, -4000 * depth / ONE_PLY);
+      partial_insertion_sort(cur, last, -4000 * depth / ONE_PLY);
       ++stage;
       /* fallthrough */
 
@@ -212,7 +219,9 @@ top:
           return move;
 
       // Prepare the pointers to loop over the bad captures
-      cur = moves, endMoves = endBadCaptures;
+      cur = moves;
+      last = endBadCaptures;
+
       ++stage;
       /* fallthrough */
 
@@ -221,7 +230,8 @@ top:
 
   case EVASION_INIT:
       cur = moves;
-      endMoves = generate<EVASIONS>(pos, cur);
+      last = generate<EVASIONS>(pos, cur);
+
       score<EVASIONS>();
       ++stage;
       /* fallthrough */
@@ -246,7 +256,8 @@ top:
 
   case QCHECK_INIT:
       cur = moves;
-      endMoves = generate<QUIET_CHECKS>(pos, cur);
+      last = generate<QUIET_CHECKS>(pos, cur);
+
       ++stage;
       /* fallthrough */
 
