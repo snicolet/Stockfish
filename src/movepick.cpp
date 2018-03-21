@@ -141,7 +141,7 @@ Move MovePicker::select_move(Pred filter) {
 
       move = *cur++;
 
-      if (move != ttMove && filter())
+      if (move != ttMove && filter() && pos.legal(move))
           return move;
   }
   return move = MOVE_NONE;
