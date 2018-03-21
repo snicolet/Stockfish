@@ -148,6 +148,13 @@ namespace {
 
 /// Search::init() is called at startup to initialize various lookup tables
 
+int A = 1000;
+int B = 1000;
+int C = 1000;
+int D = 1000;
+
+TUNE(SetRange(0, 5000), A, B, C, D, Search::init);
+
 void Search::init() {
 
   for (int imp = 0; imp <= 1; ++imp)
@@ -166,8 +173,8 @@ void Search::init() {
 
   for (int d = 0; d < 16; ++d)
   {
-      FutilityMoveCounts[0][d] = int(1.4 + 0.74 * pow(d, 1.78));
-      FutilityMoveCounts[1][d] = int(3.0 + 1.00 * pow(d, 2.00));
+      FutilityMoveCounts[0][d] = int(1.4 * A / 1000.0 + 0.74 * pow(d, 1.78) * B / 1000.0);
+      FutilityMoveCounts[1][d] = int(3.0 * C / 1000.0 + 1.00 * pow(d, 2.00) * D / 1000.0);
   }
 }
 
