@@ -171,7 +171,7 @@ namespace {
   constexpr Score HinderPassedPawn   = S(  8,  1);
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 22,  0);
-  constexpr Score LeverSupport       = S(  3,  1);
+  constexpr Score LeverSupport       = S(  6,  2);
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score PawnlessFlank      = S( 20, 80);
   constexpr Score RookOnPawn         = S(  8, 24);
@@ -603,7 +603,7 @@ namespace {
     }
 
     // Connectivity: ensure that all our pieces are mutually protected
-    b = (pos.pieces(Us) ^ pos.pieces(Us, KING)) & attackedBy[Us][ALL_PIECES];
+    b = (pos.pieces(Us) ^ pos.pieces(Us, PAWN, KING)) & attackedBy[Us][ALL_PIECES];
     score += Connectivity * popcount(b);
 
     // Levers with support
