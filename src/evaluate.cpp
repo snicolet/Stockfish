@@ -173,6 +173,7 @@ namespace {
   constexpr Score LongDiagonalBishop = S( 22,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score PawnlessFlank      = S( 20, 80);
+  constexpr Score PawnMobility       = S(  0,  8);
   constexpr Score RookOnPawn         = S(  8, 24);
   constexpr Score SliderOnQueen      = S( 42, 21);
   constexpr Score ThreatByPawnPush   = S( 47, 26);
@@ -577,6 +578,8 @@ namespace {
     // Keep only the squares which are not completely unsafe
     b &= ~attackedBy[Them][PAWN]
         & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
+
+    score += PawnMobility * bool(b);
 
     // Bonus for safe pawn threats on the next move
     b =   pawn_attacks_bb<Us>(b)
