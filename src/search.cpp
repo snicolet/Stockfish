@@ -791,7 +791,7 @@ namespace {
     // Step 11. Internal iterative deepening (skipped when in check)
     if (    depth >= 7 * ONE_PLY
         && !ttMove
-        && (PvNode || ss->staticEval + 128 >= beta))
+        && (PvNode || ss->staticEval >= beta))
     {
         Depth d = (3 * depth - 7 * ONE_PLY) / 4;
         search<NT>(pos, ss, alpha, beta, d, cutNode, true);
