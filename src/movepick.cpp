@@ -134,10 +134,10 @@ void MovePicker::score() {
 template<MovePicker::PickType T, typename Pred>
 Move MovePicker::select(Pred filter) {
 
-  while (cur < endMoves)
+  while (cur < last)
   {
       if (T == Best)
-          std::swap(*cur, *std::max_element(cur, endMoves));
+          std::swap(*cur, *std::max_element(cur, last));
 
       move = *cur++;
 
@@ -165,8 +165,9 @@ top:
   case CAPTURE_INIT:
   case PROBCUT_INIT:
   case QCAPTURE_INIT:
-      endBadCaptures = cur = moves;
-      endMoves = generate<CAPTURES>(pos, cur);
+      cur = endBadCaptures = moves;
+      last = generate<CAPTURES>(pos, cur);
+
       score<CAPTURES>();
       ++stage;
       goto top;
@@ -179,12 +180,13 @@ top:
           return move;
 
       // Prepare the pointers to loop over the refutations array
-      cur = std::begin(refutations), endMoves = std::end(refutations);
+      cur = std::begin(refutations);
+      last = std::end(refutations);
 
       // If the countermove is the same as a killer, skip it
       if (   refutations[0].move == refutations[2].move
           || refutations[1].move == refutations[2].move)
-          --endMoves;
+          --last;
 
       ++stage;
       /* fallthrough */
@@ -199,9 +201,10 @@ top:
 
   case QUIET_INIT:
       cur = endBadCaptures;
-      endMoves = generate<QUIETS>(pos, cur);
+      last = generate<QUIETS>(pos, cur);
+
       score<QUIETS>();
-      partial_insertion_sort(cur, endMoves, -4000 * depth / ONE_PLY);
+      partial_insertion_sort(cur, last, -4000 * depth / ONE_PLY);
       ++stage;
       /* fallthrough */
 
@@ -213,7 +216,9 @@ top:
           return move;
 
       // Prepare the pointers to loop over the bad captures
-      cur = moves, endMoves = endBadCaptures;
+      cur = moves;
+      last = endBadCaptures;
+
       ++stage;
       /* fallthrough */
 
@@ -222,7 +227,8 @@ top:
 
   case EVASION_INIT:
       cur = moves;
-      endMoves = generate<EVASIONS>(pos, cur);
+      last = generate<EVASIONS>(pos, cur);
+
       score<EVASIONS>();
       ++stage;
       /* fallthrough */
@@ -247,7 +253,8 @@ top:
 
   case QCHECK_INIT:
       cur = moves;
-      endMoves = generate<QUIET_CHECKS>(pos, cur);
+      last = generate<QUIET_CHECKS>(pos, cur);
+
       ++stage;
       /* fallthrough */
 
