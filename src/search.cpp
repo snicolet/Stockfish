@@ -789,7 +789,7 @@ namespace {
     }
 
     // Step 11. Internal iterative deepening (skipped when in check)
-    if (    depth >= 5 * ONE_PLY
+    if (    depth >= 6 * ONE_PLY
         && !ttMove
         && (PvNode || ss->staticEval + 128 >= beta))
     {
