@@ -809,7 +809,7 @@ namespace {
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
-            else
+            else if (pe->weak_unopposed(strongSide))
                 sf = 46;
         }
         // Endings where weaker side can place his king in front of the enemy's
