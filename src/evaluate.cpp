@@ -584,7 +584,7 @@ namespace {
     b &= ~attackedBy[Them][PAWN]
         & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
 
-    b |= pos.pieces(Them) & attackedBy[Us][PAWN] & ~attackedBy[Them][ALL_PIECES];
+    b |= pos.pieces(Them, PAWN) & attackedBy[Us][PAWN] & ~attackedBy[Them][ALL_PIECES];
 
     // Bonus for safe pawn threats on the next move
     b =   pawn_attacks_bb<Us>(b)
