@@ -585,6 +585,7 @@ namespace {
     b &= ~attackedBy[Them][PAWN]
         & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
 
+    // Add some pawn levers when we have follow-ups
     b |=  pos.pieces(Them, PAWN)
         & attackedBy[Us][PAWN]
         & ~attackedBy[Them][ALL_PIECES];
