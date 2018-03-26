@@ -809,8 +809,8 @@ namespace {
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
-            else if (pe->weak_unopposed(strongSide))
-                sf = 46;
+            else
+                sf = pe->weak_unopposed(strongSide) ? 46 : 54;
         }
         // Endings where weaker side can place his king in front of the enemy's
         // pawns are drawish.
