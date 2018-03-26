@@ -122,13 +122,13 @@ namespace {
   // pieces if they occupy or can reach an outpost square, bigger if that
   // square is supported by a pawn.
   constexpr Score Outpost[][2] = {
-    { S(22, 6), S(36,12) }, // Knight
-    { S( 9, 2), S(15, 5) }  // Bishop
+    { S(22, 8), S(36,12) }, // Knight
+    { S( 9, 2), S(15, 4) }  // Bishop
   };
 
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is
   // no (friendly) pawn on the rook file.
-  constexpr Score RookOnFile[] = { S(20, 7), S(45, 20) };
+  constexpr Score RookOnFile[] = { S(20, 8), S(45, 20) };
 
   // ThreatByMinor/ByRook[attacked PieceType] contains bonuses according to
   // which piece type attacks which one. Attacks on lesser pieces which are
@@ -167,20 +167,20 @@ namespace {
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score Connectivity       = S(  3,  1);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score Hanging            = S( 52, 30);
+  constexpr Score Hanging            = S( 52, 32);
   constexpr Score HinderPassedPawn   = S(  8,  1);
-  constexpr Score KnightOnQueen      = S( 21, 11);
+  constexpr Score KnightOnQueen      = S( 21, 12);
   constexpr Score LongDiagonalBishop = S( 22,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score PawnlessFlank      = S( 20, 80);
   constexpr Score RookOnPawn         = S(  8, 24);
-  constexpr Score SliderOnQueen      = S( 42, 21);
-  constexpr Score ThreatByPawnPush   = S( 47, 26);
-  constexpr Score ThreatByRank       = S( 16,  3);
+  constexpr Score SliderOnQueen      = S( 42, 20);
+  constexpr Score ThreatByPawnPush   = S( 47, 28);
+  constexpr Score ThreatByRank       = S( 16,  4);
   constexpr Score ThreatBySafePawn   = S(175,168);
   constexpr Score TrappedRook        = S( 92,  0);
-  constexpr Score WeakQueen          = S( 50, 10);
-  constexpr Score WeakUnopposedPawn  = S(  5, 25);
+  constexpr Score WeakQueen          = S( 50, 12);
+  constexpr Score WeakUnopposedPawn  = S(  5, 24);
 
 #undef S
 
