@@ -157,7 +157,7 @@ void Search::init() {
               double r = log(d) * log(mc) / 1.95;
 
               Reductions[NonPV][imp][d][mc] = !imp + int(std::round(r));
-              Reductions[PV][imp][d][mc] = std::max(Reductions[NonPV][imp][d][mc] - 1, 0);
+              Reductions[PV][imp][d][mc] = std::max(Reductions[NonPV][imp][d][mc], 0);
           }
 
   for (int d = 0; d < 16; ++d)
