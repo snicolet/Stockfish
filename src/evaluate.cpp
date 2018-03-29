@@ -801,16 +801,18 @@ namespace {
     {
         if (pos.opposite_bishops())
         {
+            assert(pos.count<PAWN>() >= 2);
+
             // Endgame with opposite-colored bishops and no other pieces (ignoring pawns)
             // is almost a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = 31;
+                sf = 31 + 8 * popcount(pe->passed_pawns(strongSide));
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
             else
-                sf = 46;
+                sf = pe->weak_unopposed(strongSide) ? 46 : 54;
         }
         // Endings where weaker side can place his king in front of the enemy's
         // pawns are drawish.
