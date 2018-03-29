@@ -805,8 +805,16 @@ namespace {
             // is almost a draw, in case of KBP vs KB, it is even more a draw.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = more_than_one(pos.pieces(PAWN)) ? 31 + 4 * popcount(pe->passed_pawns(strongSide))
-                                                     : 9;
+            {
+                sf = 5 + 4 * popcount(pe->passed_pawns(strongSide));
+                
+                int sf2 = more_than_one(pos.pieces(PAWN)) ? 31 : 9;
+                
+                if (sf2 == 9)
+                    dbg_mean_of(sf == sf2);
+                
+                
+            }
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
