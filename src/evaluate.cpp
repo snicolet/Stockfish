@@ -766,13 +766,17 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    int shuffling = (eg > 0 && pos.this_thread()->rootColor == WHITE) ? 4 * pos.rule50_count() :
+                    (eg < 0 && pos.this_thread()->rootColor == BLACK) ? 4 * pos.rule50_count()
+                                                                      : 0;
+
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * outflanking
                     +  8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    -  4 * pos.rule50_count()
+                    -      shuffling
                     - 136;
 
     // Now apply the bonus: note that we find the attacking side by extracting

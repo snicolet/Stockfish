@@ -197,6 +197,7 @@ void MainThread::search() {
   }
 
   Color us = rootPos.side_to_move();
+  rootColor = us;
   Time.init(Limits, us, rootPos.game_ply());
   TT.new_search();
 

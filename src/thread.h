@@ -65,6 +65,7 @@ public:
   std::atomic<uint64_t> nodes, tbHits;
 
   Position rootPos;
+  Color rootColor;
   Search::RootMoves rootMoves;
   Depth rootDepth, completedDepth;
   CounterMoveHistory counterMoves;
