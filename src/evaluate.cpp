@@ -766,8 +766,11 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    int phalanxes = pe->phalanx_pawns(WHITE) + pe->phalanx_pawns(BLACK);
+
     // Compute the initiative bonus for the attacking side
-    int complexity =   8 * outflanking
+    int complexity =   4 * phalanxes
+                    +  8 * outflanking
                     +  8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 16 * pawnsOnBothFlanks
