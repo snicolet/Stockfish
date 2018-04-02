@@ -854,7 +854,7 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = gives_check(pos, move);
 
-      int x = std::max(0, int(pos.non_pawn_material()) / 1024 - 6);
+      int x = std::max(0, int(pos.non_pawn_material()) / 2048 - 4);
       moveCountPruning =   depth < 16 * ONE_PLY
                         && moveCount >= x + FutilityMoveCounts[improving][depth / ONE_PLY];
 
