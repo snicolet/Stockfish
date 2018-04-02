@@ -158,7 +158,7 @@ namespace {
         else if (   stoppers == SquareBB[s + Up]
                  && relative_rank(Us, s) >= RANK_5)
         {
-            b = phalanx | (shift<Up>(supported) & ~theirPawns);
+            b = shift<Up>(supported) & ~theirPawns;
             while (b)
             {
                 s2 = pop_lsb(&b);
