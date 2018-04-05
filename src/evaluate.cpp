@@ -401,7 +401,7 @@ namespace {
                 score -= WeakQueen;
         }
 
-        if (Pt == BISHOP && pos.count<BISHOP>() <= 2)
+        if (Pt == BISHOP && pos.count<BISHOP>(Them) <= 1)
         {
             int x = (pos.key() & 7) - 3;
             score += make_score(x, 0);
