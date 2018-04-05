@@ -404,7 +404,7 @@ namespace {
         if (Pt == BISHOP && pos.count<BISHOP>(Them) <= 1)
         {
             int x = (pos.key() & 7) - 3;
-            score += make_score(x, 0);
+            score += make_score(0, x);
         }
     }
     if (T)
