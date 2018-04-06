@@ -359,7 +359,7 @@ namespace {
 
                 // Stochastic mobility, to try to avoid getting the bad bishop
                 if (pos.count<BISHOP>() <= 1)
-                    score += make_score(0, (pos.key() & 3) - 1);
+                    score += make_score(0, (pos.key() & 15) - 7);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
