@@ -520,15 +520,8 @@ namespace {
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
 
-    // Non-pawn enemies attacked by a pawn
+    // Non-pawn enemies
     nonPawnEnemies = pos.pieces(Them) ^ pos.pieces(Them, PAWN);
-
-    // Our safe or protected pawns
-    b =   pos.pieces(Us, PAWN)
-       & (~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES]);
-
-    safeThreats = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    score += ThreatBySafePawn * popcount(safeThreats);
 
     // Squares strongly protected by the enemy, either because they defend the
     // square with a pawn, or because they defend the square twice and we don't.
@@ -572,6 +565,13 @@ namespace {
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
+
+    // Our safe or protected pawns
+    b =   pos.pieces(Us, PAWN)
+       & (~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES]);
+
+    safeThreats = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
+    score += ThreatBySafePawn * popcount(safeThreats);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
