@@ -357,6 +357,10 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(Center & (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) | s)))
                     score += LongDiagonalBishop;
+
+                // Stochastic mobility, to try to avoid getting the bad bishop
+                if (pos.count<BISHOP>() <= 1)
+                    score += make_score(0, (pos.key() & 3) - 1);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -399,12 +403,6 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-        }
-
-        if (Pt == BISHOP && pos.count<BISHOP>() <= 1)
-        {
-            int x = (pos.key() & 7) - 3;
-            score += make_score(0, x);
         }
     }
     if (T)
