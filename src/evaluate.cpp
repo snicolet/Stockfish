@@ -771,7 +771,7 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    int stochasticBishop = pos.count<BISHOP>() == 1 ? (pos.key() & 15) - 7 : 0;
+    int stochasticBishop = pos.count<BISHOP>() == 1 ? (pos.key() & 7) - 3 : 0;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * outflanking
