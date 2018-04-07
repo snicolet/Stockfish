@@ -357,10 +357,6 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(Center & (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) | s)))
                     score += LongDiagonalBishop;
-
-                // Stochastic mobility, to try to avoid getting the bad bishop
-                if (pos.count<BISHOP>() <= 1)
-                    score += make_score(0, (pos.key() & 15) - 7);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -775,12 +771,16 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    int stochasticBishop = pos.count<BISHOP>() == 1 ? (pos.key() & 15) - 7
+                                                    : 0;
+
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * outflanking
                     +  8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
+                    +      stochasticBishop
                     -136 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
