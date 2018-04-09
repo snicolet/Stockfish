@@ -771,13 +771,16 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    int mobilePawns = pe->mobile_pawns(WHITE) + pe->mobile_pawns(BLACK);
+
     // Compute the initiative bonus for the attacking side
-    int complexity =   8 * outflanking
+    int complexity =   4 * mobilePawns
+                    +  8 * outflanking
                     +  8 * pe->pawn_asymmetry()
-                    + 12 * pos.count<PAWN>()
+                    +  8 * pos.count<PAWN>()
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    -136 ;
+                    -132 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
