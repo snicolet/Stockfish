@@ -774,10 +774,10 @@ namespace {
     int mobilePawns = pe->mobile_pawns(WHITE) + pe->mobile_pawns(BLACK);
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   4 * mobilePawns
+    int complexity =   2 * mobilePawns
                     +  8 * outflanking
                     +  8 * pe->pawn_asymmetry()
-                    +  8 * pos.count<PAWN>()
+                    + 10 * pos.count<PAWN>()
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
                     -132 ;
