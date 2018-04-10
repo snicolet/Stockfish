@@ -37,7 +37,7 @@ namespace PSQT {
 // second half of the files.
 
 #define A 1
-#define B 2
+#define B 1
 
 constexpr Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
   { },
