@@ -820,9 +820,6 @@ namespace {
                  &&  pos.count<PAWN>(strongSide) <= 2
                  && !pos.pawn_passed(~strongSide, pos.square<KING>(~strongSide)))
             sf = 37 + 7 * pos.count<PAWN>(strongSide);
-
-        else if (pos.non_pawn_material() == RookValueMg + RookValueMg)
-            sf = 58;
     }
 
     return ScaleFactor(sf);
