@@ -494,6 +494,11 @@ void Thread::search() {
 }
 
 
+int singular_A = 20;
+int singular_B = 0;
+
+TUNE(SetRange(-500, 500), singular_A, singular_B);
+
 namespace {
 
   // search<>() is the main search function for both PV and non-PV nodes
@@ -873,7 +878,12 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3 * ONE_PLY
           &&  pos.legal(move))
       {
-          Value rBeta = std::max(ttValue - 2 * depth / ONE_PLY, -VALUE_MATE);
+      
+          int d = depth / ONE_PLY;
+          
+          Value v = ttValue - singular_A * d / 10 + singular_B;
+          
+          Value rBeta = std::max(v, -VALUE_MATE);
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, rBeta - 1, rBeta, depth / 2, cutNode, true);
           ss->excludedMove = MOVE_NONE;
