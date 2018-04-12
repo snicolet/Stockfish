@@ -875,7 +875,7 @@ moves_loop: // When in check, search starts from here
       {
 
           int d = depth / ONE_PLY;
-          Value v = ttValue - 18 * d / 10 + 2;
+          Value v = ttValue - 19 * d / 10;
           Value rBeta = std::max(v, -VALUE_MATE);
 
 
