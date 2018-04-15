@@ -209,16 +209,12 @@ extern Value PieceValue[PHASE_NB][PIECE_NB];
 
 typedef float Depth;
 
-constexpr Depth ONE_PLY             =  1.0;
-
-constexpr Depth DEPTH_ZERO          =  0 * ONE_PLY;
-constexpr Depth DEPTH_QS_CHECKS     =  0 * ONE_PLY;
-constexpr Depth DEPTH_QS_NO_CHECKS  = -1 * ONE_PLY;
-constexpr Depth DEPTH_QS_RECAPTURES = -5 * ONE_PLY;
-
-
-constexpr Depth DEPTH_NONE = -6 * ONE_PLY;
-constexpr Depth DEPTH_MAX  = MAX_PLY * ONE_PLY;
+constexpr Depth DEPTH_ZERO          =  0.0;
+constexpr Depth DEPTH_QS_CHECKS     =  0.0;
+constexpr Depth DEPTH_QS_NO_CHECKS  = -1.0;
+constexpr Depth DEPTH_QS_RECAPTURES = -5.0;
+constexpr Depth DEPTH_NONE          = -6.0;
+constexpr Depth DEPTH_MAX           = MAX_PLY;
 
 
 enum Square : int {
