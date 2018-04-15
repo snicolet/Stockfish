@@ -207,20 +207,19 @@ enum Piece {
 
 extern Value PieceValue[PHASE_NB][PIECE_NB];
 
-enum Depth : int {
+typedef float Depth;
 
-  ONE_PLY = 1,
+constexpr Depth ONE_PLY             =  1.0;
 
-  DEPTH_ZERO          =  0 * ONE_PLY,
-  DEPTH_QS_CHECKS     =  0 * ONE_PLY,
-  DEPTH_QS_NO_CHECKS  = -1 * ONE_PLY,
-  DEPTH_QS_RECAPTURES = -5 * ONE_PLY,
+constexpr Depth DEPTH_ZERO          =  0 * ONE_PLY;
+constexpr Depth DEPTH_QS_CHECKS     =  0 * ONE_PLY;
+constexpr Depth DEPTH_QS_NO_CHECKS  = -1 * ONE_PLY;
+constexpr Depth DEPTH_QS_RECAPTURES = -5 * ONE_PLY;
 
-  DEPTH_NONE = -6 * ONE_PLY,
-  DEPTH_MAX  = MAX_PLY * ONE_PLY
-};
 
-static_assert(!(ONE_PLY & (ONE_PLY - 1)), "ONE_PLY is not a power of 2");
+constexpr Depth DEPTH_NONE = -6 * ONE_PLY;
+constexpr Depth DEPTH_MAX  = MAX_PLY * ONE_PLY;
+
 
 enum Square : int {
   SQ_A1, SQ_B1, SQ_C1, SQ_D1, SQ_E1, SQ_F1, SQ_G1, SQ_H1,
@@ -302,7 +301,6 @@ inline T& operator*=(T& d, int i) { return d = T(int(d) * i); }    \
 inline T& operator/=(T& d, int i) { return d = T(int(d) / i); }
 
 ENABLE_FULL_OPERATORS_ON(Value)
-ENABLE_FULL_OPERATORS_ON(Depth)
 ENABLE_FULL_OPERATORS_ON(Direction)
 
 ENABLE_INCR_OPERATORS_ON(PieceType)
