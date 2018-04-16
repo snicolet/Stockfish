@@ -807,7 +807,7 @@ namespace {
             // Endgame with opposite-colored bishops and no other pieces is almost a draw
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = std::max(0, 45 - 2 * pos.rule50_count());
+                sf = std::max(0, 45 - 3 * pos.rule50_count());
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
