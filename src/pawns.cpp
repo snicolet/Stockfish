@@ -240,30 +240,30 @@ Value Entry::shelter_storm(const Position& pos, Square ksq) {
 
   enum { BlockedByKing, Unopposed, BlockedByPawn, Unblocked };
 
-  File center = std::max(FILE_B, std::min(FILE_G, file_of(ksq)));
-  Bitboard b =   pos.pieces(PAWN)
-               & (forward_ranks_bb(Us, ksq) | rank_bb(ksq))
-               & (adjacent_files_bb(center) | file_bb(center));
+  Bitboard b = pos.pieces(PAWN) & (forward_ranks_bb(Us, ksq) | rank_bb(ksq));
   Bitboard ourPawns = b & pos.pieces(Us);
   Bitboard theirPawns = b & pos.pieces(Them);
   Value safety = MaxSafetyBonus;
 
-  for (File f = File(center - 1); f <= File(center + 1); ++f)
-  {
-      b = ourPawns & file_bb(f);
-      Rank rkUs = b ? relative_rank(Us, backmost_sq(Us, b)) : RANK_1;
+  Bitboard kf = KingFlank[file_of(ksq)];
 
-      b = theirPawns & file_bb(f);
-      Rank rkThem = b ? relative_rank(Us, frontmost_sq(Them, b)) : RANK_1;
+  for (File f = FILE_A; f <= FILE_H ; ++f)
+      if (kf & file_bb(f))
+      {
+          b = ourPawns & file_bb(f);
+          Rank rkUs = b ? relative_rank(Us, backmost_sq(Us, b)) : RANK_1;
 
-      int d = std::min(f, ~f);
-      safety -=  ShelterWeakness[f == file_of(ksq)][d][rkUs]
-               + StormDanger
-                 [f == file_of(ksq) && rkThem == relative_rank(Us, ksq) + 1 ? BlockedByKing  :
-                  rkUs   == RANK_1                                          ? Unopposed :
-                  rkThem == rkUs + 1                                        ? BlockedByPawn  : Unblocked]
-                 [d][rkThem];
-  }
+          b = theirPawns & file_bb(f);
+          Rank rkThem = b ? relative_rank(Us, frontmost_sq(Them, b)) : RANK_1;
+
+          int d = std::min(f, ~f);
+          safety -=  ShelterWeakness[f == file_of(ksq)][d][rkUs]
+                   + StormDanger
+                     [f == file_of(ksq) && rkThem == relative_rank(Us, ksq) + 1 ? BlockedByKing  :
+                      rkUs   == RANK_1                                          ? Unopposed :
+                      rkThem == rkUs + 1                                        ? BlockedByPawn  : Unblocked]
+                     [d][rkThem];
+      }
 
   return safety;
 }
