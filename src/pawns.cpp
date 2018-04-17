@@ -242,7 +242,7 @@ Value Entry::shelter_storm(const Position& pos, Square ksq) {
 
   File center = std::max(FILE_B, std::min(FILE_G, file_of(ksq)));
   Bitboard b =   pos.pieces(PAWN)
-               & (forward_ranks_bb(Us, ksq) | rank_bb(ksq))
+               & forward_ranks_bb(Us, ksq)
                & (adjacent_files_bb(center) | file_bb(center));
   Bitboard ourPawns = b & pos.pieces(Us);
   Bitboard theirPawns = b & pos.pieces(Them);
