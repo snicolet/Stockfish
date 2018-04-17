@@ -265,7 +265,7 @@ Value Entry::shelter_storm(const Position& pos, Square ksq) {
                      [d][rkThem];
       }
 
-  return safety;
+  return 3 * safety / 4;
 }
 
 
