@@ -103,7 +103,7 @@ namespace {
 
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->weakUnopposed[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
-    e->kingSquares[Us]   = SQ_NONE;
+    e->kingSquare[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
@@ -275,24 +275,14 @@ Value Entry::shelter_storm(const Position& pos, Square ksq) {
 template<Color Us>
 Score Entry::do_king_safety(const Position& pos, Square ksq) {
 
-  kingSquares[Us] = ksq;
-  castlingRights[Us] = pos.can_castle(Us);
+  kingSquare[Us] = ksq;
   int minKingPawnDistance = 0;
 
   Bitboard pawns = pos.pieces(Us, PAWN);
   if (pawns)
       while (!(DistanceRingBB[ksq][minKingPawnDistance++] & pawns)) {}
 
-  Value bonus = shelter_storm<Us>(pos, ksq);
-
-  // If we can castle use the bonus after the castling if it is bigger
-  if (pos.can_castle(MakeCastling<Us, KING_SIDE>::right))
-      bonus = std::max(bonus, shelter_storm<Us>(pos, relative_square(Us, SQ_G1)));
-
-  if (pos.can_castle(MakeCastling<Us, QUEEN_SIDE>::right))
-      bonus = std::max(bonus, shelter_storm<Us>(pos, relative_square(Us, SQ_C1)));
-
-  return make_score(bonus, -16 * minKingPawnDistance);
+  return make_score(shelter_storm<Us>(pos, ksq), -16 * minKingPawnDistance);
 }
 
 // Explicit template instantiation
