@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <cassert>
 #include <ostream>
+#include <iostream>
 
 #include "misc.h"
 #include "search.h"
@@ -42,6 +43,11 @@ void on_logger(const Option& o) { start_logger(o); }
 void on_threads(const Option& o) { Threads.set(o); }
 void on_tb_path(const Option& o) { Tablebases::init(o); }
 
+void on_pi(const Option& o)
+{
+    double x = Options["PI"];  // or double x = o;
+    std::cerr << "received value is x = " << x << std::endl;
+}
 
 /// Our case insensitive less() function as required by UCI protocol
 bool CaseInsensitiveLess::operator() (const string& s1, const string& s2) const {
@@ -77,6 +83,8 @@ void init(OptionsMap& o) {
   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(6, 0, 6);
+
+  o["PI"]                    << Option(3.1415926, -10000000, 10000000, on_pi);
 }
 
 
