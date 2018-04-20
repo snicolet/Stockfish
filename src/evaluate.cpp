@@ -357,6 +357,10 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(Center & (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) | s)))
                     score += LongDiagonalBishop;
+                
+                // Stochastic bishop
+                if (pos.count<BISHOP>() <= 1)
+                    score += make_score(0, (pos.key() & 7));
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -807,7 +811,7 @@ namespace {
             // Endgame with opposite-colored bishops and no other pieces is almost a draw
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = 10 + std::max(0, 10 * (pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide)));
+                sf = (pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide) == 1) ? 20 : 31;
 
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
