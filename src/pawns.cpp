@@ -45,12 +45,14 @@ namespace {
 
   // Strength of our pawn shelter in front of the king by [distance from edge][rank].
   // RANK_1 = 0 is used for files where we have no pawns or our pawn is behind our king.
+  #define W(x) V(-24 + x)
   Value ShelterStrength[int(FILE_NB) / 2][RANK_NB] = {
-    { V( 15), V( 88), V(101), V( 68), V( 28), V( 23), V( 13) },
-    { V(  9), V(107), V( 75), V( 14), V( 25), V( 14), V( -4) },
-    { V(  6), V(108), V( 51), V( 12), V( 45), V( 17), V(-12) },
-    { V( 36), V(103), V( 49), V( 43), V( 33), V( 18), V( -9) }
+    { W( 15), W( 88), W(101), W( 68), W( 28), W( 23), W( 13) },
+    { W(  9), W(107), W( 75), W( 14), W( 25), W( 14), W( -4) },
+    { W(  6), W(108), W( 51), W( 12), W( 45), W( 17), W(-12) },
+    { W( 36), W(103), W( 49), W( 43), W( 33), W( 18), W( -9) }
   };
+  #undef W
 
   // Danger of enemy pawns moving toward our king by [type][distance from edge][rank].
   // For the unopposed and unblocked cases, RANK_1 = 0 is used when opponent has
@@ -236,7 +238,7 @@ Value Entry::shelter_storm(const Position& pos, Square ksq) {
   Bitboard ourPawns = b & pos.pieces(Us);
   Bitboard theirPawns = b & pos.pieces(Them);
 
-  int safety = (ourPawns & file_bb(file_of(ksq))) ? -67 : -80;
+  Value safety = VALUE_ZERO;
 
   File center = std::max(FILE_B, std::min(FILE_G, file_of(ksq)));
   for (File f = File(center - 1); f <= File(center + 1); ++f)
@@ -256,7 +258,7 @@ Value Entry::shelter_storm(const Position& pos, Square ksq) {
                  [d][rkThem];
   }
 
-  return Value(safety);
+  return safety;
 }
 
 
