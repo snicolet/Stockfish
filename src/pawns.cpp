@@ -45,7 +45,7 @@ namespace {
 
   // Strength of our pawn shelter in front of the king by [distance from edge][rank].
   // RANK_1 = 0 is used for files where we have no pawns or our pawn is behind our king.
-  #define W(x) V(-24 + x)
+  #define W(x) V(-24 + (x))
   Value ShelterStrength[int(FILE_NB) / 2][RANK_NB] = {
     { W( 15), W( 88), W(101), W( 68), W( 28), W( 23), W( 13) },
     { W(  9), W(107), W( 75), W( 14), W( 25), W( 14), W( -4) },
