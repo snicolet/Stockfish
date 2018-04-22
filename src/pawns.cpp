@@ -52,7 +52,7 @@ namespace {
     { W(  6), W(108), W( 51), W( 12), W( 45), W( 17), W(-12) },
     { W( 36), W(103), W( 49), W( 43), W( 33), W( 18), W( -9) }
   };
-  #undef W
+  #undef W 
 
   // Danger of enemy pawns moving toward our king by [type][distance from edge][rank].
   // For the unopposed and unblocked cases, RANK_1 = 0 is used when opponent has
