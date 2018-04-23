@@ -35,16 +35,17 @@ namespace PSQT {
 // type on a given square a (middlegame, endgame) score pair is assigned. Table
 // is defined for files A..D and white side: it is symmetric for black side and
 // second half of the files.
+#define A 1
 constexpr Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
   { },
   { // Pawn
-   { S(  0, 0), S(  0, 0), S(  0, 0), S( 0, 0) },
-   { S(-11, 7), S(  6,-4), S(  7, 8), S( 3,-2) },
-   { S(-18,-4), S( -2,-5), S( 19, 5), S(24, 4) },
-   { S(-17, 3), S( -9, 3), S( 20,-8), S(35,-3) },
-   { S( -6, 8), S(  5, 9), S(  3, 7), S(21,-6) },
-   { S( -6, 8), S( -8,-5), S( -6, 2), S(-2, 4) },
-   { S( -4, 3), S( 20,-9), S( -8, 1), S(-4,18) }
+   { S(  0, 0), S(  0, 0), S(  0, 0), S( 0, 0 + A) },
+   { S(-11, 7), S(  6,-4), S(  7, 8), S( 3,-2 + A) },
+   { S(-18,-4), S( -2,-5), S( 19, 5), S(24, 4 + A) },
+   { S(-17, 3), S( -9, 3), S( 20,-8), S(35,-3 + A) },
+   { S( -6, 8), S(  5, 9), S(  3, 7), S(21,-6 + A) },
+   { S( -6, 8), S( -8,-5), S( -6, 2), S(-2, 4 + A) },
+   { S( -4, 3), S( 20,-9), S( -8, 1), S(-4,18 + A) }
   },
   { // Knight
    { S(-161,-105), S(-96,-82), S(-80,-46), S(-73,-14) },
@@ -98,6 +99,7 @@ constexpr Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
   }
 };
 
+#undef A
 #undef S
 
 Score psq[PIECE_NB][SQUARE_NB];
