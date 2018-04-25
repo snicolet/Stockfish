@@ -159,13 +159,13 @@ namespace {
 
 void Search::init() {
 
-  double A = 2.17;
-  double B = 2.57;
-  double C = 0.87;
-  double D = 1.619;
-  double E = 5.16;
-  double F = 0.87;
-  double G = 1.872;
+  double A = 1.99;
+  double B = 2.39;
+  double C = 0.69;
+  double D = 1.795;
+  double E = 4.98;
+  double F = 1.04;
+  double G = 2.05;
 
   for (int imp = 0; imp <= 1; ++imp)
       for (int d = 1; d < 64; ++d)
