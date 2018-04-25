@@ -161,7 +161,7 @@ void Search::init() {
 
   double A = 1.99;
   double B = 2.40;
-  double C = 1.19;
+  double C = 2.19;
   double D = 1.795;
   double E = 4.99;
   double F = 1.04;
