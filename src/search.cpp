@@ -159,11 +159,19 @@ namespace {
 
 void Search::init() {
 
+  double A = 2.17;
+  double B = 2.57;
+  double C = 0.87;
+  double D = 1.619;
+  double E = 5.16;
+  double F = 0.87;
+  double G = 1.872;
+
   for (int imp = 0; imp <= 1; ++imp)
       for (int d = 1; d < 64; ++d)
           for (int mc = 1; mc < 64; ++mc)
           {
-              double r = log(d) * log(mc) / 1.95;
+              double r = log(d) * log(mc) / A;
 
               Reductions[NonPV][imp][d][mc] = int(std::round(r));
               Reductions[PV][imp][d][mc] = std::max(Reductions[NonPV][imp][d][mc] - 1, 0);
@@ -175,8 +183,8 @@ void Search::init() {
 
   for (int d = 0; d < 16; ++d)
   {
-      FutilityMoveCounts[0][d] = int(2.4 + 0.74 * pow(d, 1.78));
-      FutilityMoveCounts[1][d] = int(5.0 + 1.00 * pow(d, 2.00));
+      FutilityMoveCounts[0][d] = int(B + C * pow(d, D));
+      FutilityMoveCounts[1][d] = int(E + F * pow(d, G));
   }
 }
 
