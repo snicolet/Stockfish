@@ -160,10 +160,10 @@ namespace {
 void Search::init() {
 
   double A = 1.99;
-  double B = 2.39;
-  double C = 0.69;
+  double B = 2.40;
+  double C = 1.19;
   double D = 1.795;
-  double E = 4.98;
+  double E = 4.99;
   double F = 1.04;
   double G = 2.05;
 
