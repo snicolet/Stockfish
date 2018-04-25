@@ -42,6 +42,7 @@ void on_logger(const Option& o) { start_logger(o); }
 void on_threads(const Option& o) { Threads.set(o); }
 void on_tb_path(const Option& o) { Tablebases::init(o); }
 
+void on_lmr_tune(const Option&) { Search::init(); }
 
 /// Our case insensitive less() function as required by UCI protocol
 bool CaseInsensitiveLess::operator() (const string& s1, const string& s2) const {
@@ -77,6 +78,15 @@ void init(OptionsMap& o) {
   o["SyzygyProbeDepth"]      << Option(1, 1, 100);
   o["Syzygy50MoveRule"]      << Option(true);
   o["SyzygyProbeLimit"]      << Option(6, 0, 6);
+  
+  o["A"] << Option(1.95, 0, 100, on_lmr_tune);
+  o["B"] << Option(2.40, 0, 100, on_lmr_tune);
+  o["C"] << Option(0.74, 0, 100, on_lmr_tune);
+  o["D"] << Option(1.78, 0, 100, on_lmr_tune);
+  o["E"] << Option(5.00, 0, 100, on_lmr_tune);
+  o["F"] << Option(1.00, 0, 100, on_lmr_tune);
+  o["G"] << Option(2.00, 0, 100, on_lmr_tune);
+  
 }
 
 
