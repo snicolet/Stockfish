@@ -24,6 +24,7 @@
 #include <cstring>   // For std::memset
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 #include "evaluate.h"
 #include "misc.h"
@@ -157,6 +158,8 @@ namespace {
 
 /// Search::init() is called at startup to initialize various lookup tables
 
+using namespace std;
+
 void Search::init() {
 
   double A = Options["A"];   // 1.95
@@ -167,17 +170,28 @@ void Search::init() {
   double F = Options["F"];   // 1.00
   double G = Options["G"];   // 2.00
   
-  start_logger("__log.txt");
+//   std::ofstream f;
+//   f.open("blah_foo.txt" , ios::app);
+//   
+//   f << "A has value " << A << std::endl;
+//   f << "B has value " << B << std::endl;
+//   f << "C has value " << C << std::endl;
+//   f << "D has value " << D << std::endl;
+//   f << "E has value " << E << std::endl;
+//   f << "F has value " << F << std::endl;
+//   f << "G has value " << G << std::endl;
+//   
+//   f.close();
+//   
+//   std::cout << "Hello there !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+//   std::cout << "A has value " << A << std::endl;
+//   std::cout << "B has value " << B << std::endl;
+//   std::cout << "C has value " << C << std::endl;
+//   std::cout << "D has value " << D << std::endl;
+//   std::cout << "E has value " << E << std::endl;
+//   std::cout << "F has value " << F << std::endl;
+//   std::cout << "G has value " << G << std::endl;
   
-  std::cout << "A has value " << A << std::endl;
-  std::cout << "B has value " << B << std::endl;
-  std::cout << "C has value " << C << std::endl;
-  std::cout << "D has value " << D << std::endl;
-  std::cout << "E has value " << E << std::endl;
-  std::cout << "F has value " << F << std::endl;
-  std::cout << "G has value " << G << std::endl;
-  
-  start_logger("");
 
   for (int imp = 0; imp <= 1; ++imp)
       for (int d = 1; d < 64; ++d)
