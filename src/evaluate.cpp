@@ -815,7 +815,7 @@ namespace {
                 sf = 46;
         }
         else
-            sf = std::min(40 + 5 * pos.count<PAWN>(strongSide), sf);
+            sf = std::min(44 + 5 * pos.count<PAWN>(strongSide), sf);
     }
 
     return ScaleFactor(sf);
