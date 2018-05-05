@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -468,6 +469,27 @@ namespace {
             kingDanger += KnightSafeCheck;
         else
             unsafeChecks |= b;
+            
+        constexpr int Fork = 50;
+        
+        // Knight forks
+        b &= (mobilityArea[Them] & (safe | attackedBy2[Them]));
+        while (b)
+        {
+            Square s = pop_lsb(&b);
+            Bitboard targets =   pos.pieces(Us, QUEEN, ROOK)
+                               | pos.pieces(Us, BISHOP)
+                               | (pos.pieces(Us, PAWN) & ~attackedBy[Us][ALL_PIECES]);
+            Bitboard fork = pos.attacks_from<KNIGHT>(s) & targets;
+            if (0 && fork)
+            {
+                std::cerr << pos << std::endl;
+                std::cerr << Bitboards::pretty(fork) << std::endl;
+                std::cerr << "==============================================================" << std::endl;
+            }
+            if (fork)
+                kingDanger += Fork;
+        }
 
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
