@@ -638,9 +638,11 @@ namespace {
     };
 
     Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
+    int passedCount;
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
+    passedCount = popcount(b);
 
     while (b)
     {
@@ -656,7 +658,7 @@ namespace {
 
         if (   pos.non_pawn_material(Them) <= BishopValueMg
             || pos.non_pawn_material(Us) == QueenValueMg)
-            w += 1;
+            w += passedCount;
 
         Score bonus = PassedRank[r];
 
