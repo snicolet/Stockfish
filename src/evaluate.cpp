@@ -655,7 +655,7 @@ namespace {
         int w = PassedDanger[r];
 
         if (   pos.count<PAWN>(Us) > 1
-            && (   pos.non_pawn_material(Them) <= BishopValueMg
+            && (   pos.non_pawn_material() <= 2 * BishopValueMg
                 || pos.non_pawn_material(Us) == QueenValueMg))
             w += 1;
 
