@@ -470,7 +470,7 @@ namespace {
         else
             unsafeChecks |= b;
             
-        constexpr int Fork = 50;
+        constexpr int Fork = 300;
         
         // Knight forks
         b &= (mobilityArea[Them] & (safe | attackedBy2[Them]));
