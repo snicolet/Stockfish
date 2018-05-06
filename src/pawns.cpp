@@ -221,7 +221,7 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
   Bitboard ourPawns = b & pos.pieces(Us);
   Bitboard theirPawns = b & pos.pieces(Them);
 
-  Value safety = (ourPawns & file_bb(ksq)) ? Value(20) : Value(-20);
+  Value safety = (ourPawns & file_bb(ksq)) ? Value(25) : Value(-25);
 
   if ((shift<Down>(theirPawns) & (FileABB | FileHBB) & BlockRanks) & ksq)
       safety += 374;
