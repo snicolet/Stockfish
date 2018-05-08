@@ -996,7 +996,7 @@ moves_loop: // When in check, search starts from here
                   r += ONE_PLY;
 
               // Increase reduction for cut nodes (~5 Elo)
-              if ((depth / ONE_PLY) & 1)
+              if (ss->staticEval > beta + 200)
                   r += ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
