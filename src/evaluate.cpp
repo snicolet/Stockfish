@@ -847,7 +847,7 @@ namespace {
     if (abs(pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) < 2)
         score += pos.this_thread()->contempt;
     else
-        score += pos.this_thread()->contempt * 2;
+        score += pos.this_thread()->contempt * 3;
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
