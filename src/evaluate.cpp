@@ -844,7 +844,7 @@ namespace {
     // imbalance. Score is computed internally from the white point of view.
     Score score = pos.psq_score() + me->imbalance();
 
-    if (abs(pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) < 1)
+    if (abs(pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) < 2)
         score += pos.this_thread()->contempt;
     else
         score += pos.this_thread()->contempt * 2;
