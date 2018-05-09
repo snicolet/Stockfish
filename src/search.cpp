@@ -66,9 +66,9 @@ namespace {
   constexpr int SkipPhase[] = { 0, 1, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 6, 7 };
 
   // Razor and futility margins
-  constexpr int RazorMargin[] = {0, 600, 614};
+  constexpr int RazorMargin[] = {0, 590, 604};
   Value futility_margin(Depth d, bool improving) {
-    return Value((175 - 50 * improving) * d / ONE_PLY);
+    return Value((185 - 50 * improving) * d / ONE_PLY);
   }
 
   // Margin for pruning capturing moves: almost linear in depth
