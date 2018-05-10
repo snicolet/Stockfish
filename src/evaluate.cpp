@@ -162,6 +162,7 @@ namespace {
   constexpr Score KingProtector[] = { S(3, 5), S(4, 3), S(3, 0), S(1, -1) };
 
   // Assorted bonuses and penalties
+  constexpr Score BadPins            = S( 20, 20);
   constexpr Score BishopPawns        = S(  3,  5);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score Connectivity       = S(  3,  1);
@@ -570,6 +571,13 @@ namespace {
            & attackedBy[Them][ALL_PIECES] & ~attackedBy2[Them];
         score += Overload * popcount(b);
     }
+
+    // Pins
+    b =  pos.blockers_for_king(Them)
+       & pos.pieces(Them)
+       & attackedBy2[Us];
+    if (b)
+        score += BadPins;
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
