@@ -950,8 +950,7 @@ moves_loop: // When in check, search starts from here
                    && !extension)
           {
               Value margin = Value(CapturePruneMargin[depth / ONE_PLY]);
-              if (   captureOrPromotion
-                  && more_than_one(pos.attackers_to(to_sq(move)) & pos.pieces(pos.side_to_move())))
+              if (more_than_one(pos.attackers_to(to_sq(move)) & pos.pieces(pos.side_to_move())))
                   margin += 100;
 
               if (!pos.see_ge(move, -margin))
