@@ -162,7 +162,7 @@ namespace {
   constexpr Score KingProtector[] = { S(3, 5), S(4, 3), S(3, 0), S(1, -1) };
 
   // Assorted bonuses and penalties
-  constexpr Score BadPins            = S( 50,  0);
+  constexpr Score BadPins            = S(  0, 50);
   constexpr Score BishopPawns        = S(  3,  5);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score Connectivity       = S(  3,  1);
