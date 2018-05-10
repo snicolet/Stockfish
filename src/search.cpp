@@ -947,9 +947,16 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (    depth < 7 * ONE_PLY // (~20 Elo)
-                   && !extension
-                   && !pos.see_ge(move, -Value(CapturePruneMargin[depth / ONE_PLY])))
+                   && !extension)
+          {
+              Value margin = Value(CapturePruneMargin[depth / ONE_PLY]);
+              if (   captureOrPromotion
+                  && more_than_one(pos.attackers_to(to_sq(move)) & pos.pieces(pos.side_to_move())))
+                  margin += 100;
+
+              if (!pos.see_ge(move, -margin))
                   continue;
+          }
       }
 
       // Speculative prefetch as early as possible
