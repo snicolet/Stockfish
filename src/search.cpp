@@ -985,11 +985,13 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Decrease reduction if opponent's move count is high (~5 Elo)
-              if ((ss-1)->moveCount > 15)
+              if (   !PvNode
+                  && (ss-1)->moveCount > 15)
                   r -= ONE_PLY;
 
               // Decrease reduction for exact PV nodes (~0 Elo)
-              if (pvExact)
+              if (   !PvNode
+                  && pvExact)
                   r -= ONE_PLY;
 
               // Increase reduction if ttMove is a capture (~0 Elo)
@@ -1003,7 +1005,8 @@ moves_loop: // When in check, search starts from here
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
               // hence break make_move(). (~5 Elo)
-              else if (    type_of(move) == NORMAL
+              else if (   !PvNode
+                       &&  type_of(move) == NORMAL
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
                   r -= 2 * ONE_PLY;
 
