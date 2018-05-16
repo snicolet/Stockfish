@@ -994,8 +994,8 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction for no-progress moves
               if (   !PvNode
-                  && pos.rule50_count() > 4)
-                  r += ONE_PLY;
+                  && pos.rule50_count() > 8)
+                  r += 2 * ONE_PLY;
 
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
