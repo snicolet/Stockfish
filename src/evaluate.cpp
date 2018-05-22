@@ -166,6 +166,7 @@ namespace {
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score Connectivity       = S(  3,  1);
   constexpr Score CorneredBishop     = S( 50, 50);
+  constexpr Score Fork               = S( 40, 10);
   constexpr Score Hanging            = S( 52, 30);
   constexpr Score HinderPassedPawn   = S(  8,  1);
   constexpr Score KnightOnQueen      = S( 21, 11);
@@ -465,7 +466,20 @@ namespace {
         // Enemy knights checks
         b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
         if (b & safe)
+        {
             kingDanger += KnightSafeCheck;
+
+            // Knight forking king and (queen, rooks, bishops or pawns)
+            Bitboard checks = b & safe;
+            Bitboard targets = pos.pieces(Us, QUEEN, ROOK);
+            targets |=    pos.pieces(Us, BISHOP, PAWN) 
+                        & (  ~attackedBy[Us][ALL_PIECES] 
+                          | (~attackedBy[Us][PAWN] & attackedBy[Them][ALL_PIECES]));
+            do
+                if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
+                    score -= Fork;
+            while (checks);
+        }
         else
             unsafeChecks |= b;
 
