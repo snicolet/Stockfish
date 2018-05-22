@@ -96,6 +96,7 @@ namespace {
   constexpr int RookSafeCheck   = 880;
   constexpr int BishopSafeCheck = 435;
   constexpr int KnightSafeCheck = 790;
+  constexpr int Fork            = 100;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -166,7 +167,6 @@ namespace {
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score Connectivity       = S(  3,  1);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score Fork               = S( 20, 20);
   constexpr Score Hanging            = S( 52, 30);
   constexpr Score HinderPassedPawn   = S(  8,  1);
   constexpr Score KnightOnQueen      = S( 21, 11);
@@ -477,7 +477,7 @@ namespace {
                           | (~attackedBy[Us][PAWN] & attackedBy[Them][ALL_PIECES]));
             while (checks)
                 if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
-                    kingDanger += 100;
+                    kingDanger += Fork;
         }
         else
             unsafeChecks |= b;
@@ -492,8 +492,7 @@ namespace {
                      + 191 * popcount(kingRing[Us] & weak)
                      + 143 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      - 848 * !pos.count<QUEEN>(Them)
-                     -   9 * mg_value(score) / 8
-                     +  40;
+                     -   9 * mg_value(score) / 8;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
