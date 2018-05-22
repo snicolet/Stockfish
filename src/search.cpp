@@ -1284,6 +1284,18 @@ moves_loop: // When in check, search starts from here
         futilityBase = bestValue + 128;
     }
 
+    // Check if there exists a move which draws by repetition, or an alternative
+    // earlier move to this position.
+    if (   pos.rule50_count() >= 3
+        && alpha < VALUE_DRAW
+        && beta <= VALUE_DRAW
+        && pos.has_game_cycle(ss->ply))
+    {
+        alpha = VALUE_DRAW;
+        if (alpha >= beta)
+            return alpha;
+    }
+
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions and checks (only if depth >= DEPTH_QS_CHECKS) will
