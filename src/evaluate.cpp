@@ -166,7 +166,7 @@ namespace {
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score Connectivity       = S(  3,  1);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score Fork               = S( 40, 10);
+  constexpr Score Fork               = S( 20, 20);
   constexpr Score Hanging            = S( 52, 30);
   constexpr Score HinderPassedPawn   = S(  8,  1);
   constexpr Score KnightOnQueen      = S( 21, 11);
@@ -475,13 +475,13 @@ namespace {
             targets |=    pos.pieces(Us, BISHOP, PAWN) 
                         & (  ~attackedBy[Us][ALL_PIECES] 
                           | (~attackedBy[Us][PAWN] & attackedBy[Them][ALL_PIECES]));
-            do
+            while (checks)
                 if (pos.attacks_from<KNIGHT>(pop_lsb(&checks)) & targets)
-                    score -= Fork;
-            while (checks);
+                    kingDanger += 100;
         }
         else
             unsafeChecks |= b;
+
 
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
