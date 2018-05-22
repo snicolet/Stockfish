@@ -582,6 +582,7 @@ namespace {
         // earlier move to this position.
         if (   pos.rule50_count() >= 3
             && alpha < VALUE_DRAW
+            && inCheck
             && pos.has_game_cycle(ss->ply))
         {
             alpha = VALUE_DRAW;
