@@ -96,7 +96,7 @@ namespace {
   constexpr int RookSafeCheck   = 880;
   constexpr int BishopSafeCheck = 435;
   constexpr int KnightSafeCheck = 790;
-  constexpr int Fork            = 110;
+  constexpr int Fork            = 100;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -490,7 +490,7 @@ namespace {
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      + 102 * kingAttacksCount[Them]
                      + 191 * popcount(kingRing[Us] & weak)
-                     + 143 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                     + 173 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
                      +  40;
