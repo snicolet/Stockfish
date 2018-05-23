@@ -582,7 +582,7 @@ namespace {
         // earlier move to this position.
         if (   pos.rule50_count() >= 3
             && alpha < VALUE_DRAW
-            && pos.has_game_cycle(ss->ply))
+            && pos.has_game_cycle(ss->ply, move))
         {
             alpha = VALUE_DRAW;
             if (alpha >= beta)
@@ -1222,6 +1222,18 @@ moves_loop: // When in check, search starts from here
     if (   pos.is_draw(ss->ply)
         || ss->ply >= MAX_PLY)
         return (ss->ply >= MAX_PLY && !inCheck) ? evaluate(pos) : VALUE_DRAW;
+
+    // Check for a move which draws by repetition, or an alternative earlier move to this position
+    if (   !PvNode
+        && pos.rule50_count() >= 3
+        && alpha < VALUE_DRAW
+        && pos.has_game_cycle(ss->ply, move)
+        && color_of(pos.piece_on(from_sq(move))) == pos.side_to_move())
+    {
+        alpha = VALUE_DRAW;
+        if (alpha >= beta)
+            return alpha;
+    }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 

@@ -1172,7 +1172,7 @@ bool Position::has_repeated() const {
 /// Position::has_game_cycle() tests if the position has a move which draws by repetition,
 /// or an earlier position has a move that directly reaches the current position.
 
-bool Position::has_game_cycle(int ply) const {
+bool Position::has_game_cycle(int ply, Move& move) const {
 
   int j;
 
@@ -1192,18 +1192,17 @@ bool Position::has_game_cycle(int ply) const {
       if (   (j = H1(moveKey), cuckoo[j] == moveKey)
           || (j = H2(moveKey), cuckoo[j] == moveKey))
       {
-          Move move = cuckooMove[j];
-          Square from = from_sq(move);
-          Square to = to_sq(move);
-          
-          // In the cuckoo table, both moves Rc1c5 and Rc5c1 are stored in the same
-          // location. We select the legal one by reversing the move variable if necessary.
-          if (empty(from))
-              move = make_move(to, from);
+          move = cuckooMove[j];
+          Square s1 = from_sq(move);
+          Square s2 = to_sq(move);
 
-          if (   !(between_bb(from, to) & pieces())
-              && color_of(piece_on(from_sq(move))) == side_to_move())
+          if (!(between_bb(s1, s2) & pieces()))
           {
+              // Moves Rc1c5 and Rc5c1 share the same location in the cuckoo table.
+              // We select the only legal one by reversing the move variable if necessary.
+              if (empty(s1))
+                  move = make_move(s2, s1);
+
               if (ply > i)
                   return true;
 
