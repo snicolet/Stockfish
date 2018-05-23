@@ -1197,12 +1197,12 @@ bool Position::has_game_cycle(int ply) const {
           Square to = to_sq(move);
           
           // In the cuckoo table, both moves Rc1c5 and Rc5c1 are stored in the same
-          // location, so select the legal one by reversing the move variable if necessary.
+          // location. We select the legal one by reversing the move variable if necessary.
           if (empty(from))
               move = make_move(to, from);
 
           if (   !(between_bb(from, to) & pieces())
-              && color_of(piece_on(from_sq(move))) != side_to_move())
+              && color_of(piece_on(from_sq(move))) == side_to_move())
           {
               if (ply > i)
                   return true;
