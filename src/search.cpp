@@ -1223,7 +1223,7 @@ moves_loop: // When in check, search starts from here
         || ss->ply >= MAX_PLY)
         return (ss->ply >= MAX_PLY && !inCheck) ? evaluate(pos) : VALUE_DRAW;
 
-    // Check for a move which draws by repetition, or an alternative earlier move to this position
+    // Check for a move which draws by repetition
     if (   !PvNode
         && pos.rule50_count() >= 3
         && alpha < VALUE_DRAW
