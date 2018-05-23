@@ -1202,7 +1202,7 @@ bool Position::has_game_cycle(int ply) const {
               move = make_move(to, from);
 
           if (   !(between_bb(from, to) & pieces())
-              && color_of(piece_on(from_sq(move))) == side_to_move())
+              && color_of(piece_on(from_sq(move))) != side_to_move())
           {
               if (ply > i)
                   return true;
