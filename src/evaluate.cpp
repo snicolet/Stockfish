@@ -811,7 +811,7 @@ namespace {
             // Endgame with opposite-colored bishops, but also other pieces. Still
             // a bit drawish, but not as drawish as with only the two bishops.
             else
-                sf = 46;
+                sf = pe->weak_unopposed(strongSide) ? 44 : 54;
         }
         else
             sf = std::min(40 + 7 * pos.count<PAWN>(strongSide), sf);
