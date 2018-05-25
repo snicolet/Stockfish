@@ -171,6 +171,7 @@ namespace {
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 22,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
+  constexpr Score OverConcentration  = S( 20, 20);
   constexpr Score Overload           = S( 10,  5);
   constexpr Score PawnlessFlank      = S( 20, 80);
   constexpr Score RookOnPawn         = S(  8, 24);
@@ -536,6 +537,10 @@ namespace {
 
     // Enemies not strongly protected and under our attack
     weak = pos.pieces(Them) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
+
+    // Malus if all our threats are concentrated on one flank
+    if (!(weak & QueenSide) || !(weak & KingSide))
+        score -= OverConcentration;
 
     // Bonus according to the kind of attacking pieces
     if (defended | weak)
