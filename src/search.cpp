@@ -997,7 +997,7 @@ moves_loop: // When in check, search starts from here
           if (captureOrPromotion) // (~5 Elo)
           {
               // Increase reduction by comparing opponent's stat score
-              if (   (ss-1)->statScore >= 0 
+              if (   (ss-1)->statScore >= 0
                   && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 0)
                   r += ONE_PLY;
 
@@ -1042,7 +1042,7 @@ moves_loop: // When in check, search starts from here
                   r += ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r = std::max(DEPTH_ZERO, (r / ONE_PLY - ss->statScore / 20000) * ONE_PLY);
+              r = std::max(DEPTH_ZERO, (r / ONE_PLY - ss->statScore / 16000) * ONE_PLY);
           }
 
           Depth d = std::max(newDepth - r, ONE_PLY);
