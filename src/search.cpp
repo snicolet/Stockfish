@@ -537,7 +537,7 @@ namespace {
     TTEntry* tte;
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
-    Depth extension, newDepth;
+    Depth extension, newDepth, softPruning;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, inCheck, givesCheck, improving;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets, ttCapture, pvExact;
@@ -551,6 +551,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    softPruning = DEPTH_ZERO;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -730,7 +731,7 @@ namespace {
         Value ralpha = alpha - (depth >= 2 * ONE_PLY) * RazorMargin[depth / ONE_PLY];
         Value v = qsearch<NonPV>(pos, ss, ralpha, ralpha+1);
         if (depth < 2 * ONE_PLY || v <= ralpha)
-            return v;
+            softPruning = ONE_PLY;
     }
 
     improving =   ss->staticEval >= (ss-2)->staticEval
@@ -922,7 +923,7 @@ moves_loop: // When in check, search starts from here
           extension = ONE_PLY;
 
       // Calculate new depth for this move
-      newDepth = depth - ONE_PLY + extension;
+      newDepth = depth - ONE_PLY - softPruning + extension;
 
       // Step 14. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
