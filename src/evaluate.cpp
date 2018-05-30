@@ -163,7 +163,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  5);
-  constexpr Score CloseEnemies       = S(  7,  0);
+  constexpr Score CloseEnemies       = S(  5,  0);
   constexpr Score Connectivity       = S(  3,  1);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 52, 30);
@@ -420,10 +420,18 @@ namespace {
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
+    const Bitboard kf = KingFlank[file_of(ksq)];
     Bitboard weak, b, b1, b2, safe, unsafeChecks;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
+
+    // Find the squares that opponent attacks in our king flank, and the squares
+    // which are attacked twice in that flank but not defended by our pawns.
+    b1 = attackedBy[Them][ALL_PIECES] & kf & Camp;
+    b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
+
+    int tropism = popcount(b1) + popcount(b2);
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
@@ -479,7 +487,7 @@ namespace {
                      + 143 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      - 848 * !pos.count<QUEEN>(Them)
                      -   9 * mg_value(score) / 8
-                     +  40;
+                     +   4 * tropism;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
@@ -490,19 +498,11 @@ namespace {
         }
     }
 
-    Bitboard kf = KingFlank[file_of(ksq)];
+    score -= CloseEnemies * tropism;
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kf))
         score -= PawnlessFlank;
-
-    // Find the squares that opponent attacks in our king flank, and the squares
-    // which are attacked twice in that flank but not defended by our pawns.
-    b1 = attackedBy[Them][ALL_PIECES] & kf & Camp;
-    b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
-
-    // King tropism, to anticipate slow motion attacks on our king
-    score -= CloseEnemies * (popcount(b1) + popcount(b2));
 
     if (T)
         Trace::add(KING, Us, score);
