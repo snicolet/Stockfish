@@ -617,7 +617,7 @@ namespace {
     b = (pos.pieces(Us) ^ pos.pieces(Us, PAWN, KING)) & attackedBy[Us][ALL_PIECES];
     score += Connectivity * popcount(b);
 
-    score -= make_score(0, eg_value(score) / 16);
+    score -= make_score(0, eg_value(score) / 8);
 
     if (T)
         Trace::add(THREAT, Us, score);
