@@ -521,7 +521,17 @@ namespace {
 
     // Use quiescence search when needed
     if (depth < ONE_PLY)
-        return qsearch<NT>(pos, ss, alpha, beta);
+    {
+        Value v = qsearch<NT>(pos, ss, alpha, beta);
+
+        if (   v > VALUE_DRAW
+            && v < VALUE_KNOWN_WIN
+            && v > (ss-2)->staticEval
+            && (ss-2)->staticEval != VALUE_NONE)
+            v += 1;
+
+        return v;
+    }
 
     constexpr bool PvNode = NT == PV;
     const bool rootNode = PvNode && ss->ply == 0;
