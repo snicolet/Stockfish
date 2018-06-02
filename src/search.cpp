@@ -528,7 +528,7 @@ namespace {
             && v < VALUE_KNOWN_WIN
             && v > (ss-2)->staticEval
             && (ss-2)->staticEval != VALUE_NONE)
-            v += 1;
+            v += 2;
 
         return v;
     }
