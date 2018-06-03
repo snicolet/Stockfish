@@ -527,7 +527,7 @@ namespace {
         // Evaluation bonus for improving lines
         if (   v > VALUE_DRAW
             && v < VALUE_KNOWN_WIN
-            && v > (ss-2)->staticEval + 2
+            && v > (ss-2)->staticEval + 3
             && (ss-2)->staticEval != VALUE_NONE)
             v += 1;
 
