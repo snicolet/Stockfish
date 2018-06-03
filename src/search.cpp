@@ -526,7 +526,7 @@ namespace {
 
         if (   v > VALUE_DRAW
             && v < VALUE_KNOWN_WIN
-            && v > (ss-2)->staticEval - 1
+            && v > (ss-2)->staticEval + 1
             && (ss-2)->staticEval != VALUE_NONE)
             v += 1;
 
