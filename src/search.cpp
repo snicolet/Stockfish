@@ -524,11 +524,11 @@ namespace {
     {
         Value v = qsearch<NT>(pos, ss, alpha, beta);
 
-        if (   v > VALUE_DRAW
+        if (   v > VALUE_DRAW + 25
             && v < VALUE_KNOWN_WIN
-            && v <= (ss-2)->staticEval
+            && v > (ss-2)->staticEval
             && (ss-2)->staticEval != VALUE_NONE)
-            v -= 1;
+            v += 1;
 
         return v;
     }
