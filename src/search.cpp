@@ -529,7 +529,7 @@ namespace {
             && v < VALUE_KNOWN_WIN
             && v > (ss-2)->staticEval + 1
             && (ss-2)->staticEval != VALUE_NONE
-            && pos.rule50_count() >= 4)
+            && pos.rule50_count() >= 6)
             v += 1;
 
         return v;
