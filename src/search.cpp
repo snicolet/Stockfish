@@ -528,7 +528,8 @@ namespace {
         if (   v > VALUE_DRAW
             && v < VALUE_KNOWN_WIN
             && v > (ss-2)->staticEval + 1
-            && (ss-2)->staticEval != VALUE_NONE)
+            && (ss-2)->staticEval != VALUE_NONE
+            && pos.rule50_count() >= 2)
             v += 1;
 
         return v;
