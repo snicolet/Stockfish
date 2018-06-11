@@ -575,6 +575,10 @@ namespace {
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
+    if (   pe->weak_unopposed(Them)
+        && (weak & ~attackedBy[Them][PAWN] & pos.pieces(Them, PAWN)))
+        score += make_score(20, 20);
+
     // Our safe or protected pawns
     b =   pos.pieces(Us, PAWN)
        & (~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES]);
