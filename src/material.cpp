@@ -121,8 +121,8 @@ namespace Material {
 double A = 0.32;
 double B = 1.28;
 
-TUNE(SetRange(0, 30), A);
-TUNE(SetRange(0, 30), B);
+TUNE(SetRange(-1000, 1000), A);
+TUNE(SetRange(-1000, 1000), B);
 
 Entry* probe(const Position& pos) {
 
