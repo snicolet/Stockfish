@@ -118,6 +118,12 @@ namespace Material {
 /// is found. Otherwise a new Entry is computed and stored there, so we don't
 /// have to recompute all when the same material configuration occurs again.
 
+double A = 3.2;
+double B = 12.8;
+
+TUNE(SetRange(0, 30), A);
+TUNE(SetRange(0, 30), B);
+
 Entry* probe(const Position& pos) {
 
   Key key = pos.material_key();
@@ -132,7 +138,11 @@ Entry* probe(const Position& pos) {
 
   Value npm_w = pos.non_pawn_material(WHITE);
   Value npm_b = pos.non_pawn_material(BLACK);
-  Value npm = npm_w + npm_b + 32 * (pos.count<BISHOP>() + pos.count<KNIGHT>()) - 128;
+  
+  Value npm =   npm_w + npm_b
+              + Value(A * 10.0 * (pos.count<BISHOP>() + pos.count<KNIGHT>()))
+              - Value(B * 10.0);
+  
   npm = std::max(EndgameLimit, std::min(npm, MidgameLimit));
 
   // Map total non-pawn material into [PHASE_ENDGAME, PHASE_MIDGAME]
