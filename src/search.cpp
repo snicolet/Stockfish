@@ -319,8 +319,8 @@ void Thread::search() {
           : ct;
 
   // In evaluate.cpp the evaluation is from the white point of view
-  contempt = (us == WHITE ?  make_score(ct, 3 * ct / 4)
-                          : -make_score(ct, 3 * ct / 4));
+  contempt = (us == WHITE ?  make_score(ct, 3 * ct / 5)
+                          : -make_score(ct, 3 * ct / 5));
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   (rootDepth += ONE_PLY) < DEPTH_MAX
@@ -372,8 +372,8 @@ void Thread::search() {
               // Adjust contempt based on root move's previousScore (dynamic contempt)
               int dct = ct + 88 * previousScore / (abs(previousScore) + 200);
 
-              contempt = (us == WHITE ?  make_score(dct, 3 * dct / 4)
-                                      : -make_score(dct, 3 * dct / 4));
+              contempt = (us == WHITE ?  make_score(dct, 3 * dct / 5)
+                                      : -make_score(dct, 3 * dct / 5));
           }
 
           // Start with a small aspiration window and, in the case of a fail
