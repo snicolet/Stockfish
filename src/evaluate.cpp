@@ -575,10 +575,6 @@ namespace {
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
-    if (   pe->weak_unopposed(Them)
-        && (weak & ~attackedBy[Them][PAWN] & pos.pieces(Them, PAWN)))
-        score += make_score(20, 20);
-
     // Our safe or protected pawns
     b =   pos.pieces(Us, PAWN)
        & (~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES]);
@@ -591,7 +587,7 @@ namespace {
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are not completely unsafe
-    b &= ~attackedBy[Them][PAWN]
+    b &=  ~stronglyProtected
         & (attackedBy[Us][ALL_PIECES] | ~attackedBy[Them][ALL_PIECES]);
 
     // Bonus for safe pawn threats on the next move
