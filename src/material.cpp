@@ -132,7 +132,7 @@ Entry* probe(const Position& pos) {
 
   Value npm_w = pos.non_pawn_material(WHITE);
   Value npm_b = pos.non_pawn_material(BLACK);
-  Value npm = npm_w + npm_b + 16 * (pos.count<BISHOP>() + pos.count<KNIGHT>()) - 64;
+  Value npm = npm_w + npm_b + 64 * (pos.count<BISHOP>() + pos.count<KNIGHT>()) - 256;
   npm = std::max(EndgameLimit, std::min(npm, MidgameLimit));
 
   // Map total non-pawn material into [PHASE_ENDGAME, PHASE_MIDGAME]
