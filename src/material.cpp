@@ -118,8 +118,8 @@ namespace Material {
 /// is found. Otherwise a new Entry is computed and stored there, so we don't
 /// have to recompute all when the same material configuration occurs again.
 
-double A = 3.2;
-double B = 12.8;
+double A = 0.32;
+double B = 1.28;
 
 TUNE(SetRange(0, 30), A);
 TUNE(SetRange(0, 30), B);
@@ -140,8 +140,8 @@ Entry* probe(const Position& pos) {
   Value npm_b = pos.non_pawn_material(BLACK);
   
   Value npm =   npm_w + npm_b
-              + Value(A * 10.0 * (pos.count<BISHOP>() + pos.count<KNIGHT>()))
-              - Value(B * 10.0);
+              + Value(A * 100.0 * (pos.count<BISHOP>() + pos.count<KNIGHT>()))
+              - Value(B * 100.0);
   
   npm = std::max(EndgameLimit, std::min(npm, MidgameLimit));
 
