@@ -133,8 +133,8 @@ Entry* probe(const Position& pos) {
   Value npm_w = pos.non_pawn_material(WHITE);
   Value npm_b = pos.non_pawn_material(BLACK);
   Value npm =   npm_w + npm_b
-              + 16 * (pos.count<BISHOP>() + pos.count<KNIGHT>()) 
-              - 115;
+              + 24 * (pos.count<BISHOP>() + pos.count<KNIGHT>()) 
+              - 163;
 
   npm = std::max(EndgameLimit, std::min(npm, MidgameLimit));
 
