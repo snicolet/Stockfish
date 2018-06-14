@@ -586,8 +586,7 @@ namespace {
         if (   PvNode
             && alpha + fuzzyness >= beta
             && alpha != VALUE_DRAW
-            && beta != VALUE_DRAW
-            && pos.side_to_move() != thisThread->rootColor)
+            && beta != VALUE_DRAW)
             return beta;
     }
 
