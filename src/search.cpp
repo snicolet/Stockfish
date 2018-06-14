@@ -587,7 +587,7 @@ namespace {
             && alpha + fuzzyness >= beta
             && alpha != VALUE_DRAW
             && beta != VALUE_DRAW
-            && pos.side_to_move() == thisThread->rootColor)
+            && pos.side_to_move() != thisThread->rootColor)
             return beta;
     }
 
