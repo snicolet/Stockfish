@@ -581,6 +581,14 @@ namespace {
         beta = std::min(mate_in(ss->ply+1), beta);
         if (alpha >= beta)
             return alpha;
+
+        int fuzzyness = 10;
+        if (   PvNode
+            && alpha + fuzzyness >= beta
+            && alpha != VALUE_DRAW
+            && beta != VALUE_DRAW
+            && pos.side_to_move() == thisThread->rootColor)
+            return beta;
     }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
