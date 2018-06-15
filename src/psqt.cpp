@@ -117,7 +117,7 @@ void init() {
       for (Square s = SQ_A1; s <= SQ_H8; ++s)
       {
           File f = std::min(file_of(s), ~file_of(s));
-          psq[ pc][ s] = score + (Bonus[pc][rank_of(s)][f] * 3) / 4;
+          psq[ pc][ s] = score + (Bonus[pc][rank_of(s)][f] * 2) / 3;
           psq[~pc][~s] = -psq[pc][s];
       }
   }
