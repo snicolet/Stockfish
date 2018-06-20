@@ -804,10 +804,13 @@ namespace {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material(WHITE) == BishopValueMg
             && pos.non_pawn_material(BLACK) == BishopValueMg)
-            // Endgame with opposite-colored bishops and no other pieces is almost a draw
             sf = 31;
         else
-            sf = std::min(40 + (pos.opposite_bishops()? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+        {
+            int slope = pos.opposite_bishops()                     ? 3 :
+                        pos.non_pawn_material() == 2 * RookValueMg ? 8 : 6;
+            sf = std::min(sf, 35 + slope * pos.count<PAWN>(strongSide));
+        }
     }
 
     return ScaleFactor(sf);
