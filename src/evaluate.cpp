@@ -797,6 +797,7 @@ namespace {
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     int sf = me->scale_factor(pos, strongSide);
+    int shuffling = pos.rule50_count() >= 8 ? 2 * (pos.rule50_count() / 8) : 0;
 
     // If scale is not already specific, scale down the endgame via general heuristics
     if (sf == SCALE_FACTOR_NORMAL)
@@ -809,7 +810,7 @@ namespace {
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
     }
 
-    return ScaleFactor(sf);
+    return ScaleFactor(std::max(0, sf - shuffling));
   }
 
 
