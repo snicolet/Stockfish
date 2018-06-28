@@ -31,6 +31,9 @@ namespace PSQT {
 
 #define S(mg, eg) make_score(mg, eg)
 
+constexpr int A = 0;
+constexpr int B = 10;
+
 // Bonus[PieceType][Square / 2] contains Piece-Square scores. For each piece
 // type on a given square a (middlegame, endgame) score pair is assigned. Table
 // is defined for files A..D and white side: it is symmetric for black side and
@@ -67,14 +70,14 @@ constexpr Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
    { S(-35,-55), S(-11,-32), S(-19,-36), S(-29,-17) }
   },
   { // Rook
-   { S(-25, 0), S(-16, 0), S(-16, 0), S(-9, 0) },
-   { S(-21, 0), S( -8, 0), S( -3, 0), S( 0, 0) },
-   { S(-21, 0), S( -9, 0), S( -4, 0), S( 2, 0) },
-   { S(-22, 0), S( -6, 0), S( -1, 0), S( 2, 0) },
-   { S(-22, 0), S( -7, 0), S(  0, 0), S( 1, 0) },
-   { S(-21, 0), S( -7, 0), S(  0, 0), S( 2, 0) },
-   { S(-12, 0), S(  4, 0), S(  8, 0), S(12, 0) },
-   { S(-23, 0), S(-15, 0), S(-11, 0), S(-5, 0) }
+   { S(-25, 0), S(-16, 0), S(-16 + A, 0), S(-9 + B, 0) },
+   { S(-21, 0), S( -8, 0), S( -3 + A, 0), S( 0 + B, 0) },
+   { S(-21, 0), S( -9, 0), S( -4 + A, 0), S( 2 + B, 0) },
+   { S(-22, 0), S( -6, 0), S( -1 + A, 0), S( 2 + B, 0) },
+   { S(-22, 0), S( -7, 0), S(  0 + A, 0), S( 1 + B, 0) },
+   { S(-21, 0), S( -7, 0), S(  0 + A, 0), S( 2 + B, 0) },
+   { S(-12, 0), S(  4, 0), S(  8 + A, 0), S(12 + B, 0) },
+   { S(-23, 0), S(-15, 0), S(-11 + A, 0), S(-5 + B, 0) }
   },
   { // Queen
    { S( 0,-71), S(-4,-56), S(-3,-42), S(-1,-29) },
