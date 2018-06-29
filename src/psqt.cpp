@@ -31,7 +31,7 @@ namespace PSQT {
 
 #define S(mg, eg) make_score(mg, eg)
 
-constexpr int A = 0;
+constexpr int A = 6;
 constexpr int B = 10;
 
 // Bonus[PieceType][Square / 2] contains Piece-Square scores. For each piece
