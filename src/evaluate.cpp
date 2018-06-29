@@ -575,7 +575,8 @@ namespace {
     constexpr Score weakPawn = make_score(20, 0);
     b =  pos.pieces(Them, PAWN)
        & attackedBy2[Us]
-       & ~attackedBy2[Them];
+       & ~attackedBy2[Them]
+       & ~attackedBy[Them][PAWN];
     score += weakPawn * popcount(b);
 
     // Our safe or protected pawns
