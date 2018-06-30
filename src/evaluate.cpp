@@ -572,12 +572,11 @@ namespace {
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
-    constexpr Score weakPawn = make_score(20, 0);
+    constexpr Score weakPawn = make_score(15, 0);
     b =  pos.pieces(Them, PAWN)
        & attackedBy2[Us]
        & ~attackedBy[Them][PAWN];
-    if (b)
-       score += weakPawn;
+    score += weakPawn * popcount(b);
 
     // Our safe or protected pawns
     b =   pos.pieces(Us, PAWN)
