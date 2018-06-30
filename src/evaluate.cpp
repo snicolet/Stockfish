@@ -576,7 +576,8 @@ namespace {
     b =  pos.pieces(Them, PAWN)
        & attackedBy2[Us]
        & ~attackedBy[Them][PAWN];
-    score += weakPawn * popcount(b);
+    if (b)
+       score += weakPawn;
 
     // Our safe or protected pawns
     b =   pos.pieces(Us, PAWN)
