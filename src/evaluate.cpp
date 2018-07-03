@@ -162,7 +162,7 @@ namespace {
   constexpr Score CloseEnemies       = S(  8,  0);
   constexpr Score Connectivity       = S(  3,  1);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score Hanging            = S( 56, 34);
+  constexpr Score Hanging            = S( 52, 30);
   constexpr Score HinderPassedPawn   = S(  5, -1);
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 22,  0);
@@ -572,9 +572,10 @@ namespace {
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
-    constexpr Score weakPawn = make_score(12, 8);
+    constexpr Score weakPawn = make_score(10, 10);
     b =  pos.pieces(Them)
        & attackedBy2[Us]
+       & attackedBy[Them][ALL_PIECES]
        & ~attackedBy2[Them]
        & ~attackedBy[Them][PAWN];
     score += weakPawn * popcount(b);
