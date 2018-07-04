@@ -572,11 +572,11 @@ namespace {
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
-    constexpr Score weakPawn = make_score(15, 5);
+    int x = pe->weak_unopposed(Them);
+    Score weakPawn = make_score(12 + x , 8 + x);
     b =  pos.pieces(Them)
        & attackedBy2[Us]
-    //   & attackedBy[Them][ALL_PIECES]
-   //    & ~attackedBy2[Them]
+       & ~attackedBy2[Them]
        & ~attackedBy[Them][PAWN];
     score += weakPawn * popcount(b);
 
