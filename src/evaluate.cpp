@@ -391,8 +391,10 @@ namespace {
             else if (mob <= 3)
             {
                 File kf = file_of(pos.square<KING>(Us));
-                if ((kf < FILE_E) == (file_of(s) < kf))
-                    score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+                int isKingRook = (kf < FILE_E) == (file_of(s) < kf);
+
+                score -=   (TrappedRook - make_score(mob * 22, 0))
+                         * (isKingRook + !pos.can_castle(Us));
             }
         }
 
