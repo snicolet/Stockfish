@@ -324,7 +324,7 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        if (Pt == KNIGHT || Pt == ROOK)
+        if (Pt == KNIGHT || Pt == QUEEN)
             mob = (  3 * popcount(b & mobilityArea[Us] & forward_ranks_bb(Us, s))
                    + 3 * popcount(b & mobilityArea[Us])
                    - 1) / 4;
