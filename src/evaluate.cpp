@@ -299,6 +299,7 @@ namespace {
     Bitboard b, bb;
     Square s;
     Score score = SCORE_ZERO;
+    int mob;
 
     attackedBy[Us][Pt] = 0;
 
@@ -323,7 +324,12 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = popcount(b & mobilityArea[Us]);
+        if (Pt == KNIGHT || Pt == BISHOP)
+            mob = (  3 * popcount(b & mobilityArea[Us] & forward_ranks_bb(Us, s))
+                   + 3 * popcount(b & mobilityArea[Us])
+                   - 1) / 4;
+        else
+            mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
