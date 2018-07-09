@@ -516,6 +516,9 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard OpponentCamp = 
+             (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                          : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
@@ -573,11 +576,19 @@ namespace {
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
     constexpr Score weakPawn = make_score(10, 10);
-    b =  pos.pieces(Them, PAWN)
+    b =  pos.pieces(Them)
        & attackedBy2[Us]
        & ~attackedBy2[Them]
-       & (~attackedBy[Them][PAWN] | attackedBy[Us][PAWN]);
+       & ~attackedBy[Them][PAWN];
+       //& (~attackedBy[Them][PAWN] | attackedBy[Us][PAWN]);
     score += weakPawn * popcount(b);
+    
+    // Entry points in the opponent camp
+    int x = popcount(   ~pos.pieces()
+                      &  OpponentCamp
+                      &  attackedBy2[Us]
+                      & ~(attackedBy[Them][PAWN] | attackedBy2[Them]));
+    score += make_score(2 * x * (x - 1), 0);
 
     // Our safe or protected pawns
     b =   pos.pieces(Us, PAWN)
