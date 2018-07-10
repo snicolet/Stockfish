@@ -575,20 +575,16 @@ namespace {
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
-    constexpr Score weakPawn = make_score(10, 10);
-    b =  pos.pieces(Them)
-       & attackedBy2[Us]
+    // Entry points in the opponent camp
+    constexpr Score weakPiece = make_score(10, 10);
+    
+    b =   attackedBy2[Us]
        & ~attackedBy2[Them]
        & ~attackedBy[Them][PAWN];
-       //& (~attackedBy[Them][PAWN] | attackedBy[Us][PAWN]);
-    score += weakPawn * popcount(b);
-    
-    // Entry points in the opponent camp
-    int x = popcount(   ~pos.pieces()
-                      &  OpponentCamp
-                      &  attackedBy2[Us]
-                      & ~(attackedBy[Them][PAWN] | attackedBy2[Them]));
+
+    int x = popcount(b & ~pos.pieces() & OpponentCamp);
     score += make_score(2 * x * (x - 1), 0);
+    score += weakPiece * popcount(b & pos.pieces(Them));
 
     // Our safe or protected pawns
     b =   pos.pieces(Us, PAWN)
