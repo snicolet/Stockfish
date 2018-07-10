@@ -578,7 +578,7 @@ namespace {
     // Entry points in the opponent camp
     b = OpponentCamp & attackedBy2[Us] & ~attackedBy2[Them] & ~attackedBy[Them][PAWN];
     int x = popcount(b & ~pos.pieces(Us));
-    score += make_score(4 * x * (x - 1), x);
+    score += make_score(12 * x, 0);
 
     // Our safe or protected pawns
     b =   pos.pieces(Us, PAWN)
