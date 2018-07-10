@@ -576,15 +576,9 @@ namespace {
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
     // Entry points in the opponent camp
-    constexpr Score weakPiece = make_score(12, 8);
-
-    b =   attackedBy2[Us]
-       & ~attackedBy2[Them]
-       & ~attackedBy[Them][PAWN];
-
-    int x = popcount(b & ~pos.pieces() & OpponentCamp);
-    score += make_score(x * (x - 1), 0);
-    score += weakPiece * popcount(b & pos.pieces(Them));
+    b = attackedBy2[Us] & ~attackedBy2[Them] & ~attackedBy[Them][PAWN];
+    int x = popcount(b & (pos.pieces(Them) | (~pos.pieces() & OpponentCamp)));
+    score += make_score(2 * x * (x - 1), 0);
 
     // Our safe or protected pawns
     b =   pos.pieces(Us, PAWN)
