@@ -452,6 +452,13 @@ namespace {
         else
             unsafeChecks |= b1;
 
+        // Add some demolition checks
+        safe |=   pos.pieces(Us)
+               &  kingRing[Us] 
+               & ~attackedBy[Us][PAWN]
+               &  attackedBy2[Them]
+               & ~attackedBy2[Us];
+
         // Enemy bishops checks
         if (b2 & safe)
             kingDanger += BishopSafeCheck;
@@ -464,13 +471,6 @@ namespace {
             kingDanger += KnightSafeCheck;
         else
             unsafeChecks |= b;
-
-        // Add some demolition threats
-        unsafeChecks |=   pos.pieces(Us)
-                       &  kingRing[Us]
-                       &  attackedBy2[Them]
-                       & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
-                       & ~attackedBy2[Us];
 
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
