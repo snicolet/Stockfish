@@ -454,7 +454,6 @@ namespace {
 
         // Add some demolition checks
         safe |=   pos.pieces(Us)
-               &  kingRing[Us] 
                & ~attackedBy[Us][PAWN]
                &  attackedBy2[Them]
                & ~attackedBy2[Us];
