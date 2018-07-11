@@ -436,6 +436,12 @@ namespace {
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
 
+        // Add some demolition checks
+        safe |=   pos.pieces(Us)
+               & ~attackedBy[Us][PAWN]
+               &  attackedBy2[Them]
+               & ~attackedBy2[Us];
+
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
@@ -445,12 +451,6 @@ namespace {
 
         b1 &= attackedBy[Them][ROOK];
         b2 &= attackedBy[Them][BISHOP];
-
-        // Add some demolition checks
-        safe |=   pos.pieces(Us)
-               & ~attackedBy[Us][PAWN]
-               &  attackedBy2[Them]
-               & ~attackedBy2[Us];
 
         // Enemy rooks checks
         if (b1 & safe)
