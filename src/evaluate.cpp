@@ -465,6 +465,12 @@ namespace {
         else
             unsafeChecks |= b;
 
+        // Add some demolition threats
+        unsafeChecks |=   pos.pieces(Us)
+                       &  kingRing[Us]
+                       &  attackedBy2[Them]
+                       & ~attackedBy2[Us];
+
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
