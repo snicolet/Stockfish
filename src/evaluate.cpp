@@ -469,6 +469,7 @@ namespace {
         unsafeChecks |=   pos.pieces(Us)
                        &  kingRing[Us]
                        &  attackedBy2[Them]
+                       & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
                        & ~attackedBy2[Us];
 
         // Unsafe or occupied checking squares will also be considered, as long as
