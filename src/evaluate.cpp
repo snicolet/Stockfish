@@ -465,15 +465,17 @@ namespace {
         else
             unsafeChecks |= b;
 
-        // Add some demolition threats
-        unsafeChecks |=   pos.pieces(Us)
-                       &  attackedBy2[Them]
-                       & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
-                       & ~attackedBy2[Us];
-
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
+
+        // Add some demolition threats
+        unsafeChecks |=   pos.pieces(Us)
+                       &  KingFlank[file_of(ksq)]
+                       &  Camp
+                       &  attackedBy2[Them]
+                       & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
+                       & ~attackedBy2[Us];
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
