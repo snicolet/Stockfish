@@ -471,10 +471,9 @@ namespace {
 
         // Add some demolition threats
         unsafeChecks |=   pos.pieces(Us)
-                       &  KingFlank[file_of(ksq)]
-                       &  Camp
+                       &  kingRing[Us]
                        &  attackedBy2[Them]
-                       & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
+                       & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP] | attackedBy[Them][ROOK])
                        & ~attackedBy2[Us];
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
