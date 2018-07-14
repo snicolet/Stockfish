@@ -473,7 +473,7 @@ namespace {
         unsafeChecks |=   pos.pieces(Us)
                        &  kingRing[Us]
                        &  attackedBy2[Them]
-                       & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP] | attackedBy[Them][ROOK])
+                       & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
                        & ~attackedBy2[Us];
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
