@@ -514,7 +514,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, bb, weak, defended, nonPawnEnemies, stronglyProtected, safeThreats;
+    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safeThreats;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -608,9 +608,7 @@ namespace {
     }
 
     // Connectivity: ensure that knights, bishops, rooks, and queens are protected
-    bb = pos.pieces(Us, PAWN) & CenterFiles;
-    b =   (bb | (pos.pieces(Us) ^ pos.pieces(Us, PAWN, KING)))
-        & attackedBy[Us][ALL_PIECES];
+    b = (pos.pieces(Us) ^ pos.pieces(Us, KING)) & attackedBy[Us][ALL_PIECES];
     score += Connectivity * popcount(b);
 
     if (T)
