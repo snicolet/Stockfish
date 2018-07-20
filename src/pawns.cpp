@@ -35,6 +35,7 @@ namespace {
  constexpr Score Isolated = S( 5, 15);
  constexpr Score Backward = S( 9, 24);
  constexpr Score Doubled  = S(11, 56);
+ constexpr Score Hook     = S( 5,  5);
 
   // Connected pawn bonus by opposed, phalanx, #support and rank
   Score Connected[2][2][3][RANK_NB];
@@ -74,7 +75,7 @@ namespace {
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Bitboard lever, leverPush;
     Square s;
-    bool opposed, backward;
+    bool opposed, backward, hook;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
 
@@ -113,6 +114,35 @@ namespace {
         backward =  !(ourPawns & pawn_attack_span(Them, s + Up))
                   && (stoppers & (leverPush | (s + Up)));
 
+        // A hook is a pawn of our color, usually advanced, which is challenged
+        // and which will force a defect in our pawn structure no matter how we
+        // defend. Here we consider as hooks the levers which give a passed pawn
+        // to the opponent or create isolated pawn(s) in our camp if we execute 
+        // the capture.
+        if (!lever || !neighbours)
+            hook = false;
+        else
+        {
+            // Colums at the left and at the right of s
+            Bitboard left  = shift<WEST>(file_bb(f));
+            Bitboard right = shift<EAST>(file_bb(f));
+
+            // Adjacents columns of our left or right columns
+            Bitboard al = shift<WEST>(adjacent_files_bb(f)) | file_bb(f);
+            Bitboard ar = shift<EAST>(adjacent_files_bb(f)) | file_bb(f);
+
+            // Bitboards of our pawns after a speculative left or right capture
+            Bitboard l = (lever & left ) ^ (ourPawns ^ s);
+            Bitboard r = (lever & right) ^ (ourPawns ^ s);
+
+            // Potential opponent passers after the capture
+            Bitboard pop = theirPawns & pawn_attack_span(Us, s);
+
+            // Does capturing gives us isolated pawn(s) or passed pawn(s) to the opponent ?
+            hook =    ((lever & left ) && (!(al & l) || (!(ar & l) && (right & (l | pop)))))
+                   || ((lever & right) && (!(ar & r) || (!(al & r) && (left  & (r | pop)))));
+        }
+
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them. Include also not passed pawns
         // which could become passed after one or two pawn pushes when are
@@ -144,6 +174,9 @@ namespace {
 
         if (doubled && !supported)
             score -= Doubled;
+
+        if (hook)
+            score -= Hook;
     }
 
     return score;
