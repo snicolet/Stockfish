@@ -136,19 +136,19 @@ namespace {
             Bitboard r = (lever & right) ^ (ourPawns ^ s);
 
             // Potential opponent passers after the capture
-            // Bitboard pop = theirPawns & pawn_attack_span(Us, s);
+            Bitboard pop = theirPawns & pawn_attack_span(Us, s);
 
             // Does capturing gives us isolated pawn(s) or passed pawn(s) to the opponent ?
             //  hook =    ((lever & left ) && (!(al & l) || (!(ar & l) && (right & (l | pop)))))
             //         || ((lever & right) && (!(ar & r) || (!(al & r) && (left  & (r | pop)))));
         
             // Does capturing gives us isolated pawn(s) ?
-            hook =    ((lever & left ) && (!(al & l) || (!(ar & l) && (right & l))))
-                   || ((lever & right) && (!(ar & r) || (!(al & r) && (left  & r))));
+            // hook =    ((lever & left ) && (!(al & l) || (!(ar & l) && (right & l))))
+            //        || ((lever & right) && (!(ar & r) || (!(al & r) && (left  & r))));
             
             // Does capturing gives passed pawn(s) to the opponent ?
-            // hook =    ((lever & left ) && (right & pop) && !(l & (ar | right)))
-            //        || ((lever & right) && (left  & pop) && !(r & (al | left )));
+            hook =    ((lever & left ) && (right & pop) && !(l & (ar | right)))
+                   || ((lever & right) && (left  & pop) && !(r & (al | left )));
         }
 
         // Passed pawns will be properly scored in evaluation because we need
