@@ -429,8 +429,8 @@ namespace {
               & ~attackedBy2[Us]
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
 
-        levers =  pos.pieces(Us, PAWN) 
-                & attackedBy[Them][PAWN];
+        levers =  pos.pieces(Them, PAWN) 
+                & attackedBy[Us][PAWN];
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
