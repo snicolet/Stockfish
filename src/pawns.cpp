@@ -147,7 +147,7 @@ namespace {
         if (doubled && !supported)
             score -= Doubled;
 
-        if (supported && supporting && !lever && (f >= FILE_C && f <= FILE_F))
+        if (supported && supporting && (f >= FILE_C && f <= FILE_F))
             score += Chain;
     }
 
