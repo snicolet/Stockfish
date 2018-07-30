@@ -31,10 +31,11 @@ namespace {
   #define V Value
   #define S(mg, eg) make_score(mg, eg)
 
-  // Pawn penalties
- constexpr Score Isolated = S( 5, 15);
- constexpr Score Backward = S( 9, 24);
- constexpr Score Doubled  = S(11, 56);
+  // Pawn bonuses and penalties
+  constexpr Score Backward = S( 9, 24);
+  constexpr Score Chain    = S( 5,  5);
+  constexpr Score Doubled  = S(11, 56);
+  constexpr Score Isolated = S( 5, 15);
 
   // Connected pawn bonus by opposed, phalanx, #support and rank
   Score Connected[2][2][3][RANK_NB];
@@ -71,7 +72,7 @@ namespace {
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
 
-    Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
+    Bitboard b, neighbours, stoppers, doubled, supported, supporting, phalanx;
     Bitboard lever, leverPush;
     Square s;
     bool opposed, backward;
@@ -107,6 +108,7 @@ namespace {
         neighbours = ourPawns   & adjacent_files_bb(f);
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
+        supporting = neighbours & rank_bb(s + Up);
 
         // A pawn is backward when it is behind all pawns of the same color
         // on the adjacent files and cannot be safely advanced.
@@ -144,6 +146,9 @@ namespace {
 
         if (doubled && !supported)
             score -= Doubled;
+
+        if (supported && supporting && (f >= FILE_C && f <= FILE_F))
+            score += Chain;
     }
 
     return score;
