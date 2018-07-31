@@ -760,6 +760,10 @@ namespace {
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
+                            
+    Color rootColor = pos.this_thread()->rootColor;
+    bool StockfishIsAttacking =    (rootColor == WHITE && eg > 0)
+                                || (rootColor == BLACK && eg < 0);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
@@ -767,11 +771,16 @@ namespace {
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    -136 ;
+                    -100 ;
 
     // Now apply the bonus. Note that we find the attacking side by extracting
     // the sign of the endgame value.
-    int v = ((eg > 0) - (eg < 0)) * complexity;
+    int v;
+    
+    if (StockfishIsAttacking)
+        v = ((eg > 0) - (eg < 0)) * complexity;
+    else
+        v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
         Trace::add(INITIATIVE, make_score(0, v));
