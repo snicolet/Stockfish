@@ -582,14 +582,12 @@ namespace {
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
-    // Bonus for safe pawn threats on the next move
-    b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
+    // Bonus for safe pawn threats (by a pawn move)
+    b = pos.pieces(Them) & pawn_attacks_bb<Us>(b);
     score += ThreatByPawnPush * popcount(b);
 
-    // Our safe or protected pawns
-    b = pos.pieces(Us, PAWN) & safe;
-
-    b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
+    // Bonus for safe pawn threats (by a static pawn already in the position)
+    b = pos.pieces(Them) & pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & safe);
     score += ThreatBySafePawn * popcount(b);
 
     // Bonus for threats on the next moves against enemy queen
