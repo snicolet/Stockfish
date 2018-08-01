@@ -590,7 +590,7 @@ namespace {
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
-    //mobilePawns[Us] |= (pawn_attacks_bb<Us>(b) & pos.pieces(Them));
+    mobilePawns[Us] |= (pawn_attacks_bb<Us>(b) & pos.pieces(Them));
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
@@ -773,7 +773,7 @@ namespace {
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    -144 ;
+                    -160 ;
 
     //dbg_mean_of(complexity);
 
