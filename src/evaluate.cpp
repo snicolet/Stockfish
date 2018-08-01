@@ -592,6 +592,8 @@ namespace {
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
 
+    mobilePawns[Us] |= pawn_attacks_bb<Us>(b);
+
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
