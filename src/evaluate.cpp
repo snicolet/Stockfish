@@ -582,7 +582,6 @@ namespace {
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
-
     mobilePawns[Us] = b;
 
     // Bonus for safe pawn threats on the next move
@@ -591,8 +590,7 @@ namespace {
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
-
-    mobilePawns[Us] |= (pawn_attacks_bb<Us>(b) & pos.pieces(Us, PAWN));
+    mobilePawns[Us] |= (pawn_attacks_bb<Us>(b) & pos.pieces(Them));
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
