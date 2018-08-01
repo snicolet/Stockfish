@@ -773,7 +773,9 @@ namespace {
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    -152 ;
+                    -160 ;
+
+    //dbg_mean_of(complexity);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
