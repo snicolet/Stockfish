@@ -592,7 +592,7 @@ namespace {
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
 
-    mobilePawns[Us] |= pawn_attacks_bb<Us>(b);
+    mobilePawns[Us] |= (pawn_attacks_bb<Us>(b) & pos.pieces(Us, PAWN));
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
@@ -775,7 +775,7 @@ namespace {
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    -152 ;
+                    -155 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
