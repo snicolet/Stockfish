@@ -590,7 +590,7 @@ namespace {
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
-    mobilePawns[Us] |= (pawn_attacks_bb<Us>(b) & pos.pieces(Them));
+    // mobilePawns[Us] |= (pawn_attacks_bb<Us>(b) & pos.pieces(Them));
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
@@ -767,15 +767,15 @@ namespace {
     int pawnMobility = popcount(mobilePawns[WHITE] | mobilePawns[BLACK]);
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   4 * pawnMobility
+    int complexity =   8 * pawnMobility
                     +  8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    -145 ;
+                    -188 ;
 
-    //dbg_mean_of(complexity);
+    // dbg_mean_of(complexity);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
