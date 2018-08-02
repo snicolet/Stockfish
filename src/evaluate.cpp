@@ -474,7 +474,7 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        kingDanger +=    2 * kingAttackersCount[Them] * kingAttackersCount[Them] * kingAttackersWeight[Them] / 5
+        kingDanger +=       (kingAttackersCount[Them] - 1) * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 129 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
