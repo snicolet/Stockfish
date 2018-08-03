@@ -166,6 +166,7 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
+  constexpr Score QueenOverload      = S( 30, 20);
   constexpr Score RookOnPawn         = S(  8, 24);
   constexpr Score SliderOnQueen      = S( 42, 21);
   constexpr Score ThreatByKing       = S( 23, 76);
@@ -517,6 +518,13 @@ namespace {
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
+
+    // Queen overload
+    b =   pos.pieces(Them)
+       &  attackedBy[Us][ALL_PIECES]
+       &  attackedBy[Them][QUEEN]
+       & ~attackedBy2[Them];
+    score += QueenOverload * popcount(b);
 
     // Non-pawn enemies
     nonPawnEnemies = pos.pieces(Them) ^ pos.pieces(Them, PAWN);
