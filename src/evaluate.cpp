@@ -481,7 +481,7 @@ namespace {
                      +   4 * tropism
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
-                     -  25;
+                     -  20;
 
         // dbg_mean_of(kingDanger);
 
