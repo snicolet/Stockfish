@@ -89,7 +89,7 @@ namespace {
   constexpr Value SpaceThreshold = Value(12222);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
-  constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
+  constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 87, 65, 54, 20 };
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
@@ -482,6 +482,8 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      -   30;
+
+        // dbg_mean_of(kingDanger);
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
