@@ -92,8 +92,9 @@ namespace {
   };
   enum CutType { ALPHA, BETA };
   template <CutType T> 
-  int pruning_safety(const Position& pos) {
-      return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+  int pruning_safety(const Position& pos, Depth d) {
+      return d < 6 * ONE_PLY ? PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T]
+                              : 0;
   }
 
   // Skill structure is used to implement strength limit
@@ -742,7 +743,7 @@ namespace {
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !rootNode
         &&  depth < 7 * ONE_PLY
-        &&  eval - futility_margin(depth, improving) - pruning_safety<BETA>(pos) >= beta
+        &&  eval - futility_margin(depth, improving) - pruning_safety<BETA>(pos, depth) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -954,7 +955,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 231 + 205 * lmrDepth + pruning_safety<ALPHA>(pos) <= alpha)
+                  && ss->staticEval + 231 + 205 * lmrDepth + pruning_safety<ALPHA>(pos, lmrDepth * ONE_PLY) <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
