@@ -93,7 +93,7 @@ namespace {
   enum CutType { ALPHA, BETA };
   template <CutType T> 
   int pruning_safety(const Position& pos, Depth d) {
-      return d < 3 * ONE_PLY ? PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T]
+      return d < 2 * ONE_PLY ? PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T]
                              : 0;
   }
 
