@@ -87,8 +87,8 @@ namespace {
 
   // PruningSafety[rootColor][cut type] : pruning safety table
   const int PruningSafety[2][2] = {
-   //  { -25 , -75 },  // ~rootColor : alpha, beta
-   //  {  50 , -25 }   //  rootColor : alpha, beta
+     { -25 , -75 },  // ~rootColor : alpha, beta
+     {  50 , -25 }   //  rootColor : alpha, beta
    
    // { -20 , -60 },  // ~rootColor : alpha, beta
    // {  40 , -20 }   //  rootColor : alpha, beta
@@ -96,8 +96,8 @@ namespace {
    // { -35 , -105 },   // ~rootColor : alpha, beta
    // {  70 , -35  }    //  rootColor : alpha, beta
     
-   {  25 , -75 },  // ~rootColor : alpha, beta
-   {  50 , -25 }   //  rootColor : alpha, beta
+   // {  25 , -75 },  // ~rootColor : alpha, beta
+   // {  50 , -25 }   //  rootColor : alpha, beta
 
 
   };
@@ -763,7 +763,7 @@ namespace {
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 22500
         &&  eval >= beta
-        &&  ss->staticEval >= beta - 36 * depth / ONE_PLY + 225
+        &&  ss->staticEval >= beta - 36 * depth / ONE_PLY + 225 + pruning_safety<BETA>(pos, depth)
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -771,7 +771,8 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = ((823 + 67 * depth / ONE_PLY) / 256 + std::min((eval - beta) / PawnValueMg, 3)) * ONE_PLY;
+        Depth R =   ((823 + 67 * depth / ONE_PLY) / 256 
+                  + std::min((eval - beta - pruning_safety<BETA>(pos, depth)) / PawnValueMg, 3)) * ONE_PLY;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[NO_PIECE][0];
