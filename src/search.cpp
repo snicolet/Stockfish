@@ -87,16 +87,17 @@ namespace {
 
   // PruningSafety[rootColor][cut type] : pruning safety table
   const int PruningSafety[2][2] = {
-     { -25 , -75 },  // ~rootColor : alpha, beta
-     {  50 , -25 }   //  rootColor : alpha, beta
+   //  { -25 , -75 },  // ~rootColor : alpha, beta
+   //  {  50 , -25 }   //  rootColor : alpha, beta
+   
+    { -15 , -45 },  // ~rootColor : alpha, beta
+    {  30 , -15 }   //  rootColor : alpha, beta
   };
   enum CutType { ALPHA, BETA };
   template <CutType T> 
   int pruning_safety(const Position& pos, Depth d) {
-      return    d == 2 * ONE_PLY
-             || d == 3 * ONE_PLY
-             || d == 4 * ONE_PLY ? PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T]
-                                 : 0;
+      return d < 3 * ONE_PLY ? PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T]
+                             : 0;
   }
 
   // Skill structure is used to implement strength limit
