@@ -90,11 +90,11 @@ namespace {
    //  { -25 , -75 },  // ~rootColor : alpha, beta
    //  {  50 , -25 }   //  rootColor : alpha, beta
    
-   //   { -15 , -45 },  // ~rootColor : alpha, beta
-   //   {  30 , -15 }   //  rootColor : alpha, beta
+   { -20 , -60 },  // ~rootColor : alpha, beta
+   {  40 , -20 }   //  rootColor : alpha, beta
    
-   { -30 , -90 },   // ~rootColor : alpha, beta
-   {  60 , -30  }   //  rootColor : alpha, beta
+   // { -30 , -90 },   // ~rootColor : alpha, beta
+   // {  60 , -30  }   //  rootColor : alpha, beta
 
   };
   enum CutType { ALPHA, BETA };
