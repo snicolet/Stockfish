@@ -94,7 +94,7 @@ namespace {
    // {  40 , -20 }   //  rootColor : alpha, beta
    
     { -35 , -105 },   // ~rootColor : alpha, beta
-    {  70 ,   0  }    //  rootColor : alpha, beta
+    {  70 ,  25  }    //  rootColor : alpha, beta
 
   };
   enum CutType { ALPHA, BETA };
