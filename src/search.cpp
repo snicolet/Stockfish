@@ -87,8 +87,8 @@ namespace {
 
   // PruningSafety[rootColor][cut type] : pruning safety table
   const int PruningSafety[2][2] = {
-    { -25 , -75 },  // ~rootColor : alpha, beta
-    {  50 , -25 }   //  rootColor : alpha, beta
+   // { -25 , -75 },  // ~rootColor : alpha, beta
+   // {  50 , -25 }   //  rootColor : alpha, beta
    
    // { -20 , -60 },  // ~rootColor : alpha, beta
    // {  40 , -20 }   //  rootColor : alpha, beta
@@ -96,15 +96,15 @@ namespace {
    // { -35 , -105 },   // ~rootColor : alpha, beta
    // {  70 , -35  }    //  rootColor : alpha, beta
     
-   // { -50 , -75 },  // ~rootColor : alpha, beta
-   // {  50 , -50 }   //  rootColor : alpha, beta
+    { -25 , -50 },  // ~rootColor : alpha, beta
+    {  50 ,   0 }   //  rootColor : alpha, beta
 
 
   };
   enum CutType { ALPHA, BETA };
   template <CutType T> 
   int pruning_safety(const Position& pos, Depth d) {
-      return d > 2 * ONE_PLY ? PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T]
+      return d < 7 * ONE_PLY ? PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T]
                              : 0;
   }
 
