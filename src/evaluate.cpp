@@ -769,15 +769,20 @@ namespace {
                     + 48 * !pos.non_pawn_material()
                     -136 ;
 
+    complexity = abs(complexity) * complexity / 64;
+
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
+    int u = std::max(complexity, 0);
+    int v = std::max(complexity, -abs(eg));
+
+    Score score = make_score(u, v) * ((eg > 0) - (eg < 0));
 
     if (T)
-        Trace::add(INITIATIVE, make_score(0, v));
+        Trace::add(INITIATIVE, score);
 
-    return make_score(0, v);
+    return score;
   }
 
 
