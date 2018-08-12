@@ -176,7 +176,7 @@ top:
 
   case GOOD_CAPTURE:
       if (select<Best>([&](){
-                       return pos.see_ge(move, Value( -100 - 55 * (cur-1)->value / 1024)) ? true :
+                       return pos.see_ge(move, Value( -200 - 55 * (cur-1)->value / 1024)) ? true :
                               // Move losing capture to endBadCaptures to be tried later
                               (*endBadCaptures++ = move, false); }))
           return move;
