@@ -1073,7 +1073,7 @@ moves_loop: // When in check, search starts from here
       if (rootNode)
       {
           if (pos.capture(move))
-              value -= Value(4);
+              value -= Value(5);
               
           RootMove& rm = *std::find(thisThread->rootMoves.begin(),
                                     thisThread->rootMoves.end(), move);
