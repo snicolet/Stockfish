@@ -420,8 +420,7 @@ namespace {
     Score score = pe->king_safety<Us>(pos, ksq);
 
     // Add some demolition threats
-    demolition =   pos.pieces(Us)
-                &  kingRing[Us]
+    demolition =   kingRing[Us]
                 &  attackedBy2[Them]
                 & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
                 & ~attackedBy2[Us];
