@@ -36,8 +36,8 @@ namespace PSQT {
 // is defined for files A..D and white side: it is symmetric for black side and
 // second half of the files.
 
-#define A 4
-#define B 4
+#define A 2
+#define B 3
 
 const Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
   { },
