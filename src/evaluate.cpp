@@ -414,9 +414,17 @@ namespace {
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
+    Bitboard demolition;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos, ksq);
+
+    // Add some demolition threats
+    demolition =   pos.pieces(Us)
+                &  kingRing[Us]
+                &  attackedBy2[Them]
+                & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
+                & ~attackedBy2[Us];
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank but not defended by our pawns.
@@ -424,7 +432,7 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
 
-    int tropism = popcount(b1) + popcount(b2);
+    int tropism = popcount(b1) + popcount(b2 | demolition);
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
