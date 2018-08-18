@@ -544,7 +544,7 @@ namespace {
     if (depth < ONE_PLY)
     {
         int p = (ss-1)->statScore;
-        int malus = p > 0 ? (p + 5000) / 1024 : 0;
+        int malus = p < 0 ? (p - 5000) / 1024 : 0;
         Value v = qsearch<NT>(pos, ss, alpha, beta);
         return v == VALUE_DRAW ? v : v - malus;
     }
