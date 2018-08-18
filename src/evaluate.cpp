@@ -586,8 +586,8 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
     score += ThreatByPawnPush * popcount(b);
 
-    // Our safe or protected pawns
-    b = pos.pieces(Us, PAWN) & safe;
+    // Our safe or protected (not pinned) pawns
+    b = pos.pieces(Us, PAWN) & safe & ~pos.blockers_for_king(Us);
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
