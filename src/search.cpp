@@ -68,7 +68,7 @@ namespace {
   // Razor and futility margins
   constexpr int RazorMargin = 600;
   Value futility_margin(Depth d, bool improving) {
-    return Value((135 - 50 * improving) * d / ONE_PLY);
+    return Value((145 - 50 * improving) * d / ONE_PLY);
   }
 
   // Futility and reductions lookup tables, initialized at startup
@@ -955,7 +955,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 4
                   && !inCheck
-                  && ss->staticEval + 216 + 200 * lmrDepth <= alpha)
+                  && ss->staticEval + 226 + 200 * lmrDepth <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
