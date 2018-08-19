@@ -48,14 +48,21 @@ namespace {
     { V(-39), V(-13), V(-29), V(-52), V(-48), V(-67), V(-166) }
   };
 
+constexpr int A = 10;
+constexpr int B = 8;
+constexpr int C = 6;
+constexpr int D = 4;
+constexpr int E = 2;
+constexpr int F = 0;
+
   // Danger of enemy pawns moving toward our king by [distance from edge][rank].
   // RANK_1 = 0 is used for files where the enemy has no pawn, or their pawn
   // is behind our king.
   constexpr Value UnblockedStorm[int(FILE_NB) / 2][RANK_NB] = {
-    { V( 89), V(107), V(123), V(93), V(57), V( 45), V( 51) },
-    { V( 44), V(-18), V(123), V(46), V(39), V( -7), V( 23) },
-    { V(  4), V( 52), V(162), V(37), V( 7), V(-14), V( -2) },
-    { V(-10), V(-14), V( 90), V(15), V( 2), V( -7), V(-16) }
+    { V( 89), V(107 + A), V(123 + B), V(93 + C), V(57 + D), V( 45 + E), V( 51 + F) },
+    { V( 44), V(  0)    , V(123 + B), V(46 + C), V(39 + D), V(  0 + E), V( 23 + F) },
+    { V(  4), V( 52 + A), V(162 + B), V(37 + C), V(25 + D), V(-14 + E), V( -2 + F) },
+    { V(-10), V(  0)    , V( 90 + B), V(35)    , V( 2 + D), V( -7 + E), V(-16 + F) }
   };
 
   // Danger of blocked enemy pawns storming our king, by rank
