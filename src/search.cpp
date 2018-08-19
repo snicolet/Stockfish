@@ -742,7 +742,7 @@ namespace {
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !rootNode
-        &&  depth < 3 * ONE_PLY
+        &&  depth < 4 * ONE_PLY
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -953,7 +953,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Futility pruning: parent node (~2 Elo)
-              if (   lmrDepth < 3
+              if (   lmrDepth < 4
                   && !inCheck
                   && ss->staticEval + 216 + 200 * lmrDepth <= alpha)
                   continue;
