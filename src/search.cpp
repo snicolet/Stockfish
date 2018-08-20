@@ -545,9 +545,9 @@ namespace {
     {
         int p = (ss-1)->currentMove == MOVE_NULL ? 0 : (ss-1)->statScore;
         int bonus = p > 0 ? (-p - 5000) / 1024 :
-                    p < 0 ?  2 : 0;
+                    p < 0 ?  5 : 0;
 
-        Value v = qsearch<NT>(pos, ss, alpha - bonus, beta - bonus);
+        Value v = qsearch<NT>(pos, ss, alpha, beta);
         return v + bonus;
     }
 
