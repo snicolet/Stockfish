@@ -722,7 +722,7 @@ namespace {
     }
     else
     {
-        int p = (ss-1)->statScore;
+        int p = (ss-1)->statScore + 4000;
         int malus = p > 0 ? (p + 5000) / 1024 :
                     p < 0 ? (p - 5000) / 1024 : 0;
 
