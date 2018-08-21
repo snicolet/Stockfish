@@ -543,7 +543,7 @@ namespace {
     // Dive into quiescence search when the depth reaches zero
     if (depth < ONE_PLY)
     {
-        int p = (ss-1)->currentMove == MOVE_NULL ? 0 : (ss-1)->statScore;
+        int p = (ss-1)->currentMove == MOVE_NULL ? 0 : (ss-1)->statScore + 4000;
         int bonus = p > 0 ? (-p - 5000) / 1024 :
                     p < 0 ?  5 : 0;
 
