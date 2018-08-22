@@ -48,11 +48,11 @@ namespace {
     { V(-39), V(-13), V(-29), V(-52), V(-48), V(-67), V(-166) }
   };
 
-constexpr int A = 10;
-constexpr int B = 8;
-constexpr int C = 6;
-constexpr int D = 4;
-constexpr int E = 2;
+constexpr int A = 0;
+constexpr int B = 0;
+constexpr int C = 0;
+constexpr int D = 0;
+constexpr int E = 0;
 constexpr int F = 0;
 
   // Danger of enemy pawns moving toward our king by [distance from edge][rank].
