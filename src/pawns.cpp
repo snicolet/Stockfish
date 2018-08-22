@@ -67,7 +67,7 @@ constexpr int F = 0;
 
   // Danger of blocked enemy pawns storming our king, by rank
   constexpr Value BlockedStorm[RANK_NB] =
-    { V(0), V(0), V(66 + B), V(6 + C), V(5 + D), V(1 + E), V(15 + F) };
+    { V(0), V(0), V(66), V(6), V(5), V(1), V(15) };
 
   #undef S
   #undef V
