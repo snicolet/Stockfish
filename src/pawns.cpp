@@ -230,7 +230,7 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
       b = theirPawns & file_bb(f);
       int theirRank = b ? relative_rank(Us, frontmost_sq(Them, b)) : 0;
 
-      int supportFactor = (b & pawnAttacks[Them] ? 8 : 4);
+      int supportFactor = (b & pawnAttacks[Them] ? 5 : 4);
 
       int d = std::min(f, ~f);
       safety += ShelterStrength[d][ourRank];
