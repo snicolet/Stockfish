@@ -486,11 +486,13 @@ namespace {
                      -   6 * mg_value(score) / 8
                      -   30;
 
+        KingDanger[Us] = kingDanger;
+
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
         {
             int mobilityDanger = mg_value(mobility[Them] - mobility[Us]);
-            KingDanger[Us] = kingDanger = std::max(0, kingDanger + mobilityDanger);
+            kingDanger = std::max(0, kingDanger + mobilityDanger);
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
         }
     }
@@ -772,8 +774,8 @@ namespace {
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    -      kingDanger / 64
-                    -136;
+                    -      kingDanger / 128
+                    -130;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
