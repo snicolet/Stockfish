@@ -229,11 +229,13 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
 
       b = theirPawns & file_bb(f);
       int theirRank = b ? relative_rank(Us, frontmost_sq(Them, b)) : 0;
+      
+      Bitboard lever = b & pawnAttacks[Us];
 
       int d = std::min(f, ~f);
       safety += ShelterStrength[d][ourRank];
-      safety -= (ourRank && (ourRank == theirRank - 1)) ? BlockedStorm[theirRank]
-                                                        : UnblockedStorm[d][theirRank];
+      safety -= (ourRank && (ourRank == theirRank - 1) && !lever) ? BlockedStorm[theirRank]
+                                                                  : UnblockedStorm[d][theirRank];
   }
 
   return safety;
