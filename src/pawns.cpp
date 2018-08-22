@@ -51,7 +51,7 @@ namespace {
 constexpr int A = 10;
 constexpr int B = 9;
 constexpr int C = 8;
-constexpr int D = 0;
+constexpr int D = 7;
 constexpr int E = 0;
 constexpr int F = 0;
 
