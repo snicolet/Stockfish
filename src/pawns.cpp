@@ -25,6 +25,7 @@
 #include "pawns.h"
 #include "position.h"
 #include "thread.h"
+#include <iostream>
 
 namespace {
 
@@ -214,7 +215,7 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
   Value safety = (shift<Down>(theirPawns) & (FileABB | FileHBB) & BlockRanks & ksq) ?
                  Value(374) : Value(5);
 
-  File center = std::max(FILE_B, std::min(FILE_G, file_of(ksq)));
+  int center = std::max(FILE_B, std::min(FILE_G, file_of(ksq)));
   for (File f = File(center - 1); f <= File(center + 1); ++f)
   {
       b = ourPawns & file_bb(f);
@@ -222,11 +223,13 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
 
       b = theirPawns & file_bb(f);
       int theirRank = b ? relative_rank(Us, frontmost_sq(Them, b)) : 0;
+      
+      int supportFactor = (b & pawnAttacks[Them] ? 6 : 4);
 
       int d = std::min(f, ~f);
       safety += ShelterStrength[d][ourRank];
       safety -= (ourRank && (ourRank == theirRank - 1)) ? BlockedStorm[theirRank]
-                                                        : UnblockedStorm[d][theirRank];
+                                                        : UnblockedStorm[d][theirRank] * supportFactor / 4;
   }
 
   return safety;
