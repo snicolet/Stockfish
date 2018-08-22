@@ -67,7 +67,7 @@ constexpr int F = 0;
 
   // Danger of blocked enemy pawns storming our king, by rank
   constexpr Value BlockedStorm[RANK_NB] =
-    { V(0), V(0), V(66), V(6), V(5), V(1), V(15) };
+    { V(0), V(0), V(66 + B), V(6 + C), V(5 + D), V(1 + E), V(15 + F) };
 
   #undef S
   #undef V
@@ -230,12 +230,10 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
       b = theirPawns & file_bb(f);
       int theirRank = b ? relative_rank(Us, frontmost_sq(Them, b)) : 0;
 
-      int supportFactor = (b & pawnAttacks[Them] ? 5 : 4);
-
       int d = std::min(f, ~f);
       safety += ShelterStrength[d][ourRank];
       safety -= (ourRank && (ourRank == theirRank - 1)) ? BlockedStorm[theirRank]
-                                                        : UnblockedStorm[d][theirRank] * supportFactor / 4;
+                                                        : UnblockedStorm[d][theirRank];
   }
 
   return safety;
