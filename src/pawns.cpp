@@ -48,8 +48,8 @@ namespace {
     { V(-39), V(-13), V(-29), V(-52), V(-48), V(-67), V(-166) }
   };
 
-constexpr int BASE = 10;
-constexpr int DELTA = -1;
+constexpr int BASE = 15;
+constexpr int DELTA = -3;
 
 constexpr int A = BASE + 3 * DELTA;
 constexpr int B = BASE + 2 * DELTA;
