@@ -725,7 +725,7 @@ namespace {
     {
         if ((ss-1)->currentMove != MOVE_NULL)
         {
-            int p = (ss-1)->statScore;
+            int p = !excludedMove ? (ss-1)->statScore : 0;
             int bonus = p > 0 ? (-p - 2500) / 512 :
                         p < 0 ? (-p + 2500) / 512 : 0;
 
@@ -997,7 +997,6 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
           &&  moveCount > 1
-          && !excludedMove
           && (!captureOrPromotion || moveCountPruning))
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
