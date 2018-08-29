@@ -474,6 +474,9 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        // Number of enemy pawns close to the king
+        tropism += 10 * popcount(pos.pieces(Them, PAWN) & kingFlank & Camp);
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
