@@ -474,7 +474,7 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        int pieceDifference =  popcount(kingFlank & (pos.pieces(Them) ^ pos.pieces(Them, PAWN, KING)))
+        int pieceDifference =  popcount(kingFlank & (pos.pieces(Them) ^ pos.pieces(Them, KING)))
                              - popcount(kingFlank & (pos.pieces(Us)   ^ pos.pieces(Us,   PAWN, KING)));
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
@@ -482,7 +482,7 @@ namespace {
                      + 185 * popcount(kingRing[Us] & weak)
                      + 129 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +   4 * tropism
-                     +   4 * pieceDifference * (abs(pieceDifference) >= 2)
+                     +   4 * pieceDifference
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      -   30;
