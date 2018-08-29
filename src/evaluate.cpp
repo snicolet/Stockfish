@@ -419,15 +419,12 @@ namespace {
     Score score = pe->king_safety<Us>(pos, ksq);
 
     // Find the squares that opponent attacks in our king flank, and the squares
-    // which are attacked twice in that flank but not defended by our pawns. Also
-    // add number of enemy pawns close to the king.
+    // which are attacked twice in that flank but not defended by our pawns.
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
 
-    int tropism =  popcount(b1)
-                 + popcount(b2)
-                 + 5 * popcount(pos.pieces(Them, PAWN) & kingFlank & Camp);
+    int tropism =  popcount(b1) + popcount(b2);
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
@@ -481,10 +478,11 @@ namespace {
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 129 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                     +  32 * popcount(pos.pieces(Them, PAWN) & kingFlank & Camp)
                      +   4 * tropism
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
-                     -   30;
+                     -   20;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
