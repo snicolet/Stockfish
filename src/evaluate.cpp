@@ -419,12 +419,15 @@ namespace {
     Score score = pe->king_safety<Us>(pos, ksq);
 
     // Find the squares that opponent attacks in our king flank, and the squares
-    // which are attacked twice in that flank but not defended by our pawns.
+    // which are attacked twice in that flank but not defended by our pawns. Also
+    // add number of enemy pawns close to the king.
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
 
-    int tropism = popcount(b1) + popcount(b2);
+    int tropism =  popcount(b1)
+                 + popcount(b2)
+                 + 5 * popcount(pos.pieces(Them, PAWN) & kingFlank & Camp);
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
@@ -473,9 +476,6 @@ namespace {
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
-
-        // Number of enemy pawns close to the king
-        tropism += 10 * popcount(pos.pieces(Them, PAWN) & kingFlank & Camp);
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
