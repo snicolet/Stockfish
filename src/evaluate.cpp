@@ -424,10 +424,7 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN];
 
-    int tropism =   popcount(b1) 
-                  + popcount(b2)
-                  + popcount(kingFlank & (pos.pieces(Them) ^ pos.pieces(Them, PAWN, KING)))
-                  - popcount(kingFlank & (pos.pieces(Us)   ^ pos.pieces(Us,   PAWN, KING)));
+    int tropism = popcount(b1) + popcount(b2);
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
@@ -477,14 +474,18 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        int pieceDifference =  popcount(kingFlank & (pos.pieces(Them) ^ pos.pieces(Them, PAWN, KING)))
+                             - popcount(kingFlank & (pos.pieces(Us)   ^ pos.pieces(Us,   PAWN, KING)));
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 129 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +   4 * tropism
+                     +   4 * pieceDifference
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
-                     -   30;
+                     -   20;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
