@@ -542,7 +542,13 @@ namespace {
 
     // Dive into quiescence search when the depth reaches zero
     if (depth < ONE_PLY)
-        return qsearch<NT>(pos, ss, alpha, beta);
+    {
+        int p = (ss-1)->currentMove == MOVE_NULL ? 0 : (ss-1)->statScore;
+        int bonus = p > 0 ? (-p - 10000) / 2048 :
+                    p < 0 ?  5 : 0;
+
+        return qsearch<NT>(pos, ss, alpha, beta) + bonus;
+    }
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
