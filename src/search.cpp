@@ -544,7 +544,8 @@ namespace {
     if (depth < ONE_PLY)
     {
         int p = (ss-1)->currentMove != MOVE_NULL ? (ss-1)->statScore : 0;
-        int bonus = p < 0 ? 10 : 0;
+        int bonus = p > 0 ? -10 :
+                    p < 0 ?  10 : 0;
 
         return qsearch<NT>(pos, ss, alpha - bonus, beta - bonus) + bonus;
     }
