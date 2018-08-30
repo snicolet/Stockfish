@@ -546,7 +546,7 @@ namespace {
         int p = (ss-1)->currentMove != MOVE_NULL ? (ss-1)->statScore : 0;
         int bonus = p < 0 ? 10 : 0;
 
-        return qsearch<NT>(pos, ss, alpha, beta) + bonus;
+        return qsearch<NT>(pos, ss, alpha - bonus, beta - bonus) + bonus;
     }
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
