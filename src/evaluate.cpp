@@ -757,13 +757,19 @@ namespace {
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    
+    //dbg_mean_of(pos.count<PAWN>());
+    //dbg_mean_of(pe->pawn_span());
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   8 * pe->pawn_asymmetry()
+    int complexity =   8 * pos.count<PAWN>()
+                    +  8 * pe->pawn_asymmetry()
+                    +  8 * pe->pawn_span()
                     + 12 * outflanking
-                    + 16 * pe->pawn_span()
                     + 48 * !pos.non_pawn_material()
-                    - 110 ;
+                    - 130 ;
+
+    //dbg_mean_of(complexity);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
