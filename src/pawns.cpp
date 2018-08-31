@@ -48,8 +48,8 @@ namespace {
     { V(-39), V(-13), V(-29), V(-52), V(-48), V(-67), V(-166) }
   };
 
-constexpr int BASE = 0;
-constexpr int DELTA = 0;
+constexpr int BASE = 6;
+constexpr int DELTA = 1;
 
 constexpr int A = BASE + 3 * DELTA;
 constexpr int B = BASE + 2 * DELTA;
@@ -227,16 +227,13 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
   File center = std::max(FILE_B, std::min(FILE_G, file_of(ksq)));
   for (File f = File(center - 1); f <= File(center + 1); ++f)
   {
-      int d = std::min(f, ~f);
-
       b = ourPawns & file_bb(f);
       int ourRank = b ? relative_rank(Us, backmost_sq(Us, b)) : 0;
 
       b = theirPawns & file_bb(f);
       int theirRank = b ? relative_rank(Us, frontmost_sq(Them, b)) : 0;
-      if (more_than_one(b))
-          safety -= UnblockedStorm[d][relative_rank(Us, backmost_sq(Them, b))] / 4;
 
+      int d = std::min(f, ~f);
       safety += ShelterStrength[d][ourRank];
       safety -= (ourRank && (ourRank == theirRank - 1)) ? BlockedStorm[theirRank]
                                                         : UnblockedStorm[d][theirRank];
