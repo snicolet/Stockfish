@@ -764,7 +764,7 @@ namespace {
                     + 12 * outflanking
                     + 16 * (pe->pawn_span() >= 5)
                     + 48 * !pos.non_pawn_material()
-                    -124 ;
+                    -112 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
