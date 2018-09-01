@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+// #include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -289,6 +290,7 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+    constexpr Bitboard SeventhRank = (Us == WHITE ? Rank7BB : Rank2BB);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
@@ -372,6 +374,16 @@ namespace {
 
         if (Pt == ROOK)
         {
+            // Bonus for aligning rook on the seventh rank
+            constexpr Score RookOnSeventh = make_score(40, 80);
+            if (   (SeventhRank & s)
+                && more_than_one(SeventhRank & pos.pieces(Us, ROOK, QUEEN))
+                && relative_rank(Us, pos.square<KING>(Them)) >= RANK_7)
+            {
+                // std::cerr << pos << std::endl;
+                score += RookOnSeventh;
+            }
+                
             // Bonus for aligning rook with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
