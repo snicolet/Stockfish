@@ -375,10 +375,10 @@ namespace {
         if (Pt == ROOK)
         {
             // Bonus for aligning rook on the seventh rank
-            constexpr Score RookOnSeventh = make_score(20, 40);
+            constexpr Score RookOnSeventh = make_score(40, 80);
             if (   (SeventhRank & s)
                 && more_than_one(SeventhRank & pos.pieces(Us, ROOK, QUEEN))
-                && relative_rank(Us, pos.square<KING>(Them)) >= RANK_7)
+                && relative_rank(Us, pos.square<KING>(Them)) >= RANK_6)
             {
                 // std::cerr << pos << std::endl;
                 score += RookOnSeventh;
