@@ -528,14 +528,18 @@ namespace {
     constexpr bool PvNode = NT == PV;
     const bool rootNode = PvNode && ss->ply == 0;
 
+    int drawBonus = 0;
+    if ((ss-1)->currentMove != MOVE_NULL)
+        drawBonus = 10 * ((ss-1)->statScore > 0) - ((ss-1)->statScore < 0);
+
     // Check if we have an upcoming move which draws by repetition, or
     // if the opponent had an alternative move earlier to this position.
     if (   pos.rule50_count() >= 3
-        && alpha < VALUE_DRAW
+        && alpha < VALUE_DRAW + drawBonus
         && !rootNode
         && pos.has_game_cycle(ss->ply))
     {
-        alpha = VALUE_DRAW;
+        alpha = VALUE_DRAW + drawBonus;
         if (alpha >= beta)
             return alpha;
     }
@@ -585,7 +589,7 @@ namespace {
             || pos.is_draw(ss->ply)
             || ss->ply >= MAX_PLY)
             return (ss->ply >= MAX_PLY && !inCheck) ? evaluate(pos) - 10 * ((ss-1)->statScore > 0)
-                                                    : VALUE_DRAW;
+                                                    : VALUE_DRAW + drawBonus;
 
         // Step 3. Mate distance pruning. Even if we mate at the next move our score
         // would be at best mate_in(ss->ply+1), but if alpha is already bigger because
@@ -1158,7 +1162,7 @@ moves_loop: // When in check, search starts from here
 
     if (!moveCount)
         bestValue = excludedMove ? alpha
-                   :     inCheck ? mated_in(ss->ply) : VALUE_DRAW;
+                   :     inCheck ? mated_in(ss->ply) : VALUE_DRAW + drawBonus;
     else if (bestMove)
     {
         // Quiet best move: update move sorting heuristics
