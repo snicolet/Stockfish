@@ -608,6 +608,10 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    // Anti-shuffling
+    if (pos.rule50_count() > 8)
+        score -= make_score(pos.rule50_count() - 8, 0);
+
     if (T)
         Trace::add(THREAT, Us, score);
 
