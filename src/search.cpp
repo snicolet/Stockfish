@@ -530,7 +530,7 @@ namespace {
 
     int drawBonus = 0;
     if ((ss-1)->currentMove != MOVE_NULL)
-        drawBonus = (ss-1)->statScore / 128;
+        drawBonus = -4 * ((ss-1)->statScore < -100);
 
     // Check if we have an upcoming move which draws by repetition, or
     // if the opponent had an alternative move earlier to this position.
