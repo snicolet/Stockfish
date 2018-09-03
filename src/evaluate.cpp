@@ -608,10 +608,6 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    // Anti-shuffling
-    if (pos.rule50_count() > 8)
-        score -= make_score(pos.rule50_count() - 8, 0);
-
     if (T)
         Trace::add(THREAT, Us, score);
 
@@ -778,10 +774,16 @@ namespace {
     // that the endgame score will never change sign after the bonus.
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
-    if (T)
-        Trace::add(INITIATIVE, make_score(0, v));
+    // Anti-shuffling
+    int u = 0;
+    if (   pos.rule50_count() > 8
+        && int(eg) * int(eg_value(pos.this_thread()->contempt)) > 0)
+        u = ((eg > 0) - (eg < 0)) * (8 - pos.rule50_count());
 
-    return make_score(0, v);
+    if (T)
+        Trace::add(INITIATIVE, make_score(u, v));
+
+    return make_score(u, v);
   }
 
 
