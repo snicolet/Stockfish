@@ -774,10 +774,11 @@ namespace {
     // that the endgame score will never change sign after the bonus.
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
-    // Anti-shuffling
+    // Anti-shuffling. We only want to apply the penalty when Stockfish is
+    // attacking, hence the check with the sign of the contempt value.
     int u = 0;
     if (   pos.rule50_count() > 8
-        && int(eg) * int(eg_value(pos.this_thread()->contempt)) > 0)
+        && int(eg) * int(eg_value(pos.this_thread()->contempt)) < 0)
         u = ((eg > 0) - (eg < 0)) * (8 - pos.rule50_count());
 
     if (T)
