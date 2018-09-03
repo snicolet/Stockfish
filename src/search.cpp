@@ -1233,14 +1233,10 @@ moves_loop: // When in check, search starts from here
     inCheck = pos.checkers();
     moveCount = 0;
 
-    int drawBonus = 0;
-    if ((ss-1)->currentMove != MOVE_NULL)
-        drawBonus = 4 * ((ss-1)->statScore > 0) - ((ss-1)->statScore < 0);
-
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
         || ss->ply >= MAX_PLY)
-        return (ss->ply >= MAX_PLY && !inCheck) ? evaluate(pos) : VALUE_DRAW + drawBonus;
+        return (ss->ply >= MAX_PLY && !inCheck) ? evaluate(pos) : VALUE_DRAW;
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
