@@ -148,12 +148,9 @@ namespace {
 
     // In endgame it's better to have pawns on both wings. So give a bonus according to
     // file distance between left and right outermost pawns, if we have no passed pawns.
-    if (!e->passedPawns[Us])
-    {
-        Bitboard occupied = e->semiopenFiles[Us] ^ 0xFF;
-        int pawnSpan = (occupied == 0 ? 0 : 1 + msb(occupied) - lsb(occupied));
-        score += SpanBonus * pawnSpan;
-    }
+    Bitboard occupied = e->semiopenFiles[Us] ^ 0xFF;
+    int pawnSpan = (occupied == 0 ? 0 : 1 + msb(occupied) - lsb(occupied));
+    score += SpanBonus * pawnSpan;
 
     return score;
   }
