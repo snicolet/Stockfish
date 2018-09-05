@@ -790,15 +790,17 @@ namespace {
     int sf = me->scale_factor(pos, strongSide);
 
     // If scale is not already specific, scale down the endgame via general heuristics
-    if (   sf == SCALE_FACTOR_NORMAL
-        && !pos.pieces(QUEEN))
+    if (sf == SCALE_FACTOR_NORMAL)
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material(WHITE) == BishopValueMg
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 31;
         else
-            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+        {
+            int pawnWeight = pos.opposite_bishops() && !pos.pieces(QUEEN) ? 2 : 7;
+            sf = std::min(sf, 40 + pawnWeight * pos.count<PAWN>(strongSide));
+        }
     }
 
     return ScaleFactor(sf);
