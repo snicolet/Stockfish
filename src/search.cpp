@@ -528,25 +528,27 @@ namespace {
     constexpr bool PvNode = NT == PV;
     const bool rootNode = PvNode && ss->ply == 0;
 
-    int statBonus = 0;
-    if ((ss-1)->currentMove != MOVE_NULL)
-        statBonus = 4 * ((ss-1)->statScore > 0) - ((ss-1)->statScore < 0);
-
     // Check if we have an upcoming move which draws by repetition, or
     // if the opponent had an alternative move earlier to this position.
     if (   pos.rule50_count() >= 3
-        && alpha < VALUE_DRAW + statBonus
+        && alpha < VALUE_DRAW
         && !rootNode
         && pos.has_game_cycle(ss->ply))
     {
-        alpha = VALUE_DRAW + statBonus;
+        alpha = VALUE_DRAW;
         if (alpha >= beta)
             return alpha;
     }
 
     // Dive into quiescence search when the depth reaches zero
     if (depth < ONE_PLY)
+    {
+        int statBonus = 0;
+        if ((ss-1)->currentMove != MOVE_NULL)
+            statBonus = 4 * ((ss-1)->statScore > 0) - ((ss-1)->statScore < 0);
+
         return qsearch<NT>(pos, ss, alpha - statBonus, beta - statBonus) + statBonus;
+    }
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
@@ -589,7 +591,7 @@ namespace {
             || pos.is_draw(ss->ply)
             || ss->ply >= MAX_PLY)
             return (ss->ply >= MAX_PLY && !inCheck) ? evaluate(pos) - 10 * ((ss-1)->statScore > 0)
-                                                    : VALUE_DRAW + statBonus;
+                                                    : VALUE_DRAW;
 
         // Step 3. Mate distance pruning. Even if we mate at the next move our score
         // would be at best mate_in(ss->ply+1), but if alpha is already bigger because
@@ -1162,7 +1164,7 @@ moves_loop: // When in check, search starts from here
 
     if (!moveCount)
         bestValue = excludedMove ? alpha
-                   :     inCheck ? mated_in(ss->ply) : VALUE_DRAW + statBonus;
+                   :     inCheck ? mated_in(ss->ply) : VALUE_DRAW;
     else if (bestMove)
     {
         // Quiet best move: update move sorting heuristics
