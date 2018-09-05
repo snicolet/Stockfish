@@ -799,10 +799,10 @@ namespace {
         else
         {
             sf = !pos.opposite_bishops() ? 40 + 7 * pos.count<PAWN>(strongSide) :
-                  pos.pieces(QUEEN)      ? 64
-                                         : 40 + 2 * pos.count<PAWN>(strongSide);
+                  pos.pieces(QUEEN)      ? 54
+                                         : 40 + 2 * pos.count<PAWN>(strongSide) ;
 
-            sf = std::min(int(SCALE_FACTOR_NORMAL), sf);
+            sf = std::min(sf, int(SCALE_FACTOR_NORMAL));
         }
     }
 
