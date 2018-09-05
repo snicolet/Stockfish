@@ -798,6 +798,9 @@ namespace {
             sf = 31;
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+        
+        if (pos.pieces(QUEEN))
+            sf = (sf + SCALE_FACTOR_NORMAL) / 2;
     }
 
     return ScaleFactor(sf);
