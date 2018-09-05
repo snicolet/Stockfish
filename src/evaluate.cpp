@@ -767,6 +767,7 @@ namespace {
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
+                    -128 * pos.opposite_bishops()
                     -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
@@ -787,26 +788,7 @@ namespace {
   ScaleFactor Evaluation<T>::scale_factor(Value eg) const {
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-    int sf = me->scale_factor(pos, strongSide);
-
-    // If scale is not already specific, scale down the endgame via general heuristics
-    if (sf == SCALE_FACTOR_NORMAL)
-    {
-        if (   pos.opposite_bishops()
-            && pos.non_pawn_material(WHITE) == BishopValueMg
-            && pos.non_pawn_material(BLACK) == BishopValueMg)
-            sf = 31;
-        else
-        {
-            sf = !pos.opposite_bishops() ? 40 + 7 * pos.count<PAWN>(strongSide) :
-                  pos.pieces(QUEEN)      ? 54
-                                         : 40 + 2 * pos.count<PAWN>(strongSide) ;
-
-            sf = std::min(sf, int(SCALE_FACTOR_NORMAL));
-        }
-    }
-
-    return ScaleFactor(sf);
+    return me->scale_factor(pos, strongSide);
   }
 
 
