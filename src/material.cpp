@@ -58,7 +58,6 @@ namespace {
   Endgame<KXK>    EvaluateKXK[] = { Endgame<KXK>(WHITE),    Endgame<KXK>(BLACK) };
 
   Endgame<KBPsK>  ScaleKBPsK[]  = { Endgame<KBPsK>(WHITE),  Endgame<KBPsK>(BLACK) };
-  Endgame<KQKRPs> ScaleKQKRPs[] = { Endgame<KQKRPs>(WHITE), Endgame<KQKRPs>(BLACK) };
   Endgame<KPsK>   ScaleKPsK[]   = { Endgame<KPsK>(WHITE),   Endgame<KPsK>(BLACK) };
   Endgame<KPKP>   ScaleKPKP[]   = { Endgame<KPKP>(WHITE),   Endgame<KPKP>(BLACK) };
 
@@ -72,14 +71,6 @@ namespace {
     return   pos.non_pawn_material(us) == BishopValueMg
           && pos.count<BISHOP>(us) == 1
           && pos.count<PAWN  >(us) >= 1;
-  }
-
-  bool is_KQKRPs(const Position& pos, Color us) {
-    return  !pos.count<PAWN>(us)
-          && pos.non_pawn_material(us) == QueenValueMg
-          && pos.count<QUEEN>(us) == 1
-          && pos.count<ROOK>(~us) == 1
-          && pos.count<PAWN>(~us) >= 1;
   }
 
   /// imbalance() calculates the imbalance by comparing the piece count of each
@@ -167,9 +158,6 @@ Entry* probe(const Position& pos) {
   {
     if (is_KBPsK(pos, c))
         e->scalingFunction[c] = &ScaleKBPsK[c];
-
-    else if (is_KQKRPs(pos, c))
-        e->scalingFunction[c] = &ScaleKQKRPs[c];
   }
 
   if (npm_w + npm_b == VALUE_ZERO && pos.pieces(PAWN)) // Only pawns on the board

@@ -786,6 +786,9 @@ namespace {
   template<Tracing T>
   ScaleFactor Evaluation<T>::scale_factor(Value eg) const {
 
+    if (pos.pieces(QUEEN))
+        return SCALE_FACTOR_NORMAL;
+
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     int sf = me->scale_factor(pos, strongSide);
 
@@ -798,9 +801,6 @@ namespace {
             sf = 31;
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
-        
-        if (pos.pieces(QUEEN))
-            sf = (sf + SCALE_FACTOR_NORMAL) / 2;
     }
 
     return ScaleFactor(sf);
