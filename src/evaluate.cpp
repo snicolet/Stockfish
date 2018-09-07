@@ -795,9 +795,9 @@ namespace {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material(WHITE) == BishopValueMg
             && pos.non_pawn_material(BLACK) == BishopValueMg)
-            sf = 28;
+            sf = 31;
         else
-            sf = 37 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide);
+            sf = 40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide);
 
         sf += pe->pawn_asymmetry();
 
