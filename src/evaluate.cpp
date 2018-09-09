@@ -158,6 +158,7 @@ namespace {
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CloseEnemies       = S(  6,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
+  constexpr Score DoublingMajors     = S(  0, 16);
   constexpr Score Hanging            = S( 57, 32);
   constexpr Score HinderPassedPawn   = S(  8,  0);
   constexpr Score KingProtector      = S(  6,  6);
@@ -387,6 +388,15 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+        }
+
+        if (Pt == ROOK || Pt == QUEEN)
+        {
+            // Bonus for doubling majors
+            if (    pe->open_files() <= 2
+                &&  (b & forward_file_bb(Us, s) & pos.pieces(Us, ROOK, QUEEN))
+                && !(b & forward_file_bb(Us, s) & pos.pieces(PAWN)))
+                score += DoublingMajors;
         }
 
         if (Pt == QUEEN)
