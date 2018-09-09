@@ -390,7 +390,7 @@ namespace {
             }
         }
 
-        if (Pt == ROOK || Pt == QUEEN)
+        if (Pt == ROOK)
         {
             // Bonus for doubling majors
             if (    pe->open_files() <= 2
