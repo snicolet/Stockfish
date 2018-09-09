@@ -801,7 +801,7 @@ namespace {
             if (!pos.opposite_bishops())
                 sf = 40 + 7 * pos.count<PAWN>(strongSide);
             else
-                sf = 30 + 2 * pos.count<PAWN>(strongSide);
+                sf = 25 + 2 * pos.count<PAWN>(strongSide);
 
             sf = std::min(sf, int(SCALE_FACTOR_NORMAL));
         }
