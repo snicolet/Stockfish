@@ -394,7 +394,7 @@ namespace {
         {
             // Bonus for doubling majors
             if (    pe->open_files() <= 2
-                &&  (b & forward_file_bb(Us, s) & pos.pieces(Us, ROOK, QUEEN))
+                &&  (b & forward_file_bb(Us, s) & pos.pieces(Us, ROOK))
                 && !(b & forward_file_bb(Us, s) & pos.pieces(PAWN)))
                 score += DoublingMajors;
         }
