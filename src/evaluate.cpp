@@ -798,12 +798,14 @@ namespace {
             sf = 8 + 4 * pe->pawn_asymmetry();
         else
         {
+            int pawnCount = pos.count<PAWN>(strongSide);
+
             if (!pos.opposite_bishops())
-                sf = 40 + 7 * pos.count<PAWN>(strongSide);
+                sf = 40 + 7 * pawnCount;
             else
             {
-                int pawnWeight = (pos.count<ALL_PIECES>(strongSide) - pos.count<PAWN>(strongSide)) / 2;
-                sf = 25 + pawnWeight * pos.count<PAWN>(strongSide);
+                int pawnWeight = (pos.count<ALL_PIECES>(strongSide) - pawnCount) / 2;
+                sf = 25 + pawnWeight * pawnCount;
             }
 
             sf = std::min(sf, int(SCALE_FACTOR_NORMAL));
