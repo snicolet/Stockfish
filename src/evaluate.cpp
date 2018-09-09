@@ -803,7 +803,7 @@ namespace {
             else
             {
                 int pawnWeight = (pos.count<ALL_PIECES>(strongSide) - pos.count<PAWN>(strongSide)) / 2;
-                sf = 35 + pawnWeight * pos.count<PAWN>(strongSide);
+                sf = 30 + pawnWeight * pos.count<PAWN>(strongSide);
             }
 
             sf = std::min(sf, int(SCALE_FACTOR_NORMAL));
