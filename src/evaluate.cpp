@@ -801,7 +801,10 @@ namespace {
             if (!pos.opposite_bishops())
                 sf = 40 + 7 * pos.count<PAWN>(strongSide);
             else
-                sf = 25 + 2 * pos.count<PAWN>(strongSide);
+            {
+                int pawnWeight = (pos.count<ALL_PIECES>(strongSide) - pos.count<PAWN>(strongSide)) / 2;
+                sf = 35 + pawnWeight * pos.count<PAWN>(strongSide);
+            }
 
             sf = std::min(sf, int(SCALE_FACTOR_NORMAL));
         }
