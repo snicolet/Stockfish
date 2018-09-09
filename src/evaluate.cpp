@@ -797,7 +797,14 @@ namespace {
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
         else
-            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+        {
+            if (!pos.opposite_bishops())
+                sf = 40 + 7 * pos.count<PAWN>(strongSide);
+            else
+                sf = 35 + 2 * pos.count<PAWN>(strongSide);
+
+            sf = std::min(sf, int(SCALE_FACTOR_NORMAL));
+        }
     }
 
     return ScaleFactor(sf);
