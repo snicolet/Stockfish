@@ -729,7 +729,7 @@ namespace {
             int bonus = p > 0 ? (-p - 2500) / 512 :
                         p < 0 ? (-p + 2500) / 512 : 0;
 
-            bonus -= 2 * pos.rule50_count();
+            bonus -= pos.rule50_count() / 2;
 
             pureStaticEval = evaluate(pos);
             ss->staticEval = eval = pureStaticEval + bonus;
