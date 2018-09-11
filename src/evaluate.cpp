@@ -598,7 +598,7 @@ namespace {
     {
         Square s = pos.square<QUEEN>(Them);
 
-        Bitboard blockedPawns = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(PAWN));
+        Bitboard blockedPawns = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
         safe = ~stronglyProtected & ~blockedPawns;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
