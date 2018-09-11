@@ -597,9 +597,9 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        
+
         Bitboard blockedPawns = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(PAWN));
-        safe = ~stronglyProtected & ~blockedPawns;
+        safe = mobilityArea[Us] & ~stronglyProtected & ~blockedPawns;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
