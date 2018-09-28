@@ -156,7 +156,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
-  constexpr Score CloseEnemies       = S(  6,  0);
+  constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 57, 32);
   constexpr Score KingProtector      = S(  6,  6);
@@ -422,8 +422,7 @@ namespace {
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 =  (b1 & attackedBy2[Them] & ~attackedBy[Us][PAWN])
-        | (b1 & pos.pieces(Them, PAWN))
-        | (b1 & attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN]);
+        | (b1 & pos.pieces(Them, PAWN));
 
     int tropism = popcount(b1) + popcount(b2);
 
