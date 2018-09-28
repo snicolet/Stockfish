@@ -156,7 +156,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
-  constexpr Score CloseEnemies       = S(  7,  0);
+  constexpr Score CloseEnemies       = S(  6,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 57, 32);
   constexpr Score KingProtector      = S(  6,  6);
@@ -478,7 +478,7 @@ namespace {
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 129 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +   4 * tropism
+                     +   5 * tropism
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      -   30;
