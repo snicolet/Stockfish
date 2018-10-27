@@ -156,6 +156,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
+  constexpr Score BishopSpan         = S(  0,  8);
   constexpr Score CloseEnemies       = S(  6,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 57, 32);
@@ -172,7 +173,6 @@ namespace {
   constexpr Score ThreatByRank       = S( 16,  3);
   constexpr Score ThreatBySafePawn   = S(173,102);
   constexpr Score TrappedRook        = S( 92,  0);
-  constexpr Score UsefulBishop       = S(  0, 20);
   constexpr Score WeakQueen          = S( 50, 10);
   constexpr Score WeakUnopposedPawn  = S(  5, 29);
 
@@ -291,9 +291,6 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard goodFilesForBishop[COLOR_NB] = 
-                     { FileABB | FileCBB | FileEBB | FileGBB ,
-                       FileBBB | FileDBB | FileFBB | FileHBB };
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -348,8 +345,7 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard ourpawns = pos.pieces(Us, PAWN);
-                Bitboard blocked = ourpawns & shift<Down>(pos.pieces());
+                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
@@ -358,8 +354,10 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
 
-                // Bonus for bishop supporting the color of the queening square of pawns
-                score += UsefulBishop * popcount(ourpawns & goodFilesForBishop[Us ^ bool(DarkSquares & s)]);
+                // Bishops love large span of pawns
+                Bitboard occupied = pe->semiopenFiles[Us] ^ 0xFF;
+                int pawnSpan = (occupied == 0 ? 0 : 1 + msb(occupied) - lsb(occupied));
+                score += BishopSpan * pawnSpan;
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
