@@ -172,6 +172,7 @@ namespace {
   constexpr Score ThreatByRank       = S( 16,  3);
   constexpr Score ThreatBySafePawn   = S(173,102);
   constexpr Score TrappedRook        = S( 92,  0);
+  constexpr Score UsefulBishop       = S(  5, 15);
   constexpr Score WeakQueen          = S( 50, 10);
   constexpr Score WeakUnopposedPawn  = S(  5, 29);
 
@@ -290,6 +291,9 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard goodFilesForBishop[COLOR_NB] = 
+                     { FileABB | FileCBB | FileEBB | FileGBB ,
+                       FileBBB | FileDBB | FileFBB | FileHBB };
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -344,7 +348,8 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+                Bitboard ourpawns = pos.pieces(Us, PAWN);
+                Bitboard blocked = ourpawns & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
@@ -352,6 +357,9 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
+
+                // Bonus for bishop supporting the color of the queening square of pawns
+                score += UsefulBishop * popcount(ourpawns & goodFilesForBishop[Us ^ bool(DarkSquares & s)]);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
