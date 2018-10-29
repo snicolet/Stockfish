@@ -128,8 +128,8 @@ namespace {
   // RookOnFile[semiopen/open][connected] contains bonuses for each rook when there is
   // no friendly pawn on the rook file, bigger if rook is connected to another major.
   constexpr Score RookOnFile[][2] = { 
-     { S(10,  4), S(25, 10) }, //semi open
-     { S(30, 10), S(60, 30) }  //open
+     { S(20,  7), S(25, 10) }, //semi open
+     { S(45, 20), S(60, 30) }  //open
   };
 
   // ThreatByMinor/ByRook[attacked PieceType] contains bonuses according to
