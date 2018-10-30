@@ -125,8 +125,8 @@ namespace {
     { S( 9, 2), S(15, 5) }  // Bishop
   };
 
-  // RookOnFile[semiopen/open][connected] contains bonuses for each rook when there is
-  // no friendly pawn on the rook file.
+  // RookOnFile[semiopen/open] contains bonuses for each rook when there is
+  // no (friendly) pawn on the rook file.
   constexpr Score RookOnFile[] = { S(20, 7), S(45, 20) };
 
   // ThreatByMinor/ByRook[attacked PieceType] contains bonuses according to
