@@ -30,8 +30,8 @@ Value PieceValue[PHASE_NB][PIECE_NB] = {
 namespace PSQT {
 
 #define A  0
-#define B  5
-#define C  0
+#define B  0
+#define C  5
 
 #define S(mg, eg) make_score(mg, eg)
 
