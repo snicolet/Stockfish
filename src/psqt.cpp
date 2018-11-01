@@ -29,7 +29,7 @@ Value PieceValue[PHASE_NB][PIECE_NB] = {
 
 namespace PSQT {
 
-#define A  5
+#define A  10
 #define B  0
 #define C  0
 
