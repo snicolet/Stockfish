@@ -395,6 +395,13 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
         }
+        
+        if (   (Pt == BISHOP && pos.count<BISHOP>() <= 1)
+            || (Pt == QUEEN  && pos.count<QUEEN>()  <= 1))
+        {
+            int x = (pos.key() & 15) - 7;
+            score += make_score(0, x);
+        }
     }
     if (T)
         Trace::add(Pt, Us, score);
