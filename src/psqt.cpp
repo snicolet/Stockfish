@@ -30,6 +30,7 @@ Value PieceValue[PHASE_NB][PIECE_NB] = {
 namespace PSQT {
 
 #define S(mg, eg) make_score(mg, eg)
+#define T(x)      make_score(x, x)
 
 // Bonus[PieceType][Square / 2] contains Piece-Square scores. For each piece
 // type on a given square a (middlegame, endgame) score pair is assigned. Table
@@ -67,14 +68,14 @@ constexpr Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
    { S(-47,-55), S( -7,-32), S(-17,-36), S(-29,-17) }
   },
   { // Rook
-   { S(-25, 0), S(-16, 0), S(-10, 5), S( 6, 5) },
-   { S(-21, 0), S( -8, 0), S( -3, 0), S( 0, 0) },
-   { S(-21, 0), S( -9, 0), S( -4, 0), S( 2, 0) },
-   { S(-22, 0), S( -6, 0), S( -1, 0), S( 2, 0) },
-   { S(-22, 0), S( -7, 0), S(  0, 0), S( 1, 0) },
-   { S(-21, 0), S( -7, 0), S(  0, 0), S( 2, 0) },
-   { S(-12, 0), S(  4, 0), S(  8, 0), S(12, 0) },
-   { S(-23, 0), S(-15, 0), S(-11, 0), S(-5, 0) }
+   { T(-25), T(-16), T( -5), T( 6) },
+   { T(-21), T( -8), T( -3), T( 0) },
+   { T(-21), T( -9), T( -4), T( 2) },
+   { T(-22), T( -6), T( -1), T( 2) },
+   { T(-22), T( -7), T(  0), T( 1) },
+   { T(-21), T( -7), T(  0), T( 2) },
+   { T(-12), T(  4), T(  8), T(12) },
+   { T(-23), T(-15), T(-11), T(-5) }
   },
   { // Queen
    { S( 0,-71), S(-4,-56), S(-3,-42), S(-1,-29) },
@@ -99,6 +100,7 @@ constexpr Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
 };
 
 #undef S
+#undef T
 
 Score psq[PIECE_NB][SQUARE_NB];
 
