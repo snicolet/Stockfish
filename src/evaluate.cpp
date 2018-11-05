@@ -321,7 +321,15 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
 
-        mobility[Us][Pt] += MobilityBonus[Pt - 2][mob];
+        Score mobScore = MobilityBonus[Pt - 2][mob];
+        if (  Pt == ROOK
+           && pos.count<Pt>() == 2
+           && mobility[Us][Pt] != SCORE_ZERO)
+        {
+            Score m = eg_value(mobScore) < eg_value(mobility[Us][Pt]) ? mobScore : mobility[Us][Pt];
+            mobScore = mobility[Us][Pt] = m;   // Use minimum of the two mobility values
+        }
+        mobility[Us][Pt] += mobScore;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
