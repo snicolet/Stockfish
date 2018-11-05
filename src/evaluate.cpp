@@ -201,7 +201,8 @@ namespace {
     Material::Entry* me;
     Pawns::Entry* pe;
     Bitboard mobilityArea[COLOR_NB];
-    Score mobility[COLOR_NB][PIECE_TYPE_NB] = {};
+    Score minMobility[COLOR_NB][PIECE_TYPE_NB] = {};
+    Score mobility[COLOR_NB] = {};
 
     // attackedBy[color][piece type] is a bitboard representing all squares
     // attacked by a given color and piece type. Special "piece types" which
@@ -320,16 +321,18 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
-
         Score mobScore = MobilityBonus[Pt - 2][mob];
+
+        mobility[Us] += mobScore;
+
         if (  Pt == ROOK
            && pos.count<Pt>() == 2
-           && mobility[Us][Pt] != SCORE_ZERO)
+           && minMobility[Us][Pt] != SCORE_ZERO)
         {
-            Score m = eg_value(mobScore) < eg_value(mobility[Us][Pt]) ? mobScore : mobility[Us][Pt];
-            mobScore = mobility[Us][Pt] = m;   // Use minimum of the two mobility values
+            Score m = eg_value(mobScore) < eg_value(minMobility[Us][Pt]) ? mobScore : minMobility[Us][Pt];
+            mobScore = minMobility[Us][Pt] = m;   // Use minimum of the two mobility values
         }
-        mobility[Us][Pt] += mobScore;
+        minMobility[Us][Pt] += mobScore;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -486,7 +489,7 @@ namespace {
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +   4 * tropism
-                     +       mg_value(mobility[Them][ALL_PIECES] - mobility[Us][ALL_PIECES])
+                     +       mg_value(mobility[Them] - mobility[Us])
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      -   30;
@@ -842,10 +845,13 @@ namespace {
 
     for (int pt = KNIGHT; pt <= QUEEN; pt++)
     {
-        mobility[WHITE][ALL_PIECES] += mobility[WHITE][pt];
-        mobility[BLACK][ALL_PIECES] += mobility[BLACK][pt];
+        minMobility[WHITE][ALL_PIECES] += minMobility[WHITE][pt];
+        minMobility[BLACK][ALL_PIECES] += minMobility[BLACK][pt];
     }
-    score += mobility[WHITE][ALL_PIECES] - mobility[BLACK][ALL_PIECES];
+    mobility[WHITE] = (mobility[WHITE] + minMobility[WHITE][ALL_PIECES]) / 2;
+    mobility[BLACK] = (mobility[BLACK] + minMobility[BLACK][ALL_PIECES]) / 2;
+
+    score += mobility[WHITE] - mobility[BLACK];
 
     score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
@@ -867,7 +873,7 @@ namespace {
         Trace::add(MATERIAL, pos.psq_score());
         Trace::add(IMBALANCE, me->imbalance());
         Trace::add(PAWN, pe->pawn_score(WHITE), pe->pawn_score(BLACK));
-        Trace::add(MOBILITY, mobility[WHITE][ALL_PIECES], mobility[BLACK][ALL_PIECES]);
+        Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
         Trace::add(TOTAL, score);
     }
 
