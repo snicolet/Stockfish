@@ -764,7 +764,7 @@ namespace {
     // that the endgame score will never change sign after the bonus.
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
     
-    int x = pos.this_thread()->nodes.load(std::memory_order_relaxed) % 4;
+    int x = pos.this_thread()->nodes.load(std::memory_order_relaxed) % 8;
     int u = ((eg > 0) - (eg < 0)) * x;
 
     if (T)
