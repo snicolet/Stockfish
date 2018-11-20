@@ -827,9 +827,11 @@ namespace {
        return pos.side_to_move() == WHITE ? v : -v;
 
     // Main evaluation begins here
-
     initialize<WHITE>();
     initialize<BLACK>();
+
+    int x = (pos.this_thread()->nodes.load(std::memory_order_relaxed) % 4) - 2;
+    score += make_score(x, 0);
 
     // Pieces should be evaluated first (populate attack tables)
     score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
