@@ -394,9 +394,9 @@ namespace {
                 score -= WeakQueen;
         }
 
-        if (Pt == BISHOP && pos.count<BISHOP>() <= 1)
+        if (Pt == BISHOP && pos.count<BISHOP>() <= 2)
         {
-            int x = (pos.this_thread()->nodes.load(std::memory_order_relaxed) % 32) - 16;
+            int x = (pos.this_thread()->nodes.load(std::memory_order_relaxed) % 16) - 8;
             score += make_score(x, 0);
         }
 
