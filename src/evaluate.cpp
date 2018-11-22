@@ -397,7 +397,7 @@ namespace {
         if (Pt == BISHOP && pos.count<BISHOP>() <= 1)
         {
             int x = (pos.this_thread()->nodes.load(std::memory_order_relaxed) % 8) - 4;
-            score += make_score(0, x);
+            score += make_score(x, 0);
         }
 
     }
