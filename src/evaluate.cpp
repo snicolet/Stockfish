@@ -393,6 +393,13 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
         }
+
+        if (Pt == BISHOP && pos.count<BISHOP>() <= 1)
+        {
+            int x = (pos.this_thread()->nodes.load(std::memory_order_relaxed) % 8) - 4;
+            score += make_score(0, x);
+        }
+
     }
     if (T)
         Trace::add(Pt, Us, score);
@@ -829,9 +836,6 @@ namespace {
     // Main evaluation begins here
     initialize<WHITE>();
     initialize<BLACK>();
-
-    int x = (pos.this_thread()->nodes.load(std::memory_order_relaxed) % 8) - 4;
-    score += make_score(x, 0);
 
     // Pieces should be evaluated first (populate attack tables)
     score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
