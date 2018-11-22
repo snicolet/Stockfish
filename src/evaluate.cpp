@@ -393,13 +393,6 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
         }
-
-        if (Pt == BISHOP && pos.count<BISHOP>() <= 2)
-        {
-            int x = (pos.this_thread()->nodes.load(std::memory_order_relaxed) % 16) - 8;
-            score += make_score(x, 0);
-        }
-
     }
     if (T)
         Trace::add(Pt, Us, score);
@@ -849,6 +842,12 @@ namespace {
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
+    
+    if (pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK))
+    {
+        int x = (pos.this_thread()->nodes.load(std::memory_order_relaxed) % 16) - 8;
+        score += make_score(x, 0);
+    }
 
     score += initiative(eg_value(score));
 
