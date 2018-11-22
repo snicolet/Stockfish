@@ -157,6 +157,7 @@ namespace {
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
   constexpr Score KingProtector      = S(  6,  7);
+  constexpr Score KnightFork         = S( 30, 30);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
@@ -593,9 +594,11 @@ namespace {
         Square s = pos.square<QUEEN>(Them);
         safe = mobilityArea[Us] & ~stronglyProtected;
 
-        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
+        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s) & safe;
+        score += KnightOnQueen * popcount(b);
 
-        score += KnightOnQueen * popcount(b & safe);
+        if (b & pos.attacks_from<KNIGHT>(pos.square<KING>(Them)))
+            score += KnightFork;
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
