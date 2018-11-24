@@ -421,7 +421,8 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
 
-    int tropism = popcount(b1) + popcount(b2);
+    int tropism =   popcount(b1) + popcount(b2)
+                  + distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
