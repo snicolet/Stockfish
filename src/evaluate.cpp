@@ -845,7 +845,7 @@ namespace {
             + space<  WHITE>() - space<  BLACK>();
     
     if (   pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK)
-        && pos.count<PAWN>(WHITE) != pos.count<PAWN>(BLACK))
+        || pos.count<PAWN>(WHITE) != pos.count<PAWN>(BLACK))
     {
         int x = (pos.this_thread()->nodes.load(std::memory_order_relaxed) % 16) - 8;
         score += make_score(x, 0);
