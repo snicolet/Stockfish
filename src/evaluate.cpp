@@ -751,8 +751,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    int imbalance =   (pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK)) 
+                    + (pos.count<PAWN>(WHITE) != pos.count<PAWN>(BLACK));
+
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
+                    +  8 * imbalance
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
@@ -843,13 +847,6 @@ namespace {
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
-    
-    if (   pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK)
-        || pos.count<PAWN>(WHITE) != pos.count<PAWN>(BLACK))
-    {
-        int x = (pos.this_thread()->nodes.load(std::memory_order_relaxed) % 16) - 8;
-        score += make_score(x, 0);
-    }
 
     score += initiative(eg_value(score));
 
