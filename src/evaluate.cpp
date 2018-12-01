@@ -752,8 +752,8 @@ namespace {
     
     Bitboard wp = pos.pieces(WHITE, PAWN);
     Bitboard bp = pos.pieces(BLACK, PAWN);
-    int advance =  std::min((wp ? relative_rank(WHITE, frontmost_sq(WHITE, wp)) : 0),
-                            (bp ? relative_rank(BLACK, frontmost_sq(BLACK, bp)) : 0));
+    int advance =  std::max((wp ? relative_rank(WHITE, backmost_sq(WHITE, wp)) : 0),
+                            (bp ? relative_rank(BLACK, backmost_sq(BLACK, bp)) : 0));
 
 /*
     std::cerr << pos << std::endl;
