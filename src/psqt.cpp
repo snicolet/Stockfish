@@ -21,6 +21,7 @@
 #include <algorithm>
 
 #include "types.h"
+#include "misc.h"
 
 Value PieceValue[PHASE_NB][PIECE_NB] = {
   { VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg, QueenValueMg },
@@ -107,6 +108,8 @@ Score psq[PIECE_NB][SQUARE_NB];
 // tables are initialized by flipping and changing the sign of the white scores.
 void init() {
 
+  PRNG rng(1000);
+
   for (Piece pc = W_PAWN; pc <= W_KING; ++pc)
   {
       PieceValue[MG][~pc] = PieceValue[MG][pc];
@@ -117,7 +120,7 @@ void init() {
       for (Square s = SQ_A1; s <= SQ_H8; ++s)
       {
           File f = std::min(file_of(s), ~file_of(s));
-          psq[ pc][ s] = score + Bonus[pc][rank_of(s)][f];
+          psq[ pc][ s] = score + Bonus[pc][rank_of(s)][f] + make_score(0, rng.rand<int>() % 4);
           psq[~pc][~s] = -psq[pc][s];
       }
   }
