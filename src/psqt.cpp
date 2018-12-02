@@ -120,7 +120,11 @@ void init() {
       for (Square s = SQ_A1; s <= SQ_H8; ++s)
       {
           File f = std::min(file_of(s), ~file_of(s));
-          psq[ pc][ s] = score + Bonus[pc][rank_of(s)][f] + make_score(0, rng.rand<int>() % 4);
+
+          psq[ pc][ s] = score + Bonus[pc][rank_of(s)][f];
+          if (type_of(pc) == PAWN)
+              psq[pc][s] += make_score(0, rng.rand<int>() % 4);
+
           psq[~pc][~s] = -psq[pc][s];
       }
   }
