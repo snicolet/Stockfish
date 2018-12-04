@@ -453,6 +453,11 @@ namespace {
         else
             unsafeChecks |= b1;
 
+        // Add some demolition squares for minors
+        safe |=   pos.pieces(Us)
+               &  attackedBy2[Them]
+               & ~attackedBy2[Us];
+
         // Enemy bishops checks
         if (b2 & safe)
             kingDanger += BishopSafeCheck;
