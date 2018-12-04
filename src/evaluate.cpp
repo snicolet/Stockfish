@@ -437,6 +437,11 @@ namespace {
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
 
+        // Add some demolition squares
+        safe |=   pos.pieces(Us)
+               &  attackedBy2[Them]
+               & ~attackedBy2[Us];
+
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
@@ -452,11 +457,6 @@ namespace {
             kingDanger += RookSafeCheck;
         else
             unsafeChecks |= b1;
-
-        // Add some demolition squares for minors
-        safe |=   pos.pieces(Us)
-               &  attackedBy2[Them]
-               & ~attackedBy2[Us];
 
         // Enemy bishops checks
         if (b2 & safe)
