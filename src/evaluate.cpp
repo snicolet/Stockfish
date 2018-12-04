@@ -472,6 +472,7 @@ namespace {
 
         // Add some demolition threats
         unsafeChecks |=   pos.pieces(Us)
+                       &  kingFlank
                        &  attackedBy2[Them]
                        & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
                        & ~attackedBy2[Us];
