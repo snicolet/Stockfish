@@ -437,11 +437,6 @@ namespace {
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
 
-        // Add some demolition squares
-        safe |=   pos.pieces(Us)
-               &  attackedBy2[Them]
-               & ~attackedBy2[Us];
-
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
@@ -474,6 +469,13 @@ namespace {
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
+
+        // Add some demolition threats
+        unsafeChecks |=   pos.pieces(Us)
+                       &  kingRing[Us]
+                       &  attackedBy2[Them]
+                       & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
+                       & ~attackedBy2[Us];
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
