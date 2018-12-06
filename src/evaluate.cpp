@@ -322,7 +322,7 @@ namespace {
         mobility[Us] += MobilityBonus[Pt - 2][mob];
         if (mg_value(MobilityBonus[Pt - 2][mob]) <= 0)
         {
-            mobility[Us] -= make_score(badPieces[Us], badPieces[Us]);
+            mobility[Us] -= make_score(0, badPieces[Us]);
             badPieces[Us]++;
         }
 
