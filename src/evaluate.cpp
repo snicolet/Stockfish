@@ -198,6 +198,7 @@ namespace {
     Material::Entry* me;
     Pawns::Entry* pe;
     Bitboard mobilityArea[COLOR_NB];
+    int badPieces[COLOR_NB] = {0, 0};
     Score mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
 
     // attackedBy[color][piece type] is a bitboard representing all squares
@@ -319,6 +320,11 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+        if (mg_value(MobilityBonus[Pt - 2][mob]) <= 0)
+        {
+            mobility[Us] -= make_score(badPieces[Us], badPieces[Us]);
+            badPieces[Us]++;
+        }
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
