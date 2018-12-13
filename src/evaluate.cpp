@@ -320,7 +320,7 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (Pt == BISHOP || Pt == KNIGHT || Pt == QUEEN)
+        if (Pt == BISHOP || Pt == KNIGHT || Pt == ROOK)
         {
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
