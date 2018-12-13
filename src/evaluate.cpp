@@ -320,7 +320,7 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (Pt == BISHOP || Pt == KNIGHT)
+        if (Pt == BISHOP || Pt == KNIGHT || Pt == QUEEN)
         {
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
@@ -329,7 +329,10 @@ namespace {
 
             else if (bb &= b & ~pos.pieces(Us))
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & bb)];
+        }
 
+        if (Pt == BISHOP || Pt == KNIGHT)
+        {
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
                 score += MinorBehindPawn;
