@@ -934,13 +934,23 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3 * ONE_PLY
           &&  pos.legal(move))
       {
-          Value reducedBeta = std::max(ttValue - 2 * depth / ONE_PLY, -VALUE_MATE);
+          Value reducedBeta = std::max(ttValue - 2 * depth / ONE_PLY - 100, -VALUE_MATE);
           ss->excludedMove = move;
-          value = search<NonPV>(pos, ss, reducedBeta - 1, reducedBeta, depth / 2, cutNode);
+          value = search<NonPV>(pos, ss, reducedBeta - 1, reducedBeta, depth / 2 - 2 * ONE_PLY, cutNode);
           ss->excludedMove = MOVE_NONE;
 
           if (value < reducedBeta)
-              extension = ONE_PLY;
+              extension = 2 * ONE_PLY;
+          else
+          {
+              reducedBeta = std::max(ttValue - 2 * depth / ONE_PLY, -VALUE_MATE);
+              ss->excludedMove = move;
+              value = search<NonPV>(pos, ss, reducedBeta - 1, reducedBeta, depth / 2, cutNode);
+              ss->excludedMove = MOVE_NONE;
+
+              if (value < reducedBeta)
+                  extension = 1 * ONE_PLY;
+          }
       }
       else if (    givesCheck // Check extension (~2 Elo)
                &&  pos.see_ge(move))
