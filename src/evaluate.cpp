@@ -583,8 +583,7 @@ namespace {
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
-    if (b & HighRanks & ~stronglyProtected)
-        score += FawnPawn;
+    score += FawnPawn * popcount(b & HighRanks & ~stronglyProtected);
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
