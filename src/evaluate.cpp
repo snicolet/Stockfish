@@ -155,6 +155,7 @@ namespace {
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CloseEnemies       = S(  8,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
+  constexpr Score FawnPawn           = S( 30,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -508,6 +509,7 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  HighRanks = (Us == WHITE ? Rank6BB | Rank7BB : Rank3BB | Rank2BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
@@ -581,6 +583,8 @@ namespace {
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
+    if (b & HighRanks & ~stronglyProtected)
+        score += FawnPawn;
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
@@ -786,7 +790,6 @@ namespace {
             sf = 8 + 4 * pe->pawn_asymmetry();
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
-
     }
 
     return ScaleFactor(sf);
