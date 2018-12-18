@@ -155,7 +155,7 @@ namespace {
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CloseEnemies       = S(  8,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score FawnPawn           = S( 30, 10);
+  constexpr Score FawnPawn           = S( 50,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -583,7 +583,7 @@ namespace {
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
-    if (b & HighRanks & ~stronglyProtected)
+    if (b & HighRanks & ~stronglyProtected & KingFlank[file_of(pos.square<KING>(Them))])
         score += FawnPawn;
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
