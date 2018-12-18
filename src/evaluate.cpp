@@ -509,7 +509,8 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-    constexpr Bitboard  HighRanks = (Us == WHITE ? Rank6BB | Rank7BB : Rank3BB | Rank2BB);
+    constexpr Bitboard  HighRanks = (Us == WHITE ? Rank5BB | Rank6BB | Rank7BB 
+                                                 : Rank4BB | Rank3BB | Rank2BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
