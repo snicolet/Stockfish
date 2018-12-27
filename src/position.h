@@ -127,6 +127,7 @@ public:
 
   // Piece specific
   bool pawn_passed(Color c, Square s) const;
+  bool pawn_passed(Move m) const;
   bool opposite_bishops() const;
 
   // Doing and undoing moves
@@ -311,6 +312,11 @@ inline Bitboard Position::check_squares(PieceType pt) const {
 
 inline bool Position::pawn_passed(Color c, Square s) const {
   return !(pieces(~c, PAWN) & passed_pawn_mask(c, s));
+}
+
+inline bool Position::pawn_passed(Move m) const {
+  return   type_of(moved_piece(m)) == PAWN
+        && pawn_passed(sideToMove, to_sq(m));
 }
 
 inline bool Position::advanced_pawn_push(Move m) const {
