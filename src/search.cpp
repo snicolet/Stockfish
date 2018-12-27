@@ -1346,8 +1346,7 @@ moves_loop: // When in check, search starts from here
       if (   !inCheck
           && !givesCheck
           &&  futilityBase > -VALUE_KNOWN_WIN
-          && !pos.advanced_pawn_push(move)
-          && !pos.pawn_passed(move))
+          && (!pos.advanced_pawn_push(move) || pos.pawn_passed(move)))
       {
           assert(type_of(move) != ENPASSANT); // Due to !pos.advanced_pawn_push
 
