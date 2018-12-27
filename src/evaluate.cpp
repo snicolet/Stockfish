@@ -155,7 +155,7 @@ namespace {
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CloseEnemies       = S(  8,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score DominatedKnight    = S( 20, 20);
+  constexpr Score DominatedKnight    = S(  0, 30);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -371,10 +371,8 @@ namespace {
         if (Pt == KNIGHT)
         {
             Bitboard bishops = pos.pieces(Them, BISHOP);
-            if (   ((s == SQ_A4) && (bishops & SQ_D4))
-                || ((s == SQ_A5) && (bishops & SQ_D5))
-                || ((s == SQ_H4) && (bishops & SQ_E4))
-                || ((s == SQ_H5) && (bishops & SQ_E5)))
+            if (   (file_of(s) == FILE_A && (bishops & Square(s+3)))
+                || (file_of(s) == FILE_H && (bishops & Square(s-3))))
                 score -= DominatedKnight;
         }
 
