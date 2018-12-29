@@ -472,7 +472,10 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 -   30;
+                 +       pos.count<ALL_PIECES>(Them)
+                 -   40;
+    
+    //dbg_mean_of(pos.count<ALL_PIECES>(Them));
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
