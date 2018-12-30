@@ -473,7 +473,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +       pos.count<ALL_PIECES>(Them)
-                 -   60;
+                 -   70;
     
     //dbg_mean_of(pos.count<ALL_PIECES>(Them));
 
