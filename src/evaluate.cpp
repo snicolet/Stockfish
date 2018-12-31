@@ -79,9 +79,9 @@ namespace {
   constexpr Bitboard Center      = (FileDBB | FileEBB) & (Rank4BB | Rank5BB);
 
   constexpr Bitboard KingFlank[FILE_NB] = {
-    QueenSide ^ FileDBB, QueenSide, QueenSide,
+    QueenSide, QueenSide, QueenSide,
     CenterFiles, CenterFiles,
-    KingSide, KingSide, KingSide ^ FileEBB
+    KingSide, KingSide, KingSide
   };
 
   // Threshold for lazy and space evaluation
