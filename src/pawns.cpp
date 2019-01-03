@@ -36,7 +36,7 @@ namespace {
   constexpr Score Doubled  = S(11, 56);
   constexpr Score Isolated = S( 5, 15);
 
-  // Connected pawn bonus by passed, phalanx, #support and rank
+  // Connected pawn bonus by passed pawn, phalanx, #support and rank
   Score Connected[2][2][3][RANK_NB];
 
   // Strength of pawn shelter for our king by [distance from edge][rank].
@@ -161,7 +161,7 @@ void init() {
           for (int support = 0; support <= 2; ++support)
               for (Rank r = RANK_2; r < RANK_8; ++r)
   {
-      int v = (25 + r) * support;
+      int v = (24 + 2 * r) * support;
       v += (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> (1 - passed);
 
       Connected[passed][phalanx][support][r] = make_score(v, v * (r - 2) / 4);
