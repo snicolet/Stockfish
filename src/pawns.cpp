@@ -36,7 +36,7 @@ namespace {
   constexpr Score Doubled  = S(11, 56);
   constexpr Score Isolated = S( 5, 15);
 
-  // Connected pawn bonus by opposed, phalanx, #support and rank
+  // Connected pawn bonus by passed, phalanx, #support and rank
   Score Connected[2][2][3][RANK_NB];
 
   // Strength of pawn shelter for our king by [distance from edge][rank].
@@ -129,7 +129,7 @@ namespace {
 
         // Score this pawn
         if (support | phalanx)
-            score += Connected[!!stoppers][bool(phalanx)][popcount(support)][relative_rank(Us, s)];
+            score += Connected[bool(e->passedPawns[Us] & s)][bool(phalanx)][popcount(support)][relative_rank(Us, s)];
 
         else if (!neighbours)
             score -= Isolated, e->weakUnopposed[Us] += !opposed;
@@ -154,17 +154,17 @@ namespace Pawns {
 
 void init() {
 
-  static constexpr int Seed[RANK_NB] = { 0, 13, 24, 18, 65, 100, 175, 330 };
+  static constexpr int Seed[RANK_NB] = { 0, 20, 36, 28, 96, 150, 256, 496 };
 
-  for (int opposed = 0; opposed <= 1; ++opposed)
+  for (int passed = 0; passed <= 1; ++passed)
       for (int phalanx = 0; phalanx <= 1; ++phalanx)
           for (int support = 0; support <= 2; ++support)
               for (Rank r = RANK_2; r < RANK_8; ++r)
   {
-      int v = 17 * support;
-      v += (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> opposed;
+      int v = (25 + r) * support;
+      v += (Seed[r] + (phalanx ? (Seed[r + 1] - Seed[r]) / 2 : 0)) >> (1 - passed);
 
-      Connected[opposed][phalanx][support][r] = make_score(2 * v, v * (r - 2) / 2);
+      Connected[passed][phalanx][support][r] = make_score(v, v * (r - 2) / 4);
   }
 }
 
