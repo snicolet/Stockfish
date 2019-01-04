@@ -568,10 +568,6 @@ namespace {
     // Keep only the squares which are relatively safe
     b &= safe & (~attackedBy[Them][PAWN] | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)));
 
-    // Small bonus for potential restriction of enemy mobility
-    restricted = pawn_attacks_bb<Us>(b) & attackedBy[Them][ALL_PIECES];
-    score += RestrictedByPawn * popcount(restricted);
-
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
     score += ThreatByPawnPush * popcount(b);
