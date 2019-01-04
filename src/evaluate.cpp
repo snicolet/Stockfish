@@ -161,6 +161,7 @@ namespace {
   constexpr Score LongDiagonalBishop = S( 45,  0);
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score PawnlessFlank      = S( 17, 95);
+  constexpr Score RestrictedByPawn   = S(  1,  2);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
@@ -518,9 +519,6 @@ namespace {
     // Enemies not strongly protected and under our attack
     weak = pos.pieces(Them) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
 
-    // Safe or protected squares
-    safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
-
     // Bonus according to the kind of attacking pieces
     if (defended | weak)
     {
@@ -560,12 +558,21 @@ namespace {
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
+    // Safe or protected squares
+    safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
+
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
-    b &= ~attackedBy[Them][PAWN] & safe;
+    b &= safe & (~attackedBy[Them][PAWN] | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)));
+
+    // Small bonus for potential restriction of enemy mobility
+    // restricted = pawn_attacks_bb<Us>(b) & attackedBy[Them][ALL_PIECES];
+    restricted =   pawn_attacks_bb<Us>(b)
+                & ((attackedBy[Them][ALL_PIECES] & ~attackedBy[Them][PAWN]) | attackedBy2[Them]);
+    score += RestrictedByPawn * popcount(restricted);
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
