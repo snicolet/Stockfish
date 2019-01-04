@@ -159,7 +159,7 @@ namespace {
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
   constexpr Score LongDiagonalBishop = S( 45,  0);
-  constexpr Score LooseEnemies       = S(  0, 12);
+  constexpr Score LooseEnemies       = S(  0, 24);
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score RestrictedPiece    = S(  7,  7);
@@ -560,7 +560,8 @@ namespace {
     // Small bonus if the opponent has loose pawns or pieces
     b =    (pos.pieces(Them) ^ pos.pieces(Them, QUEEN, KING))
         & ~(attackedBy[Us][ALL_PIECES] | attackedBy[Them][ALL_PIECES]);
-    score += LooseEnemies * popcount(b);
+    if (b)
+        score += LooseEnemies;
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
