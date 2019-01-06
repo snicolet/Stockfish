@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -96,6 +97,7 @@ namespace {
   constexpr int RookSafeCheck   = 880;
   constexpr int BishopSafeCheck = 435;
   constexpr int KnightSafeCheck = 790;
+  constexpr int Windmill        = 300;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -472,7 +474,25 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 -   30;
+                 -   60;
+
+    // Penalty when the opponent takes material by discovered check, 
+    // like in the windmill combinaison
+    b = pos.blockers_for_king(Us) & pos.pieces(Them);
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+        PieceType pt = type_of(pos.piece_on(s));
+        Bitboard attacks = (pt == PAWN ? pos.attacks_from<PAWN>(s, Them) : pos.attacks_from(pt, s));
+
+        // std::cerr << pos << std::endl;
+        // std::cerr << Bitboards::pretty(SquareBB[s]) << std::endl;
+        // std::cerr << Bitboards::pretty(attacks) << std::endl;
+        // std::cerr << "========================================================================" << std::endl;
+
+        if (attacks & pos.pieces(Us))
+            kingDanger += Windmill;
+    }
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
