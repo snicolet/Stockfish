@@ -97,7 +97,7 @@ namespace {
   constexpr int RookSafeCheck   = 880;
   constexpr int BishopSafeCheck = 435;
   constexpr int KnightSafeCheck = 790;
-  constexpr int Windmill        = 300;
+  constexpr int Windmill        = 200;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -474,7 +474,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 -   70;
+                 -   50;
 
     // Penalty when the opponent takes material by discovered check, 
     // like in the windmill combinaison
