@@ -474,7 +474,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 -   60;
+                 -   70;
 
     // Penalty when the opponent takes material by discovered check, 
     // like in the windmill combinaison
