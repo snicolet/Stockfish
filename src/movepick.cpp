@@ -112,7 +112,7 @@ void MovePicker::score() {
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))] / 8;
 
           if (stage == QCAPTURE_INIT)
-              m.value += 512 * (to_sq(m) == recaptureSquare);
+              m.value += 300 * (to_sq(m) == recaptureSquare);
       }
 
       else if (Type == QUIETS)
