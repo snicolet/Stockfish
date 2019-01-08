@@ -677,10 +677,12 @@ namespace {
         return ttValue;
     }
 
-	//if (pvHit)
-	//	   sync_cout << pos.fen() << sync_endl;
+    //if (pvHit)
+    //    sync_cout << pos.fen() << sync_endl;
 
-	if (depth > 6 * ONE_PLY && !excludedMove && PvNode)
+    if (   PvNode
+        && depth > 6 * ONE_PLY 
+        && !excludedMove)
         pvHit = true;
 
     // Step 5. Tablebases probe
