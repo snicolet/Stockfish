@@ -681,7 +681,7 @@ namespace {
 	//	   sync_cout << pos.fen() << sync_endl;
 
 	if (depth > 6 * ONE_PLY && !excludedMove && PvNode)
-           pvHit = true;
+        pvHit = true;
 
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
@@ -778,9 +778,6 @@ namespace {
 
     improving =   ss->staticEval >= (ss-2)->staticEval
                || (ss-2)->staticEval == VALUE_NONE;
-
-    if (pvHit)
-        goto moves_loop;
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
