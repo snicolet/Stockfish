@@ -987,7 +987,8 @@ moves_loop: // When in check, search starts from here
               && !pos.advanced_pawn_push(move))
           {
               // Move count based pruning (~30 Elo)
-              if (moveCountPruning && !pvHit)
+              if (   moveCountPruning 
+                  && !(PvNode || pvHit))
               {
                   skipQuiets = true;
                   continue;
