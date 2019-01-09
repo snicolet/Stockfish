@@ -1176,6 +1176,9 @@ moves_loop: // When in check, search starts from here
               quietsSearched[quietCount++] = move;
       }
     }
+    
+    if (improving && abs(bestValue) > 10)
+       bestValue -= 1;
 
     // The following condition would detect a stop only after move loop has been
     // completed. But in this case bestValue is valid because we have fully
