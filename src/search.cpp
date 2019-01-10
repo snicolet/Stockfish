@@ -946,7 +946,11 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3 * ONE_PLY
           &&  pos.legal(move))
       {
-          Value singularBeta = std::max(ttValue - 2 * depth / ONE_PLY, -VALUE_MATE);
+          int d = depth / ONE_PLY;
+          int margin = 2 * d + std::max(0, (45 - 2 * d)) * pvHit;
+
+          Value singularBeta = std::max(ttValue - margin, -VALUE_MATE);
+
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, depth / 2, cutNode);
           ss->excludedMove = MOVE_NONE;
@@ -962,7 +966,9 @@ moves_loop: // When in check, search starts from here
           else if (cutNode && singularBeta > beta)
               return beta;
       }
-      else if (    givesCheck // Check extension (~2 Elo)
+
+      // Extension for checks (~2 Elo)
+      else if (    givesCheck
                &&  pos.see_ge(move))
           extension = ONE_PLY;
 
