@@ -946,7 +946,9 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3 * ONE_PLY
           &&  pos.legal(move))
       {
-          int margin = 2 * depth / ONE_PLY + 25 * pvHit;
+          int d = depth / ONE_PLY;
+          int margin = 2 * d + (d < 10 ? 25 * pvHit : 0);
+          
           Value singularBeta = std::max(ttValue - margin, -VALUE_MATE);
 
           ss->excludedMove = move;
