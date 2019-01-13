@@ -947,7 +947,7 @@ moves_loop: // When in check, search starts from here
           &&  pos.legal(move))
       {
           int d = depth / ONE_PLY;
-          int margin = 2 * d + (d < 18 ? 25 * pvHit : 0);
+          int margin = 2 * d + (45 - 2 * d) * pvHit;
 
           Value singularBeta = std::max(ttValue - margin, -VALUE_MATE);
 
