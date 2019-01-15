@@ -745,15 +745,15 @@ namespace {
     Bitboard wp = pos.pieces(WHITE, PAWN);
     Bitboard bp = pos.pieces(BLACK, PAWN);
 
-    bool majority =   (popcount(QueenSide & wp) != popcount(QueenSide & bp))
-                   || (popcount(KingSide  & wp) != popcount(KingSide  & bp));
+    int majority =  (popcount(QueenSide & wp) != popcount(QueenSide & bp))
+                  + (popcount(KingSide  & wp) != popcount(KingSide  & bp));
 
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
                     +  8 * majority
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
-                    + 16 * pawnsOnBothFlanks
+                    + 12 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
                     -118 ;
 
