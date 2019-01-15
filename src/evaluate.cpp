@@ -753,9 +753,9 @@ namespace {
                     +  8 * majority
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
-                    + 16 * pawnsOnBothFlanks
+                    +  8 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    -114 ;
+                    -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
