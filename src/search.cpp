@@ -72,7 +72,9 @@ namespace {
   }
 
   // Singular margin
-  constexpr int SingularMargin[] = { 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46 };
+  int SingularMargin[] = { 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46 };
+
+  TUNE(SingularMargin);
 
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
