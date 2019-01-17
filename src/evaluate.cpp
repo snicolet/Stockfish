@@ -500,6 +500,9 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  OpponentCamp =
+                              (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB | Rank8BB
+                                           : Rank5BB | Rank4BB | Rank3BB | Rank2BB | Rank1BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
@@ -592,6 +595,13 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    // Entry points in the opponent camp
+    int x = popcount(   ~pos.pieces()
+                      &  OpponentCamp
+                      &  (attackedBy2[Us] & ~attackedBy[Us][PAWN])
+                      & ~(attackedBy[Them][PAWN] | attackedBy2[Them]));
+    score += make_score( 2 * x * (x - 1), 0);
 
     if (T)
         Trace::add(THREAT, Us, score);
