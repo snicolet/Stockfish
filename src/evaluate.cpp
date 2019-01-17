@@ -597,11 +597,11 @@ namespace {
     }
 
     // Entry points in the opponent camp
-    int x = popcount(   ~pos.pieces()
+    int x = popcount(   ~pos.pieces(Us)
                       &  OpponentCamp
                       &  (attackedBy2[Us] & ~attackedBy[Us][PAWN])
                       & ~(attackedBy[Them][PAWN] | attackedBy2[Them]));
-    score += make_score( 4 * x * (x - 1), 0);
+    score += make_score( 2 * x * (x - 1), 0);
 
     if (T)
         Trace::add(THREAT, Us, score);
