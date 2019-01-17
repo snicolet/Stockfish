@@ -35,6 +35,7 @@ namespace {
   constexpr Score Backward = S( 9, 24);
   constexpr Score Doubled  = S(11, 56);
   constexpr Score Isolated = S( 5, 15);
+  constexpr Score Majority = S( 8,  8);
 
   // Connected pawn bonus by opposed, phalanx, #support and rank
   Score Connected[2][2][3][RANK_NB];
@@ -64,8 +65,10 @@ namespace {
   template<Color Us>
   Score evaluate(const Position& pos, Pawns::Entry* e) {
 
-    constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Color     Them      = (Us == WHITE ? BLACK : WHITE);
+    constexpr Direction Up        = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Bitboard  QueenSide = FileABB | FileBBB | FileCBB | FileDBB;
+    constexpr Bitboard  KingSide  = FileEBB | FileFBB | FileGBB | FileHBB;
 
     Bitboard b, neighbours, stoppers, doubled, support, phalanx;
     Bitboard lever, leverPush;
@@ -76,6 +79,10 @@ namespace {
 
     Bitboard ourPawns   = pos.pieces(  Us, PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
+
+    int majority =  (popcount(QueenSide & ourPawns) > popcount(QueenSide & theirPawns))
+                  + (popcount(KingSide  & ourPawns) > popcount(KingSide  & theirPawns));
+    score += Majority * majority;
 
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->weakUnopposed[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
