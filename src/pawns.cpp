@@ -35,7 +35,7 @@ namespace {
   constexpr Score Backward = S( 9, 24);
   constexpr Score Doubled  = S(11, 56);
   constexpr Score Isolated = S( 5, 15);
-  constexpr Score Majority = S( 8,  8);
+  constexpr Score Majority = S( 5,  5);
 
   // Connected pawn bonus by opposed, phalanx, #support and rank
   Score Connected[2][2][3][RANK_NB];
@@ -82,7 +82,7 @@ namespace {
 
     int majority =  (popcount(QueenSide & ourPawns) > popcount(QueenSide & theirPawns))
                   + (popcount(KingSide  & ourPawns) > popcount(KingSide  & theirPawns));
-    score += Majority * majority;
+    score += Majority * majority * majority;
 
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->weakUnopposed[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
