@@ -35,6 +35,7 @@ namespace {
   constexpr Score Backward = S( 9, 24);
   constexpr Score Doubled  = S(11, 56);
   constexpr Score Isolated = S( 5, 15);
+  constexpr Score Fawn     = S(30, 30);
 
   // Connected pawn bonus by opposed, phalanx, #support and rank
   Score Connected[2][2][3][RANK_NB];
@@ -139,6 +140,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+
+        if (relative_rank(Us, s) == RANK_6 && opposed && !lever)
+            score += Fawn;
     }
 
     return score;
