@@ -71,6 +71,9 @@ namespace {
     return Value((175 - 50 * improving) * d / ONE_PLY);
   }
 
+  // Singular margin
+  constexpr int SingularMargin[] = { 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46 };
+
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
   int Reductions[2][2][64][64];  // [pv][improving][depth][moveNumber]
@@ -940,7 +943,10 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3 * ONE_PLY
           &&  pos.legal(move))
       {
-          Value singularBeta = std::max(ttValue - 2 * depth / ONE_PLY, -VALUE_MATE);
+          int d = depth / ONE_PLY;
+          int margin = d < 24 ? SingularMargin[d - 8] : 2 * d;
+          
+          Value singularBeta = std::max(ttValue - margin, -VALUE_MATE);
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, depth / 2, cutNode);
           ss->excludedMove = MOVE_NONE;
