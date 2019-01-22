@@ -72,7 +72,7 @@ namespace {
   }
 
   // Singular margin
-  constexpr int SingularMargin[] = { 24, 24, 27, 27, 30, 30, 33, 33, 36, 36, 39, 39, 42, 42, 45, 45 };
+  constexpr int SingularMargin[] = { 19, 19, 19, 19, 27, 27, 27, 27, 35, 35, 35, 35, 43, 43, 43, 43 };
 
   // Futility and reductions lookup tables, initialized at startup
   int FutilityMoveCounts[2][16]; // [improving][depth]
@@ -944,7 +944,7 @@ moves_loop: // When in check, search starts from here
           &&  pos.legal(move))
       {
           int d = depth / ONE_PLY;
-          int margin = d < 24 ? SingularMargin[d - 8] : 4 * (d / 2);
+          int margin = d < 24 ? SingularMargin[d - 8] : 8 * (d / 4) + 3;
           
           Value singularBeta = std::max(ttValue - margin, -VALUE_MATE);
           ss->excludedMove = move;
