@@ -84,6 +84,11 @@ namespace {
     KingSide, KingSide, KingSide ^ FileEBB
   };
 
+  constexpr Bitboard TrappedRookFiles[FILE_NB] = {
+    FileABB , FileABB , FileABB | FileBBB , FileABB | FileBBB | FileCBB ,
+    FileFBB | FileGBB | FileHBB , FileGBB | FileHBB , FileHBB , FileHBB
+  };
+
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold  = Value(1500);
   constexpr Value SpaceThreshold = Value(12222);
@@ -168,7 +173,6 @@ namespace {
   constexpr Score ThreatByPawnPush   = S( 48, 39);
   constexpr Score ThreatByRank       = S( 13,  0);
   constexpr Score ThreatBySafePawn   = S(173, 94);
-  constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
   constexpr Score WeakUnopposedPawn  = S( 12, 23);
 
@@ -371,14 +375,6 @@ namespace {
             // Bonus for rook on an open or semi-open file
             if (pe->semiopen_file(Us, file_of(s)))
                 score += RookOnFile[bool(pe->semiopen_file(Them, file_of(s)))];
-
-            // Penalty when trapped by the king, even more if the king cannot castle
-            else if (mob <= 3)
-            {
-                File kf = file_of(pos.square<KING>(Us));
-                if ((kf < FILE_E) == (file_of(s) < kf))
-                    score -= TrappedRook * (1 + !pos.castling_rights(Us));
-            }
         }
 
         if (Pt == QUEEN)
@@ -479,11 +475,15 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
+    bool trapped_rook =   relative_rank(Us, pos.square<KING>(Us)) == RANK_1
+                       && (TrappedRookFiles[file_of(ksq)] & pos.pieces(Us, ROOK));
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +   5 * tropism * tropism / 16
+                 +  47 * trapped_rook * (pos.castling_rights(Us) ? 1 : 2)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
