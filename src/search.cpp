@@ -577,6 +577,7 @@ namespace {
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, skipQuiets, ttCapture;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    Score currentContempt = pos.this_thread()->contempt;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -943,7 +944,11 @@ moves_loop: // When in check, search starts from here
           ss->excludedMove = MOVE_NONE;
 
           if (value < singularBeta)
+          {
               extension = ONE_PLY;
+              if (ttValue > 0)
+                  pos.this_thread()->contempt = SCORE_ZERO;
+          }
 
           // Multi-cut pruning
           // Our ttMove is assumed to fail high, and now we failed high also on a reduced
@@ -1098,6 +1103,7 @@ moves_loop: // When in check, search starts from here
       }
 
       // Step 18. Undo move
+      pos.this_thread()->contempt = currentContempt;
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
