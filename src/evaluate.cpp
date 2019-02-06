@@ -457,7 +457,7 @@ namespace {
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
-    Bitboard BishopCheck =  b2 
+    Bitboard BishopCheck =  b2
                           & attackedBy[Them][BISHOP]
                           & safe
                           & ~QueenCheck;
@@ -765,7 +765,7 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    -      pos.rule50_count()
+                    -      pos.rule50_count() / 2
                     -121 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
