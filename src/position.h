@@ -352,7 +352,7 @@ inline int Position::rule50_count() const {
 }
 
 inline int Position::aging() const {
-  return st->rule50 / 16;
+  return st->rule50 / 8;
 }
 
 inline bool Position::opposite_bishops() const {
