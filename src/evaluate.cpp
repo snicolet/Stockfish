@@ -498,7 +498,7 @@ namespace {
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
 
-    if (Us == rootColor)
+    if (Us != rootColor)
         score -= score / 8;
 
     if (T)
