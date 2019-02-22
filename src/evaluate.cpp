@@ -499,7 +499,7 @@ namespace {
     score -= FlankAttacks * kingFlankAttacks;
 
     if (Us != rootColor)
-        score -= score / 4;
+        score += score / 8;
 
     if (T)
         Trace::add(KING, Us, score);
