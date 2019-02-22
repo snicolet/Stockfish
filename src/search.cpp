@@ -202,7 +202,7 @@ void MainThread::search() {
       return;
   }
 
-  Color us = rootPos.side_to_move();
+  Color us = rootColor = rootPos.side_to_move();
   Time.init(Limits, us, rootPos.game_ply());
   TT.new_search();
 
@@ -308,7 +308,7 @@ void Thread::search() {
   Depth lastBestMoveDepth = DEPTH_ZERO;
   MainThread* mainThread = (this == Threads.main() ? Threads.main() : nullptr);
   double timeReduction = 1.0;
-  Color us = rootPos.side_to_move();
+  Color us = rootColor = rootPos.side_to_move();
   bool failedLow;
 
   std::memset(ss-5, 0, 8 * sizeof(Stack));
