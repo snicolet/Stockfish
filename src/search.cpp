@@ -755,8 +755,8 @@ namespace {
 
 
     // Update cutNode heuristically, using the evaluation value
-    cutNode |= (eval > beta + 100);
-    //cutNode &= (eval > alpha - 100);
+    // cutNode |= (eval > beta + 100);
+    cutNode &= (eval > alpha - 100);
 
     // Step 7. Razoring (~2 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
