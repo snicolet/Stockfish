@@ -959,6 +959,13 @@ moves_loop: // When in check, search starts from here
       else if (type_of(move) == CASTLING)
           extension = ONE_PLY;
 
+      // Blocked position extension
+      else if (   pos.rule50_count() > 15
+               && abs(alpha) > Value(100)
+               && depth < 3 * ONE_PLY
+               && PvNode)
+          extension = ONE_PLY;
+
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
