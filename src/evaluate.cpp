@@ -607,7 +607,7 @@ namespace {
     }
 
     if (Us != rootColor)
-        score += score / 2;
+        score += score / 8;
 
     if (T)
         Trace::add(THREAT, Us, score);
