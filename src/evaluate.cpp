@@ -606,7 +606,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    if (Us != rootColor)
+    if (Us == rootColor)
         score += score / 8;
 
     if (T)
