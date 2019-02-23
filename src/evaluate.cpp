@@ -498,9 +498,6 @@ namespace {
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
 
-    if (Us != rootColor)
-        score += score / 4;
-
     if (T)
         Trace::add(KING, Us, score);
 
@@ -608,6 +605,9 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    if (Us != rootColor)
+        score += score / 4;
 
     if (T)
         Trace::add(THREAT, Us, score);
