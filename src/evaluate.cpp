@@ -330,7 +330,7 @@ namespace {
 
             if (   Pt == KNIGHT
                 && (shift<Down>(pos.pieces(Us, PAWN)) & s)
-                && (bb = b & pos.pieces(Them, PAWN)))
+                && (bb = b & pos.pieces(Them, PAWN) & mobilityArea[Us]))
                 score += make_score(20, 0) * popcount(bb);
 
             // Penalty if the piece is far from the king
