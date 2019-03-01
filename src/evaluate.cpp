@@ -330,8 +330,8 @@ namespace {
 
             if (   Pt == KNIGHT
                 && (shift<Down>(pos.pieces(Us, PAWN)) & s)
-                && (bb = b & pos.pieces(Them, PAWN) & mobilityArea[Us]))
-                score += make_score(20, 0) * popcount(bb);
+                && (b & pos.pieces(Them, PAWN) & mobilityArea[Us]))
+                score += make_score(20, 0);
 
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(s, pos.square<KING>(Us));
