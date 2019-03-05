@@ -1484,8 +1484,8 @@ moves_loop: // When in check, search starts from here
     for (int i : {1, 2, 4, 6})
         if (is_ok((ss-i)->currentMove))
         {
-            (*(ss-i)->guardHistory)       [pc][to] << bonus;
-            (*(ss-i)->continuationHistory)[pc][to] << bonus;
+            (*(ss-i)->guardHistory)       [pc][from] << bonus;
+            (*(ss-i)->continuationHistory)[pc][to]   << bonus;
         }
   }
 
