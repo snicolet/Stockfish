@@ -116,7 +116,7 @@ namespace {
   Value value_to_tt(Value v, int ply);
   Value value_from_tt(Value v, int ply);
   void update_pv(Move* pv, Move move, Move* childPv);
-  void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
+  void update_continuation_histories(Stack* ss, Piece pc, Move move, int bonus);
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, Move* quiets, int quietCount, int bonus);
   void update_capture_stats(const Position& pos, Move move, Move* captures, int captureCount, int bonus);
 
@@ -301,7 +301,10 @@ void Thread::search() {
 
   std::memset(ss-7, 0, 10 * sizeof(Stack));
   for (int i = 7; i > 0; i--)
+  {
+     (ss-i)->guardHistory        = &this->guardHistory[NO_PIECE][0]; // Use as sentinel
      (ss-i)->continuationHistory = &this->continuationHistory[NO_PIECE][0]; // Use as sentinel
+  }
   ss->pv = pv;
 
   bestValue = delta = alpha = -VALUE_INFINITE;
@@ -602,6 +605,7 @@ namespace {
 
     (ss+1)->ply = ss->ply + 1;
     ss->currentMove = (ss+1)->excludedMove = bestMove = MOVE_NONE;
+    ss->guardHistory        = &thisThread->guardHistory[NO_PIECE][0];
     ss->continuationHistory = &thisThread->continuationHistory[NO_PIECE][0];
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
@@ -643,14 +647,14 @@ namespace {
                 // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
                 if (    ((ss-1)->moveCount == 1 || (ss-1)->currentMove == (ss-1)->killers[0])
                      && !pos.captured_piece())
-                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + ONE_PLY));
+                        update_continuation_histories(ss-1, pos.piece_on(prevSq), (ss-1)->currentMove, -stat_bonus(depth + ONE_PLY));
             }
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
-                update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                update_continuation_histories(ss, pos.moved_piece(ttMove), ttMove, penalty);
             }
         }
         return ttValue;
@@ -773,6 +777,7 @@ namespace {
         Depth R = ((823 + 67 * depth / ONE_PLY) / 256 + std::min(int(eval - beta) / 200, 3)) * ONE_PLY;
 
         ss->currentMove = MOVE_NULL;
+        ss->guardHistory        = &thisThread->guardHistory[NO_PIECE][0];
         ss->continuationHistory = &thisThread->continuationHistory[NO_PIECE][0];
 
         pos.do_null_move(st);
@@ -824,6 +829,7 @@ namespace {
                 probCutCount++;
 
                 ss->currentMove = move;
+                ss->guardHistory        = &thisThread->guardHistory[pos.moved_piece(move)][from_sq(move)];
                 ss->continuationHistory = &thisThread->continuationHistory[pos.moved_piece(move)][to_sq(move)];
 
                 assert(depth >= 5 * ONE_PLY);
@@ -857,6 +863,9 @@ namespace {
 
 moves_loop: // When in check, search starts from here
 
+    const PieceFromHistory* guardHist[] = { (ss-1)->guardHistory, (ss-2)->guardHistory,
+                                          nullptr, (ss-4)->guardHistory,
+                                          nullptr, (ss-6)->guardHistory };
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr, (ss-4)->continuationHistory,
                                           nullptr, (ss-6)->continuationHistory };
@@ -864,6 +873,7 @@ moves_loop: // When in check, search starts from here
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
+                                      guardHist,
                                       contHist,
                                       countermove,
                                       ss->killers);
@@ -1000,6 +1010,7 @@ moves_loop: // When in check, search starts from here
 
       // Update the current move (this must be done after singular extension search)
       ss->currentMove = move;
+      ss->guardHistory        = &thisThread->guardHistory[movedPiece][from_sq(move)];
       ss->continuationHistory = &thisThread->continuationHistory[movedPiece][to_sq(move)];
 
       // Step 15. Make the move
@@ -1183,13 +1194,13 @@ moves_loop: // When in check, search starts from here
         // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
         if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
             && !pos.captured_piece())
-                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + ONE_PLY));
+                update_continuation_histories(ss-1, pos.piece_on(prevSq), (ss-1)->currentMove, -stat_bonus(depth + ONE_PLY));
 
     }
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 * ONE_PLY || PvNode)
              && !pos.captured_piece())
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), (ss-1)->currentMove, stat_bonus(depth));
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
@@ -1238,6 +1249,7 @@ moves_loop: // When in check, search starts from here
     Thread* thisThread = pos.this_thread();
     (ss+1)->ply = ss->ply + 1;
     ss->currentMove = bestMove = MOVE_NONE;
+    ss->guardHistory        = &thisThread->guardHistory[NO_PIECE][0];
     ss->continuationHistory = &thisThread->continuationHistory[NO_PIECE][0];
     inCheck = pos.checkers();
     moveCount = 0;
@@ -1309,6 +1321,9 @@ moves_loop: // When in check, search starts from here
         futilityBase = bestValue + 128;
     }
 
+    const PieceFromHistory* guardHist[] = { (ss-1)->guardHistory, (ss-2)->guardHistory,
+                                          nullptr, (ss-4)->guardHistory,
+                                          nullptr, (ss-6)->guardHistory };
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr, (ss-4)->continuationHistory,
                                           nullptr, (ss-6)->continuationHistory };
@@ -1319,6 +1334,7 @@ moves_loop: // When in check, search starts from here
     // be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
+                                      guardHist,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
@@ -1376,6 +1392,7 @@ moves_loop: // When in check, search starts from here
       }
 
       ss->currentMove = move;
+      ss->guardHistory        = &thisThread->guardHistory[pos.moved_piece(move)][from_sq(move)];
       ss->continuationHistory = &thisThread->continuationHistory[pos.moved_piece(move)][to_sq(move)];
 
       // Make and search the move
@@ -1459,11 +1476,17 @@ moves_loop: // When in check, search starts from here
   // update_continuation_histories() updates histories of the move pairs formed
   // by moves at ply -1, -2, and -4 with current move.
 
-  void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
+  void update_continuation_histories(Stack* ss, Piece pc, Move move, int bonus) {
 
+    Square from = from_sq(move);
+    Square to = to_sq(move);
+    
     for (int i : {1, 2, 4, 6})
         if (is_ok((ss-i)->currentMove))
+        {
+            (*(ss-i)->guardHistory)       [pc][to] << bonus;
             (*(ss-i)->continuationHistory)[pc][to] << bonus;
+        }
   }
 
 
@@ -1503,7 +1526,7 @@ moves_loop: // When in check, search starts from here
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
-    update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
+    update_continuation_histories(ss, pos.moved_piece(move), move, bonus);
 
     if (is_ok((ss-1)->currentMove))
     {
@@ -1515,7 +1538,7 @@ moves_loop: // When in check, search starts from here
     for (int i = 0; i < quietCount; ++i)
     {
         thisThread->mainHistory[us][from_to(quiets[i])] << -bonus;
-        update_continuation_histories(ss, pos.moved_piece(quiets[i]), to_sq(quiets[i]), -bonus);
+        update_continuation_histories(ss, pos.moved_piece(quiets[i]), quiets[i], -bonus);
     }
   }
 
