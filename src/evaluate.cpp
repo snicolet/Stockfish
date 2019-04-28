@@ -745,13 +745,21 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    Bitboard wp = pos.pieces(WHITE, PAWN);
+    Bitboard bp = pos.pieces(BLACK, PAWN);
+    int w_advance = wp ? relative_rank(WHITE, frontmost_sq(WHITE, wp)) : 0;
+    int b_advance = bp ? relative_rank(BLACK, frontmost_sq(BLACK, bp)) : 0;
+
+    int advance = std::max(w_advance, b_advance);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
+                    +      advance
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    -103 ;
+                    -120 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
