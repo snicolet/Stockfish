@@ -81,7 +81,7 @@ namespace {
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
 
     int advance = ourPawns ? relative_rank(Us, frontmost_sq(Us, ourPawns)) : 0;
-    score += make_score(advance * advance / 2, 0);
+    score += make_score(advance * advance, 0);
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
