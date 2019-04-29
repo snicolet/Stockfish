@@ -321,8 +321,8 @@ namespace {
 
             // Ideal knight putting pressure on enemy pawns
             if (   Pt == KNIGHT
-                && ((CenterFiles & shift<Down>(pos.pieces(Us, PAWN))) & s)
-                && (b & pos.pieces(Them, PAWN)))
+                && (shift<Down>(pos.pieces(Us, PAWN)) & s)
+                && (CenterFiles & b & pos.pieces(Them, PAWN)))
                 score += make_score(20, 0);
 
             // Penalty if the piece is far from the king
