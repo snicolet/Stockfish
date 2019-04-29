@@ -137,6 +137,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+
+        if (!opposed)
+            e->asymmetry++;
     }
 
     return score;
@@ -160,6 +163,7 @@ Entry* probe(const Position& pos) {
       return e;
 
   e->key = key;
+  e->asymmetry = 0;
   e->scores[WHITE] = evaluate<WHITE>(pos, e);
   e->scores[BLACK] = evaluate<BLACK>(pos, e);
 

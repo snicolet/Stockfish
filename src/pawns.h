@@ -39,6 +39,7 @@ struct Entry {
   Bitboard pawn_attacks_span(Color c) const { return pawnAttacksSpan[c]; }
   int weak_unopposed(Color c) const { return weakUnopposed[c]; }
   int passed_count() const { return popcount(passedPawns[WHITE] | passedPawns[BLACK]); };
+  int pawn_asymmetry() const { return asymmetry; }
 
   template<Color Us>
   Score king_safety(const Position& pos) {
@@ -62,6 +63,7 @@ struct Entry {
   int weakUnopposed[COLOR_NB];
   int castlingRights[COLOR_NB];
   int pawnsOnSquares[COLOR_NB][COLOR_NB]; // [color][light/dark squares]
+  int asymmetry;
 };
 
 typedef HashTable<Entry, 16384> Table;
