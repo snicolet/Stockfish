@@ -749,10 +749,10 @@ namespace {
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
-                    +  8 * pe->pawn_asymmetry()
+                    + 11 * pe->pawn_asymmetry()
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    -132 ;
+                    -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
@@ -763,7 +763,7 @@ namespace {
         Trace::add(INITIATIVE, make_score(0, v));
 
     return make_score(0, v);
-  }
+  } 
 
 
   // Evaluation::scale_factor() computes the scale factor for the winning side
