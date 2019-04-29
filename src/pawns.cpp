@@ -91,7 +91,7 @@ namespace {
         Rank r = relative_rank(Us, s);
 
         if (r == advance)
-            score += make_score(r * r / 2, 0);
+            score += make_score(r, 0);
 
         e->pawnAttacksSpan[Us] |= pawn_attack_span(Us, s);
 
