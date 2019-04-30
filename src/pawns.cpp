@@ -231,7 +231,16 @@ Score Entry::do_king_safety(const Position& pos) {
   if (pos.can_castle(Us | QUEEN_SIDE))
       bonus = std::max(bonus, evaluate_shelter<Us>(pos, relative_square(Us, SQ_C1)));
 
-  return make_score(bonus, -16 * minPawnDist);
+  Score score = make_score(bonus, -16 * minPawnDist);
+
+  // A large enemy pawn majority in the king side is a big danger
+  Bitboard ourPawns = pos.pieces(Us, PAWN);
+  Bitboard theirPawns = pos.pieces(~Us, PAWN);
+  Bitboard kf = KingFlank[file_of(ksq)];
+  if ((popcount(theirPawns & kf) - popcount(ourPawns & kf)) >= 2)
+      score -= make_score(50, 0);
+
+  return score;
 }
 
 // Explicit template instantiation
