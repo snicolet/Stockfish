@@ -237,8 +237,8 @@ Score Entry::do_king_safety(const Position& pos) {
   Bitboard ourPawns = pos.pieces(Us, PAWN);
   Bitboard theirPawns = pos.pieces(~Us, PAWN);
   Bitboard kf = KingFlank[file_of(ksq)];
-
-  score += make_score(50 * (popcount(ourPawns & kf) - popcount(theirPawns & kf)), 0);
+  int majority = popcount(theirPawns & kf) - popcount(ourPawns & kf);
+  score -= make_score(25 * std::max(0, majority), 0);
 
   return score;
 }
