@@ -141,7 +141,7 @@ namespace {
             score -= Doubled;
 
         if (r == advance)
-            score += make_score(5 * r * r / 8, 0);
+            score += make_score(3 * r * r / 8, 0);
     }
 
     return score;
