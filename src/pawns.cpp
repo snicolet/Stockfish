@@ -240,7 +240,7 @@ Score Entry::do_king_safety(const Position& pos) {
   int majority = popcount(theirPawns & kf) - popcount(ourPawns & kf);
   
   if (majority >= 2)
-      score -= make_score(20, 0);
+      score -= make_score(30, 0);
 
   return score;
 }
