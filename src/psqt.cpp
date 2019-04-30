@@ -90,12 +90,12 @@ constexpr Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
   }
 };
 
-#define R2(a,b)  S(  0 + (a), (b) )
+#define R2(a,b)  S(  1 + (a), (b) )
 #define R3(a,b)  S(  2 + (a), (b) )
-#define R4(a,b)  S(  4 + (a), (b) )
-#define R5(a,b)  S(  8 + (a), (b) )
-#define R6(a,b)  S( 12 + (a), (b) )
-#define R7(a,b)  S( 18 + (a), (b) )
+#define R4(a,b)  S(  3 + (a), (b) )
+#define R5(a,b)  S(  4 + (a), (b) )
+#define R6(a,b)  S(  5 + (a), (b) )
+#define R7(a,b)  S(  6 + (a), (b) )
 
 constexpr Score PBonus[RANK_NB][FILE_NB] =
   { // Pawn (asymmetric distribution)
