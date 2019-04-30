@@ -80,6 +80,8 @@ namespace {
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
 
+    int advance = ourPawns ? relative_rank(Us, frontmost_sq(Us, ourPawns)) : 0;
+
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
     {
@@ -137,6 +139,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+
+        if (r == advance)
+            score += make_score(5 * r * r / 8, 0);
     }
 
     return score;
