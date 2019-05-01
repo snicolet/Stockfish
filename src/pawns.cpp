@@ -205,7 +205,7 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
   int majority = popcount(theirPawns & kf) - popcount(ourPawns & kf);
 
   if (majority >= 2)
-      safety -= 25;
+      safety -= 35;
 
   return safety;
 }
