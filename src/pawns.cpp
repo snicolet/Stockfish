@@ -90,9 +90,6 @@ namespace {
         File f = file_of(s);
         Rank r = relative_rank(Us, s);
 
-        if (r == advance)
-            score += make_score(r, 0);
-
         e->pawnAttacksSpan[Us] |= pawn_attack_span(Us, s);
 
         // Flag the pawn
@@ -128,6 +125,10 @@ namespace {
         }
 
         // Score this pawn
+
+        if (r == advance)
+            score += make_score(r * r / 2 + 4 * !!support, 0);
+
         if (support | phalanx)
         {
             int v = (phalanx ? 3 : 2) * Connected[r];
