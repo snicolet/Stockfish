@@ -126,8 +126,8 @@ namespace {
 
         // Score this pawn
 
-        if (r == advance)
-            score += make_score(r * r / 2 + 4 * !!support, 0);
+        if (r >= advance - 1)
+            score += make_score(r * r / 2, 0);
 
         if (support | phalanx)
         {
