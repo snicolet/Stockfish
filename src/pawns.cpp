@@ -204,9 +204,8 @@ Value Entry::evaluate_shelter(const Position& pos, Square ksq) {
   Bitboard kf = KingFlank[file_of(ksq)];
   int majority = popcount(theirPawns & kf) - popcount(ourPawns & kf);
 
-  safety -= majority <= 0 ?  0 :
-            majority == 1 ?  8 :
-                            30 ;
+  if (majority > 0)
+      safety -= 15 * majority;
 
   return safety;
 }
