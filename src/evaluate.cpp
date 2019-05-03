@@ -744,7 +744,7 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    int shuffling = std::max(pos.rule50_count() - 8 , 0);
+    int shuffling = std::max(pos.rule50_count() - 16 , 0);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
