@@ -661,6 +661,8 @@ namespace {
                 // assign a smaller bonus if the block square isn't attacked.
                 int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 : 0;
 
+                k += 2 * pos.count<ROOK>(Us) - pos.count<ROOK>(Them);
+
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
                 if (defendedSquares == squaresToQueen)
