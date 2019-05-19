@@ -205,6 +205,14 @@ void Entry::evaluate_shelter(const Position& pos, Square ksq, Score& shelter) {
           bonus[MG] -= UnblockedStorm[d][theirRank];
   }
 
+  // A large enemy pawn majority in the king side is a big danger
+  Bitboard kf = KingFlank[file_of(ksq)];
+  int majority = popcount(theirPawns & kf) - popcount(ourPawns & kf);
+
+  bonus[MG] -= majority <= 0 ?  0 :
+               majority == 1 ?  8 :
+                               30 ;
+
   if (bonus[MG] > mg_value(shelter))
       shelter = make_score(bonus[MG], bonus[EG]);
 }
