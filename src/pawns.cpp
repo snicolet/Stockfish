@@ -209,7 +209,7 @@ void Entry::evaluate_shelter(const Position& pos, Square ksq, Score& shelter) {
   Bitboard kf = KingFlank[file_of(ksq)];
   int majority = popcount(theirPawns & kf) - popcount(ourPawns & kf);
 
-  bonus[MG] -= majority <= 0 ?  0 :
+  bonus[EG] -= majority <= 0 ?  0 :
                majority == 1 ?  8 :
                                30 ;
 
