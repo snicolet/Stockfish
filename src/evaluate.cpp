@@ -462,6 +462,13 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    // A large enemy pawn majority in the king side is a big danger
+    Bitboard kf = KingFlank[file_of(ksq)];
+    int majority = popcount(pos.pieces(Them, PAWN) & kf) - popcount(pos.pieces(Us, PAWN) & kf);
+
+    if (majority >= 2)
+        kingDanger += 40;
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
