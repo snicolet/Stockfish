@@ -210,7 +210,7 @@ void Entry::evaluate_shelter(const Position& pos, Square ksq, Score& shelter) {
   int majority = popcount(theirPawns & kf) - popcount(ourPawns & kf);
 
   if (majority >= 2)
-      bonus[MG] -= 40, bonus[MG] += 8;
+      bonus[MG] -= 40, bonus[EG] += 8;
 
   if (bonus[MG] > mg_value(shelter))
       shelter = make_score(bonus[MG], bonus[EG]);
