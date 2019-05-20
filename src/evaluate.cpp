@@ -467,7 +467,7 @@ namespace {
     int majority = popcount(pos.pieces(Them, PAWN) & kf) - popcount(pos.pieces(Us, PAWN) & kf);
 
     if (majority >= 2)
-        kingDanger += 30;
+        kingDanger += 20;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
