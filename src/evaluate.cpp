@@ -748,7 +748,7 @@ namespace {
                     +  9 * outflanking
                     + 17 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    -113 ;
+                    -108 ;
 
 //dbg_mean_of(complexity);
 
