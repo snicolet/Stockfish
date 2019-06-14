@@ -545,7 +545,7 @@ namespace {
         score += Hanging * popcount(weak & b);
     }
 
-    // Bonus for pressure on unprotected pawns
+    // Bonus for pressure on non-protected pawns
     b = pos.pieces(Them,PAWN) & ~attackedBy[Them][PAWN] & attackedBy[Us][ALL_PIECES];
     int x = popcount(b);
     score += make_score(4 * x * x, 0);
