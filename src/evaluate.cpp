@@ -546,9 +546,12 @@ namespace {
     }
 
     // Bonus for pressure on non-protected pawns
-    b = pos.pieces(Them,PAWN) & ~attackedBy[Them][PAWN] & attackedBy[Us][ALL_PIECES];
+    b =   pos.pieces(Them,PAWN) 
+        & ~attackedBy[Them][PAWN] 
+        & attackedBy[Us][ALL_PIECES]
+        & ~(defended | weak);
     int x = popcount(b);
-    score += make_score(4 * x * x, 0);
+    score += make_score(8 * x * x, 0);
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
