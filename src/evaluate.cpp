@@ -551,7 +551,7 @@ namespace {
         & attackedBy[Us][ALL_PIECES]
         & ~(defended | weak);
     int x = popcount(b);
-    score += make_score(16 * x * x, 0);
+    score += make_score(16 * x , 0);
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
