@@ -143,7 +143,7 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score Outpost            = S( 36, 12);
   constexpr Score PawnlessFlank      = S( 17, 95);
-  constexpr Score PressureOnPawns    = S(  8,  4);
+  constexpr Score PressureOnPawns    = S(  8, -4);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
@@ -547,8 +547,8 @@ namespace {
     }
 
     // Bonus for pressure on pawns
-    b =   pos.pieces(Them,PAWN) 
-        & ~attackedBy[Them][PAWN] 
+    b =   pos.pieces(Them, PAWN)
+        & ~attackedBy[Them][PAWN]
         & attackedBy[Us][ALL_PIECES]
         & ~weak;
     score += PressureOnPawns * popcount(b);
