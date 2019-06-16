@@ -496,7 +496,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
+    Bitboard b, weak, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -507,9 +507,6 @@ namespace {
     stronglyProtected =  attackedBy[Them][PAWN]
                        | (attackedBy2[Them] & ~attackedBy2[Us]);
 
-    // Non-pawn enemies, strongly protected
-    defended = nonPawnEnemies & stronglyProtected;
-
     // Enemies not strongly protected and under our attack
     weak = pos.pieces(Them) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
 
@@ -517,39 +514,36 @@ namespace {
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
 
     // Bonus according to the kind of attacking pieces
-    if (defended | weak)
+    
+    b = nonPawnEnemies & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
+    while (b)
     {
-        b = (defended | weak) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
-        while (b)
-        {
-            Square s = pop_lsb(&b);
-            score += ThreatByMinor[type_of(pos.piece_on(s))];
-            if (type_of(pos.piece_on(s)) != PAWN)
-                score += ThreatByRank * (int)relative_rank(Them, s);
-        }
-
-        b = weak & attackedBy[Us][ROOK];
-        while (b)
-        {
-            Square s = pop_lsb(&b);
-            score += ThreatByRook[type_of(pos.piece_on(s))];
-            if (type_of(pos.piece_on(s)) != PAWN)
-                score += ThreatByRank * (int)relative_rank(Them, s);
-        }
-
-        if (weak & attackedBy[Us][KING])
-            score += ThreatByKing;
-
-        b =  ~attackedBy[Them][ALL_PIECES]
-           | (nonPawnEnemies & attackedBy2[Us]);
-        score += Hanging * popcount(weak & b);
+        Square s = pop_lsb(&b);
+        score += ThreatByMinor[type_of(pos.piece_on(s))];
+        score += ThreatByRank * (int)relative_rank(Them, s);
     }
+
+    b = (weak | pos.pieces(Them, QUEEN, ROOK)) & attackedBy[Us][ROOK];
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+        score += ThreatByRook[type_of(pos.piece_on(s))];
+        if (type_of(pos.piece_on(s)) != PAWN)
+            score += ThreatByRank * (int)relative_rank(Them, s);
+    }
+
+    if (weak & attackedBy[Us][KING])
+        score += ThreatByKing;
+
+    // Bonus for hanging or semi-hanging pieces
+    b =  ~attackedBy[Them][ALL_PIECES]
+       | (nonPawnEnemies & attackedBy2[Us]);
+    score += Hanging * popcount(weak & b);
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
        & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
-
     score += RestrictedPiece * popcount(b);
 
     // Find squares where our pawns can push on the next move
