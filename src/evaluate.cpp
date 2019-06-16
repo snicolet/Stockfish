@@ -549,7 +549,7 @@ namespace {
     b =   pos.pieces(Them,PAWN) 
         & ~attackedBy[Them][PAWN] 
         & attackedBy[Us][ALL_PIECES]
-        & ~(defended | weak);
+        & ~weak;
     int x = popcount(b);
     score += make_score(16 * x , 0);
 
