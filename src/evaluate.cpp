@@ -656,6 +656,8 @@ namespace {
                 if (defendedSquares & blockSq)
                     k += 5;
 
+                k += pos.count<ROOK>(Us) + pos.count<QUEEN>(Us);
+
                 bonus += make_score(k * w, k * w);
             }
         } // r > RANK_3
