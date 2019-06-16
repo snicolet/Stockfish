@@ -656,7 +656,7 @@ namespace {
                 if (defendedSquares & blockSq)
                     k += 5;
 
-                k += pos.count<ROOK>(Us) + pos.count<QUEEN>(Us);
+                k += pos.count<ROOK>(Us);
 
                 bonus += make_score(k * w, k * w);
             }
