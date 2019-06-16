@@ -143,6 +143,7 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score Outpost            = S( 36, 12);
   constexpr Score PawnlessFlank      = S( 17, 95);
+  constexpr Score PressureOnPawns    = S(  8,  0);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
@@ -513,8 +514,7 @@ namespace {
     // Safe or protected squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
 
-    // Bonus according to the kind of attacking pieces
-    
+    // Bonuses according to the kind of attacking pieces
     b = nonPawnEnemies & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
     while (b)
     {
@@ -539,6 +539,12 @@ namespace {
     b =  ~attackedBy[Them][ALL_PIECES]
        | (nonPawnEnemies & attackedBy2[Us]);
     score += Hanging * popcount(weak & b);
+
+    // Bonus for pressure on pawns
+    b =   pos.pieces(Them,PAWN)
+        & ~attackedBy[Them][PAWN] 
+        & attackedBy[Us][ALL_PIECES];
+    score += PressureOnPawns * popcount(b);
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
