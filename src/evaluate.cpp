@@ -143,7 +143,6 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score Outpost            = S( 36, 12);
   constexpr Score PawnlessFlank      = S( 17, 95);
-  constexpr Score PressureOnPawns    = S(  8,  0);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
@@ -523,7 +522,7 @@ namespace {
         score += ThreatByRank * (int)relative_rank(Them, s);
     }
 
-    b = (weak | pos.pieces(Them, QUEEN, ROOK)) & attackedBy[Us][ROOK];
+    b = weak & attackedBy[Us][ROOK];
     while (b)
     {
         Square s = pop_lsb(&b);
@@ -539,12 +538,6 @@ namespace {
     b =  ~attackedBy[Them][ALL_PIECES]
        | (nonPawnEnemies & attackedBy2[Us]);
     score += Hanging * popcount(weak & b);
-
-    // Bonus for pressure on pawns
-    b =   pos.pieces(Them,PAWN)
-        & ~attackedBy[Them][PAWN] 
-        & attackedBy[Us][ALL_PIECES];
-    score += PressureOnPawns * popcount(b);
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
