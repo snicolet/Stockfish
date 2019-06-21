@@ -655,7 +655,7 @@ namespace {
                                                              0 ;
 
                 // Assign a larger bonus if the path to queen is defended
-                k += 4 * popcount(defendedSquares);
+                k += 5 * popcount(defendedSquares);
 
                 bonus += make_score(k * w, k * w);
             }
