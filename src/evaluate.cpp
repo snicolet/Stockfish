@@ -654,9 +654,8 @@ namespace {
                         !(unsafeSquares & blockSq)        ?  9 :
                                                              0 ;
 
-                // Assign a larger bonus if the block square is defended.
-                if (defendedSquares & blockSq)
-                    k += 5;
+                // Assign a larger bonus if the path to queen is defended
+                k += 4 * popcount(defendedSquares);
 
                 bonus += make_score(k * w, k * w);
             }
