@@ -656,10 +656,8 @@ namespace {
             // help our passed pawn to advance.
             if (defendedSquares & blockSq)
                 k += 5;
-            if (attackedBy2[Us] & blockSq)
-                k += 20;
 
-            if (pos.pieces(Us) & blockSq)
+            if (pos.pieces() & blockSq)
                 k /= 2;
 
             bonus += make_score(k * w, k * w);
