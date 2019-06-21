@@ -657,7 +657,10 @@ namespace {
             if (defendedSquares & blockSq)
                 k += 5;
             if (attackedBy2[Us] & blockSq)
-                k += 5;
+                k += 20;
+
+            if (pos.pieces(Us) & blockSq)
+                k /= 2;
 
             bonus += make_score(k * w, k * w);
 
