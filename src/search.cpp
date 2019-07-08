@@ -862,7 +862,12 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
+                {
+                    if (!excludedMove)
+                        tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
+                                  BOUND_LOWER, depth - 4 * ONE_PLY, move, ss->staticEval);
                     return value;
+                }
             }
     }
 
