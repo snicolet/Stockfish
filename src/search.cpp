@@ -1132,8 +1132,8 @@ moves_loop: // When in check, search starts from here
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
-          if (doLMR && !captureOrPromotion && value > alpha)
-              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(newDepth));
+          if (doLMR && !captureOrPromotion && value <= alpha)
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth));
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
