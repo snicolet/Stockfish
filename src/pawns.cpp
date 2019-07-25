@@ -203,7 +203,7 @@ void Entry::evaluate_shelter(const Position& pos, Square ksq, Score& shelter) {
       Rank theirRank = b ? relative_rank(Us, frontmost_sq(Them, b)) : RANK_1;
 
       int d = std::min(f, ~f);
-      bonus += make_score(ShelterStrength[d][ourRank], 2);
+      bonus += make_score(ShelterStrength[d][ourRank], -2);
 
       if (ourRank && (ourRank == theirRank - 1))
           bonus -= make_score(82 * (theirRank == RANK_3), 82 * (theirRank == RANK_3));
