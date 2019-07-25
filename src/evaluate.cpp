@@ -602,7 +602,7 @@ namespace {
     Bitboard b, bb, squaresToQueen, unsafeSquares;
     Score score = SCORE_ZERO;
 
-    b = pe->passed_pawns(Us);
+    b = pe->passed_pawns() & pos.pieces(Us);
 
     while (b)
     {

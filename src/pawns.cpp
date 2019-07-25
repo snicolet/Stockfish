@@ -82,7 +82,7 @@ namespace {
 
     Bitboard doubleAttackThem = pawn_double_attacks_bb<Them>(theirPawns);
 
-    e->passedPawns[Us] = e->pawnAttacksSpan[Us] = 0;
+    e->pawnAttacksSpan[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = pawn_attacks_bb<Us>(ourPawns);
 
@@ -124,7 +124,7 @@ namespace {
         // Passed pawns will be properly scored later in evaluation when we have
         // full attack info.
         if (passed)
-            e->passedPawns[Us] |= s;
+            e->passedPawns |= s;
 
         // Score this pawn
         if (support | phalanx)
@@ -148,7 +148,7 @@ namespace {
     // Penalize the unsupported and non passed pawns attacked twice by the enemy
     b =   ourPawns
         & doubleAttackThem
-        & ~(e->pawnAttacks[Us] | e->passedPawns[Us]);
+        & ~(e->pawnAttacks[Us] | e->passedPawns);
     score -= WeakLever * popcount(b);
 
     return score;
@@ -172,6 +172,7 @@ Entry* probe(const Position& pos) {
       return e;
 
   e->key = key;
+  e->passedPawns = 0;
   e->scores[WHITE] = evaluate<WHITE>(pos, e);
   e->scores[BLACK] = evaluate<BLACK>(pos, e);
 
