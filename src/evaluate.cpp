@@ -75,7 +75,7 @@ namespace {
 
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold  = Value(1400);
-  constexpr Value SpaceThreshold = Value(12222);
+  constexpr Value SpaceThreshold = Value(10000);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
@@ -695,18 +695,21 @@ namespace {
                    & ~pos.pieces(Us, PAWN)
                    & ~attackedBy[Them][PAWN];
 
-    Bitboard b = attackedBy[Us][ALL_PIECES]
-               & (~attackedBy2[Us] | attackedBy2[Them]);
-
     // Find all squares which are at most three squares behind some friendly pawn
     Bitboard behind = pos.pieces(Us, PAWN);
     behind |= shift<Down>(behind);
     behind |= shift<Down+Down>(behind);
 
     int bonus =  popcount(safe)
-               + popcount(behind & safe & ~b & ~attackedBy[Them][ALL_PIECES]);
+               + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
+
+    // Penalize restricted mobility in our SpaceMask
+    Bitboard b = attackedBy[Us][ALL_PIECES]
+               & attackedBy[Them][ALL_PIECES]
+               & (~attackedBy2[Us] | attackedBy2[Them]);
+    score -= make_score(5, 0) * popcount(b & safe);
 
     if (T)
         Trace::add(SPACE, Us, score);
