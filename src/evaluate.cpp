@@ -696,7 +696,6 @@ namespace {
                    & ~attackedBy[Them][PAWN];
 
     Bitboard b = attackedBy[Us][ALL_PIECES]
-               & attackedBy[Them][ALL_PIECES]
                & (~attackedBy2[Us] | attackedBy2[Them]);
 
     // Find all squares which are at most three squares behind some friendly pawn
@@ -704,8 +703,8 @@ namespace {
     behind |= shift<Down>(behind);
     behind |= shift<Down+Down>(behind);
 
-    int bonus =  popcount(safe & b)
-               + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
+    int bonus =  popcount(safe)
+               + popcount(behind & safe & b & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
 
