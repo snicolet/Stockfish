@@ -205,7 +205,7 @@ void Entry::evaluate_shelter(const Position& pos, Square ksq, Score& shelter) {
       bonus += make_score(ShelterStrength[d][ourRank], 0);
 
       if (ourRank && (ourRank == theirRank - 1))
-          bonus -= make_score(82 * (theirRank == RANK_3), 0);
+          bonus -= make_score(0, 82 * (theirRank == RANK_3));
       else
           bonus -= make_score(UnblockedStorm[d][theirRank], 0);
   }
