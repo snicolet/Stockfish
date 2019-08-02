@@ -368,7 +368,7 @@ namespace {
                 score -= WeakQueen;
 
             if (   pos.is_on_semiopen_file(Us, s) 
-                && more_than_one(pos.pieces(Us, ROOK) & forward_file_bb(Us, s)))
+                && more_than_one(pos.pieces(Us, ROOK) & PseudoAttacks[ROOK][s]))
                 score += AlekhineGun;
         }
     }
