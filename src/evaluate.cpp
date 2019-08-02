@@ -127,6 +127,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties
+  constexpr Score AlekhineGun        = S( 50, 50);
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score FlankAttacks       = S(  8,  0);
@@ -365,6 +366,10 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+
+            if (   pos.is_on_semiopen_file(Us, s) 
+                && more_than_one(pos.pieces(Us, ROOK) & forward_file_bb(Us, s)))
+                score += AlekhineGun;
         }
     }
     if (T)
