@@ -127,7 +127,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties
-  constexpr Score AlekhineGun        = S( 15, 15);
+  constexpr Score AlekhineGun        = S( 25, 25);
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score FlankAttacks       = S(  8,  0);
@@ -359,8 +359,9 @@ namespace {
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
 
-            if (pos.is_on_semiopen_file(Us, s))
-                score += AlekhineGun * popcount(b & pos.pieces(Us, QUEEN, ROOK));
+            if (   pos.is_on_semiopen_file(Us, s)
+                && more_than_one(b & pos.pieces(Us, QUEEN, ROOK)))
+                score += AlekhineGun;
         }
 
         if (Pt == QUEEN)
