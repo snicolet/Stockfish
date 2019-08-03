@@ -147,6 +147,7 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
+  constexpr Score WeakPawns          = S( 30,  0);
 
 #undef S
 
@@ -560,9 +561,12 @@ namespace {
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
-
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
+
+    // Long term pawn weaknesses
+    b = pe->weak_pawns(Them) & ~attackedBy[Us][ALL_PIECES];
+    score += WeakPawns * popcount(b);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
