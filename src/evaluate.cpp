@@ -127,6 +127,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties
+  constexpr Score AlekhineGun        = S( 25, 25);
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score FlankAttacks       = S(  8,  0);
@@ -274,6 +275,8 @@ namespace {
         // Find attacked squares, including x-ray attacks for bishops and rooks
         b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(QUEEN))
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK))
+          : Pt ==  QUEEN ?   attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(Us, QUEEN, ROOK)) 
+                           | pos.attacks_from<BISHOP>(s)
                          : pos.attacks_from<Pt>(s);
 
         if (pos.blockers_for_king(Us) & s)
@@ -365,6 +368,10 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+
+            if (   pos.is_on_semiopen_file(Us, s) 
+                && more_than_one(pos.pieces(Us, ROOK) & PseudoAttacks[ROOK][s]))
+                score += AlekhineGun;
         }
     }
     if (T)
