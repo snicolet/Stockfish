@@ -365,6 +365,13 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+            
+            // Bonus for queen proximity with opponent king
+            const Square ksq = pos.square<KING>(Them);
+            constexpr Score QueenDistance = make_score(8, 0);
+            int dist1 = distance<File>(s, ksq);
+            int dist2 = distance<Rank>(s, ksq);
+            score -= QueenDistance * (dist1 + dist2);
         }
     }
     if (T)
