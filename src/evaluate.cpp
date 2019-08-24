@@ -368,9 +368,10 @@ namespace {
             
             // Bonus for queen proximity with opponent king
             const Square ksq = pos.square<KING>(Them);
+            constexpr Score QueenDistance = make_score(0, 3);
             int dist1 = distance<File>(s, ksq);
             int dist2 = distance<Rank>(s, ksq);
-            score -= make_score(0, pos.count<PAWN>() * (dist1 + dist2) / 4);
+            score -= QueenDistance * (dist1 + dist2);
         }
     }
     if (T)
