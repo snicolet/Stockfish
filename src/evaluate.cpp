@@ -821,6 +821,11 @@ namespace {
 
     v /= PHASE_MIDGAME;
 
+    v = v > 0 ? Value(((v + 3) / 4) * 4) :
+        v < 0 ? Value(((v - 3) / 4) * 4)
+              : Value(0);
+        
+
     // In case of tracing add all remaining individual evaluation terms
     if (T)
     {
