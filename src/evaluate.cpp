@@ -660,6 +660,8 @@ namespace {
         score += bonus - PassedFile * std::min(f, ~f);
     }
 
+    score += make_score(0, eg_value(score) / 2);
+
     if (T)
         Trace::add(PASSED, Us, score);
 
