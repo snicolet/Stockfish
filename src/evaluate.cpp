@@ -759,7 +759,7 @@ namespace {
     }
 
     if (!pos.non_pawn_material())
-       sf += sf / 2;
+       sf = 2 * sf;
 
     return ScaleFactor(sf);
   }
