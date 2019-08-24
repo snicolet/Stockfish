@@ -370,7 +370,7 @@ namespace {
             const Square ksq = pos.square<KING>(Them);
             int dist1 = distance<File>(s, ksq);
             int dist2 = distance<Rank>(s, ksq);
-            score -= make_score(0, pos.count<PAWN>() * (dist1 + dist2) / 2);
+            score -= make_score(0, pos.count<PAWN>() * (dist1 + dist2) / 3);
         }
     }
     if (T)
