@@ -821,8 +821,8 @@ namespace {
 
     v /= PHASE_MIDGAME;
 
-    v = v > 0 ? Value(((v + 7) / 8) * 8) :
-        v < 0 ? Value(((v - 7) / 8) * 8)
+    v = v > 0 ? Value(((v + 15) / 16) * 16) :
+        v < 0 ? Value(((v - 15) / 16) * 16)
               : Value(0);
         
 
