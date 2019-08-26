@@ -138,6 +138,7 @@ namespace {
   constexpr Score Outpost            = S( 18,  6);
   constexpr Score PassedFile         = S( 11,  8);
   constexpr Score PawnlessFlank      = S( 17, 95);
+  constexpr Score QueenInSiberia     = S(  1,  2);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
@@ -367,11 +368,8 @@ namespace {
                 score -= WeakQueen;
             
             // Bonus for queen proximity with opponent king
-            const Square ksq = pos.square<KING>(Them);
-            constexpr Score QueenDistance = make_score(0, 2);
-            int dist1 = distance<File>(s, ksq);
-            int dist2 = distance<Rank>(s, ksq);
-            score -= QueenDistance * (dist1 + dist2);
+            Square ksq = pos.square<KING>(Them);
+            score -= QueenInSiberia * (distance<File>(s, ksq) + distance<Rank>(s, ksq));
         }
     }
     if (T)
