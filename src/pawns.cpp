@@ -35,6 +35,7 @@ namespace {
   constexpr Score Backward      = S( 9, 24);
   constexpr Score BlockedStorm  = S(82, 82);
   constexpr Score Doubled       = S(11, 56);
+  constexpr Score Hook          = S( 5, 10);
   constexpr Score Isolated      = S( 5, 15);
   constexpr Score WeakLever     = S( 0, 56);
   constexpr Score WeakUnopposed = S(13, 27);
@@ -74,7 +75,7 @@ namespace {
     Bitboard neighbours, stoppers, doubled, support, phalanx;
     Bitboard lever, leverPush;
     Square s;
-    bool opposed, backward, passed;
+    bool opposed, backward, passed, hook;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
 
@@ -112,6 +113,36 @@ namespace {
         backward =  !(neighbours & forward_ranks_bb(Them, s))
                   && (stoppers & (leverPush | (s + Up)));
 
+        // A hook is a pawn of our color, usually advanced, which is challenged
+        // and which will force a defect in our pawn structure no matter how we
+        // defend. Here we consider as hooks the levers which give a passed pawn
+        // to the opponent or create isolated pawn(s) in our camp if we execute 
+        // the capture.
+        if (!lever || !neighbours)
+            hook = false;
+        else
+        {
+            // Colums at the left and at the right of s
+            Bitboard left  = shift<WEST>(file_bb(s));
+            Bitboard right = shift<EAST>(file_bb(s));
+
+            // Adjacents columns of our left or right columns
+            Bitboard al = shift<WEST>(adjacent_files_bb(s)) | file_bb(s);
+            Bitboard ar = shift<EAST>(adjacent_files_bb(s)) | file_bb(s);
+
+            // Bitboards of our pawns after a speculative left or right capture
+            Bitboard lc = (lever & left ) ^ (ourPawns ^ s);
+            Bitboard rc = (lever & right) ^ (ourPawns ^ s);
+
+            // Potential opponent passers after the capture
+            Bitboard pop = theirPawns & pawn_attack_span(Us, s);
+
+            // Does capturing gives us isolated pawn(s) or passed pawn(s) to the opponent ?
+            hook =    ((lever & left ) && (!(al & lc) || (!(ar & lc) && (right & (lc | pop)))))
+                   || ((lever & right) && (!(ar & rc) || (!(al & rc) && (left  & (rc | pop)))));
+        }
+
+
         // A pawn is passed if one of the three following conditions is true:
         // (a) there is no stoppers except some levers
         // (b) the only stoppers are the leverPush, but we outnumber them
@@ -144,6 +175,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+
+        if (hook)
+            score -= Hook;
     }
 
     // Penalize our unsupported pawns attacked twice by enemy pawns
