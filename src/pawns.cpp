@@ -35,7 +35,7 @@ namespace {
   constexpr Score Backward      = S( 9, 24);
   constexpr Score BlockedStorm  = S(82, 82);
   constexpr Score Doubled       = S(11, 56);
-  constexpr Score Hook          = S( 0, 15);
+  constexpr Score Hook          = S( 5, 10);
   constexpr Score Isolated      = S( 5, 15);
   constexpr Score WeakLever     = S( 0, 56);
   constexpr Score WeakUnopposed = S(13, 27);
@@ -118,7 +118,7 @@ namespace {
         // defend. Here we consider as hooks the levers which give a passed pawn
         // to the opponent or create isolated pawn(s) in our camp if we execute 
         // the capture.
-        if (!lever || !neighbours)
+        if (!lever)
             hook = false;
         else
         {
