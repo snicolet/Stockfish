@@ -118,7 +118,7 @@ namespace {
         // defend. Here we consider as hooks the levers which give a passed pawn
         // to the opponent or create isolated pawn(s) in our camp if we execute 
         // the capture.
-        if (!lever || !neighbours)
+        if (!lever)
             hook = false;
         else
         {
