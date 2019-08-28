@@ -781,6 +781,13 @@ namespace {
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
+    // Update heuristicly the CUT/ALL status of the node
+    if (abs(beta) < VALUE_MATE_IN_MAX_PLY)
+    {
+        cutNode |= (eval >= beta + 200);
+        cutNode &= (eval >= beta - 200);
+    }
+
     // Step 7. Razoring (~2 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth < 2 * ONE_PLY
