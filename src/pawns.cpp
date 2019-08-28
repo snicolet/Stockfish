@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
 #include "bitboard.h"
 #include "pawns.h"
@@ -35,7 +36,6 @@ namespace {
   constexpr Score Backward      = S( 9, 24);
   constexpr Score BlockedStorm  = S(82, 82);
   constexpr Score Doubled       = S(11, 56);
-  constexpr Score Hook          = S( 5, 10);
   constexpr Score Isolated      = S( 5, 15);
   constexpr Score WeakLever     = S( 0, 56);
   constexpr Score WeakUnopposed = S(13, 27);
@@ -84,7 +84,7 @@ namespace {
 
     Bitboard doubleAttackThem = pawn_double_attacks_bb<Them>(theirPawns);
 
-    e->passedPawns[Us] = e->pawnAttacksSpan[Us] = 0;
+    e->pawnAttacksSpan[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = pawn_attacks_bb<Us>(ourPawns);
 
@@ -118,7 +118,7 @@ namespace {
         // defend. Here we consider as hooks the levers which give a passed pawn
         // to the opponent or create isolated pawn(s) in our camp if we execute 
         // the capture.
-        if (!lever)
+        if (!lever || !neighbours)
             hook = false;
         else
         {
@@ -136,10 +136,36 @@ namespace {
 
             // Potential opponent passers after the capture
             Bitboard pop = theirPawns & pawn_attack_span(Us, s);
-
-            // Does capturing gives us isolated pawn(s) or passed pawn(s) to the opponent ?
-            hook =    ((lever & left ) && (!(al & lc) || (!(ar & lc) && (right & (lc | pop)))))
-                   || ((lever & right) && (!(ar & rc) || (!(al & rc) && (left  & (rc | pop)))));
+            
+            // Opponent passers created if we take left
+            if (    lever & left
+                && !(ar & lc)
+                &&  right & pop
+                && !(right & lc))
+            {
+            
+             //   std::cerr << pos << std::endl;
+             //   std::cerr << Bitboards::pretty(ourPawns) << std::endl;
+             //   std::cerr << Bitboards::pretty(theirPawns) << std::endl;
+             //   std::cerr << Bitboards::pretty(right & pop) << std::endl;
+                
+                e->passedPawns[Them] |= (right & pop);
+            }
+            
+            // Opponent passers created if we take right
+            if (    lever & right 
+                && !(al & rc)
+                &&  left & pop
+                && !(left & rc))
+            {
+            
+             //   std::cerr << pos << std::endl;
+             //   std::cerr << Bitboards::pretty(ourPawns) << std::endl;
+             //   std::cerr << Bitboards::pretty(theirPawns) << std::endl;
+             //   std::cerr << Bitboards::pretty(left & pop) << std::endl;
+                
+                e->passedPawns[Them] |= (left & pop);
+            }
         }
 
 
@@ -175,9 +201,6 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
-
-        if (hook)
-            score -= Hook;
     }
 
     // Penalize our unsupported pawns attacked twice by enemy pawns
@@ -206,6 +229,9 @@ Entry* probe(const Position& pos) {
       return e;
 
   e->key = key;
+
+  e->passedPawns[WHITE] = e->passedPawns[BLACK] = 0;
+
   e->scores[WHITE] = evaluate<WHITE>(pos, e);
   e->scores[BLACK] = evaluate<BLACK>(pos, e);
 
