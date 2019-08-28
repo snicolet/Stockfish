@@ -913,13 +913,6 @@ moves_loop: // When in check, search starts from here
     moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
-    // Update heuristicly the CUT/ALL status of the node
-    if (abs(beta) < VALUE_MATE_IN_MAX_PLY)
-    {
-        cutNode |= (eval >= beta + 200);
-        cutNode &= (eval >= beta - 200);
-    }
-
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
@@ -1078,6 +1071,13 @@ moves_loop: // When in check, search starts from here
 
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
+
+      // Autocorrect the CUT status of the node after a few moves without
+      // a fail-high. We suppose that if a node, which we previously thought
+      // was a CUT node, has not failed-high after a few moves, then it is
+      // probably in fact a ALL node.
+      if (!PvNode && cutNode && (moveCount > 4))
+          cutNode = false;
 
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
