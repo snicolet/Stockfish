@@ -555,7 +555,7 @@ namespace {
        & ~attackedBy2[Them]
        &  attackedBy2[Us];
     int x = popcount(b);
-    score += PressureOnWeakPawns * x * x;
+    score += PressureOnWeakPawns * (x * (x + 1) / 2);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
