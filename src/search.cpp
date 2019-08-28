@@ -1221,6 +1221,10 @@ moves_loop: // When in check, search starts from here
 
       if (value > bestValue)
       {
+          if (   PvNode
+              && bestValue > -VALUE_INFINITE)
+             value = std::max(value + 1, (value + bestValue) / 2);
+
           bestValue = value;
 
           if (value > alpha)
