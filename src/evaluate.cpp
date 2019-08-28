@@ -552,9 +552,8 @@ namespace {
 
     // Pressure on weak pawns
     b =   pos.pieces(Them, PAWN)
-       & attackedBy2[Us]
-       & (attackedBy[Us][PAWN] | ~attackedBy[Them][PAWN])
-       & (attackedBy[Us][PAWN] | ~attackedBy2[Them]);
+       & ~stronglyProtected
+       & attackedBy2[Us];
     score += PressureOnWeakPawns * popcount(b);
 
     // Find squares where our pawns can push on the next move
