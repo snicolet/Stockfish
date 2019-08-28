@@ -138,7 +138,6 @@ namespace {
   constexpr Score Outpost            = S( 18,  6);
   constexpr Score PassedFile         = S( 11,  8);
   constexpr Score PawnlessFlank      = S( 17, 95);
-  constexpr Score PressureOnWeakPawns= S( 13,  7);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
@@ -165,7 +164,7 @@ namespace {
     template<Color Us> void initialize();
     template<Color Us, PieceType Pt> Score pieces();
     template<Color Us> Score king() const;
-    template<Color Us> Score threats() const;
+    template<Color Us> Score threats();
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
@@ -206,6 +205,9 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+
+    // pressureCount[color]
+    int pressureCount[COLOR_NB];
   };
 
 
@@ -249,6 +251,7 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+    pressureCount[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -483,7 +486,7 @@ namespace {
   // Evaluation::threats() assigns bonuses according to the types of the
   // attacking and the attacked pieces.
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::threats() const {
+  Score Evaluation<T>::threats() {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
@@ -554,7 +557,7 @@ namespace {
     b =   pos.pieces(Them, PAWN)
        & ~stronglyProtected
        & attackedBy2[Us];
-    score += PressureOnWeakPawns * popcount(b);
+    pressureCount[Us] += popcount(b);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
@@ -727,9 +730,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    int pressure = pressureCount[WHITE] + pressureCount[BLACK];
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
+                    +  8 * pressure
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
