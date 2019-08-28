@@ -551,7 +551,7 @@ namespace {
     score += ThreatBySafePawn * popcount(b);
 
     // Pressure on weak pawns
-    b =   pos.pieces(Them, PAWN)
+    b =   pos.pieces(Them)
        & ~attackedBy2[Them]
        &  attackedBy2[Us];
     int x = popcount(b);
