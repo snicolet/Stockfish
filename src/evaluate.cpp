@@ -817,7 +817,7 @@ namespace {
 
     // Map total material into a phase in [PHASE_ENDGAME, PHASE_MIDGAME]
 
-    Value material = clamp(pos.non_pawn_material() + pos.count<PAWN>(), EndgameLimit, MidgameLimit);
+    Value material = clamp(pos.non_pawn_material() + 2 * pos.count<PAWN>(), EndgameLimit, MidgameLimit);
     Phase phase = Phase(((material - EndgameLimit) * PHASE_MIDGAME) / (MidgameLimit - EndgameLimit));
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
