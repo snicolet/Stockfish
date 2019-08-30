@@ -1030,7 +1030,7 @@ moves_loop: // When in check, search starts from here
           {
               // Move count based pruning
               if (moveCountPruning)
-                  reduction += ONE_PLY;
+                  continue;
 
               // Reduced depth of the next LMR search
               int lmrDepth = std::max(newDepth - lmr_reduction(improving, depth, moveCount), DEPTH_ZERO);
@@ -1040,7 +1040,7 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
-                  continue;
+                  reduction += ONE_PLY;
 
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 6
