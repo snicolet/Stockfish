@@ -1046,11 +1046,11 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 6
                   && !inCheck
                   && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
-                  reduction += ONE_PLY;
+                  continue;
 
               // Prune moves with negative SEE (~10 Elo)
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
-                  continue;
+                  reduction += ONE_PLY;
           }
           else if (  (!givesCheck || !extension)
                    && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
