@@ -1050,11 +1050,11 @@ moves_loop: // When in check, search starts from here
 
               // Prune moves with negative SEE (~10 Elo)
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
-                  reduction += ONE_PLY;
+                  continue;
           }
           else if (  (!givesCheck || !extension)
                    && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
-                  continue;
+                  reduction += ONE_PLY;
       }
 
       newDepth = newDepth - reduction;
