@@ -1040,7 +1040,7 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
-                  continue;
+                  reduction += ONE_PLY;
 
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 6
@@ -1050,11 +1050,11 @@ moves_loop: // When in check, search starts from here
 
               // Prune moves with negative SEE (~10 Elo)
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
-                  reduction += ONE_PLY;
+                  continue;
           }
           else if (  (!givesCheck || !extension)
                    && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
-                   continue;
+                  continue;
       }
 
       newDepth = newDepth - reduction;
