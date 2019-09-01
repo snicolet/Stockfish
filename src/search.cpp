@@ -1011,6 +1011,10 @@ moves_loop: // When in check, search starts from here
                && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
 
+      if (   (ss->ply & 1) == 0
+          && (thisThread->nodes.load(std::memory_order_relaxed) & 15) == 15)
+          extension = DEPTH_ZERO;
+
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
