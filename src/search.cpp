@@ -1012,7 +1012,7 @@ moves_loop: // When in check, search starts from here
           extension = ONE_PLY;
 
       if (   (ss->ply & 1) == 0
-          && (thisThread->nodes.load(std::memory_order_relaxed) & 31) == 31)
+          && (thisThread->nodes.load(std::memory_order_relaxed) & 7) == 7)
           extension = DEPTH_ZERO;
 
       // Calculate new depth for this move
