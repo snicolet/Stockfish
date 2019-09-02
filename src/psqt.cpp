@@ -123,7 +123,8 @@ void init() {
           psq[ pc][ s] = score + (type_of(pc) == PAWN ? PBonus[rank_of(s)][file_of(s)]
                                                       : Bonus[pc][rank_of(s)][f]);
           
-          if (type_of(pc) != KING)
+          if (   type_of(pc) == PAWN 
+              || type_of(pc) == ROOK)
               psq[ pc][ s] += make_score(2 * rank_of(s), 0);
           
           psq[~pc][~s] = -psq[pc][s];
