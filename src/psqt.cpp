@@ -124,7 +124,7 @@ void init() {
                                                       : Bonus[pc][rank_of(s)][f]);
           
           
-          psq[ pc][ s] += make_score(0, rank_of(s));
+          psq[ pc][ s] += make_score(rank_of(s), 0);
           
           psq[~pc][~s] = -psq[pc][s];
       }
