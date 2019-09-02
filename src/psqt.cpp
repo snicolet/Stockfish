@@ -122,6 +122,10 @@ void init() {
           File f = std::min(file_of(s), ~file_of(s));
           psq[ pc][ s] = score + (type_of(pc) == PAWN ? PBonus[rank_of(s)][file_of(s)]
                                                       : Bonus[pc][rank_of(s)][f]);
+          
+          
+          psq[ pc][ s] += make_score(0, rank_of(s));
+          
           psq[~pc][~s] = -psq[pc][s];
       }
   }
