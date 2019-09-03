@@ -611,9 +611,9 @@ namespace {
 
         Score bonus = PassedRank[r];
 
-        if (r > RANK_3)
+        if (r >= RANK_4)
         {
-            int w = 5 * r - 13;
+            int w = 6 * r - 15;
             Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
@@ -649,9 +649,9 @@ namespace {
                     && ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq)))
                     k += 5;
 
-                bonus += make_score(k * w, (k + 3) * w);
+                bonus += make_score(k * w, k * w);
             }
-        } // r > RANK_3
+        } // r >= RANK_4
 
         // Scale down bonus for candidate passers which need more than one
         // pawn push to become passed, or have a pawn in front of them.
