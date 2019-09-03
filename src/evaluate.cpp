@@ -508,11 +508,18 @@ namespace {
     // Bonus according to the kind of attacking pieces
     if (defended | weak)
     {
+        Score threat = SCORE_ZERO;
+        Score max_threat = SCORE_ZERO;
+
         b = (defended | weak) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
         while (b)
         {
             Square s = pop_lsb(&b);
-            score += ThreatByMinor[type_of(pos.piece_on(s))];
+            threat = ThreatByMinor[type_of(pos.piece_on(s))];
+
+            if (eg_value(threat) > eg_value(max_threat))
+                max_threat = threat;
+
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
@@ -521,7 +528,11 @@ namespace {
         while (b)
         {
             Square s = pop_lsb(&b);
-            score += ThreatByRook[type_of(pos.piece_on(s))];
+            threat = ThreatByRook[type_of(pos.piece_on(s))];
+
+            if (eg_value(threat) > eg_value(max_threat))
+                max_threat = threat;
+
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
@@ -532,6 +543,8 @@ namespace {
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
         score += Hanging * popcount(weak & b);
+
+        score += max_threat;
     }
 
     // Bonus for restricting their piece moves
