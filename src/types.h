@@ -209,9 +209,9 @@ enum Depth : int {
   DEPTH_ZERO          =  0 * ONE_PLY,
   DEPTH_QS_CHECKS     =  0 * ONE_PLY,
   DEPTH_QS_NO_CHECKS  = -1 * ONE_PLY,
-  DEPTH_QS_END        = -5 * ONE_PLY,
+  DEPTH_QS_END        = -6 * ONE_PLY,
 
-  DEPTH_NONE   = -6 * ONE_PLY,
+  DEPTH_NONE   = -7 * ONE_PLY,
   DEPTH_OFFSET = DEPTH_NONE,
   DEPTH_MAX    = MAX_PLY * ONE_PLY
 };
