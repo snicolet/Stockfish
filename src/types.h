@@ -260,7 +260,7 @@ enum Rank : int {
 enum Score : int { SCORE_ZERO };
 
 constexpr Score make_score(int mg, int eg) {
-  return Score((int)((unsigned int)eg << 16) + (mg + eg/8));
+  return Score((int)((unsigned int)eg << 16) + mg);
 }
 
 /// Extracting the signed lower and upper 16 bits is not so trivial because
