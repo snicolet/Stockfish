@@ -151,6 +151,8 @@ namespace {
                                   & doubleAttackThem
                                   & ~e->pawnAttacks[Us]);
 
+    score += make_score(0, mg_value(score) / 8);
+
     return score;
   }
 
