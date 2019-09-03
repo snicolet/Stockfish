@@ -785,11 +785,7 @@ namespace {
     // imbalance. Score is computed internally from the white point of view.
     Score score = pos.psq_score() + me->imbalance();
 
-    int x = pos.key() & 3;
-    int contemptWeight = (x == 0 ? 0 : 
-                          x == 1 ? 2 :
-                          x == 2 ? 2 :
-                                   2 );
+    int contemptWeight = (pos.key() & 1) ? 3 : 1;
     score += pos.this_thread()->contempt * contemptWeight;
 
     // Probe the pawn hash table
