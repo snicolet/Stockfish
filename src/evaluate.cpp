@@ -611,9 +611,9 @@ namespace {
 
         Score bonus = PassedRank[r];
 
-        if (r >= RANK_4)
+        if (r > RANK_3)
         {
-            int w = 6 * r - 16;
+            int w = 5 * r - 13;
             Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
@@ -651,7 +651,7 @@ namespace {
 
                 bonus += make_score(k * w, k * w);
             }
-        } // r >= RANK_4
+        } // r > RANK_3
 
         // Scale down bonus for candidate passers which need more than one
         // pawn push to become passed, or have a pawn in front of them.
@@ -723,7 +723,7 @@ namespace {
                             && (pos.pieces(PAWN) & KingSide);
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   9 * pe->passed_count()
+    int complexity =  10 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
