@@ -787,8 +787,8 @@ namespace {
 
     int x = pos.key() & 3;
     int contemptWeight = (x == 0 ? 0 : 
-                          x == 1 ? 1 :
-                          x == 2 ? 2 :
+                          x == 1 ? 0 :
+                          x == 2 ? 0 :
                                    2 );
     score += pos.this_thread()->contempt * contemptWeight;
 
