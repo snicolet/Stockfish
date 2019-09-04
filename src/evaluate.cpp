@@ -577,9 +577,9 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    // Bonus for threats on blocked pawns which has only one non-pawn defender
+    // Bonus for threats on blocked pawns which have only one non-pawn defender
     b =  pos.pieces(Them, PAWN)
-       & shift<Up>(pos.pieces(Us))
+       & shift<Up>(pos.pieces(Us) | attackedBy2[Us])
        & attackedBy[Them][ALL_PIECES]
        & attackedBy[Us][ALL_PIECES]
        & ~attackedBy2[Them]
