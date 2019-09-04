@@ -583,10 +583,10 @@ namespace {
     // targets contains these weak pawns, and s is another 1-bit bitboard 
     // variable containing each single target in turn.
     targets =   pos.pieces(Them, PAWN)
-			  & attackedBy2[Us]
-			  & attackedBy2[Them]
-			  & ~attackedBy[Them][PAWN]
-			  & ~attackedBy[Us][PAWN];
+              & attackedBy2[Us]
+              & attackedBy2[Them]
+              & ~attackedBy[Them][PAWN]
+              & ~attackedBy[Us][PAWN];
     while (targets)
     {
         Bitboard s = targets & (targets ^ (targets - 1));
