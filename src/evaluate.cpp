@@ -147,6 +147,7 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
+  constexpr Score WinningTrade       = S( 35, 18);
 
 #undef S
 
@@ -488,7 +489,8 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
+    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, targets;
+    uint64_t attack, defense;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -575,6 +577,37 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    // Compare attacks and defenses on weak pawns. We loop over all 
+    // opponent pawns defended by pieces, but not by pawns. The variable 
+    // targets contains these weak pawns, and s is another 1-bit bitboard 
+    // variable containing each single target in turn.
+    targets =   pos.pieces(Them, PAWN)
+			  & attackedBy2[Us]
+			  & attackedBy2[Them]
+			  & ~attackedBy[Them][PAWN];
+    while (targets)
+    {
+        Bitboard s = targets & (targets ^ (targets - 1));
+        targets ^= s;
+
+        defense =    (s & attackedBy[Them][KNIGHT])
+                   + (s & attackedBy[Them][BISHOP])
+                   + (s & attackedBy[Them][ROOK])
+                   + (s & attackedBy[Them][QUEEN])
+                   + (s & attackedBy[Them][KING]);
+
+        attack  =    (s & attackedBy[Us][PAWN])
+                   + (s & attackedBy[Us][KNIGHT]) 
+                   + (s & attackedBy[Us][BISHOP])
+                   + (s & attackedBy[Us][ROOK])
+                   + (s & attackedBy[Us][QUEEN])
+                   + (s & attackedBy[Us][KING]);
+
+       if (attack > defense)
+           score += WinningTrade;
+
+    }  // while (targets)
 
     if (T)
         Trace::add(THREAT, Us, score);
