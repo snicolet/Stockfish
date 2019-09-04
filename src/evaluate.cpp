@@ -147,7 +147,7 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
-  constexpr Score WinningTrade       = S( 40,  0);
+  constexpr Score WinningTrade       = S( 20,  0);
 
 #undef S
 
@@ -583,9 +583,9 @@ namespace {
     Bitboard dblPawnDefense = pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN));
 
     targets =   pos.pieces(Them, PAWN)
-              & shift<Up>(pos.pieces(Us, PAWN))
+            //  & shift<Up>(pos.pieces(Us))
               & attackedBy2[Us]
-              & attackedBy2[Them]
+              & attackedBy[Them][ALL_PIECES]
               & ~(attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN])
               & ~(dblPawnDefense         & ~dblPawnAttack);
 
@@ -600,7 +600,8 @@ namespace {
                    + (s & attackedBy[Them][QUEEN])
                    + (s & attackedBy[Them][KING])
                    + (s & attackedBy[Them][PAWN])
-                   + (s & dblPawnDefense);
+                   + (s & dblPawnDefense)
+                   + (s & attackedBy2[Them]);
 
         attack  =    (s & attackedBy[Us][KNIGHT]) 
                    + (s & attackedBy[Us][BISHOP])
@@ -608,7 +609,8 @@ namespace {
                    + (s & attackedBy[Us][QUEEN])
                    + (s & attackedBy[Us][KING])
                    + (s & attackedBy[Us][PAWN])
-                   + (s & dblPawnAttack);
+                   + (s & dblPawnAttack)
+                   + (s & attackedBy2[Us]);
 
        if (attack > defense)
            score += WinningTrade;
