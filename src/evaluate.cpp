@@ -585,8 +585,7 @@ namespace {
     targets =   pos.pieces(Them, PAWN)
               & attackedBy2[Us]
               & attackedBy2[Them]
-              & ~attackedBy[Them][PAWN]
-              & ~attackedBy[Us][PAWN];
+              & ~attackedBy[Them][PAWN];
     while (targets)
     {
         Bitboard s = targets & (targets ^ (targets - 1));
@@ -598,7 +597,8 @@ namespace {
                    + (s & attackedBy[Them][QUEEN])
                    + (s & attackedBy[Them][KING]);
 
-        attack  =    (s & attackedBy[Us][KNIGHT]) 
+        attack  =    (s & attackedBy[Us][PAWN])
+                   + (s & attackedBy[Us][KNIGHT]) 
                    + (s & attackedBy[Us][BISHOP])
                    + (s & attackedBy[Us][ROOK])
                    + (s & attackedBy[Us][QUEEN])
