@@ -147,7 +147,7 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
-  constexpr Score WinningTrade       = S( 20,  0);
+  constexpr Score WinningTrade       = S( 40,  0);
 
 #undef S
 
@@ -578,14 +578,17 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    // Compare attacks and defenses on weak pawns. We loop over all 
-    // opponent pawns defended by pieces, but not by pawns. The variable 
-    // targets contains these weak pawns, and s is another 1-bit bitboard 
-    // variable containing each single target in turn.
+    // Compare attacks and defenses on blocked pawns. 
+    Bitboard dblPawnAttack  = pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
+    Bitboard dblPawnDefense = pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN));
+
     targets =   pos.pieces(Them, PAWN)
+              & shift<Up>(pos.pieces(Us))
               & attackedBy2[Us]
               & attackedBy2[Them]
-              & ~attackedBy[Them][PAWN];
+              & ~(attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN])
+              & ~(dblPawnDefense         & ~dblPawnAttack);
+
     while (targets)
     {
         Bitboard s = targets & (targets ^ (targets - 1));
@@ -595,14 +598,17 @@ namespace {
                    + (s & attackedBy[Them][BISHOP])
                    + (s & attackedBy[Them][ROOK])
                    + (s & attackedBy[Them][QUEEN])
-                   + (s & attackedBy[Them][KING]);
+                   + (s & attackedBy[Them][KING])
+                   + (s & attackedBy[Them][PAWN])
+                   + (s & dblPawnDefense);
 
-        attack  =    (s & attackedBy[Us][PAWN])
-                   + (s & attackedBy[Us][KNIGHT]) 
+        attack  =    (s & attackedBy[Us][KNIGHT]) 
                    + (s & attackedBy[Us][BISHOP])
                    + (s & attackedBy[Us][ROOK])
                    + (s & attackedBy[Us][QUEEN])
-                   + (s & attackedBy[Us][KING]);
+                   + (s & attackedBy[Us][KING])
+                   + (s & attackedBy[Us][PAWN])
+                   + (s & dblPawnAttack);
 
        if (attack > defense)
            score += WinningTrade;
