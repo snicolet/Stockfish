@@ -583,7 +583,7 @@ namespace {
     Bitboard dblPawnDefense = pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN));
 
     targets =   pos.pieces(Them, PAWN)
-              & shift<Up>(pos.pieces(Us))
+              & shift<Up>(pos.pieces(Us, PAWN))
               & attackedBy2[Us]
               & attackedBy2[Them]
               & ~(attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN])
