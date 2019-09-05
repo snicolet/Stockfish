@@ -583,7 +583,7 @@ namespace {
 
     targets =   pos.pieces(Them, PAWN)
               & attackedBy2[Us]
-              & attackedBy2[Them]
+              & attackedBy[Them][ALL_PIECES]
               & ~(attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN])
               & ~(dblPawnDefense         & ~dblPawnAttack);
 
