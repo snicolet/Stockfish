@@ -577,15 +577,12 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    // Compare attacks and defenses on blocked pawns. 
-    Bitboard dblPawnAttack  = pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
-    Bitboard dblPawnDefense = pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN));
-
+    // Compare attacks and defenses on pawns
     targets =   pos.pieces(Them, PAWN)
               & attackedBy2[Us]
               & attackedBy[Them][ALL_PIECES]
-              & ~(attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN])
-              & ~(dblPawnDefense         & ~dblPawnAttack);
+              & ~attackedBy[Us][PAWN]
+              & ~attackedBy[Them][PAWN];
 
     constexpr Score WinningTrade = make_score(20, 20);
 
@@ -599,8 +596,6 @@ namespace {
                    + (s & attackedBy[Them][ROOK])
                    + (s & attackedBy[Them][QUEEN])
                    + (s & attackedBy[Them][KING])
-                   + (s & attackedBy[Them][PAWN])
-                   + (s & dblPawnDefense)
                    + (s & attackedBy2[Them]);
 
         attack  =    (s & attackedBy[Us][KNIGHT]) 
@@ -608,8 +603,6 @@ namespace {
                    + (s & attackedBy[Us][ROOK])
                    + (s & attackedBy[Us][QUEEN])
                    + (s & attackedBy[Us][KING])
-                   + (s & attackedBy[Us][PAWN])
-                   + (s & dblPawnAttack)
                    + (s & attackedBy2[Us]);
 
        if (attack > defense)
