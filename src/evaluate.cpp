@@ -601,7 +601,7 @@ namespace {
         | (attackedBy3[Us] & ~attackedBy3[Them])
         | (attackedBy4[Us] & ~attackedBy4[Them]);
 
-    constexpr Score WinningTrade = make_score(0, 30);
+    constexpr Score WinningTrade = make_score(30, 30);
 
     score += WinningTrade * popcount(targets & b);
 
