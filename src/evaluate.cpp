@@ -147,7 +147,7 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
-  constexpr Score WinningTrade       = S( 20, 20);
+  constexpr Score WinningTrade       = S( 50,  0);
 
 #undef S
 
@@ -595,7 +595,7 @@ namespace {
         | (attackedBy4[Us] & ~attackedBy4[Them]);
 
     targets =  pos.pieces(Them, PAWN)
-             & ~attackedBy[Them][PAWN];
+             & attackedBy[Us][PAWN];
 
     score += WinningTrade * popcount(targets & b);
 
