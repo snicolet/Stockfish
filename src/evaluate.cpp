@@ -595,7 +595,6 @@ namespace {
         | (attackedBy4[Us] & ~attackedBy4[Them]);
 
     targets =  pos.pieces(Them, PAWN)
-             & attackedBy[Them][ALL_PIECES]
              & ~attackedBy[Them][PAWN];
 
     score += WinningTrade * popcount(targets & b);
