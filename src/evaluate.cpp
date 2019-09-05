@@ -612,7 +612,12 @@ namespace {
                    + (s & dblPawnAttack)
                    + (s & attackedBy2[Us]);
 
+       
+       if (attack > defense + s)
+           score += WinningTrade;
        if (attack > defense)
+           score += WinningTrade;
+       if (attack >= defense)
            score += WinningTrade;
 
     }  // while (targets)
