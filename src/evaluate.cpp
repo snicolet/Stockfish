@@ -147,6 +147,7 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
+  constexpr Score WinningTrade       = S( 20, 20);
 
 #undef S
 
@@ -184,6 +185,14 @@ namespace {
     // attackedBy2[color] are the squares attacked by at least 2 units of a given
     // color, including x-rays. But diagonal x-rays through pawns are not computed.
     Bitboard attackedBy2[COLOR_NB];
+
+    // attackedBy3[color] are the squares attacked by at least 3 units of a given
+    // color, including x-rays. But diagonal x-rays through pawns are not computed.
+    Bitboard attackedBy3[COLOR_NB];
+
+    // attackedBy4[color] are the squares attacked by at least 4 units of a given
+    // color, including x-rays. But diagonal x-rays through pawns are not computed.
+    Bitboard attackedBy4[COLOR_NB];
 
     // kingRing[color] are the squares adjacent to the king plus some other
     // very near squares, depending on king position.
@@ -234,6 +243,8 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us] = dblAttackByPawn | (attackedBy[Us][KING] & attackedBy[Us][PAWN]);
+    attackedBy3[Us] = dblAttackByPawn & attackedBy[Us][KING];
+    attackedBy4[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -279,6 +290,8 @@ namespace {
         if (pos.blockers_for_king(Us) & s)
             b &= LineBB[pos.square<KING>(Us)][s];
 
+        attackedBy4[Us] |= attackedBy3[Us] & b;
+        attackedBy3[Us] |= attackedBy2[Us] & b;
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
@@ -488,7 +501,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
+    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, targets;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -575,6 +588,17 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    // Compare attacks and defenses on pawns
+    b =   (attackedBy2[Us] & ~attackedBy2[Them])
+        | (attackedBy3[Us] & ~attackedBy3[Them])
+        | (attackedBy4[Us] & ~attackedBy4[Them]);
+
+    targets =  pos.pieces(Them, PAWN)
+             & attackedBy[Them][ALL_PIECES]
+             & ~attackedBy[Them][PAWN];
+
+    score += WinningTrade * popcount(targets & b);
 
     if (T)
         Trace::add(THREAT, Us, score);
