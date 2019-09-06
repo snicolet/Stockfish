@@ -985,7 +985,8 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (   eval >= beta
-                   && singularBeta >= beta)
+                   && singularBeta >= beta
+                   && value >= qsearch<NT>(pos, ss, alpha, beta) - 300)
               return singularBeta;
       }
 
