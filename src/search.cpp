@@ -986,7 +986,7 @@ moves_loop: // When in check, search starts from here
           // a soft bound.
           else if (   eval >= beta
                    && singularBeta >= beta
-                   && value >= qsearch<NT>(pos, ss, alpha, beta) + 10)
+                   && value >= qsearch<NT>(pos, ss, alpha, beta) - 50)
               return singularBeta;
       }
 
