@@ -590,12 +590,17 @@ namespace {
     }
 
     // Compare attacks and defenses on pawns
-    b =   (attackedBy2[Us] & ~attackedBy2[Them])
-        | (attackedBy3[Us] & ~attackedBy3[Them])
+    Bitboard dblPawnAttack  = pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
+    Bitboard dblPawnDefense = pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN));
+    
+    b =   (attackedBy3[Us] & ~attackedBy3[Them])
         | (attackedBy4[Us] & ~attackedBy4[Them]);
 
-    targets =  pos.pieces(Them, PAWN)
-             & attackedBy[Us][PAWN];
+    targets =   pos.pieces(Them, PAWN)
+              & attackedBy2[Us]
+              & attackedBy2[Them]
+              & ~(attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN])
+              & ~(dblPawnDefense         & ~dblPawnAttack);
 
     score += WinningTrade * popcount(targets & b);
 
