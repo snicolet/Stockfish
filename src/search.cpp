@@ -975,7 +975,8 @@ moves_loop: // When in check, search starts from here
               extension = ONE_PLY;
               singularLMR++;
 
-              if (value < singularBeta - std::min(4 * depth / ONE_PLY, 36))
+              if (   value < singularBeta - std::min(4 * depth / ONE_PLY, 36)
+                  || value < qsearch<NT>(pos, ss, alpha, beta))
                   singularLMR++;
           }
 
