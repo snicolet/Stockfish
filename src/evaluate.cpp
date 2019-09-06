@@ -138,6 +138,7 @@ namespace {
   constexpr Score Outpost            = S( 18,  6);
   constexpr Score PassedFile         = S( 11,  8);
   constexpr Score PawnlessFlank      = S( 17, 95);
+  constexpr Score PawnPressure       = S( 20, 20);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
@@ -147,7 +148,6 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
-  constexpr Score WinningTrade       = S( 20, 20);
 
 #undef S
 
@@ -589,20 +589,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    // Compare attacks and defenses on pawns
-    Bitboard dblPawnAttack  = pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
-    Bitboard dblPawnDefense = pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN));
-    
-    b =   (attackedBy3[Us] & ~attackedBy3[Them])
-        | (attackedBy4[Us] & ~attackedBy4[Them]);
-
-    targets =   pos.pieces(Them, PAWN)
-              & attackedBy2[Us]
-              & attackedBy2[Them]
-              & ~(attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN])
-              & ~(dblPawnDefense         & ~dblPawnAttack);
-
-    score += WinningTrade * popcount(targets & b);
+    score += PawnPresure * popcount(pos.pieces(Them, PAWN) & attackedBy3[Us]);
 
     if (T)
         Trace::add(THREAT, Us, score);
