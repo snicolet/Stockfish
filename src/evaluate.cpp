@@ -462,7 +462,7 @@ namespace {
                  -   7;
 
     if (pos.count<QUEEN>() >= 2)
-        kingDanger = std::min(kingDanger, 2200);
+        kingDanger = std::min(kingDanger, 2400);
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
