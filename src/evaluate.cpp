@@ -139,7 +139,7 @@ namespace {
   constexpr Score Outpost            = S( 18,  6);
   constexpr Score PassedFile         = S( 11,  8);
   constexpr Score PawnlessFlank      = S( 17, 95);
-  constexpr Score PinnedQueen        = S(1200,1200);
+  constexpr Score PinnedQueen        = S(600,600);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
@@ -577,27 +577,23 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
         
-        if (pos.count<QUEEN>(Us) == 1)
-        {
-            Bitboard pinnedQueen   =  pos.blockers_for_king(Them) & s;
-            Bitboard strongPinners = !pinnedQueen ? 0 :    pos.pinners(Us)
-                                                        &  attackedBy[Us][ALL_PIECES]
-                                                        & ~pos.pieces(Us, QUEEN)
-                                                        & ~attackedBy2[Them];
+        // Threat for winning a queen by pin
+        Bitboard pinnedQueen   =  pos.blockers_for_king(Them) & s;
+        Bitboard strongPinners = !pinnedQueen ? 0 :    pos.pinners(Us)
+                                                    &  attackedBy[Us][ALL_PIECES]
+                                                    & ~pos.pieces(Us, QUEEN)
+                                                    & ~attackedBy2[Them];
+        if (strongPinners)
+            score += PinnedQueen;
 
-            if (strongPinners)
-                score += PinnedQueen;
-
-// 			if (strongPinners)
-// 			{
-// 				std::cerr << pos << std::endl;
-// 				std::cerr << Bitboards::pretty(pinnedQueen)  << std::endl;
-// 				std::cerr << Bitboards::pretty(strongPinners) << std::endl;
-// 				std::cerr << Bitboards::pretty(strongPinners2) << std::endl;
-// 				std::cerr << "==============================================" << std::endl;
-// 			}
-    
-            }
+// 		if (strongPinners)
+// 		{
+// 			std::cerr << pos << std::endl;
+// 			std::cerr << Bitboards::pretty(pinnedQueen)  << std::endl;
+// 			std::cerr << Bitboards::pretty(strongPinners) << std::endl;
+// 			std::cerr << Bitboards::pretty(strongPinners2) << std::endl;
+// 			std::cerr << "==============================================" << std::endl;
+// 		}
     }
 
     if (T)
