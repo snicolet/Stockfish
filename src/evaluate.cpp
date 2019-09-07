@@ -461,7 +461,7 @@ namespace {
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   7;
 
-    kingDanger = std::min(kingDanger, 2000);
+    kingDanger = std::min(kingDanger, 2200);
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
