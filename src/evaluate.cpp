@@ -139,7 +139,7 @@ namespace {
   constexpr Score Outpost            = S( 18,  6);
   constexpr Score PassedFile         = S( 11,  8);
   constexpr Score PawnlessFlank      = S( 17, 95);
-  constexpr Score PinnedQueen        = S(1000,1000);
+  constexpr Score PinnedQueen        = S(1200,1200);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
