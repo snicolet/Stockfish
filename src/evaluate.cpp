@@ -23,7 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-// #include <iostream>
+ #include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -577,7 +577,8 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
         
-        if (pos.count<QUEEN>(WHITE) == pos.count<QUEEN>(BLACK))
+        if (   pos.count<QUEEN>(Us) == 1
+            && !(pos.pieces(Us, QUEEN) & attackedBy[Them][ALL_PIECES]))
         {
             Bitboard pinnedQueen   =  pos.blockers_for_king(Them) & s;
             Bitboard strongPinners = !pinnedQueen ? 0 :    pos.pinners(Us)
@@ -588,11 +589,12 @@ namespace {
             if (strongPinners)
                 score += PinnedQueen;
 
-// 			if (0 & strongPinners)
+// 			if (strongPinners)
 // 			{
 // 				std::cerr << pos << std::endl;
 // 				std::cerr << Bitboards::pretty(pinnedQueen)  << std::endl;
 // 				std::cerr << Bitboards::pretty(strongPinners) << std::endl;
+// 				std::cerr << Bitboards::pretty(strongPinners2) << std::endl;
 // 				std::cerr << "==============================================" << std::endl;
 // 			}
     
