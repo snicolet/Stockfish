@@ -984,9 +984,10 @@ moves_loop: // When in check, search starts from here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
-          else if (   eval >= beta
+          else if (   !PvNode
+                   && eval >= beta
                    && singularBeta >= beta
-                   && value >= qsearch<NT>(pos, ss, alpha, beta) - 50)
+                   && value >= qsearch<NT>(pos, ss, alpha, beta) - 300)
               return singularBeta;
       }
 
