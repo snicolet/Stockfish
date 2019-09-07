@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+// #include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -448,6 +449,20 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    // Do we lose our queen by pin?
+    Bitboard pinnedQueen   =  pos.blockers_for_king(Us) & pos.pieces(Us, QUEEN);
+    Bitboard strongPinners = !pinnedQueen ? 0 :    pos.pinners(Them)
+                                                &  attackedBy[Them][ALL_PIECES]
+                                                & ~pos.pieces(Them, QUEEN)
+                                                & ~attackedBy2[Us];
+//     if (0 & strongPinners)
+//     {
+//         std::cerr << pos << std::endl;
+//         std::cerr << Bitboards::pretty(pinnedQueen)  << std::endl;
+//         std::cerr << Bitboards::pretty(strongPinners) << std::endl;
+//         std::cerr << "==============================================" << std::endl;
+//     }
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -455,6 +470,7 @@ namespace {
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
+                 + 900 * bool(strongPinners)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])

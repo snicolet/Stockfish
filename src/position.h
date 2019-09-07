@@ -107,6 +107,7 @@ public:
   // Checking
   Bitboard checkers() const;
   Bitboard blockers_for_king(Color c) const;
+  Bitboard pinners(Color c) const;
   Bitboard check_squares(PieceType pt) const;
   bool is_discovery_check_on_king(Color c, Move m) const;
 
@@ -311,6 +312,10 @@ inline Bitboard Position::checkers() const {
 
 inline Bitboard Position::blockers_for_king(Color c) const {
   return st->blockersForKing[c];
+}
+
+inline Bitboard Position::pinners(Color c) const {
+   return st->pinners[c];
 }
 
 inline Bitboard Position::check_squares(PieceType pt) const {
