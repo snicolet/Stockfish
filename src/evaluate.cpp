@@ -141,7 +141,6 @@ namespace {
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
-  constexpr Score StrongPinners      = S( 60, 60);
   constexpr Score ThreatByKing       = S( 24, 89);
   constexpr Score ThreatByPawnPush   = S( 48, 39);
   constexpr Score ThreatByRank       = S( 13,  0);
@@ -449,6 +448,12 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    // Strong pinners
+    Bitboard strongPinners =    pos.pinners(Them)
+                             &  attackedBy[Them][ALL_PIECES]
+                             & ~pos.pieces(Them, QUEEN)
+                             & ~attackedBy2[Us];
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -456,6 +461,7 @@ namespace {
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
+                 + 100 * bool(strongPinners)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
@@ -560,14 +566,6 @@ namespace {
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
-
-    // Bonus for strong pinners
-    Bitboard strongPinners =    pos.pinners(Us)
-                             &  attackedBy[Us][ALL_PIECES]
-                             & ~pos.pieces(Us, QUEEN)
-                             & ~attackedBy2[Them];
-    if (strongPinners)
-        score += StrongPinners;
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
