@@ -986,8 +986,7 @@ moves_loop: // When in check, search starts from here
           // a soft bound.
           else if (   !PvNode
                    && eval >= beta
-                   && singularBeta >= beta
-                   && value >= qsearch<NT>(pos, ss, alpha, beta) - 300)
+                   && singularBeta >= beta)
               return singularBeta;
       }
 
