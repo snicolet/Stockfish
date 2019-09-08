@@ -725,6 +725,7 @@ namespace {
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
+                    + 49 * !pos.non_pawn_material()
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
@@ -754,9 +755,8 @@ namespace {
             && pos.non_pawn_material() == 2 * BishopValueMg)
             sf = 16 + 4 * pe->passed_count();
         else
-            sf = std::min(sf, 37 + pe->asymmetry()
-                                 + pos.count<PAWN>(strongSide) * (pos.opposite_bishops() ? 2 : 7)
-                                 + 4 * !pos.non_pawn_material());
+            sf = std::min(sf, 35 + pe->asymmetry()
+                                 + pos.count<PAWN>(strongSide) * (pos.opposite_bishops() ? 2 : 7));
     }
 
     return ScaleFactor(sf);
