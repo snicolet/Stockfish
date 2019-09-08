@@ -144,6 +144,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+
+        if (!opposed)
+            e->asymmetryCount++;
     }
 
     // Penalize our unsupported pawns attacked twice by enemy pawns
@@ -172,6 +175,7 @@ Entry* probe(const Position& pos) {
       return e;
 
   e->key = key;
+  e->asymmetryCount = 0;
   e->scores[WHITE] = evaluate<WHITE>(pos, e);
   e->scores[BLACK] = evaluate<BLACK>(pos, e);
 
