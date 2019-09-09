@@ -378,6 +378,10 @@ void Thread::search() {
   contempt = (us == WHITE ?  make_score(ct, ct / 2)
                           : -make_score(ct, ct / 2));
 
+  // Use one thread amongst N to search much deeper (ie less selectively)
+  if (idx == 1)
+      rootDepth += 10 * ONE_PLY;
+
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   (rootDepth += ONE_PLY) < DEPTH_MAX
          && !Threads.stop
