@@ -379,7 +379,7 @@ void Thread::search() {
                           : -make_score(ct, ct / 2));
 
   // Use the multiple threads to start searching deeper (ie less selectively)
-  const int startDepth[8] = {0, 0, 2, 2, 4, 7, 10, 14};
+  const int startDepth[8] = { 0, 0, 0, 0, 10, 10, 10, 10 };
   rootDepth += startDepth[idx % 8] * ONE_PLY;
 
   // Iterative deepening loop until requested to stop or the target depth is reached
