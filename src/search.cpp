@@ -378,8 +378,9 @@ void Thread::search() {
   contempt = (us == WHITE ?  make_score(ct, ct / 2)
                           : -make_score(ct, ct / 2));
 
-  // Use the threads to start searching deeper (ie less selectively)
-  rootDepth += int(sqrt(idx)) * ONE_PLY;
+  // Use the multiple threads to start searching deeper (ie less selectively)
+  const int startDepth[8] = {0, 0, 2, 2, 4, 7, 10, 14};
+  rootDepth += startDepth[idx % 8] * ONE_PLY;
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   (rootDepth += ONE_PLY) < DEPTH_MAX
