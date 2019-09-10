@@ -379,7 +379,7 @@ void Thread::search() {
                           : -make_score(ct, ct / 2));
 
   // Use the threads to start searching deeper (ie less selectively)
-  rootDepth += int(idx) * ONE_PLY;
+  rootDepth += int(sqrt(idx)) * ONE_PLY;
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   (rootDepth += ONE_PLY) < DEPTH_MAX
