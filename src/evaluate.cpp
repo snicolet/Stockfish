@@ -531,7 +531,7 @@ namespace {
 
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
-        score += (Hanging * popcount(weak & b)) / (1 + pos.rule50_count() / 8);
+        score += Hanging * popcount(weak & b);
     }
 
     // Bonus for restricting their piece moves
@@ -783,7 +783,9 @@ namespace {
     // Initialize score by reading the incrementally updated scores included in
     // the position object (material + piece square tables) and the material
     // imbalance. Score is computed internally from the white point of view.
-    Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
+    Score score =   pos.psq_score() / (1 + pos.rule50_count() / 8)
+                  + me->imbalance()
+                  + pos.this_thread()->contempt;
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
