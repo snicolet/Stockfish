@@ -217,7 +217,7 @@ Score Entry::evaluate_shelter(const Position& pos, Square ksq) {
 
   b  = theirPawns & KingFlank[file_of(ksq)] & ourCamp;
   b &= shift<Up>(ourPawns);
-  if (more_than_one(b))
+  if (popcount(b) == 2)
       bonus -= FrenchBindDanger;
 
   return bonus;
