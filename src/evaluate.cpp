@@ -128,7 +128,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
-  constexpr Score BlockedPawnAttack  = S( 20,  0);
+  constexpr Score BlockedPawnAttack  = S( 30, 10);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score FlankAttacks       = S(  8,  0);
   constexpr Score Hanging            = S( 69, 36);
@@ -577,7 +577,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    // Bonus for threats on blocked pawns which has only one non-pawn defender
+    // Bonus for threats on blocked pawns which have only one non-pawn defender
     b =  pos.pieces(Them, PAWN)
        & shift<Up>(pos.pieces(Us) | attackedBy[Us][PAWN])
        & attackedBy[Them][ALL_PIECES]
