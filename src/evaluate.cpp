@@ -531,7 +531,7 @@ namespace {
 
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
-        score += Hanging * popcount(weak & b);
+        score += (Hanging * popcount(weak & b)) / (1 + pos.rule50_count() / 8);
     }
 
     // Bonus for restricting their piece moves
@@ -655,7 +655,7 @@ namespace {
         // pawn push to become passed, or have a pawn in front of them.
         if (   !pos.pawn_passed(Us, s + Up)
             || (pos.pieces(PAWN) & (s + Up)))
-            bonus = bonus / (1 + pos.rule50_count() / 4);
+            bonus = bonus / 2;
 
         score += bonus - PassedFile * std::min(f, ~f);
     }
