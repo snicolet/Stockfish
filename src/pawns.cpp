@@ -215,7 +215,7 @@ Score Entry::evaluate_shelter(const Position& pos, Square ksq) {
           bonus -= make_score(UnblockedStorm[d][theirRank], 0);
   }
 
-  b  = theirPawns & KingFlank[file_of(ksq)] & ourCamp;
+  b  = theirPawns & KingFlank[center] & ourCamp;
   b &= shift<Up>(ourPawns);
   if (more_than_one(b))
       bonus -= FrenchBindDanger;
