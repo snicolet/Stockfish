@@ -255,12 +255,20 @@ void MainThread::search() {
 
   // Stop the threads if not already stopped (also raise the stop if
   // "ponderhit" just reset Threads.ponder).
+  sync_cout << "[DEBUG_HANG] "
+            << "Thread " << this->thread_index() << " "
+            << "raising the stop flag in MainThread::search()"  << sync_endl;
   Threads.stop = true;
 
   // Wait until all threads have finished
   for (Thread* th : Threads)
       if (th != this)
+      {
+          sync_cout << "[DEBUG_HANG] "
+                    << "Thread " << this->thread_index() << " "
+                    << "waiting for thread " << th->thread_index() << " to finish "  << sync_endl;
           th->wait_for_search_finished();
+      }
 
   // When playing in 'nodes as time' mode, subtract the searched nodes from
   // the available ones before exiting.
@@ -378,8 +386,18 @@ void Thread::search() {
   contempt = (us == WHITE ?  make_score(ct, ct / 2)
                           : -make_score(ct, ct / 2));
 
+  // Set maximum iteration depth
+  Depth maximum_depth;
+  maximum_depth = idx == 0 ? 30 * ONE_PLY 
+                           : 10 * ONE_PLY ;
+                         //  : DEPTH_MAX;
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "Setting maximum_depth to " << maximum_depth
+            << " for thread " << idx << sync_endl;
+
   // Iterative deepening loop until requested to stop or the target depth is reached
-  while (   (rootDepth += ONE_PLY) < DEPTH_MAX
+  while (   (rootDepth += ONE_PLY) < maximum_depth
          && !Threads.stop
          && !(Limits.depth && mainThread && rootDepth / ONE_PLY > Limits.depth))
   {
@@ -540,10 +558,18 @@ void Thread::search() {
               if (mainThread->ponder)
                   mainThread->stopOnPonderhit = true;
               else
-                  Threads.stop = true;
+              {
+                  //sync_cout << "[DEBUG_HANG] "
+                  //          << "Thread " << idx << " stops the search because available time elapsed" << sync_endl;
+                  //Threads.stop = true;
+              }
           }
       }
   }
+
+  if (rootDepth >= maximum_depth)
+      sync_cout << "[DEBUG_HANG] "
+                << "Thread " << idx << " has reached its maximum depth " << maximum_depth << sync_endl;
 
   if (!mainThread)
       return;
@@ -1684,7 +1710,15 @@ void MainThread::check_time() {
   if (   (Limits.use_time_management() && (elapsed > Time.maximum() - 10 || stopOnPonderhit))
       || (Limits.movetime && elapsed >= Limits.movetime)
       || (Limits.nodes && Threads.nodes_searched() >= (uint64_t)Limits.nodes))
-      Threads.stop = true;
+      {
+          if (Limits.use_time_management() && (elapsed > Time.maximum() - 10))
+              sync_cout << "[DEBUG_HANG] "
+                        << "Thread 0 now raises the stop flag in check_time() "
+                        << "after " << Time.maximum() - 10 << "ms "
+                        << "because emergency time is up" << sync_endl;
+          
+          Threads.stop = true;
+      }
 }
 
 

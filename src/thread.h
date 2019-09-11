@@ -56,6 +56,7 @@ public:
   void idle_loop();
   void start_searching();
   void wait_for_search_finished();
+  size_t thread_index() {return idx;};
   int best_move_count(Move move);
 
   Pawns::Table pawnsTable;
@@ -73,6 +74,8 @@ public:
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory;
   Score contempt;
+  
+
 };
 
 
