@@ -547,7 +547,7 @@ namespace {
     // Bonus for attacking enemy pieces with our relatively safe pawns
     b = pos.pieces(Us, PAWN) & safe;
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    score += ThreatBySafePawn * popcount(b);
+    score += (ThreatBySafePawn * popcount(b)) / (1 + pos.rule50_count() / 8);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
@@ -558,7 +558,7 @@ namespace {
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    score += (ThreatByPawnPush * popcount(b)) / (1 + pos.rule50_count() / 8);
+    score += ThreatByPawnPush * popcount(b);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
