@@ -38,6 +38,7 @@ namespace {
   constexpr Score Isolated      = S( 5, 15);
   constexpr Score WeakLever     = S( 0, 56);
   constexpr Score WeakUnopposed = S(13, 27);
+  constexpr Score FrenchBindDanger = S(50, 50);
 
   // Connected pawn bonus
   constexpr int Connected[RANK_NB] = { 0, 7, 8, 12, 29, 48, 86 };
@@ -185,7 +186,10 @@ Entry* probe(const Position& pos) {
 template<Color Us>
 Score Entry::evaluate_shelter(const Position& pos, Square ksq) {
 
-  constexpr Color Them = (Us == WHITE ? BLACK : WHITE);
+  constexpr Color     Them    = (Us == WHITE ? BLACK : WHITE);
+  constexpr Direction Up      = (Us == WHITE ? NORTH : SOUTH);
+  constexpr Bitboard  ourCamp = (Us == WHITE ? Rank1BB | Rank2BB | Rank3BB | Rank4BB
+                                             : Rank8BB | Rank7BB | Rank6BB | Rank5BB);
 
   Bitboard b = pos.pieces(PAWN) & ~forward_ranks_bb(Them, ksq);
   Bitboard ourPawns = b & pos.pieces(Us);
@@ -206,10 +210,15 @@ Score Entry::evaluate_shelter(const Position& pos, Square ksq) {
       bonus += make_score(ShelterStrength[d][ourRank], 0);
 
       if (ourRank && (ourRank == theirRank - 1))
-          bonus -= BlockedStorm * int(theirRank <= RANK_4);
+          bonus -= BlockedStorm * int(theirRank <= RANK_3);
       else
           bonus -= make_score(UnblockedStorm[d][theirRank], 0);
   }
+
+  b  = theirPawns & KingFlank[file_of(ksq)] & ourCamp;
+  b &= shift<Up>(ourPawns);
+  if (popcount(b) == 2)
+      bonus -= FrenchBindDanger;
 
   return bonus;
 }
