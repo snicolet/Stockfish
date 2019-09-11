@@ -578,7 +578,7 @@ namespace {
     }
     
     // Bonus for threats on blocked pawns which has only one non-pawn defender
-    if (pos.rule50_count() > 6)
+    if (pos.rule50_count() <= 6)
     {
     b =  pos.pieces(Them, PAWN)
        & shift<Up>(pos.pieces(Us, PAWN))
