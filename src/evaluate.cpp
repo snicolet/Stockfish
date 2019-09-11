@@ -130,6 +130,7 @@ namespace {
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score FlankAttacks       = S(  8,  0);
+  constexpr Score FrenchBindDanger   = S(  0, 30);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -486,7 +487,10 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Down     = (Us == WHITE ? SOUTH   : NORTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  opponentCamp = (Us == WHITE ? Rank8BB | Rank7BB | Rank6BB | Rank5BB
+                                                    : Rank1BB | Rank2BB | Rank3BB | Rank4BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -574,6 +578,17 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+    }
+
+    // French bind bonus
+    if (pos.rule50_count() > 6)
+    {
+        b =  pos.pieces(Us, PAWN) 
+           & KingFlank[file_of(pos.square<KING>(Them))] 
+           & opponentCamp
+           & shift<Down>(pos.pieces(Them, PAWN));
+        if (more_than_one(b))
+            score += FrenchBindDanger;
     }
 
     if (T)
