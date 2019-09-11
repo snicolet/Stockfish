@@ -135,6 +135,7 @@ namespace {
   constexpr Score KnightOnQueen      = S( 16, 12);
   constexpr Score LongDiagonalBishop = S( 45,  0);
   constexpr Score MinorBehindPawn    = S( 18,  3);
+  constexpr Score OnlyPawnDefender   = S( 20,  0);
   constexpr Score Outpost            = S( 18,  6);
   constexpr Score PassedFile         = S( 11,  8);
   constexpr Score PawnlessFlank      = S( 17, 95);
@@ -574,6 +575,19 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+    }
+    
+    // Bonus for threats on blocked pawns which has only one non-pawn defender
+    if (pos.rule50_count() > 6)
+    {
+    b =  pos.pieces(Them, PAWN)
+       & shift<Up>(pos.pieces(Us, PAWN))
+       & attackedBy[Them][ALL_PIECES]
+       & attackedBy[Us][ALL_PIECES]
+       & ~attackedBy2[Them]
+       & ~attackedBy[Us][PAWN]
+       & ~attackedBy[Them][PAWN];
+    score += OnlyPawnDefender * popcount(b);
     }
 
     if (T)
