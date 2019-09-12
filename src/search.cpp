@@ -379,7 +379,7 @@ void Thread::search() {
                           : -make_score(ct, ct / 2));
 
   // Make the multiple threads use different depth increments
-  const int depthIncrement[8] = { 1, 1, 1, 1, 10, 10, 10, 10 };
+  const int depthIncrement[8] = { 1, 1, 1, 1, 5, 5, 5, 5 };
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   (rootDepth += depthIncrement[idx % 8] * ONE_PLY) < DEPTH_MAX
