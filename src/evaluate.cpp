@@ -736,6 +736,7 @@ namespace {
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
+                    -  4 * pos.rule50_count()
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
@@ -768,6 +769,8 @@ namespace {
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
     }
+
+    sf = std::max(0, sf - pos.count<PAWN>(~strongSide));
 
     return ScaleFactor(sf);
   }
