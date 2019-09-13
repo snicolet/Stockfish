@@ -368,7 +368,8 @@ inline int Position::rule50_count() const {
 }
 
 inline int Position::aging() const {
-  return st->rule50 / 8;
+  bool blockedPawns = pieces(WHITE, PAWN) & shift<SOUTH>(pieces(BLACK, PAWN));
+  return blockedPawns ? st->rule50 / 8 : 0;
 }
 
 inline bool Position::opposite_bishops() const {
