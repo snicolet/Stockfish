@@ -723,7 +723,7 @@ namespace {
     Value eg = eg_value(score);
 
     bool inversion =   pos.count<ALL_PIECES>() > 22
-                    && int(mg) * int(eg) < -50;
+                    && int(mg) * int(eg) < -100;
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
@@ -741,7 +741,7 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    + 50 * inversion
+                    + 25 * inversion
                     - 36 * almostUnwinnable
                     -103 ;
 
