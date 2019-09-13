@@ -723,7 +723,7 @@ namespace {
     Value eg = eg_value(score);
 
     bool inversion =   pos.count<ALL_PIECES>() > 22
-                    && int(mg) * int(eg) < -200;
+                    && int(mg) * int(eg) < -100;
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
