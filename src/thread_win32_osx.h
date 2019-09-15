@@ -22,18 +22,12 @@
 #define THREAD_WIN32_OSX_H_INCLUDED
 
 /// STL thread library used by mingw and gcc when cross compiling for Windows
-/// relies on libwinpthread. Currently libwinpthread implements mutexes directly
-/// on top of Windows semaphores. Semaphores, being kernel objects, require kernel
-/// mode transition in order to lock or unlock, which is very slow compared to
-/// interlocked operations (about 30% slower on bench test). To work around this
-/// issue, we define our wrappers to the low level Win32 calls. We use critical
-/// sections to support Windows XP and older versions. Unfortunately, cond_wait()
-/// is racy between unlock() and WaitForSingleObject() but they have the same
-/// speed performance as the SRW locks.
+/// relies on libwinpthread.
 
 #include <condition_variable>
 #include <mutex>
 #include <thread>
+
 
 #if defined(_WIN32) && !defined(_MSC_VER)
 
@@ -45,26 +39,6 @@
 #include <windows.h>
 #undef WIN32_LEAN_AND_MEAN
 #undef NOMINMAX
-
-/// Mutex and ConditionVariable struct are wrappers of the low level locking
-/// machinery and are modeled after the corresponding C++11 classes.
-
-struct Mutex {
-  Mutex() { InitializeCriticalSection(&cs); }
- ~Mutex() { DeleteCriticalSection(&cs); }
-  void lock() { EnterCriticalSection(&cs); }
-  void unlock() { LeaveCriticalSection(&cs); }
-
-private:
-  CRITICAL_SECTION cs;
-};
-
-typedef std::condition_variable_any ConditionVariable;
-
-#else // Default case: use STL classes
-
-typedef std::mutex Mutex;
-typedef std::condition_variable ConditionVariable;
 
 #endif
 
@@ -108,5 +82,26 @@ public:
 typedef std::thread NativeThread;
 
 #endif
+
+
+/// Mutex and ConditionVariable struct are wrappers of the low level locking
+/// machinery and are modeled after the corresponding C++11 classes.
+
+/// Mutex class wraps low level atomic operations to provide a yielding spinlock
+class Mutex {
+  std::atomic_int _lock;
+public:
+  Mutex() { _lock = 1; } // Init here to workaround a bug with MSVC 2013
+  ~Mutex() { unlock();}
+  void lock() {
+      while (_lock.fetch_sub(1, std::memory_order_acquire) != 1)
+          for (int cnt= 0; _lock.load(std::memory_order_relaxed) <= 0; ++cnt)
+        	  if (cnt >= 10000) std::this_thread::yield(); // Be nice to hyperthreading
+  }
+  void unlock() { _lock.store(1, std::memory_order_release); }
+};
+
+typedef std::condition_variable_any ConditionVariable;
+
 
 #endif // #ifndef THREAD_WIN32_OSX_H_INCLUDED
