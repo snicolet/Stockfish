@@ -1037,6 +1037,11 @@ moves_loop: // When in check, search starts from here
                && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
 
+      // Simulate search explosion in this thread
+      size_t idx = pos.this_thread()->thread_index();
+      if (idx == 0)
+          extension = ONE_PLY;
+
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
