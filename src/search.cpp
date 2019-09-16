@@ -575,9 +575,8 @@ namespace {
         && pos.has_game_cycle(ss->ply))
     {
         Value v = qsearch<NT>(pos, ss, -VALUE_INFINITE, VALUE_INFINITE);
-        Value v2 = value_draw(depth, pos.this_thread());
 
-        alpha = std::max( v / 16 , v2);
+        alpha = Value(abs(v)) / 16;
         if (alpha >= beta)
             return alpha;
     }
