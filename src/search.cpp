@@ -574,7 +574,9 @@ namespace {
         && !rootNode
         && pos.has_game_cycle(ss->ply))
     {
-        alpha = value_draw(depth, pos.this_thread());
+        Value v = qsearch<NT>(pos, ss, -VALUE_INFINITE, VALUE_INFINITE);
+
+        alpha = -v / 16;
         if (alpha >= beta)
             return alpha;
     }
