@@ -767,14 +767,11 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            sf = 16 + 4 * pe->passed_count();
+            sf = 15 + 4 * pe->passed_count();
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
-
-        Bitboard blocked = pos.pieces(WHITE, PAWN) & shift<SOUTH>(pos.pieces(BLACK, PAWN));
-        int divisor = blocked ? 2 : 4;
         
-        sf = std::max(4, sf - (pos.rule50_count() - 12) / divisor);
+        sf = std::max(4, sf - (pos.rule50_count() - 12) / 4);
     }
 
     return ScaleFactor(sf);
