@@ -46,8 +46,8 @@
 #undef WIN32_LEAN_AND_MEAN
 #undef NOMINMAX
 
-/// Mutex and ConditionVariable struct are wrappers of the low level locking
-/// machinery and are modeled after the corresponding C++11 classes.
+/// Mutex struct is a wrapper of the low level locking machinery 
+/// and is modeled after the corresponding C++11 class.
 
 struct Mutex {
   Mutex() { InitializeCriticalSection(&cs); }
@@ -59,12 +59,9 @@ private:
   CRITICAL_SECTION cs;
 };
 
-typedef std::condition_variable_any ConditionVariable;
-
 #else // Default case: use STL classes
 
 typedef std::mutex Mutex;
-typedef std::condition_variable ConditionVariable;
 
 #endif
 

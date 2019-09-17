@@ -42,10 +42,9 @@
 
 class Thread {
 
-  Mutex mutex;
-  ConditionVariable cv;
   size_t idx;
-  bool exit = false, searching = true; // Set before starting std::thread
+  std::atomic<bool> searching = ATOMIC_VAR_INIT(true);
+  bool exit = false;     // searching and exit must be set before starting std::thread
   NativeThread stdThread;
 
 public:
