@@ -354,14 +354,15 @@ namespace {
             // Bonus for rook on an open or semi-open file
             bool usInFront   = pos.pieces(Us, PAWN)   & forward_file_bb(Us, s);
             bool usBehind    = pos.pieces(Us, PAWN)   & forward_file_bb(Them, s);
-            bool usNone      = !(usInFront || usBehind);
             bool themInFront = pos.pieces(Them, PAWN) & forward_file_bb(Us, s);
             bool themBehind  = pos.pieces(Them, PAWN) & forward_file_bb(Them, s);
-            bool themNone    = !(themInFront || themBehind);
+            bool usNone      = !(usInFront | usBehind);
+            bool themNone    = !(themInFront | themBehind);
 
             Score bonus = usNone && themNone ? RookOnFile[1] :
-                          usNone             ? RookOnFile[0] 
-                                             : SCORE_ZERO    ;
+                          usNone             ? RookOnFile[0] :
+                          usBehind           ? RookOnFile[0] :
+                                               SCORE_ZERO    ;
 
             score += bonus;
 
