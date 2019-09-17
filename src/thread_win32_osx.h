@@ -35,7 +35,7 @@
 #include <mutex>
 #include <thread>
 
-#if defined(_WIN32) && !defined(_MSC_VER)
+#if defined(_WIN32)// && !defined(_MSC_VER)
 
 #ifndef NOMINMAX
 #  define NOMINMAX // Disable macros min() and max()
@@ -58,8 +58,97 @@ struct Mutex {
 private:
   CRITICAL_SECTION cs;
 };
+/*
+#include <map>
+struct ConditionVariable {
+	ConditionVariable() {}
+	~ConditionVariable() {}
+	template<class _Predicate>
+	void wait(std::unique_lock<Mutex>& _Lck, _Predicate _Pred, bool sloppy)
+	{
+		while (!_Pred())
+		{
+			// correct way is to take internal lock here instead of below
+			//std::unique_lock<Mutex> lk(lock);
+			_Lck.unlock();
+			if (sloppy)
+			{
+				Sleep(1000);
+			}
+			// wrong way is to take internal lock here(my own failed implementation)
+			std::unique_lock<Mutex> lk(lock);
+			HANDLE myhandle = INVALID_HANDLE_VALUE;
+			std::map<DWORD, HANDLE>::iterator iter = waiters.find(GetCurrentThreadId());
+			if (iter != waiters.end())
+			{
+				myhandle = iter->second;
+			}
+			else
+			{
+				myhandle = CreateEvent(NULL, FALSE, FALSE, NULL);
+				waiters.insert(std::make_pair(GetCurrentThreadId(), myhandle));
+			}
+			lk.unlock();
+			WaitForSingleObject(myhandle, INFINITE);
+			CloseHandle(myhandle);
+			_Lck.lock();
+		}
+	}
+	void notify_one() {
+		std::lock_guard<Mutex> lk(lock);
+		std::map<DWORD, HANDLE>::iterator iter = waiters.begin();
+		if (iter != waiters.end())
+		{
+			SetEvent(iter->second);
+			waiters.erase(iter);
+		}
+	}
+	void notify_all() {
+		std::lock_guard<Mutex> lk(lock);
+		std::map<DWORD, HANDLE>::iterator iter = waiters.begin();
+		while (iter != waiters.end())
+		{
+			SetEvent(iter->second);
+			iter = waiters.erase(iter);
+		}
+	}
+private:
+	std::map<DWORD, HANDLE> waiters;
+	Mutex lock;
+};
+*/
 
-typedef std::condition_variable_any ConditionVariable;
+// this is the bugged mingw's way
+struct ConditionVariable {
+	ConditionVariable() { handle = CreateSemaphore(NULL, 0, 512, NULL); waiters_count = 0; }
+	~ConditionVariable() { CloseHandle(handle); }
+	template<class _Predicate>
+	void wait(std::unique_lock<Mutex>& _Lck, _Predicate _Pred, bool sloppy)
+	{
+		while (!_Pred())
+		{
+			std::unique_lock<Mutex> lk(lock);
+			waiters_count--;
+			_Lck.unlock();
+			lk.unlock();
+			if (sloppy)
+			{
+				Sleep(1000);
+			}
+			WaitForSingleObject(handle, INFINITE);
+			_Lck.lock();
+		}
+	}
+	void notify_one() {
+		std::lock_guard<Mutex> lk(lock);
+		waiters_count++;
+		ReleaseSemaphore(handle, 1, NULL);
+	}
+private:
+	HANDLE handle;
+	int waiters_count;
+	Mutex lock;
+};
 
 #else // Default case: use STL classes
 
@@ -73,14 +162,11 @@ typedef std::condition_variable ConditionVariable;
 /// adjust it to TH_STACK_SIZE. The implementation calls pthread_create() with
 /// proper stack size parameter.
 
-/// On toolchains where pthread is always available, ensure minimum stack size
-/// instead of relying on linker defaults which may be platform-specific.
-
-#if defined(__APPLE__) || defined(__MINGW32__) || defined(__MINGW64__)
+#if defined(__APPLE__)
 
 #include <pthread.h>
 
-static const size_t TH_STACK_SIZE = 8 * 1024 * 1024;
+static const size_t TH_STACK_SIZE = 2 * 1024 * 1024;
 
 template <class T, class P = std::pair<T*, void(T::*)()>>
 void* start_routine(void* ptr)

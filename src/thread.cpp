@@ -93,7 +93,7 @@ void Thread::start_searching() {
 void Thread::wait_for_search_finished() {
 
   std::unique_lock<Mutex> lk(mutex);
-  cv.wait(lk, [&]{ return !searching; });
+  cv.wait(lk, [&]{ return !searching; }, false);
 }
 
 
@@ -115,7 +115,7 @@ void Thread::idle_loop() {
       std::unique_lock<Mutex> lk(mutex);
       searching = false;
       cv.notify_one(); // Wake up anyone waiting for search finished
-      cv.wait(lk, [&]{ return searching; });
+      cv.wait(lk, [&]{ return searching; }, true);
 
       if (exit)
           return;
