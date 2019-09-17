@@ -352,11 +352,23 @@ namespace {
                 score += RookOnQueenFile;
 
             // Bonus for rook on an open or semi-open file
-            if (pos.is_on_semiopen_file(Us, s))
-                score += RookOnFile[bool(pos.is_on_semiopen_file(Them, s))];
+            bool usInFront   = pos.pieces(Us, PAWN)   & forward_file_bb(Us, s);
+            bool usBehind    = pos.pieces(Us, PAWN)   & forward_file_bb(Them, s);
+            bool themInFront = pos.pieces(Them, PAWN) & forward_file_bb(Us, s);
+            bool themBehind  = pos.pieces(Them, PAWN) & forward_file_bb(Them, s);
+
+            Score bonus = SCORE_ZERO;
+
+            bonus = usInFront   ? SCORE_ZERO :
+                    usBehind    ? SCORE_ZERO :
+                    themInFront ? RookOnFile[0] :
+                    themBehind  ? RookOnFile[0] :
+                                  RookOnFile[1] ;
+
+            score += bonus;
 
             // Penalty when trapped by the king, even more if the king cannot castle
-            else if (mob <= 3)
+            if (bonus == SCORE_ZERO && mob <= 3)
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
