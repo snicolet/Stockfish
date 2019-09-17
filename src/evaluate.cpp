@@ -361,7 +361,7 @@ namespace {
 
             Score bonus = usNone && themNone      ? RookOnFile[1] :
                           usNone                  ? RookOnFile[0] :
-                          usBehind && themInFront ? RookOnFile[0] :
+                          usBehind && !themBehind ? RookOnFile[0] :
                                                     SCORE_ZERO    ;
 
             score += bonus;
