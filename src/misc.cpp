@@ -180,13 +180,6 @@ std::ostream& operator<<(std::ostream& os, SyncCout sc) {
 }
 
 
-inline void hit_any_key() {
-   #ifndef NDEBUG
-       debug << "Hit any key to continue..." << std::endl << std::flush;
-       system("read");   // on Windows, should be system("pause");
-   #endif
-}
-
 /// Trampoline helper to avoid moving Logger to misc.h
 void start_logger(const std::string& fname) { Logger::start(fname); }
 
