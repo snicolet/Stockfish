@@ -62,6 +62,9 @@ std::ostream& operator<<(std::ostream&, SyncCout);
 #define sync_cout std::cout << IO_LOCK
 #define sync_endl std::endl << IO_UNLOCK
 
+/// Debug macro to write to std::cout or do nothing
+#define DEBUG_HANG 1 && sync_cout << "[DEBUG_HANG] "
+
 
 /// xorshift64star Pseudo-Random Number Generator
 /// This class is based on original code written and dedicated

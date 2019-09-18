@@ -22,7 +22,7 @@
 #define THREAD_WIN32_OSX_H_INCLUDED
 
 
-#define USE_CUSTOM_CONDITION_VARIABLE 0
+#define USE_CUSTOM_CONDITION_VARIABLE 1
 
 
 /// STL thread library used by mingw and gcc when cross compiling for Windows
@@ -90,8 +90,7 @@ struct ConditionVariable {
 	template<class _Predicate>
 	void wait(size_t idx, std::unique_lock<Mutex>& _Lck, _Predicate _Pred, long sloppy)
 	{
-	    sync_cout << "[DEBUG_HANG] "
-	              << "Thread " << idx << " entering wait()" << sync_endl;
+	    DEBUG_HANG << "Thread " << idx << " entering wait()" << sync_endl;
 
 		while (!_Pred())
 		{
@@ -101,9 +100,8 @@ struct ConditionVariable {
 			lk.unlock();
 			if (sloppy > 0)
 			{
-			    sync_cout << "[DEBUG_HANG] "
-			              << "Thread " << idx << " will sleep for " << sloppy << "ms in wait()"
-			              << sync_endl;
+			    DEBUG_HANG << "Thread " << idx << " will sleep for " << sloppy << "ms in wait()"
+			               << sync_endl;
 
 				std::this_thread::sleep_for(std::chrono::milliseconds(sloppy));
 			}
@@ -111,21 +109,18 @@ struct ConditionVariable {
 			_Lck.lock();
 		}
 
-		sync_cout << "[DEBUG_HANG] "
-	              << "Thread " << idx << " exiting wait()" << sync_endl;
+		DEBUG_HANG << "Thread " << idx << " exiting wait()" << sync_endl;
 	              
 	}
 	
 	void notify_one(size_t idx) {
-	    sync_cout << "[DEBUG_HANG] "
-	              << "Thread " << idx << " entering notify_one()" << sync_endl;
+	    DEBUG_HANG << "Thread " << idx << " entering notify_one()" << sync_endl;
 
 		std::lock_guard<Mutex> lk(lock);
 		waiters_count++;
 		semaphore.signal(1);
 
-		sync_cout << "[DEBUG_HANG] "
-	              << "Thread " << idx << " exiting notify_one()" << sync_endl;
+		DEBUG_HANG << "Thread " << idx << " exiting notify_one()" << sync_endl;
 	}
 private:
 	Semaphore semaphore;
