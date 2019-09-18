@@ -34,8 +34,10 @@
 #include <condition_variable>
 #include <mutex>
 #include <thread>
+#include <iostream>
 
 #include "sema.h"
+#include "misc.h"
 
 #if defined(_WIN32)// && !defined(_MSC_VER)
 
@@ -69,15 +71,24 @@ typedef std::mutex Mutex;
 #endif
 
 
+#define USE_CUSTOM_CONDITION_VARIABLE 1
+
+
+#if (USE_CUSTOM_CONDITION_VARIABLE)
 
 // This condition variable implementation is the bugged mingw's way
 // We add a sloppy parameter to wait() to make it possible to simulate a sleep there
 struct ConditionVariable {
 	ConditionVariable() { waiters_count = 0; }
 	~ConditionVariable() { }
+
+
 	template<class _Predicate>
 	void wait(size_t idx, std::unique_lock<Mutex>& _Lck, _Predicate _Pred, long sloppy)
 	{
+	    sync_cout << "[DEBUG_HANG] "
+	              << "Thread " << idx << " entering wait()" << sync_endl;
+
 		while (!_Pred())
 		{
 			std::unique_lock<Mutex> lk(lock);
@@ -86,16 +97,31 @@ struct ConditionVariable {
 			lk.unlock();
 			if (sloppy > 0)
 			{
+			    sync_cout << "[DEBUG_HANG] "
+			              << "Thread " << idx << " will sleep for " << sloppy << "ms in wait()"
+			              << sync_endl;
+
 				std::this_thread::sleep_for(std::chrono::milliseconds(sloppy));
 			}
 			semaphore.wait();
 			_Lck.lock();
 		}
+
+		sync_cout << "[DEBUG_HANG] "
+	              << "Thread " << idx << " exiting wait()" << sync_endl;
+	              
 	}
+	
 	void notify_one(size_t idx) {
+	    sync_cout << "[DEBUG_HANG] "
+	              << "Thread " << idx << " entering notify_one()" << sync_endl;
+
 		std::lock_guard<Mutex> lk(lock);
 		waiters_count++;
 		semaphore.signal(1);
+
+		sync_cout << "[DEBUG_HANG] "
+	              << "Thread " << idx << " exiting notify_one()" << sync_endl;
 	}
 private:
 	Semaphore semaphore;
@@ -103,10 +129,13 @@ private:
 	Mutex lock;
 };
 
+#else
 
+   typedef std::condition_variable ConditionVariable;
+   #define wait(idx, lock, pred, sloppy)  wait((lock),(pred))
+   #define notify_one(idx)  notify_one()
 
-
-
+#endif  // if (USE_CUSTOM_CONDITION_VARIABLE)
 
 
 
