@@ -76,7 +76,7 @@ struct ConditionVariable {
 	ConditionVariable() { waiters_count = 0; }
 	~ConditionVariable() { }
 	template<class _Predicate>
-	void wait(std::unique_lock<Mutex>& _Lck, _Predicate _Pred, long sloppy)
+	void wait(size_t idx, std::unique_lock<Mutex>& _Lck, _Predicate _Pred, long sloppy)
 	{
 		while (!_Pred())
 		{
@@ -92,7 +92,7 @@ struct ConditionVariable {
 			_Lck.lock();
 		}
 	}
-	void notify_one() {
+	void notify_one(size_t idx) {
 		std::lock_guard<Mutex> lk(lock);
 		waiters_count++;
 		semaphore.signal(1);

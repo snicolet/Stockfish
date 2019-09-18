@@ -83,7 +83,7 @@ void Thread::start_searching() {
 
   std::lock_guard<Mutex> lk(mutex);
   searching = true;
-  cv.notify_one(); // Wake up the thread in idle_loop()
+  cv.notify_one(this->thread_index()); // Wake up the thread in idle_loop()
 }
 
 
@@ -93,7 +93,7 @@ void Thread::start_searching() {
 void Thread::wait_for_search_finished() {
 
   std::unique_lock<Mutex> lk(mutex);
-  cv.wait(lk, [&]{ return !searching; }, 0);
+  cv.wait(this->thread_index(), lk, [&]{ return !searching; }, 0);
 }
 
 
@@ -114,8 +114,8 @@ void Thread::idle_loop() {
   {
       std::unique_lock<Mutex> lk(mutex);
       searching = false;
-      cv.notify_one(); // Wake up anyone waiting for search finished
-      cv.wait(lk, [&]{ return searching; }, 1000);
+      cv.notify_one(this->thread_index()); // Wake up anyone waiting for search finished
+      cv.wait(this->thread_index(), lk, [&]{ return searching; }, 1000);
 
       if (exit)
           return;
