@@ -35,6 +35,8 @@ namespace PSQT {
 
 int main(int argc, char* argv[]) {
 
+  DEBUG_HANG << "entering main()..." << sync_endl;
+
   std::cout << engine_info() << std::endl;
 
   UCI::init(Options);
@@ -50,5 +52,8 @@ int main(int argc, char* argv[]) {
   UCI::loop(argc, argv);
 
   Threads.set(0);
+  
+  DEBUG_HANG << "exiting main()..." << sync_endl;
+  
   return 0;
 }

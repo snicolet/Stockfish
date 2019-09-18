@@ -67,10 +67,18 @@ private:
   CRITICAL_SECTION cs;
 };
 
+  #if (!USE_CUSTOM_CONDITION_VARIABLE)
+     typedef std::condition_variable_any ConditionVariable;
+  #endif
+     
 
 #else // Default case: use STL classes
 
 typedef std::mutex Mutex;
+
+  #if (!USE_CUSTOM_CONDITION_VARIABLE)
+     typedef std::condition_variable ConditionVariable;
+  #endif
 
 #endif
 
@@ -130,7 +138,6 @@ private:
 
 #else
 
-   typedef std::condition_variable ConditionVariable;
    #define wait(idx, lock, pred, sloppy)  wait((lock),(pred))
    #define notify_one(idx)  notify_one()
 
