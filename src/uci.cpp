@@ -159,7 +159,7 @@ namespace {
         {
             cerr << "\nPosition: " << cnt++ << '/' << num << endl;
             go(pos, is, states);
-            Threads.main()->wait_for_search_finished();
+            Threads.main()->wait_for_search_finished("bench()");
             nodes += Threads.nodes_searched();
         }
         else if (token == "setoption")  setoption(is);

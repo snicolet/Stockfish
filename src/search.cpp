@@ -201,10 +201,13 @@ void Search::init() {
 void Search::clear() {
 
   sync_cout << "[DEBUG_HANG] "
+            << "entering Search::clear... " << sync_endl; 
+
+  sync_cout << "[DEBUG_HANG] "
             << "Search::clear "
             << "is calling wait_for_search_finished() for main thread..." << sync_endl; 
             
-  Threads.main()->wait_for_search_finished();
+  Threads.main()->wait_for_search_finished("Search::clear");
   
   sync_cout << "[DEBUG_HANG] "
             << "Search::clear "
@@ -214,6 +217,9 @@ void Search::clear() {
   TT.clear();
   Threads.clear();
   Tablebases::init(Options["SyzygyPath"]); // Free mapped files
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "exiting Search::clear... " << sync_endl; 
 }
 
 
@@ -275,7 +281,8 @@ void MainThread::search() {
           sync_cout << "[DEBUG_HANG] "
                     << "Thread " << this->thread_index() << " "
                     << "waiting for thread " << th->thread_index() << " to finish "  << sync_endl;
-          th->wait_for_search_finished();
+                    
+          th->wait_for_search_finished("MainThread::search");
       }
 
   // When playing in 'nodes as time' mode, subtract the searched nodes from

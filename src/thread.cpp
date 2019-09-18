@@ -37,14 +37,20 @@ ThreadPool Threads; // Global object
 Thread::Thread(size_t n) : idx(n), stdThread(&Thread::idle_loop, this) {
 
   sync_cout << "[DEBUG_HANG] "
+            << "Entering constructor of thread " << this->thread_index() << "... " << sync_endl;
+
+  sync_cout << "[DEBUG_HANG] "
             << "Constructor of thread " << this->thread_index() << " "
             << "is calling wait_for_search_finished()..." << sync_endl; 
                 
-  wait_for_search_finished();
+  wait_for_search_finished("constructor");
   
   sync_cout << "[DEBUG_HANG] "
             << "Constructor of thread " << this->thread_index() << " "
             << "is after the call of wait_for_search_finished()..." << sync_endl; 
+
+  sync_cout << "[DEBUG_HANG] "
+            << "Exiting constructor of thread " << this->thread_index() << "... " << sync_endl;
 }
 
 
@@ -53,11 +59,23 @@ Thread::Thread(size_t n) : idx(n), stdThread(&Thread::idle_loop, this) {
 
 Thread::~Thread() {
 
+  sync_cout << "[DEBUG_HANG] "
+            << "Entering destructor of thread " << this->thread_index() << "... " << sync_endl; 
+
   assert(!searching);
+  
+  
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "Destructor of thread " << this->thread_index() << " "
+            << "is raising the exit flag..." << sync_endl; 
 
   exit = true;
   start_searching();
   stdThread.join();
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "Exiting destructor of thread " << this->thread_index() << "... " << sync_endl; 
 }
 
 /// Thread::bestMoveCount(Move move) return best move counter for the given root move
@@ -109,13 +127,13 @@ void Thread::start_searching() {
 /// Thread::wait_for_search_finished() blocks on the condition variable
 /// until the thread has finished searching.
 
-void Thread::wait_for_search_finished() {
+void Thread::wait_for_search_finished(std::string s) {
 
   std::unique_lock<Mutex> lk(mutex);
   
   sync_cout << "[DEBUG_HANG] "
             << "Thread " << this->thread_index() << " "
-            << "is entering wait_for_search_finished()..." << sync_endl; 
+            << "is entering wait_for_search_finished(), called by " << s << sync_endl; 
   
   sync_cout << "[DEBUG_HANG] "
             << "Thread " << this->thread_index() << " "
@@ -131,7 +149,7 @@ void Thread::wait_for_search_finished() {
   
   sync_cout << "[DEBUG_HANG] "
             << "Thread " << this->thread_index() << " "
-            << "is existing wait_for_search_finished()..." << sync_endl; 
+            << "is existing wait_for_search_finished(), called by " << s << sync_endl; 
 }
 
 
@@ -182,7 +200,12 @@ void Thread::idle_loop() {
                 << ", searching = " << searching << sync_endl;
 
       if (exit)
+      {
+          sync_cout << "[DEBUG_HANG] "
+                    << "Thread " << this->thread_index() << " "
+                    << "exiting idle_loop() because exit flag is true..." << sync_endl;
           return;
+      }
 
       lk.unlock();
 
@@ -200,13 +223,16 @@ void Thread::idle_loop() {
 
 void ThreadPool::set(size_t requested) {
 
+  sync_cout << "[DEBUG_HANG] "
+            << "entering ThreadPool::set with requested = " << requested << sync_endl;
+
   if (size() > 0) { // destroy any existing thread(s)
   
       sync_cout << "[DEBUG_HANG] "
                 << "ThreadPool::set has size() >0 and "
                 << "is calling wait_for_search_finished() for the main thread..." << sync_endl;
                 
-      main()->wait_for_search_finished();
+      main()->wait_for_search_finished("ThreadPool::set (1)");
       
       sync_cout << "[DEBUG_HANG] "
                 << "ThreadPool::set has size() > 0 and "
@@ -237,6 +263,9 @@ void ThreadPool::set(size_t requested) {
       // Reallocate the hash with the new threadpool size
       TT.resize(Options["Hash"]);
   }
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "exiting ThreadPool::set with requested = " << requested << sync_endl;
 }
 
 /// ThreadPool::clear() sets threadPool data to initial values.
@@ -261,7 +290,7 @@ void ThreadPool::start_thinking(Position& pos, StateListPtr& states,
             << "ThreadPool::start_thinking "
             << "is calling wait_for_search_finished() for the main thread..." << sync_endl;
                 
-  main()->wait_for_search_finished();
+  main()->wait_for_search_finished("ThreadPool::start_thinking");
   
   sync_cout << "[DEBUG_HANG] "
             << "ThreadPool::start_thinking "

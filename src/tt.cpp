@@ -63,7 +63,7 @@ void TTEntry::save(Key k, Value v, bool pv, Bound b, Depth d, Move m, Value ev) 
 
 void TranspositionTable::resize(size_t mbSize) {
 
-  Threads.main()->wait_for_search_finished();
+  Threads.main()->wait_for_search_finished("TranspositionTable::resize");
 
   clusterCount = mbSize * 1024 * 1024 / sizeof(Cluster);
 
