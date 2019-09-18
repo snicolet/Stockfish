@@ -21,6 +21,10 @@
 #ifndef THREAD_WIN32_OSX_H_INCLUDED
 #define THREAD_WIN32_OSX_H_INCLUDED
 
+
+#define USE_CUSTOM_CONDITION_VARIABLE 1
+
+
 /// STL thread library used by mingw and gcc when cross compiling for Windows
 /// relies on libwinpthread. Currently libwinpthread implements mutexes directly
 /// on top of Windows semaphores. Semaphores, being kernel objects, require kernel
@@ -71,7 +75,7 @@ typedef std::mutex Mutex;
 #endif
 
 
-#define USE_CUSTOM_CONDITION_VARIABLE 0
+
 
 
 #if (USE_CUSTOM_CONDITION_VARIABLE)
