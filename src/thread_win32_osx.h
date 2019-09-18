@@ -35,6 +35,8 @@
 #include <mutex>
 #include <thread>
 
+#include "sema.h"
+
 #if defined(_WIN32)// && !defined(_MSC_VER)
 
 #ifndef NOMINMAX
@@ -58,72 +60,23 @@ struct Mutex {
 private:
   CRITICAL_SECTION cs;
 };
-/*
-#include <map>
-struct ConditionVariable {
-	ConditionVariable() {}
-	~ConditionVariable() {}
-	template<class _Predicate>
-	void wait(std::unique_lock<Mutex>& _Lck, _Predicate _Pred, bool sloppy)
-	{
-		while (!_Pred())
-		{
-			// correct way is to take internal lock here instead of below
-			//std::unique_lock<Mutex> lk(lock);
-			_Lck.unlock();
-			if (sloppy)
-			{
-				Sleep(1000);
-			}
-			// wrong way is to take internal lock here(my own failed implementation)
-			std::unique_lock<Mutex> lk(lock);
-			HANDLE myhandle = INVALID_HANDLE_VALUE;
-			std::map<DWORD, HANDLE>::iterator iter = waiters.find(GetCurrentThreadId());
-			if (iter != waiters.end())
-			{
-				myhandle = iter->second;
-			}
-			else
-			{
-				myhandle = CreateEvent(NULL, FALSE, FALSE, NULL);
-				waiters.insert(std::make_pair(GetCurrentThreadId(), myhandle));
-			}
-			lk.unlock();
-			WaitForSingleObject(myhandle, INFINITE);
-			CloseHandle(myhandle);
-			_Lck.lock();
-		}
-	}
-	void notify_one() {
-		std::lock_guard<Mutex> lk(lock);
-		std::map<DWORD, HANDLE>::iterator iter = waiters.begin();
-		if (iter != waiters.end())
-		{
-			SetEvent(iter->second);
-			waiters.erase(iter);
-		}
-	}
-	void notify_all() {
-		std::lock_guard<Mutex> lk(lock);
-		std::map<DWORD, HANDLE>::iterator iter = waiters.begin();
-		while (iter != waiters.end())
-		{
-			SetEvent(iter->second);
-			iter = waiters.erase(iter);
-		}
-	}
-private:
-	std::map<DWORD, HANDLE> waiters;
-	Mutex lock;
-};
-*/
 
-// this is the bugged mingw's way
+
+#else // Default case: use STL classes
+
+typedef std::mutex Mutex;
+
+#endif
+
+
+
+// This condition variable implementation is the bugged mingw's way
+// We add a sloppy parameter to wait() to make it possible to simulate a sleep there
 struct ConditionVariable {
-	ConditionVariable() { handle = CreateSemaphore(NULL, 0, 512, NULL); waiters_count = 0; }
-	~ConditionVariable() { CloseHandle(handle); }
+	ConditionVariable() { waiters_count = 0; }
+	~ConditionVariable() { }
 	template<class _Predicate>
-	void wait(std::unique_lock<Mutex>& _Lck, _Predicate _Pred, bool sloppy)
+	void wait(std::unique_lock<Mutex>& _Lck, _Predicate _Pred, long sloppy)
 	{
 		while (!_Pred())
 		{
@@ -131,31 +84,31 @@ struct ConditionVariable {
 			waiters_count--;
 			_Lck.unlock();
 			lk.unlock();
-			if (sloppy)
+			if (sloppy > 0)
 			{
-				Sleep(1000);
+				std::this_thread::sleep_for(std::chrono::milliseconds(sloppy));
 			}
-			WaitForSingleObject(handle, INFINITE);
+			semaphore.wait();
 			_Lck.lock();
 		}
 	}
 	void notify_one() {
 		std::lock_guard<Mutex> lk(lock);
 		waiters_count++;
-		ReleaseSemaphore(handle, 1, NULL);
+		semaphore.signal(1);
 	}
 private:
-	HANDLE handle;
+	Semaphore semaphore;
 	int waiters_count;
 	Mutex lock;
 };
 
-#else // Default case: use STL classes
 
-typedef std::mutex Mutex;
-typedef std::condition_variable ConditionVariable;
 
-#endif
+
+
+
+
 
 /// On OSX threads other than the main thread are created with a reduced stack
 /// size of 512KB by default, this is dangerously low for deep searches, so
