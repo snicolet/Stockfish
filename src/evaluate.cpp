@@ -357,13 +357,15 @@ namespace {
             bool usNone      = !(pos.pieces(Us, PAWN) & file_bb(s));
             bool themNone    = !(pos.pieces(Them, PAWN) & file_bb(s));
 
-            score += usNone && themNone      ? RookOnFile[1] :
-                     usNone                  ? RookOnFile[0] :
-                     usBehind && !themBehind ? RookOnFile[0] :
-                                               SCORE_ZERO    ;
+            Score bonus = usNone && themNone      ? RookOnFile[1] :
+                          usNone                  ? RookOnFile[0] :
+                          usBehind && !themBehind ? RookOnFile[0] :
+                                                    SCORE_ZERO    ;
+
+            score += bonus;
 
             // Penalty when trapped by the king, even more if the king cannot castle
-            if (mob <= 3)
+            if (bonus == SCORE_ZERO && mob <= 2)
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
