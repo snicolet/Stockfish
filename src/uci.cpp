@@ -191,7 +191,7 @@ void UCI::loop(int argc, char* argv[]) {
   Position pos;
   string token, cmd;
   StateListPtr states(new std::deque<StateInfo>(1));
-  auto uiThread = std::make_shared<Thread>(0);
+  auto uiThread = std::make_shared<Thread>(999999, "UCI::loop");
 
   pos.set(StartFEN, false, &states->back(), uiThread.get());
 

@@ -293,6 +293,9 @@ int best_group(size_t idx) {
 
 void bindThisThread(size_t idx) {
 
+  if (idx >= 100000)
+      return;
+
   // Use only local variables to be thread-safe
   int group = best_group(idx);
 

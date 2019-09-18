@@ -49,7 +49,7 @@ class Thread {
   NativeThread stdThread;
 
 public:
-  explicit Thread(size_t);
+  explicit Thread(size_t n, std::string s);
   virtual ~Thread();
   virtual void search();
   void clear();

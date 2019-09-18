@@ -34,10 +34,11 @@ ThreadPool Threads; // Global object
 /// Thread constructor launches the thread and waits until it goes to sleep
 /// in idle_loop(). Note that 'searching' and 'exit' should be already set.
 
-Thread::Thread(size_t n) : idx(n), stdThread(&Thread::idle_loop, this) {
+Thread::Thread(size_t n, std::string s) : idx(n), stdThread(&Thread::idle_loop, this) {
 
   sync_cout << "[DEBUG_HANG] "
-            << "Entering constructor of thread " << this->thread_index() << "... " << sync_endl;
+            << "Entering constructor of thread " << this->thread_index() 
+            << ", called by " << s << "... " << sync_endl;
 
   sync_cout << "[DEBUG_HANG] "
             << "Constructor of thread " << this->thread_index() << " "
@@ -50,7 +51,8 @@ Thread::Thread(size_t n) : idx(n), stdThread(&Thread::idle_loop, this) {
             << "is after the call of wait_for_search_finished()..." << sync_endl; 
 
   sync_cout << "[DEBUG_HANG] "
-            << "Exiting constructor of thread " << this->thread_index() << "... " << sync_endl;
+            << "Exiting constructor of thread " << this->thread_index()
+            << ", called by " << s << "... " << sync_endl;
 }
 
 
@@ -192,7 +194,7 @@ void Thread::idle_loop() {
                 << "is calling cv.wait() in idle_loop()"
                 << ", searching = " << searching << sync_endl;
       
-      cv.wait(this->thread_index(), lk, [&]{ return searching; }, 0);
+      cv.wait(this->thread_index(), lk, [&]{ return searching; }, 1000);
       
       sync_cout << "[DEBUG_HANG] "
                 << "Thread " << this->thread_index() << " "
@@ -224,7 +226,8 @@ void Thread::idle_loop() {
 void ThreadPool::set(size_t requested) {
 
   sync_cout << "[DEBUG_HANG] "
-            << "entering ThreadPool::set with requested = " << requested << sync_endl;
+            << "entering ThreadPool::set "
+            << "with requested = " << requested << " and size = " << size() << sync_endl;
 
   if (size() > 0) { // destroy any existing thread(s)
   
@@ -232,7 +235,7 @@ void ThreadPool::set(size_t requested) {
                 << "ThreadPool::set has size() >0 and "
                 << "is calling wait_for_search_finished() for the main thread..." << sync_endl;
                 
-      main()->wait_for_search_finished("ThreadPool::set (1)");
+      main()->wait_for_search_finished("ThreadPool::set (case 1)");
       
       sync_cout << "[DEBUG_HANG] "
                 << "ThreadPool::set has size() > 0 and "
@@ -248,7 +251,7 @@ void ThreadPool::set(size_t requested) {
                 << "ThreadPool::set has requested > 0 and "
                 << "is constructing the main thread..." << sync_endl;
   
-      push_back(new MainThread(0));
+      push_back(new MainThread(0, "ThreadPool::set (case 2)"));
 
       while (size() < requested)
       {
@@ -256,7 +259,7 @@ void ThreadPool::set(size_t requested) {
                     << "ThreadPool::set has requested > 0 and "
                     << "is constructing the thread number " << size() << "..." << sync_endl;
 
-          push_back(new Thread(size()));
+          push_back(new Thread(size(), "ThreadPool::set (case 3)"));
       }
       clear();
 
