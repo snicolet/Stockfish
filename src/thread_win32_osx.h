@@ -71,7 +71,7 @@ typedef std::mutex Mutex;
 #endif
 
 
-#define USE_CUSTOM_CONDITION_VARIABLE 1
+#define USE_CUSTOM_CONDITION_VARIABLE 0
 
 
 #if (USE_CUSTOM_CONDITION_VARIABLE)

@@ -36,7 +36,15 @@ ThreadPool Threads; // Global object
 
 Thread::Thread(size_t n) : idx(n), stdThread(&Thread::idle_loop, this) {
 
+  sync_cout << "[DEBUG_HANG] "
+            << "Constructor of thread " << this->thread_index() << " "
+            << "is calling wait_for_search_finished()..." << sync_endl; 
+                
   wait_for_search_finished();
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "Constructor of thread " << this->thread_index() << " "
+            << "is after the call of wait_for_search_finished()..." << sync_endl; 
 }
 
 
@@ -83,7 +91,18 @@ void Thread::start_searching() {
 
   std::lock_guard<Mutex> lk(mutex);
   searching = true;
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "Thread " << this->thread_index() << " "
+            << "is calling notify_one() in start_searching()"
+            << ", searching = " << searching << sync_endl;
+            
   cv.notify_one(this->thread_index()); // Wake up the thread in idle_loop()
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "Thread " << this->thread_index() << " "
+            << "is after notify_one() in start_searching()"  
+            << ", searching = " << searching << sync_endl;
 }
 
 
@@ -93,7 +112,26 @@ void Thread::start_searching() {
 void Thread::wait_for_search_finished() {
 
   std::unique_lock<Mutex> lk(mutex);
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "Thread " << this->thread_index() << " "
+            << "is entering wait_for_search_finished()..." << sync_endl; 
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "Thread " << this->thread_index() << " "
+            << "is calling cv.wait() in wait_for_search_finished()"
+            << ", searching = " << searching << sync_endl;
+                
   cv.wait(this->thread_index(), lk, [&]{ return !searching; }, 0);
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "Thread " << this->thread_index() << " "
+            << "is after cv.wait() in wait_for_search_finished()"
+            << ", searching = " << searching << sync_endl;
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "Thread " << this->thread_index() << " "
+            << "is existing wait_for_search_finished()..." << sync_endl; 
 }
 
 
@@ -101,6 +139,10 @@ void Thread::wait_for_search_finished() {
 /// condition variable, when it has no work to do.
 
 void Thread::idle_loop() {
+
+  sync_cout << "[DEBUG_HANG] "
+            << "Thread " << this->thread_index() << " "
+            << "is entering idle_loop()..." << sync_endl;
 
   // If OS already scheduled us on a different group than 0 then don't overwrite
   // the choice, eventually we are one of many one-threaded processes running on
@@ -114,8 +156,30 @@ void Thread::idle_loop() {
   {
       std::unique_lock<Mutex> lk(mutex);
       searching = false;
+      
+      sync_cout << "[DEBUG_HANG] "
+                << "Thread " << this->thread_index() << " "
+                << "is calling notify_one() in idle_loop()"
+                << ", searching = " << searching << sync_endl;
+      
       cv.notify_one(this->thread_index()); // Wake up anyone waiting for search finished
+      
+      sync_cout << "[DEBUG_HANG] "
+                << "Thread " << this->thread_index() << " "
+                << "is after notify_one() in idle_loop()"
+                << ", searching = " << searching << sync_endl;
+      
+      sync_cout << "[DEBUG_HANG] "
+                << "Thread " << this->thread_index() << " "
+                << "is calling cv.wait() in idle_loop()"
+                << ", searching = " << searching << sync_endl;
+      
       cv.wait(this->thread_index(), lk, [&]{ return searching; }, 0);
+      
+      sync_cout << "[DEBUG_HANG] "
+                << "Thread " << this->thread_index() << " "
+                << "is after cv.wait() in idle_loop()"
+                << ", searching = " << searching << sync_endl;
 
       if (exit)
           return;
@@ -124,6 +188,10 @@ void Thread::idle_loop() {
 
       search();
   }
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "Thread " << this->thread_index() << " "
+            << "exiting idle_loop()..." << sync_endl;
 }
 
 /// ThreadPool::set() creates/destroys threads to match the requested number.
@@ -133,17 +201,37 @@ void Thread::idle_loop() {
 void ThreadPool::set(size_t requested) {
 
   if (size() > 0) { // destroy any existing thread(s)
+  
+      sync_cout << "[DEBUG_HANG] "
+                << "ThreadPool::set has size() >0 and "
+                << "is calling wait_for_search_finished() for the main thread..." << sync_endl;
+                
       main()->wait_for_search_finished();
+      
+      sync_cout << "[DEBUG_HANG] "
+                << "ThreadPool::set has size() > 0 and "
+                << "is after the call to wait_for_search_finished() for the main thread..." << sync_endl;
 
       while (size() > 0)
           delete back(), pop_back();
   }
 
   if (requested > 0) { // create new thread(s)
+      
+      sync_cout << "[DEBUG_HANG] "
+                << "ThreadPool::set has requested > 0 and "
+                << "is constructing the main thread..." << sync_endl;
+  
       push_back(new MainThread(0));
 
       while (size() < requested)
+      {
+          sync_cout << "[DEBUG_HANG] "
+                    << "ThreadPool::set has requested > 0 and "
+                    << "is constructing the thread number " << size() << "..." << sync_endl;
+
           push_back(new Thread(size()));
+      }
       clear();
 
       // Reallocate the hash with the new threadpool size
@@ -169,7 +257,15 @@ void ThreadPool::clear() {
 void ThreadPool::start_thinking(Position& pos, StateListPtr& states,
                                 const Search::LimitsType& limits, bool ponderMode) {
 
+  sync_cout << "[DEBUG_HANG] "
+            << "ThreadPool::start_thinking "
+            << "is calling wait_for_search_finished() for the main thread..." << sync_endl;
+                
   main()->wait_for_search_finished();
+  
+  sync_cout << "[DEBUG_HANG] "
+            << "ThreadPool::start_thinking "
+            << "is calling wait_for_search_finished() for the main thread..." << sync_endl;
 
   main()->stopOnPonderhit = stop = false;
   main()->ponder = ponderMode;

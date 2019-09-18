@@ -55,7 +55,7 @@ public:
   void clear();
   void idle_loop();
   void start_searching();
-  void wait_for_search_finished();
+  void wait_for_search_finished(std::string s);
   int best_move_count(Move move);
   size_t thread_index() {return idx;};
 
