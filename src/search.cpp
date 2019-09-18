@@ -338,6 +338,8 @@ void MainThread::search() {
 
 void Thread::search() {
 
+  DEBUG_HANG << "Thread " << this->thread_index() << " entering Thread::search()..." << sync_endl;
+
   // To allow access to (ss-7) up to (ss+2), the stack must be oversized.
   // The former is needed to allow update_continuation_histories(ss-1, ...),
   // which accesses its argument at ss-6, also near the root.
@@ -567,8 +569,8 @@ void Thread::search() {
                   mainThread->stopOnPonderhit = true;
               else
               {
-                  //DEBUG_HANG << "Thread " << idx << " stops the search because available time elapsed" << sync_endl;
-                  //Threads.stop = true;
+                  DEBUG_HANG << "Thread " << idx << " raises the stop flag because available time elapsed" << sync_endl;
+                  Threads.stop = true;
               }
           }
       }
@@ -576,6 +578,8 @@ void Thread::search() {
 
   if (rootDepth >= maximum_depth)
       DEBUG_HANG << "Thread " << idx << " has reached its maximum depth " << maximum_depth << sync_endl;
+
+  DEBUG_HANG << "Thread " << this->thread_index() << " exiting Thread::search()..." << sync_endl;
 
   if (!mainThread)
       return;

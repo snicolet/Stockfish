@@ -209,7 +209,11 @@ void UCI::loop(int argc, char* argv[]) {
 
       if (    token == "quit"
           ||  token == "stop")
+      {
+          DEBUG_HANG << "UCI thread raises the stop flag "
+                     << "because it has received token " << token << sync_endl;
           Threads.stop = true;
+      }
 
       // The GUI sends 'ponderhit' to tell us the user has played the expected move.
       // So 'ponderhit' will be sent if we were told to ponder on the same move the
