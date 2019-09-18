@@ -175,6 +175,8 @@ void Thread::idle_loop() {
       DEBUG_HANG << "Thread " << this->thread_index() << " "
                  << "is calling cv.wait() in idle_loop()"
                  << ", searching = " << searching << sync_endl;
+                 
+      // std::this_thread::sleep_for(std::chrono::milliseconds(10000));
       
       cv.wait(this->thread_index(), lk, [&]{ return searching; }, 1000);
       
