@@ -104,9 +104,6 @@ template<GenType Type>
 void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
-  
-  Bitboard riskySquares = (pos.side_to_move() == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN))
-                                                       : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)));
 
   for (auto& m : *this)
       if (Type == CAPTURES)
@@ -119,7 +116,7 @@ void MovePicker::score() {
                    + (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    + (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    + (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)] / 2
-                   - 16 * !!(riskySquares & to_sq(m));
+                   + 64 * (type_of(pos.moved_piece(m)) == PAWN);
 
       else // Type == EVASIONS
       {
