@@ -89,7 +89,9 @@ void Thread::start_searching() {
 
 void Thread::wait_for_search_finished() {
   while (searching)
+  {
       std::this_thread::yield();
+  }
 }
 
 
