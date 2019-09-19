@@ -90,6 +90,7 @@ void Thread::start_searching() {
 void Thread::wait_for_search_finished() {
   while (searching)
   {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
       std::this_thread::yield();
   }
 }
@@ -113,7 +114,10 @@ void Thread::idle_loop() {
       searching = false;
 
       while (!searching)
+      {
+          std::this_thread::sleep_for(std::chrono::milliseconds(1));
           std::this_thread::yield();
+      }
 
       if (exit)
           return;
