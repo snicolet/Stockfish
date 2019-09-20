@@ -114,7 +114,7 @@ void MovePicker::score() {
           if (   depth >= 3 * ONE_PLY
               && pos.legal(m.move)
               && pos.gives_check(m.move))
-              m.value += 10000;
+              m.value += 5000;
       }
 
       else if (Type == QUIETS)
