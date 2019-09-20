@@ -174,7 +174,7 @@ top:
 
   case GOOD_CAPTURE:
       if (select<Best>([&](){
-                       return pos.see_ge(*cur, Value(std::min(100 , -55 * cur->value / 1024))) ?
+                       return pos.see_ge(*cur, Value(std::min(0 , -55 * cur->value / 1024))) ?
                               // Move losing capture to endBadCaptures to be tried later
                               true : (*endBadCaptures++ = *cur, false); }))
           return *(cur - 1);
