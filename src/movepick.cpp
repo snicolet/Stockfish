@@ -174,10 +174,9 @@ top:
 
   case GOOD_CAPTURE:
       if (select<Best>([&](){
-                       return pos.see_ge(*cur, Value(std::min(int(BishopValueMg - KnightValueMg), 
-                                                              -55 * cur->value / 1024)))
+                       return pos.see_ge(*cur, Value(std::min(100, -40 * cur->value / 1024))) ?
                               // Move losing capture to endBadCaptures to be tried later
-                              ? true : (*endBadCaptures++ = *cur, false); }))
+                              true : (*endBadCaptures++ = *cur, false); }))
           return *(cur - 1);
 
       // Prepare the pointers to loop over the refutations array
