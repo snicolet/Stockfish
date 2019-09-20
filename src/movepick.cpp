@@ -114,7 +114,7 @@ void MovePicker::score() {
           if (   depth >= 3 * ONE_PLY
               && pos.legal(m.move)
               && pos.gives_check(m.move))
-              m.value += 20000;
+              m.value += 1024;
       }
 
       else if (Type == QUIETS)
@@ -181,7 +181,7 @@ top:
 
   case GOOD_CAPTURE:
       if (select<Best>([&](){
-                       return pos.see_ge(*cur, Value(-55 * cur->value / 1024)) ?
+                       return pos.see_ge(*cur, Value(55 - 55 * cur->value / 1024)) ?
                               // Move losing capture to endBadCaptures to be tried later
                               true : (*endBadCaptures++ = *cur, false); }))
           return *(cur - 1);
