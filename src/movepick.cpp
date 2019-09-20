@@ -19,10 +19,8 @@
 */
 
 #include <cassert>
-#include <iostream>
 
 #include "movepick.h"
-#include "misc.h"
 
 namespace {
 
@@ -58,7 +56,7 @@ namespace {
 /// ordering is at the current node.
 
 /// MovePicker constructor for the main search
-MovePicker::MovePicker( Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
+MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                        const CapturePieceToHistory* cph, const PieceToHistory** ch, Move cm, Move* killers)
            : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch),
              refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d) {
@@ -71,7 +69,7 @@ MovePicker::MovePicker( Position& p, Move ttm, Depth d, const ButterflyHistory* 
 }
 
 /// MovePicker constructor for quiescence search
-MovePicker::MovePicker( Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
+MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                        const CapturePieceToHistory* cph, const PieceToHistory** ch, Square rs)
            : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), recaptureSquare(rs), depth(d) {
 
@@ -86,7 +84,7 @@ MovePicker::MovePicker( Position& p, Move ttm, Depth d, const ButterflyHistory* 
 
 /// MovePicker constructor for ProbCut: we generate captures with SEE greater
 /// than or equal to the given threshold.
-MovePicker::MovePicker( Position& p, Move ttm, Depth d, Value th, const CapturePieceToHistory* cph)
+MovePicker::MovePicker(const Position& p, Move ttm, Depth d, Value th, const CapturePieceToHistory* cph)
            : pos(p), captureHistory(cph), threshold(th), depth(d) {
 
   assert(!pos.checkers());
@@ -106,37 +104,17 @@ template<GenType Type>
 void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
-  
-//   if (   depth >= 3 * ONE_PLY
-//       && Type == CAPTURES
-//       && 0)
-//       std::cerr << pos << std::endl;
 
   for (auto& m : *this)
       if (Type == CAPTURES)
       {
           m.value =  int(PieceValue[MG][pos.piece_on(to_sq(m))]) * 6
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
-        
-//           bool check = pos.gives_check(m.move);
-//                
-//           if (   0
-//               && depth >= 3 * ONE_PLY
-//               && pos.legal(m.move)
-//               && pos.gives_check(m.move)
-//               )
-//           {
-//               StateInfo st;
-//             
-//               pos.do_move(m.move, st);
-//
-//               dbg_mean_of(check == bool(pos.checkers()));
-//               
-//               if (pos.checkers())
-//                   std::cerr << pos << std::endl;
-//               
-//               pos.undo_move(m.move);
-//           }
+
+          if (   depth >= 3 * ONE_PLY
+              && pos.legal(m.move)
+              && pos.gives_check(m.move))
+              m.value += 10000;
       }
 
       else if (Type == QUIETS)
@@ -156,12 +134,6 @@ void MovePicker::score() {
                        + (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                        - (1 << 28);
       }
-
-//     if (   depth >= 3 * ONE_PLY
-//       && Type == CAPTURES
-//       && 0)
-//     std::cerr << "=======================================================" << std::endl;
-
 }
 
 /// MovePicker::select() returns the next move satisfying a predicate function.
