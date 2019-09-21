@@ -743,7 +743,7 @@ namespace {
                        -103 ;
 
     int mg_complexity =  std::min(eg_complexity + 50, 0)
-                       + 16 * (horizontalDistance >= 4);
+                       + 32 * (horizontalDistance >= 4);
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
