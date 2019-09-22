@@ -739,12 +739,12 @@ namespace {
                        + 11 * pos.count<PAWN>()
                        +  9 * outflanking
                        + 18 * pawnsOnBothFlanks
-                       + 49 * !pos.non_pawn_material()
+                       + 64 * !pos.non_pawn_material()
+                       +  3 * (artillery - 12)
                        - 36 * almostUnwinnable
                        -103 ;
 
-    int mg_complexity =   std::min(eg_complexity + 50, 0)
-                        + 3 * (artillery - 12);
+    int mg_complexity = std::min(eg_complexity + 50, 0);
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
