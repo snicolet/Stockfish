@@ -734,16 +734,16 @@ namespace {
 
     // Compute the initiative bonus for the attacking side
     int eg_complexity =   9 * pe->passed_count()
-                    + 11 * pos.count<PAWN>()
-                    +  9 * outflanking
-                    + 18 * pawnsOnBothFlanks
-                    + 49 * !pos.non_pawn_material()
-                    - 36 * almostUnwinnable
-                    -103 
-                    + eg_value(pos.this_thread()->contempt) / 2;
+                       + 11 * pos.count<PAWN>()
+                       +  9 * outflanking
+                       + 18 * pawnsOnBothFlanks
+                       + 49 * !pos.non_pawn_material()
+                       - 36 * almostUnwinnable
+                       -103 
+                      + eg_value(pos.this_thread()->contempt);
     
-    int mg_complexity = std::min(eg_complexity + 50, 0)
-                        + mg_value(pos.this_thread()->contempt) / 2;
+    int mg_complexity =  std::min(eg_complexity + 50, 0)
+                       + mg_value(pos.this_thread()->contempt);
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
@@ -802,7 +802,7 @@ namespace {
     // Initialize score by reading the incrementally updated scores included in
     // the position object (material + piece square tables) and the material
     // imbalance. Score is computed internally from the white point of view.
-    Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt / 2;
+    Score score = pos.psq_score() + me->imbalance();
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
