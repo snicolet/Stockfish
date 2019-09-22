@@ -735,20 +735,22 @@ namespace {
                            && !pawnsOnBothFlanks;
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   9 * pe->passed_count()
-                    + 11 * pos.count<PAWN>()
-                    +  9 * outflanking
-                    + 18 * pawnsOnBothFlanks
-                    + 49 * !pos.non_pawn_material()
-                    +  4 * (artillery - 12)
-                    - 36 * almostUnwinnable
-                    -103 ;
+    int eg_complexity =   9 * pe->passed_count()
+                       + 11 * pos.count<PAWN>()
+                       +  9 * outflanking
+                       + 18 * pawnsOnBothFlanks
+                       + 49 * !pos.non_pawn_material()
+                       - 36 * almostUnwinnable
+                       -103 ;
+
+    int mg_complexity =   std::min(eg_complexity + 50, 0)
+                        + 4 * (artillery - 12);
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
-    int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity + 50, 0), -abs(mg));
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
+    int u = ((mg > 0) - (mg < 0)) * std::max(mg_complexity, -abs(mg));
+    int v = ((eg > 0) - (eg < 0)) * std::max(eg_complexity, -abs(eg));
 
     if (T)
         Trace::add(INITIATIVE, make_score(u, v));
