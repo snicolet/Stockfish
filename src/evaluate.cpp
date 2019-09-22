@@ -728,6 +728,8 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    int artillery = pos.count<ALL_PIECES>() - pos.count<PAWN>();
+
     bool almostUnwinnable =   !pe->passed_count()
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
@@ -738,6 +740,7 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
+                    +  4 * (artillery - 12)
                     - 36 * almostUnwinnable
                     -103 ;
 
