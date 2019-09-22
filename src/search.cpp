@@ -1005,10 +1005,9 @@ moves_loop: // When in check, search starts from here
                && ++thisThread->shuffleExts < thisThread->nodes.load(std::memory_order_relaxed) / 4)  // To avoid too many extensions
           extension = ONE_PLY;
 
-      // Passed pawn extension
+      // Pawn push extension
       else if (   move == ss->killers[0]
-               && pos.advanced_pawn_push(move)
-               && pos.pawn_passed(us, to_sq(move)))
+               && pos.advanced_pawn_push(move))
           extension = ONE_PLY;
 
       // Calculate new depth for this move
