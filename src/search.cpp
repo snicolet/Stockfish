@@ -1006,7 +1006,8 @@ moves_loop: // When in check, search starts from here
           extension = ONE_PLY;
 
       // Pawn push extension
-      else if (pos.advanced_pawn_push(move))
+      else if (   pos.advanced_pawn_push(move)
+               && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
 
       // Calculate new depth for this move
