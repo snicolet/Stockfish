@@ -1007,7 +1007,7 @@ moves_loop: // When in check, search starts from here
 
       // Pawn push extension
       else if (   move == ss->killers[0]
-               && pos.advanced_pawn_push(move))
+               && type_of(pos.moved_piece(move)) == PAWN)
           extension = ONE_PLY;
 
       // Calculate new depth for this move
