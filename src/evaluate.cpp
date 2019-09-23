@@ -447,20 +447,20 @@ namespace {
     else
         unsafeChecks |= knightChecks;
 
-    Bitboard rookOnSecondRank = pos.pieces(Them, ROOK) & SecondRank;
+    Bitboard majorOnSecondRank = pos.pieces(Them, ROOK, QUEEN) & SecondRank;
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
-    int kingFlankAttacks = popcount(b1) + popcount(b2) + 2 * !!rookOnSecondRank;
+    int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
-                 + 148 * bool(rookOnSecondRank)
+                 + 100 * popcount(majorOnSecondRank)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  +       mg_value(mobility[Them] - mobility[Us])
