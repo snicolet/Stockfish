@@ -458,7 +458,7 @@ namespace {
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
-                 + 200 * bool(pos.pieces(Them, ROOK) & SecondRank)
+                 + 250 * bool(pos.pieces(Them, ROOK) & SecondRank)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  +       mg_value(mobility[Them] - mobility[Us])
