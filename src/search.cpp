@@ -763,7 +763,7 @@ namespace {
             ss->staticEval = eval = evaluate(pos);
 
         if (eval == VALUE_DRAW)
-            eval = value_draw(depth, thisThread);
+            ss->staticEval = eval = value_draw(depth, thisThread);
 
         // Can ttValue be used as a better position evaluation?
         if (    ttValue != VALUE_NONE
