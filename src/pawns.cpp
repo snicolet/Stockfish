@@ -132,7 +132,7 @@ namespace {
         {
             int v =  Connected[r] * (2 + bool(phalanx) - opposed);
 
-            v += popcount(support) * (17 + 2 * (r - 2) * bool((FileDBB | FileEBB) & s));
+            v += popcount(support) * (21 + (r >= RANK_4) * bool((FileDBB | FileEBB) & s));
 
             score += make_score(v, v * (r - 2) / 4);
         }
