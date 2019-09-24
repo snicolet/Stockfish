@@ -131,8 +131,9 @@ namespace {
         if (support | phalanx)
         {
             int v =  Connected[r] * (2 + bool(phalanx) - opposed);
-
-            v += popcount(support) * (20 + (r >= RANK_4) * bool((FileDBB | FileEBB) & s));
+            
+            v += popcount(support) * 21;
+            v += (support && ((FileDBB | FileEBB) & s));
 
             score += make_score(v, v * (r - 2) / 4);
         }
