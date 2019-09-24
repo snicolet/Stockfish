@@ -130,11 +130,10 @@ namespace {
         // Score this pawn
         if (support | phalanx)
         {
-            int v =  Connected[r] * (2 + bool(phalanx) - opposed)
-                   + 17 * popcount(support)
-                   + (support && ((FileDBB | FileEBB) & s));
-
+            int v =  Connected[r] * (2 + bool(phalanx) - opposed);
             score += make_score(v, v * (r - 2) / 4);
+
+            score += make_score(17, 17) * popcount(support);
         }
 
         else if (!neighbours)
