@@ -70,6 +70,8 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Bitboard SteadyCenterSquares = FileDBB | FileEBB;
+    constexpr Bitboard SteadyCenterSupport = FileDBB | FileEBB;
 
     Bitboard neighbours, stoppers, support, phalanx;
     Bitboard lever, leverPush;
@@ -132,8 +134,10 @@ namespace {
         {
             int v =  Connected[r] * (2 + bool(phalanx) - opposed);
             
-            v += popcount(support) * 21;
-            v += (r >= RANK_4) * (support && ((FileDBB | FileEBB) & s));
+            v += popcount(support) * 20;
+
+            v +=    (SteadyCenterSquares & s)
+                 && (SteadyCenterSupport & support);
 
             score += make_score(v, v * (r - 2) / 4);
         }
