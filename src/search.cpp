@@ -570,7 +570,7 @@ namespace {
     // Check if we have an upcoming move which draws by repetition, or
     // if the opponent had an alternative move earlier to this position.
     if (   pos.rule50_count() >= 3
-        && alpha < VALUE_DRAW
+        && alpha < VALUE_DRAW + Value(1)
         && !rootNode
         && pos.has_game_cycle(ss->ply))
     {
@@ -763,7 +763,7 @@ namespace {
             ss->staticEval = eval = evaluate(pos);
 
         if (eval == VALUE_DRAW)
-            ss->staticEval = eval = value_draw(depth, thisThread);
+            eval = value_draw(depth, thisThread);
 
         // Can ttValue be used as a better position evaluation?
         if (    ttValue != VALUE_NONE
