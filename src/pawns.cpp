@@ -136,8 +136,7 @@ namespace {
             
             v += popcount(support) * 21;
 
-            v +=    (SteadyCenterSquares & s)
-                 && (Center & support);
+            v += 2 * ((SteadyCenterSquares & s) && (SteadyCenterSupport & support));
 
             score += make_score(v, v * (r - 2) / 4);
         }
