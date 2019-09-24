@@ -130,9 +130,9 @@ namespace {
         // Score this pawn
         if (support | phalanx)
         {
-            int v =  Connected[r] * (2 + bool(phalanx) - opposed)
-                   + 18 * popcount(support)
-                   + (r - 2) * (support && ((FileDBB | FileEBB) & s));
+            int v =  Connected[r] * (2 + bool(phalanx) - opposed);
+
+            v += popcount(support) * (20 + (r - 2) * bool((FileDBB | FileEBB) & s));
 
             score += make_score(v, v * (r - 2) / 4);
         }
