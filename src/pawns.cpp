@@ -134,7 +134,7 @@ namespace {
         {
             int v =  Connected[r] * (2 + bool(phalanx) - opposed);
             
-            v += popcount(support) * 21;
+            v += popcount(support) * 20;
 
             v +=    (SteadyCenterSquares & s)
                  && (SteadyCenterSupport & support);
