@@ -559,7 +559,7 @@ namespace {
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
-    Bitboard mobilePawns =  b
+    Bitboard mobilePawns =   b
                           & CenterFiles
                           & (~attackedBy[Them][PAWN] | (attackedBy[Us][PAWN] & attackedBy2[Us] & ~attackedBy2[Them]))
                           & safe;
