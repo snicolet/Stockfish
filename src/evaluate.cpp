@@ -139,7 +139,7 @@ namespace {
   constexpr Score PassedFile         = S( 11,  8);
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score PawnMobility       = S(  0,  6);
-  constexpr Score PawnMobilityCenter = S(  0, 10);
+  constexpr Score PawnMobilityCenter = S(  0, 16);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score RookOnQueenFile    = S( 11,  4);
@@ -563,7 +563,7 @@ namespace {
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
-    score += PawnMobility * popcount(b);
+    //score += PawnMobility * popcount(b);
     score += PawnMobilityCenter * popcount(b & CenterFiles);
 
     // Bonus for safe pawn threats on the next move
