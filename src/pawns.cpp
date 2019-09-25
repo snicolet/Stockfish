@@ -70,6 +70,8 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Bitboard SteadyCenterSquares = FileDBB | FileEBB;
+    constexpr Bitboard SteadyCenterSupport = FileDBB | FileEBB;
 
     Bitboard neighbours, stoppers, support, phalanx;
     Bitboard lever, leverPush;
@@ -130,8 +132,12 @@ namespace {
         // Score this pawn
         if (support | phalanx)
         {
+            int u =   (SteadyCenterSupport & (support | phalanx)) 
+                   && (SteadyCenterSquares & s);
+
             int v =  Connected[r] * (2 + bool(phalanx) - opposed)
-                   + 21 * popcount(support);
+                   + 21 * popcount(support)
+                   + u;
 
             score += make_score(v, v * (r - 2) / 4);
         }
