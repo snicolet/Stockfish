@@ -132,14 +132,14 @@ namespace {
         // Score this pawn
         if (support | phalanx)
         {
-            int u =   (SteadyCenterSupport & (support | phalanx)) 
+            int u =   (SteadyCenterSupport & support) 
                    && (SteadyCenterSquares & s);
 
-            int v =  Connected[r] * (2 + bool(phalanx) - opposed)
-                   + 21 * popcount(support)
-                   + u;
+            int v = Connected[r] * (2 + bool(phalanx) - opposed) + u;
 
             score += make_score(v, v * (r - 2) / 4);
+
+            score += make_score(21, 10) * popcount(support);
         }
 
         else if (!neighbours)
