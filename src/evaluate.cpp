@@ -139,7 +139,7 @@ namespace {
   constexpr Score PassedFile         = S( 11,  8);
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score PawnMobility       = S(  0,  6);
-  constexpr Score PawnMobilityCenter = S(  8,  8);
+  constexpr Score PawnMobilityCenter = S( 16,  0);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score RookOnQueenFile    = S( 11,  4);
