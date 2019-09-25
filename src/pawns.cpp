@@ -135,11 +135,11 @@ namespace {
             int u =   (SteadyCenterSupport & support) 
                    && (SteadyCenterSquares & s);
 
-            int v = Connected[r] * (2 + bool(phalanx) - opposed) + u;
+            int v = Connected[r] * (2 + bool(phalanx) - opposed);
 
             score += make_score(v, v * (r - 2) / 4);
 
-            score += make_score(21, 10) * popcount(support);
+            score += make_score(21 + r * u, 10 + u) * popcount(support);
         }
 
         else if (!neighbours)
