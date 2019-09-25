@@ -136,7 +136,7 @@ namespace {
             
             bool steadyCenter = (SteadyCenterSupport & support) && (SteadyCenterSquares & s);
 
-            v += popcount(support) * (21 + steadyCenter);
+            v += (popcount(support) + steadyCenter) * 21;
 
             score += make_score(v, v * (r - 2) / 4);
         }
