@@ -563,8 +563,8 @@ namespace {
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
-    score += PawnMobility * bool(b);
-    score += PawnMobilityCenter * bool(b & CenterFiles);
+    score += PawnMobility * popcount(b);
+    score += PawnMobilityCenter * popcount(b & CenterFiles);
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
