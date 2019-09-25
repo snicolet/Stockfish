@@ -562,6 +562,9 @@ namespace {
     b &= (~attackedBy[Them][PAWN] | (attackedBy[Us][PAWN] & attackedBy2[Us]))
          & safe;
 
+    constexpr Score PawnMobility = make_score(  0, 16);
+    score += PawnMobility * bool(b & CenterFiles);
+
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
