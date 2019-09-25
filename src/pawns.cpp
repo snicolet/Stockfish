@@ -138,7 +138,7 @@ namespace {
             score += make_score(v, v * (r - 2) / 4);
 
             bool steadyCenter = (SteadyCenterSupport & support) && (SteadyCenterSquares & s);
-            score += make_score(2 , 1) * steadyCenter;
+            score += make_score(r , 0) * steadyCenter;
         }
 
         else if (!neighbours)
