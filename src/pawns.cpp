@@ -133,12 +133,12 @@ namespace {
         if (support | phalanx)
         {
             int v =  Connected[r] * (2 + bool(phalanx) - opposed);
-            v += popcount(support) * 21;
+            
+            bool steadyCenter = (SteadyCenterSupport & support) && (SteadyCenterSquares & s);
+
+            v += popcount(support) * (21 + steadyCenter);
 
             score += make_score(v, v * (r - 2) / 4);
-
-            bool steadyCenter = (SteadyCenterSupport & support) && (SteadyCenterSquares & s);
-            score += make_score(0 , 8) * steadyCenter;
         }
 
         else if (!neighbours)
