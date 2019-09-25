@@ -561,7 +561,7 @@ namespace {
 
     Bitboard mobilePawns =  b
                           & CenterFiles
-                          & (~attackedBy[Them][PAWN] | (attackedBy[Us][PAWN] & attackedBy2[Us]))
+                          & (~attackedBy[Them][PAWN] | (attackedBy[Us][PAWN] & attackedBy2[Us] & ~attackedBy2[Them]))
                           & safe;
     score += PawnMobilityCenter * bool(mobilePawns);
 
