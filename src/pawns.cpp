@@ -132,7 +132,7 @@ namespace {
         // Score this pawn
         if (support | phalanx)
         {
-            int u =   (SteadyCenterSupport & support) 
+            int u =   support
                    && (SteadyCenterSquares & s);
 
             int v = Connected[r] * (2 + bool(phalanx) - opposed);
