@@ -928,6 +928,12 @@ moves_loop: // When in check, search starts from here
       if (move == excludedMove)
           continue;
 
+      // Skip illegal moves (at high depths only, as it is costly)
+      if (   !rootNode
+          && depth >= 2 * ONE_PLY
+          && !pos.legal(move))
+          continue;
+
       // At root obey the "searchmoves" option and skip moves not listed in Root
       // Move List. As a consequence any illegal move is also skipped. In MultiPV
       // mode we also skip PV moves which have been already searched and those
@@ -944,6 +950,8 @@ moves_loop: // When in check, search starts from here
                     << " currmovenumber " << moveCount + thisThread->pvIdx << sync_endl;
       if (PvNode)
           (ss+1)->pv = nullptr;
+
+      
 
       extension = DEPTH_ZERO;
       captureOrPromotion = pos.capture_or_promotion(move);
