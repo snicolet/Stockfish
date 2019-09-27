@@ -930,7 +930,7 @@ moves_loop: // When in check, search starts from here
 
       // Skip illegal moves (at high depths only, as it is costly)
       if (   !rootNode
-          && depth >= 3 * ONE_PLY
+          && depth >= 4 * ONE_PLY
           && !pos.legal(move))
           continue;
 
