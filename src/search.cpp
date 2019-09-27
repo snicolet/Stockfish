@@ -930,7 +930,7 @@ moves_loop: // When in check, search starts from here
 
       // Skip illegal moves (at high depths only, as it is costly)
       if (   !rootNode
-          && depth >= 2 * ONE_PLY
+          && depth >= 3 * ONE_PLY
           && !pos.legal(move))
           continue;
 
@@ -950,8 +950,6 @@ moves_loop: // When in check, search starts from here
                     << " currmovenumber " << moveCount + thisThread->pvIdx << sync_endl;
       if (PvNode)
           (ss+1)->pv = nullptr;
-
-      
 
       extension = DEPTH_ZERO;
       captureOrPromotion = pos.capture_or_promotion(move);
