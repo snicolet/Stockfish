@@ -717,12 +717,8 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    bool bishopPairEndgame =   pos.count<BISHOP>() == 2
-                            && pos.count<KNIGHT>() == 2
-                            && pos.count<BISHOP>(WHITE) * pos.count<BISHOP>(BLACK) == 0
-                            && pos.count<KNIGHT>(WHITE) * pos.count<KNIGHT>(BLACK) == 0
-                            && pos.count<ALL_PIECES>() - pos.count<PAWN>() <= 8
-                            && pawnsOnBothFlanks;
+    bool bishopPairEndgame =   pos.count<BISHOP>(WHITE) * pos.count<BISHOP>(BLACK) == 0
+                            && pos.non_pawn_material() == 2 * (BishopValueMg + KnightValueMg);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
