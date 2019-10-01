@@ -322,6 +322,21 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
+                
+                // Bonus for BB vs NN endgame
+                if (   pos.count<BISHOP>(Us)   == 2
+                    && pos.count<BISHOP>(Them) == 0
+                    && pos.count<KNIGHT>(Us)   == 0
+                    && pos.count<KNIGHT>(Them) == 2
+                    && pos.count<ALL_PIECES>() - pos.count<PAWN>() <= 8)
+                {
+                    bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
+                                            && (pos.pieces(PAWN) & KingSide);
+
+                    constexpr Score BishopPairEndgame = make_score(0, 75);
+                    if (pawnsOnBothFlanks)
+                        score += BishopPairEndgame;
+                }
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
