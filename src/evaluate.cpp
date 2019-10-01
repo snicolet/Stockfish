@@ -717,9 +717,7 @@ namespace {
                            && !pawnsOnBothFlanks;
 
     bool bishopPairEndgame =   pos.count<BISHOP>(WHITE) * pos.count<BISHOP>(BLACK) == 0
-                            && pos.count<KNIGHT>(WHITE) * pos.count<KNIGHT>(BLACK) == 0
-                            && pos.count<BISHOP>() == 2
-                            && pos.count<KNIGHT>() == 2
+                            && pos.non_pawn_material() == 2 * (BishopValueMg + KnightValueMg)
                             && pawnsOnBothFlanks;
 
     // Compute the initiative bonus for the attacking side
@@ -728,7 +726,7 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    +150 * bishopPairEndgame
+                    +170 * bishopPairEndgame
                     - 36 * almostUnwinnable
                     -103 ;
 
