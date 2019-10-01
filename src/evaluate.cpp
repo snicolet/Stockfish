@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -716,8 +717,11 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    bool bishopPairEndgame =   pos.count<BISHOP>(WHITE) * pos.count<BISHOP>(BLACK) == 0
-                            && pos.non_pawn_material() == 2 * (BishopValueMg + KnightValueMg)
+    bool bishopPairEndgame =   pos.count<BISHOP>() == 2
+                            && pos.count<KNIGHT>() == 2
+                            && pos.count<BISHOP>(WHITE) * pos.count<BISHOP>(BLACK) == 0
+                            && pos.count<KNIGHT>(WHITE) * pos.count<KNIGHT>(BLACK) == 0
+                            && pos.count<ALL_PIECES>() - pos.count<PAWN>() <= 8
                             && pawnsOnBothFlanks;
 
     // Compute the initiative bonus for the attacking side
@@ -726,7 +730,7 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    +170 * bishopPairEndgame
+                    +150 * bishopPairEndgame
                     - 36 * almostUnwinnable
                     -103 ;
 
