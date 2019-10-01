@@ -328,7 +328,7 @@ namespace {
                     && pos.count<BISHOP>(Them) == 0
                     && pos.count<KNIGHT>(Us)   == 0
                     && pos.count<KNIGHT>(Them) == 2
-                    && pos.count<ALL_PIECES>() - pos.count<PAWN>() <= 8)
+                    && pos.count<ALL_PIECES>() - pos.count<PAWN>() <= 10)
                 {
                     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                                             && (pos.pieces(PAWN) & KingSide);
