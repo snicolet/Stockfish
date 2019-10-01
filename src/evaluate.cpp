@@ -326,9 +326,7 @@ namespace {
                 // Bonus for BB vs NN endgame
                 if (   pos.count<BISHOP>(Us)   == 2
                     && pos.count<BISHOP>(Them) == 0
-                    && pos.count<KNIGHT>(Us)   == 0
-                    && pos.count<KNIGHT>(Them) == 2
-                    && pos.count<ALL_PIECES>() - pos.count<PAWN>() == 6)
+                    && pos.count<ALL_PIECES>() - pos.count<PAWN>() <= 6)
                 {
                     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                                             && (pos.pieces(PAWN) & KingSide);
