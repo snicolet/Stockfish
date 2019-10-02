@@ -693,7 +693,8 @@ namespace {
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
         }
-        return ttValue;
+        if (pos.rule50_count() <= 4)
+            return ttValue;
     }
 
     // Step 5. Tablebases probe
@@ -754,7 +755,7 @@ namespace {
         improving = false;
         goto moves_loop;  // Skip early pruning when in check
     }
-    else if (ttHit)
+    else if (ttHit && pos.rule50_count() <= 4)
     {
         // Never assume anything about values stored in TT
         ss->staticEval = eval = tte->eval();
