@@ -1362,6 +1362,7 @@ moves_loop: // When in check, search starts from here
     pvHit = ttHit && tte->is_pv();
 
     if (  !PvNode
+        && pos.rule50_count() <= 4
         && ttHit
         && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE // Only in case of TT access race
@@ -1377,7 +1378,7 @@ moves_loop: // When in check, search starts from here
     }
     else
     {
-        if (ttHit)
+        if (ttHit && pos.rule50_count() <= 4)
         {
             // Never assume anything about values stored in TT
             if ((ss->staticEval = bestValue = tte->eval()) == VALUE_NONE)
