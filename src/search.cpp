@@ -756,13 +756,13 @@ namespace {
         if (eval == VALUE_NONE)
             ss->staticEval = eval = evaluate(pos);
 
-        if (eval == VALUE_DRAW)
-            eval = pos.value_draw();
-
         // Can ttValue be used as a better position evaluation?
         if (    ttValue != VALUE_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
+
+        if (eval == VALUE_DRAW)
+            eval = pos.value_draw();
     }
     else
     {
@@ -774,6 +774,9 @@ namespace {
         }
         else
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Eval::Tempo;
+
+        if (eval == VALUE_DRAW)
+            eval = pos.value_draw();
 
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
@@ -1386,6 +1389,9 @@ moves_loop: // When in check, search starts from here
             ss->staticEval = bestValue =
             (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
                                              : -(ss-1)->staticEval + 2 * Eval::Tempo;
+
+        if (bestValue == VALUE_DRAW)
+            bestValue = pos.value_draw();
 
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
