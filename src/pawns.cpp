@@ -36,7 +36,7 @@ namespace {
   constexpr Score BlockedStorm  = S(82, 82);
   constexpr Score Doubled       = S(11, 56);
   constexpr Score Isolated      = S( 5, 15);
-  constexpr Score Supported     = S(21, 21);
+  constexpr Score Supported     = S(21, 15);
   constexpr Score WeakLever     = S( 0, 56);
   constexpr Score WeakUnopposed = S(13, 27);
 
