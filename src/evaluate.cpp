@@ -274,7 +274,7 @@ namespace {
         // Find attacked squares, including x-ray attacks for bishops and rooks
         Bitboard forward = forward_ranks_bb(Us, s);
         b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ (pos.pieces(QUEEN) & forward))
-          : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ (pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK) & forward))
+          : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ ((pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK)) & forward))
                          : pos.attacks_from<Pt>(s);
 
         if (pos.blockers_for_king(Us) & s)
