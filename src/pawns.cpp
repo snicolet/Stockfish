@@ -31,12 +31,11 @@ namespace {
   #define V Value
   #define S(mg, eg) make_score(mg, eg)
 
-  // Pawn penalties and bonuses
+  // Pawn penalties
   constexpr Score Backward      = S( 9, 24);
   constexpr Score BlockedStorm  = S(82, 82);
   constexpr Score Doubled       = S(11, 56);
   constexpr Score Isolated      = S( 5, 15);
-  constexpr Score Supported     = S(21, 15);
   constexpr Score WeakLever     = S( 0, 56);
   constexpr Score WeakUnopposed = S(13, 27);
 
@@ -140,10 +139,10 @@ namespace {
         // Score this pawn
         if (support | phalanx)
         {
-            int v =  Connected[r] * (2 + bool(phalanx) - bool(opposed));
-            score += make_score(v, v * (r - 2) / 4);
+            int v =  Connected[r] * (2 + bool(phalanx) - bool(opposed))
+                   + 21 * popcount(support);
 
-            score += Supported * popcount(support);
+            score += make_score(v, v * (r - 2) / 4);
         }
 
         else if (!neighbours)
