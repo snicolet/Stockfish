@@ -94,7 +94,7 @@ private:
 
   size_t clusterCount;
   Cluster* table;
-  void* mem = nullptr;
+  void* mem;
   uint8_t generation8; // Size must be not bigger than TTEntry::genBound8
 };
 
