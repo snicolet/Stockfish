@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -292,6 +293,13 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+
+        if (Pt == BISHOP && Us == BLACK)
+        {
+            std::cerr << Bitboards::pretty(b & mobilityArea[Us]) << std::endl;
+            std::cerr << "mobility = " << mob << std::endl;
+            
+        }
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
