@@ -660,7 +660,7 @@ namespace {
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
     // position key in case of an excluded move.
-    TT = pos.rule50_count() < 14 ? &transpositionTables[0] : &transpositionTables[1];
+    TT = pos.rule50_count() < 11 ? &transpositionTables[0] : &transpositionTables[1];
 
     excludedMove = ss->excludedMove;
     posKey = pos.key() ^ Key(excludedMove << 16); // Isn't a very good hash
@@ -1361,7 +1361,7 @@ moves_loop: // When in check, search starts from here
                                                   : DEPTH_QS_NO_CHECKS;
     
     // Transposition table lookup
-    TT = pos.rule50_count() < 14 ? &transpositionTables[0] : &transpositionTables[1];
+    TT = pos.rule50_count() < 11 ? &transpositionTables[0] : &transpositionTables[1];
 
     posKey = pos.key();
     tte = TT->probe(posKey, ttHit);
