@@ -272,9 +272,8 @@ namespace {
     for (Square s = *pl; s != SQ_NONE; s = *++pl)
     {
         // Find attacked squares, including x-ray attacks for bishops and rooks
-        Bitboard forward = forward_ranks_bb(Us, s) | rank_bb(s);
-        b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ (pos.pieces(QUEEN) & forward))
-          : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ ((pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK)) & forward))
+        b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ (pos.pieces(QUEEN) & forward_ranks_bb(Us, s)))
+          : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK))
                          : pos.attacks_from<Pt>(s);
 
         if (pos.blockers_for_king(Us) & s)
@@ -291,7 +290,7 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = popcount(b & mobilityArea[Us] & ~(pos.pieces(Us) & ~forward));
+        int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
