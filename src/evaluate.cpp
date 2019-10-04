@@ -23,7 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-#include <iostream>
+//#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -272,8 +272,9 @@ namespace {
     for (Square s = *pl; s != SQ_NONE; s = *++pl)
     {
         // Find attacked squares, including x-ray attacks for bishops and rooks
-        b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(QUEEN))
-          : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK))
+        Bitboard forward = forward_ranks_bb(Us, s);
+        b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ (pos.pieces(QUEEN) & forward))
+          : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ (pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK) & forward))
                          : pos.attacks_from<Pt>(s);
 
         if (pos.blockers_for_king(Us) & s)
@@ -290,16 +291,15 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = popcount(b & mobilityArea[Us]);
+        int mob = popcount(b & mobilityArea[Us] & ~(pos.pieces(Us) & ~forward));
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (Pt == BISHOP && Us == BLACK)
-        {
-            std::cerr << Bitboards::pretty(b & mobilityArea[Us]) << std::endl;
-            std::cerr << "mobility = " << mob << std::endl;
-            
-        }
+//         if (Pt == BISHOP && Us == BLACK)
+//         {
+//             std::cerr << Bitboards::pretty(b & mobilityArea[Us]) << std::endl;
+//             std::cerr << "mobility = " << mob << std::endl;
+//         }
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
