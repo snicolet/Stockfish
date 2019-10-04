@@ -291,7 +291,7 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
         if (attackedBy[Them][PAWN] & s)
-           mob = std::max(mob - 2, 0);
+           mob = std::max(mob - 3, 0);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
