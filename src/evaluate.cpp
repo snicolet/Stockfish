@@ -290,6 +290,8 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
+        if ((attackedBy[Them][PAWN] & s) && mob > 0)
+           mob--;
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
