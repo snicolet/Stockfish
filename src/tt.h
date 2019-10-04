@@ -94,10 +94,10 @@ private:
 
   size_t clusterCount;
   Cluster* table;
-  void* mem;
+  void* mem = nullptr;
   uint8_t generation8; // Size must be not bigger than TTEntry::genBound8
 };
 
-extern TranspositionTable TT;
+extern TranspositionTable transpositionTables[2];
 
 #endif // #ifndef TT_H_INCLUDED

@@ -147,7 +147,8 @@ void ThreadPool::set(size_t requested) {
       clear();
 
       // Reallocate the hash with the new threadpool size
-      TT.resize(Options["Hash"]);
+      transpositionTables[0].resize(Options["Hash"]);
+      transpositionTables[1].resize(Options["Shuffle"]);
 
       // Init thread number dependent search params.
       Search::init();
