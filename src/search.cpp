@@ -805,7 +805,7 @@ namespace {
         && (ss-1)->statScore < 22661
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 33 * depth + 299 - improving * 30
+        &&  ss->staticEval >= beta - 33 * depth + 299 - improving * 30 + PieceValue[MG][priorCapture] / 3
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1052,7 +1052,6 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (   !(givesCheck && extension)
-                   && !priorCapture
                    && !pos.see_ge(move, Value(-199) * depth)) // (~20 Elo)
                   continue;
       }
