@@ -951,9 +951,9 @@ moves_loop: // When in check, search starts from here
 
       // Step 13. Extensions (~70 Elo)
 
-      // Always extend pawn captures
+      // Always extend non-pawn captures
       if (   priorCapture 
-          && type_of(priorCapture) == PAWN)
+          && type_of(priorCapture) != PAWN)
           extension = 1;
 
       // Singular extension search (~60 Elo). If all moves but one fail low on a
