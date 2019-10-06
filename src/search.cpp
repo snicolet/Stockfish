@@ -786,7 +786,7 @@ namespace {
     // Step 7. Razoring (~2 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth < 2
-        &&  eval <= alpha - RazorMargin - PieceValue[MG][priorCapture])
+        &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
     improving =   ss->staticEval >= (ss-2)->staticEval
@@ -795,7 +795,7 @@ namespace {
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
         &&  depth < 7
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval - futility_margin(depth, improving) - PieceValue[MG][priorCapture] >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
