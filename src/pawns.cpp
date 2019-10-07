@@ -134,7 +134,7 @@ namespace {
         {
             int v =  Connected[r] * (1 + bool(phalanx))
                                   * (1 + !opposed)
-                                  * (1 + !blocked) / 3
+                                  * (1 + !blocked) / 4
                    + 21 * popcount(support);
             
 //             int u =  Connected[r] * (2 + bool(phalanx) - bool(opposed))
