@@ -133,8 +133,9 @@ namespace {
         if (support | phalanx)
         {
             int v =  Connected[r] * (1 + bool(phalanx))
-                                  * (2 + 3 * !opposed)
-                                  * (1 + !blocked) / 4
+                                  * (1 + !opposed)
+                                  * (2 + 3 * !blocked) 
+                                  / 4
                    + 21 * popcount(support);
             
 //             int u =  Connected[r] * (2 + bool(phalanx) - bool(opposed))
