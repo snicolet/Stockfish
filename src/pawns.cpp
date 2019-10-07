@@ -135,7 +135,12 @@ namespace {
             int v =  Connected[r] * (1 + bool(phalanx)) 
                                   * (1 + !opposed) 
                                   * (1 + !blocked) 
-                                  * (1 + popcount(support));
+                                  * (1 + popcount(support)) / 2;
+            
+//             int u =  Connected[r] * (2 + bool(phalanx) - bool(opposed))
+//                    + 21 * popcount(support);
+//             
+//             dbg_mean_of(v);
 
             score += make_score(v, v * (r - 2) / 4);
         }
