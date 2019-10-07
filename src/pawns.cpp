@@ -132,10 +132,10 @@ namespace {
         // Score this pawn
         if (support | phalanx)
         {
-            int v =  Connected[r] * (1 + bool(phalanx)) 
-                                  * (1 + !opposed) 
-                                  * (1 + !blocked) 
-                                  * (1 + popcount(support)) / 2;
+            int v =  Connected[r] * (2 + popcount(phalanx))
+                                  * (1 + !opposed)
+                                  * (1 + !blocked)
+                                  * (1 + popcount(support)) / 4;
             
 //             int u =  Connected[r] * (2 + bool(phalanx) - bool(opposed))
 //                    + 21 * popcount(support);
