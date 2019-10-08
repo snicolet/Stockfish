@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -127,6 +128,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties
+  constexpr Score BadBishop          = S( 16,  0);
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score FlankAttacks       = S(  8,  0);
@@ -312,6 +314,20 @@ namespace {
 
             if (Pt == BISHOP)
             {
+                // Consider our bishop as bad if it has not moved much during
+                // the last 1024 calls to evaluate().
+                
+                Color bishopColor = (DarkSquares & s ? BLACK : WHITE);
+                BishopStats &bs = pos.this_thread()->bishopStats[Us][bishopColor];
+                bs.where[bs.n++ % BISHOP_STATS_NB] = s;
+
+                int count = 0;
+                for (int k = 0; k < BISHOP_STATS_NB; ++k)
+                    count += (bs.where[k] != s);
+
+                if (count < 24)
+                    score -= BadBishop;
+
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
@@ -322,6 +338,8 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
+
+                
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly

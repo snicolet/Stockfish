@@ -72,6 +72,7 @@ public:
   ButterflyHistory mainHistory;
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];
+  BishopStats bishopStats[COLOR_NB][COLOR_NB];
   Score contempt;
 };
 

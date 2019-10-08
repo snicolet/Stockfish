@@ -29,6 +29,14 @@
 #include "position.h"
 #include "types.h"
 
+/// BishopStats stores the stats used to find the bad bishops
+constexpr int BISHOP_STATS_NB = 1024;
+class BishopStats {
+public:
+   int n = 0;
+   Square where[BISHOP_STATS_NB];
+};
+
 /// StatsEntry stores the stat table value. It is usually a number but could
 /// be a move or even a nested history. We use a class instead of naked value
 /// to directly call history update operator<<() on the entry so to use stats
