@@ -127,7 +127,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties
-  constexpr Score BishopPawns        = S(  3,  8);
+  constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score FlankAttacks       = S(  8,  0);
   constexpr Score Hanging            = S( 69, 36);
@@ -317,7 +317,8 @@ namespace {
                 Bitboard blocked  = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
                 Bitboard blocked2 =   pos.pieces(Us, PAWN)
                                    & ((DarkSquares & s) ? DarkSquares : ~DarkSquares)
-                                   & shift<Down>(pos.pieces(Them, PAWN));
+                                   & shift<Down>(pos.pieces(Them, PAWN))
+                                   & forward_ranks_bb(Us, s);
 
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles) + popcount(blocked2) / 3);
