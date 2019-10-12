@@ -23,7 +23,6 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -128,7 +127,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties
-  constexpr Score BadBishop          = S( 16,  0);
+  constexpr Score BadBishop          = S(  8,  0);
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score FlankAttacks       = S(  8,  0);
@@ -325,19 +324,15 @@ namespace {
                 for (int k = 0; k < BISHOP_STATS_NB; ++k)
                     count += (bs.where[k] != s);
 
-                if (count < 24)
+                if (count < 12)
                     score -= BadBishop;
 
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard blocked  = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
-                Bitboard blocked2 =   pos.pieces(Us, PAWN)
-                                   & ((DarkSquares & s) ? DarkSquares : ~DarkSquares)
-                                   & shift<Down>(pos.pieces(Them, PAWN))
-                                   & forward_ranks_bb(Us, s);
+                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
-                                     * (1 + popcount(blocked & CenterFiles) + popcount(blocked2) / 3);
+                                     * (1 + popcount(blocked & CenterFiles));
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
