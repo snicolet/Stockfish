@@ -324,8 +324,8 @@ namespace {
                 for (int k = 0; k < BISHOP_STATS_NB; ++k)
                     count += (bs.where[k] != s);
 
-                if (count < 20)
-                    score -= BadBishop;
+                int x = std::max(0, 32 - count);
+                score -= make_score(0, x / 4);
 
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
