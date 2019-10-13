@@ -35,6 +35,16 @@
 #include "thread_win32_osx.h"
 
 
+/// BishopStats stores the stats used to find the bad bishops.
+/// Each thread will have their own stats, which is why we put it here.
+constexpr int BISHOP_STATS_NB = 1024;
+class BishopStats {
+public:
+   int n = 0;
+   Square where[BISHOP_STATS_NB];
+};
+
+
 /// Thread class keeps together all the thread-related stuff. We use
 /// per-thread pawn and material hash tables so that once we get a
 /// pointer to an entry its life time is unlimited and we don't have
@@ -72,6 +82,7 @@ public:
   ButterflyHistory mainHistory;
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];
+  BishopStats bishopStats[COLOR_NB][COLOR_NB];
   Score contempt;
 };
 
