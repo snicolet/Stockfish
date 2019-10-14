@@ -712,7 +712,7 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    bool inversion =   pos.count<ALL_PIECES>() > 20
+    bool inversion =   pos.count<ALL_PIECES>() > 24
                     && int(mg) * int(eg) < -50;
 
     bool almostUnwinnable =   !pe->passed_count()
