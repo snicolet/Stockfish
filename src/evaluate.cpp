@@ -712,8 +712,7 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    bool inversion =   pos.count<ALL_PIECES>() > 22
-                    && int(mg) * int(eg) < -50;
+    bool inversion = int(mg) * int(eg) < -50;
 
     bool almostUnwinnable =   !pe->passed_count()
                            &&  outflanking < 0
@@ -723,7 +722,7 @@ namespace {
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
-                    +  9 * inversion
+                    +      inversion * pos.count<ALL_PIECES>()
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
