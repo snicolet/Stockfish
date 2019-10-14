@@ -713,7 +713,7 @@ namespace {
                             && (pos.pieces(PAWN) & KingSide);
 
     bool inversion =   pos.count<ALL_PIECES>() > 22
-                    && int(mg) * int(eg) < -75;
+                    && int(mg) * int(eg) < 0;
 
     bool almostUnwinnable =   !pe->passed_count()
                            &&  outflanking < 0
