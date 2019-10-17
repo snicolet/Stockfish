@@ -519,6 +519,7 @@ namespace {
     bb =  OutpostRanks
         & attackedBy[Us][PAWN]
         & ~pe->pawn_attacks_span(Them)
+        & ~attackedBy[Them][KNIGHT]
         & ~attackedBy[Them][BISHOP];
 
     if (bb & pos.pieces(Us, KNIGHT, BISHOP))
