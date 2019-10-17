@@ -135,7 +135,7 @@ namespace {
   constexpr Score KnightOnQueen      = S( 16, 12);
   constexpr Score LongDiagonalBishop = S( 45,  0);
   constexpr Score MinorBehindPawn    = S( 18,  3);
-  constexpr Score Outpost            = S( 35, 13);
+  constexpr Score Outpost            = S( 32, 10);
   constexpr Score PassedFile         = S( 11,  8);
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score RestrictedPiece    = S(  7,  7);
@@ -516,9 +516,10 @@ namespace {
     }
 
     // Bonus for outposts or reachable outposts
-    bb =  OutpostRanks 
-        & attackedBy[Us][PAWN] 
-        & ~pe->pawn_attacks_span(Them);
+    bb =  OutpostRanks
+        & attackedBy[Us][PAWN]
+        & ~pe->pawn_attacks_span(Them)
+        & ~attackedBy[Them][KNIGHT];
 
     if (bb & pos.pieces(Us, KNIGHT, BISHOP))
         score += Outpost * 2;
