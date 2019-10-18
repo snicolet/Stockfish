@@ -135,7 +135,7 @@ namespace {
   constexpr Score KnightOnQueen      = S( 16, 12);
   constexpr Score LongDiagonalBishop = S( 45,  0);
   constexpr Score MinorBehindPawn    = S( 18,  3);
-  constexpr Score Outpost            = S( 35, 13);
+  constexpr Score Outpost            = S( 32, 10);
   constexpr Score PassedFile         = S( 11,  8);
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score RestrictedPiece    = S(  7,  7);
@@ -476,8 +476,8 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-    constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB | Rank7BB
-                                                   : Rank5BB | Rank4BB | Rank3BB | Rank2BB);
+    constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
+                                                   : Rank5BB | Rank4BB | Rank3BB);
 
     Bitboard b, bb, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -518,9 +518,10 @@ namespace {
     // Bonus for outposts or reachable outposts
     bb =  OutpostRanks
         & attackedBy[Us][PAWN]
-        & ~pe->pawn_attacks_span(Them);
+        & ~pe->pawn_attacks_span(Them)
+        & (CenterFiles | KingFlank[file_of(pos.square<KING>(Them))]);
 
-    if (bb & pos.pieces(Us, KNIGHT, BISHOP))
+    if (bb & (pos.pieces(Us, KNIGHT, BISHOP) | pos.pieces(Us, ROOK, QUEEN)))
         score += Outpost * 2;
     else if (bb & ~pos.pieces(Us) & attackedBy[Us][KNIGHT])
         score += Outpost;
