@@ -521,7 +521,7 @@ namespace {
         & ~pe->pawn_attacks_span(Them)
         & (CenterFiles | KingFlank[file_of(pos.square<KING>(Them))]);
 
-    if (bb & (pos.pieces(Us, KNIGHT, BISHOP) | pos.pieces(Us, ROOK, QUEEN)))
+    if (bb & (pos.pieces(Us, KNIGHT, BISHOP)))
         score += Outpost * 2;
     else if (bb & ~pos.pieces(Us) & attackedBy[Us][KNIGHT])
         score += Outpost;
