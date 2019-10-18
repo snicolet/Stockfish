@@ -518,12 +518,11 @@ namespace {
     // Bonus for outposts or reachable outposts
     bb =  OutpostRanks
         & attackedBy[Us][PAWN]
-        & ~pe->pawn_attacks_span(Them)
-        & (CenterFiles | KingFlank[file_of(pos.square<KING>(Them))]);
+        & ~pe->pawn_attacks_span(Them);
 
-    if (bb & (pos.pieces(Us, KNIGHT, BISHOP)))
+    if (bb & (pos.pieces(Us, KNIGHT, BISHOP) | pos.pieces(Us, ROOK)))
         score += Outpost * 2;
-    else if (bb & ~pos.pieces(Us) & attackedBy[Us][KNIGHT])
+    else if (bb & ~pos.pieces(Us) & (attackedBy[Us][KNIGHT] | attackedBy[Us][ROOK]))
         score += Outpost;
 
     // Bonus for restricting their piece moves
