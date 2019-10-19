@@ -784,7 +784,7 @@ namespace {
     // imbalance. Score is computed internally from the white point of view.
     Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
 
-    score -= pos.psq_score() / 4;
+    score -= pos.psq_score() / 16;
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
