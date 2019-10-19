@@ -168,6 +168,7 @@ namespace {
     template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
     Score initiative(Score score) const;
+    Color expected_winner_color() const;
 
     const Position& pos;
     Material::Entry* me;
@@ -250,6 +251,13 @@ namespace {
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
+  }
+
+
+  // Evaluation::expected_winner_color()
+  template<Tracing T>
+  Color Evaluation<T>::expected_winner_color() const {
+    return mg_value(pos.this_thread()->contempt) > 0 ? WHITE : BLACK;
   }
 
 
@@ -649,8 +657,8 @@ namespace {
         score += bonus - PassedFile * map_to_queenside(f);
     }
 
-    if ((Us == WHITE) == (mg_value(pos.this_thread()->contempt) > 0))
-        score += score / 4;
+    if (expected_winner_color() == Us)
+        score += score / 16;
 
     if (T)
         Trace::add(PASSED, Us, score);
