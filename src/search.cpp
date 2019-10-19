@@ -872,7 +872,7 @@ namespace {
 
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[inCheck]
-                                                                          [captureOrPromotion]
+                                                                          [priorCapture || captureOrPromotion]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -1074,7 +1074,7 @@ moves_loop: // When in check, search starts from here
       // Update the current move (this must be done after singular extension search)
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[inCheck]
-                                                                [captureOrPromotion]
+                                                                [priorCapture || captureOrPromotion]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1331,7 +1331,7 @@ moves_loop: // When in check, search starts from here
     Move ttMove, move, bestMove;
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
-    bool ttHit, pvHit, inCheck, givesCheck, captureOrPromotion, evasionPrunable;
+    bool ttHit, pvHit, inCheck, givesCheck, captureOrPromotion, evasionPrunable, priorCapture;
     int moveCount;
 
     if (PvNode)
@@ -1345,6 +1345,7 @@ moves_loop: // When in check, search starts from here
     (ss+1)->ply = ss->ply + 1;
     bestMove = MOVE_NONE;
     inCheck = pos.checkers();
+    priorCapture = pos.captured_piece();
     moveCount = 0;
 
     // Check for an immediate draw or maximum ply reached
@@ -1484,7 +1485,7 @@ moves_loop: // When in check, search starts from here
 
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[inCheck]
-                                                                [captureOrPromotion]
+                                                                [priorCapture || captureOrPromotion]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
