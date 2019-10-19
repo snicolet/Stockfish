@@ -649,6 +649,9 @@ namespace {
         score += bonus - PassedFile * map_to_queenside(f);
     }
 
+    if ((Us == WHITE) == (mg_value(pos.this_thread()->contempt) > 0))
+        score += score / 8;
+
     if (T)
         Trace::add(PASSED, Us, score);
 
