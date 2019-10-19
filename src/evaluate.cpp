@@ -650,7 +650,7 @@ namespace {
     }
 
     if ((Us == WHITE) == (mg_value(pos.this_thread()->contempt) > 0))
-        score += score / 8;
+        score += score / 4;
 
     if (T)
         Trace::add(PASSED, Us, score);
