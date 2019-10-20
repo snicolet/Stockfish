@@ -546,7 +546,7 @@ namespace {
     b &= (~attackedBy[Them][PAWN] | (attackedBy[Us][PAWN] & attackedBy2[Us] & ~attackedBy2[Them]))
          & safe;
 
-    constexpr Score PawnMobility = make_score(  0, 20);
+    constexpr Score PawnMobility = make_score(  0, 16);
     score += PawnMobility * bool(b & CenterFiles);
 
     // Bonus for safe pawn threats on the next move
