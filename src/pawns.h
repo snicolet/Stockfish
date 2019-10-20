@@ -38,7 +38,7 @@ struct Entry {
   Bitboard passed_pawns(Color c) const { return passedPawns[c]; }
   Bitboard pawn_attacks_span(Color c) const { return pawnAttacksSpan[c]; }
   int passed_count() const { return popcount(passedPawns[WHITE] | passedPawns[BLACK]); }
-  int phalanx_count(Color c) const { return phalanxes[c]; }
+  int phalanx_count() const { return phalanxes; }
 
   template<Color Us>
   Score king_safety(const Position& pos) {
@@ -57,7 +57,7 @@ struct Entry {
   Bitboard passedPawns[COLOR_NB];
   Bitboard pawnAttacks[COLOR_NB];
   Bitboard pawnAttacksSpan[COLOR_NB];
-  int phalanxes[COLOR_NB];
+  int phalanxes;
   Square kingSquares[COLOR_NB];
   Score kingSafety[COLOR_NB];
   int castlingRights[COLOR_NB];

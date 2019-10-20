@@ -83,7 +83,7 @@ namespace {
 
     Bitboard doubleAttackThem = pawn_double_attacks_bb<Them>(theirPawns);
 
-    e->passedPawns[Us] = e->phalanxes[Us] = 0;
+    e->passedPawns[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = e->pawnAttacksSpan[Us] = pawn_attacks_bb<Us>(ourPawns);
 
@@ -151,7 +151,7 @@ namespace {
                      + WeakLever * more_than_one(lever);
         
         if (phalanx)
-            e->phalanxes[Us]++;
+            e->phalanxes++;
     }
 
     return score;
@@ -175,6 +175,7 @@ Entry* probe(const Position& pos) {
       return e;
 
   e->key = key;
+  e->phalanxes = 0;
   e->scores[WHITE] = evaluate<WHITE>(pos, e);
   e->scores[BLACK] = evaluate<BLACK>(pos, e);
 
