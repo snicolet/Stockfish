@@ -543,7 +543,11 @@ namespace {
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
-    b &= ~attackedBy[Them][PAWN] & safe;
+    b &= (~attackedBy[Them][PAWN] | (attackedBy[Us][PAWN] & attackedBy2[Us] & ~attackedBy2[Them]))
+         & safe;
+
+    constexpr Score PawnMobility = make_score(  0, 20);
+    score += PawnMobility * bool(b & CenterFiles);
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
