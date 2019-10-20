@@ -754,11 +754,12 @@ namespace {
             sf = 16 + 4 * pe->passed_count();
         else
         {
-            if (  pos.opposite_bishops() 
-               || (pos.count<ROOK>(strongSide) == 0 && pos.non_pawn_material(strongSide) <= 2 * KnightValueMg))
-                sf = std::min(sf, 36 + 2 * pos.count<PAWN>(strongSide));
-            else
-                sf = std::min(sf, 36 + 7 * pos.count<PAWN>(strongSide));
+            sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
+
+            int bc = pos.count<BISHOP>(strongSide);
+            int nc = pos.count<KNIGHT>(strongSide);
+            if (bc + nc <= 1 || bc == 0)
+                sf -= 8;
         }
 
         sf = std::max(0, sf - (pos.rule50_count() - 12) / 4  );
