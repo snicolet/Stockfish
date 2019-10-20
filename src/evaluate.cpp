@@ -134,6 +134,7 @@ namespace {
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
   constexpr Score LongDiagonalBishop = S( 45,  0);
+  constexpr Score LooseEnemies       = S(  0, 25);
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score Outpost            = S( 32, 10);
   constexpr Score PassedFile         = S( 11,  8);
@@ -492,6 +493,11 @@ namespace {
 
     // Non-pawn enemies
     nonPawnEnemies = pos.pieces(Them) & ~pos.pieces(PAWN);
+
+    // Small bonus if the opponent has loose pieces
+    if (   (pos.pieces(Them, BISHOP, KNIGHT) | pos.pieces(Them, ROOK))
+        & ~(attackedBy[Us][ALL_PIECES] | attackedBy[Them][ALL_PIECES]))
+        score += LooseEnemies;
 
     // Squares strongly protected by the enemy, either because they defend the
     // square with a pawn, or because they defend the square twice and we don't.
