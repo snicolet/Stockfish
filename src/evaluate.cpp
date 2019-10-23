@@ -725,7 +725,7 @@ namespace {
                        - 36 * almostUnwinnable
                        -103 ;
 
-    int complexity_mg = complexity_eg < -50 ? complexity_eg + 50 : 
+    int complexity_mg = complexity_eg < -50 ? abs(complexity_eg) * complexity_eg / 64 + 39 : 
                         complexity_eg >  50 ? abs(complexity_eg) * complexity_eg / 64
                                             : 0;
 
