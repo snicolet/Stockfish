@@ -726,7 +726,7 @@ namespace {
                        -103 ;
 
     int complexity_mg = complexity_eg < -50 ? complexity_eg + 50 : 
-                        complexity_eg >  40 ? (complexity_eg - 40) * 2
+                        complexity_eg >  40 ? (complexity_eg - 40) / 2
                                             : 0;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
