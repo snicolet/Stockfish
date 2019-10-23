@@ -725,10 +725,8 @@ namespace {
                        - 36 * almostUnwinnable
                        -103 ;
 
-    complexity_eg = complexity_eg / 2 + abs(complexity_eg) * complexity_eg / 128;
-    
-    int complexity_mg = complexity_eg < -30 ? complexity_eg + 30 : 
-                        complexity_eg >   0 ? complexity_eg
+    int complexity_mg = complexity_eg < -50 ? complexity_eg + 50 : 
+                        complexity_eg >  40 ? complexity_eg - 40
                                             : 0;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
