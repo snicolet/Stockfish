@@ -85,6 +85,7 @@ namespace {
   constexpr int RookSafeCheck   = 1080;
   constexpr int BishopSafeCheck = 635;
   constexpr int KnightSafeCheck = 790;
+  constexpr int PawnSafeCheck   = 500;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -441,6 +442,10 @@ namespace {
     else
         unsafeChecks |= knightChecks;
 
+    // Pawn safe checks
+    if (pawnChecks[Them])
+        kingDanger += PawnSafeCheck;
+
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
@@ -454,7 +459,6 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 148 * popcount(unsafeChecks)
-                 + 100 * popcount(pawnChecks[Them])
                  +  98 * popcount(pos.blockers_for_king(Us))
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
