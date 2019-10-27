@@ -721,7 +721,7 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    + 11 * !pos.pieces(ROOK)
+                    - 22 * !pos.pieces(ROOK)
                     - 36 * almostUnwinnable
                     -103 ;
 
