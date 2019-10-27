@@ -322,7 +322,7 @@ namespace {
                 
                 //score -= make_score(weight2 / 24, 7 * weight2 / 72);
 
-                score -= make_score(weight2 / 27, 7 * weight1);
+                score -= make_score(weight2 / 24, 6 * weight1);
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
