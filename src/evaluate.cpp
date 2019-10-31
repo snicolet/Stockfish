@@ -434,6 +434,8 @@ namespace {
     else
         unsafeChecks |= knightChecks;
 
+    int separation = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
@@ -451,7 +453,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
-                 -   6 * mg_value(score) / 8
+                 -   (6 - separation / 2) * mg_value(score) / 8
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
