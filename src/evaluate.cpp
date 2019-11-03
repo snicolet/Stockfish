@@ -777,7 +777,7 @@ namespace {
     // imbalance. Score is computed internally from the white point of view.
     Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
 
-    if (pos.count<PAWN>(WHITE) != pos.count<PAWN>(WHITE))
+    if (pos.count<PAWN>(WHITE) != pos.count<PAWN>(BLACK))
         score -= score / 4;
 
     // Probe the pawn hash table
