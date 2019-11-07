@@ -720,7 +720,7 @@ namespace {
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
-                    +  4 * (wr + br - 6)
+                    +  4 * (wr + br - 5)
                     - 43 * almostUnwinnable
                     - 95 ;
 
