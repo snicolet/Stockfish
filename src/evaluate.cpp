@@ -709,12 +709,18 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    Bitboard wp = pos.pieces(WHITE, PAWN);
+    Bitboard bp = pos.pieces(BLACK, PAWN);
+    int wr = wp ? relative_rank(WHITE, frontmost_sq(WHITE, wp)) : 0;
+    int br = bp ? relative_rank(BLACK, frontmost_sq(BLACK, bp)) : 0;
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
+                    +  9 * (wr + br - 7)
                     - 43 * almostUnwinnable
                     - 95 ;
 
