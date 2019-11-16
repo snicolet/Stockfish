@@ -1044,7 +1044,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Castling extension
-      else if (type_of(move) == CASTLING)
+      if (type_of(move) == CASTLING)
           extension = 2;
 
       // Add extension to new depth
