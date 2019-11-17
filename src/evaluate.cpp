@@ -439,39 +439,43 @@ namespace {
     else
         unsafeChecks |= knightChecks;
 
-    // Find the squares that opponent attacks in our king flank, the squares
-    // which they attack twice in that flank, and the squares that we defend.
-    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
-    b2 = b1 & attackedBy2[Them];
-    b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
+    // Do the slow king danger part only if it is necessary
+    if (kingDanger || pos.count<QUEEN>(Them))
+    {
+        // Find the squares that opponent attacks in our king flank, the squares
+        // which they attack twice in that flank, and the squares that we defend.
+        b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
+        b2 = b1 & attackedBy2[Them];
+        b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
 
-    int kingFlankAttack = popcount(b1) + popcount(b2);
-    int kingFlankDefense = popcount(b3);
+        int kingFlankAttack = popcount(b1) + popcount(b2);
+        int kingFlankDefense = popcount(b3);
 
-    kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 + 185 * popcount(kingRing[Us] & weak)
-                 + 148 * popcount(unsafeChecks)
-                 +  98 * popcount(pos.blockers_for_king(Us))
-                 +  69 * kingAttacksCount[Them]
-                 +   4 * (kingFlankAttack - kingFlankDefense)
-                 +   3 * kingFlankAttack * kingFlankAttack / 8
-                 +       mg_value(mobility[Them] - mobility[Us])
-                 - 873 * !pos.count<QUEEN>(Them)
-                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
-                 -   6 * mg_value(score) / 8
-                 +   4 ;
+        kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
+                     + 185 * popcount(kingRing[Us] & weak)
+                     + 148 * popcount(unsafeChecks)
+                     +  98 * popcount(pos.blockers_for_king(Us))
+                     +  69 * kingAttacksCount[Them]
+                     +   4 * (kingFlankAttack - kingFlankDefense)
+                     +   3 * kingFlankAttack * kingFlankAttack / 8
+                     +       mg_value(mobility[Them] - mobility[Us])
+                     - 873 * !pos.count<QUEEN>(Them)
+                     - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
+                     -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
+                     -   6 * mg_value(score) / 8
+                     -   7 ;
 
-    // Transform the kingDanger units into a Score, and subtract it from the evaluation
-    if (kingDanger > 100)
-        score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+        // Transform the kingDanger units into a Score, and subtract it from the evaluation
+        if (kingDanger > 100)
+            score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+
+        // Penalty if king flank is under attack, potentially moving toward the king
+        score -= FlankAttacks * kingFlankAttack;
+    }
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
-
-    // Penalty if king flank is under attack, potentially moving toward the king
-    score -= FlankAttacks * kingFlankAttack;
 
     if (T)
         Trace::add(KING, Us, score);
