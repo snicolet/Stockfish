@@ -1043,8 +1043,9 @@ moves_loop: // When in check, search starts from here
                && pos.pawn_passed(us, to_sq(move)))
           extension = 1;
 
-      // Castling extension
-      if (type_of(move) == CASTLING)
+      // King move extension
+      if (   type_of(movedPiece) == KING
+          && relative_rank(us, to_sq(move)) == RANK_1)
           extension = 1;
 
       // Add extension to new depth
