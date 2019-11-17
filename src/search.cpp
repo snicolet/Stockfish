@@ -1044,8 +1044,8 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // King move extension
-      if (   type_of(movedPiece) == KING
-          && relative_rank(us, to_sq(move)) == RANK_1)
+      else if (   type_of(movedPiece) == KING
+               && relative_rank(us, to_sq(move)) == RANK_1)
           extension = 1;
 
       // Add extension to new depth
