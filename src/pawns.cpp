@@ -41,6 +41,7 @@ namespace {
 
   // Connected pawn bonus
   constexpr int Connected[RANK_NB] = { 0, 7, 8, 12, 29, 48, 86 };
+  constexpr int FileConnected[FILE_NB] = { 0, 0, 0, 1, 1, 0, 0, 0 };
 
   // Strength of pawn shelter for our king by [distance from edge][rank].
   // RANK_1 = 0 is used for files where we have no pawn, or pawn is behind our king.
@@ -93,6 +94,7 @@ namespace {
         assert(pos.piece_on(s) == make_piece(Us, PAWN));
 
         Rank r = relative_rank(Us, s);
+        File f = file_of(s);
 
         // Flag the pawn
         opposed    = theirPawns & forward_file_bb(Us, s);
@@ -133,7 +135,7 @@ namespace {
         if (support | phalanx)
         {
             int v =  Connected[r] * (2 + bool(phalanx) - bool(opposed))
-                   + 21 * popcount(support);
+                   + 21 * popcount(support) * (1 + FileConnected[f]);
 
             score += make_score(v, v * (r - 2) / 4);
         }
