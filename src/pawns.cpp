@@ -41,8 +41,9 @@ namespace {
 
   // Connected pawn bonus
   constexpr int Connected[RANK_NB] = { 0, 7, 8, 12, 29, 48, 86 };
-  constexpr int Supported[FILE_NB] = { 21, 21, 21, 27, 27, 21, 21, 21 };
-
+  constexpr int Supported[FILE_NB] = { 21, 21, 21, 21, 21, 21, 21, 21 };
+  constexpr int Supporting[FILE_NB] = { 0, 0, 0, -5, -5, 0, 0, 0 };
+  
   // Strength of pawn shelter for our king by [distance from edge][rank].
   // RANK_1 = 0 is used for files where we have no pawn, or pawn is behind our king.
   constexpr Value ShelterStrength[int(FILE_NB) / 2][RANK_NB] = {
@@ -72,7 +73,7 @@ namespace {
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = pawn_push(Us);
 
-    Bitboard neighbours, stoppers, support, phalanx, opposed;
+    Bitboard neighbours, stoppers, supported, supporting, phalanx, opposed;
     Bitboard lever, leverPush, blocked;
     Square s;
     bool backward, passed, doubled;
@@ -105,7 +106,8 @@ namespace {
         doubled    = ourPawns   & (s - Up);
         neighbours = ourPawns   & adjacent_files_bb(s);
         phalanx    = neighbours & rank_bb(s);
-        support    = neighbours & rank_bb(s - Up);
+        supported  = neighbours & rank_bb(s - Up);
+        supporting = neighbours & rank_bb(s + Up);
 
         // A pawn is backward when it is behind all pawns of the same color on
         // the adjacent files and cannot safely advance.
@@ -124,7 +126,7 @@ namespace {
                 || (   !(stoppers ^ leverPush)
                     && popcount(phalanx) >= popcount(leverPush))
                 || (   stoppers == blocked && r >= RANK_5
-                    && (shift<Up>(support) & ~(theirPawns | doubleAttackThem)));
+                    && (shift<Up>(supported) & ~(theirPawns | doubleAttackThem)));
 
         // Passed pawns will be properly scored later in evaluation when we have
         // full attack info.
@@ -132,10 +134,11 @@ namespace {
             e->passedPawns[Us] |= s;
 
         // Score this pawn
-        if (support | phalanx)
+        if (supported | phalanx | supporting)
         {
             int v =  Connected[r] * (2 + bool(phalanx) - bool(opposed))
-                   + Supported[f] * popcount(support);
+                   + Supported[f] * popcount(supported)
+                   + Supporting[f] * popcount(supporting);
 
             score += make_score(v, v * (r - 2) / 4);
         }
@@ -148,7 +151,7 @@ namespace {
             score -=   Backward
                      + WeakUnopposed * !opposed;
 
-        if (!support)
+        if (!supported)
             score -=   Doubled * doubled
                      + WeakLever * more_than_one(lever);
     }
