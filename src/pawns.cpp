@@ -137,7 +137,7 @@ namespace {
             int v =  Connected[r] * (2 + bool(phalanx) - bool(opposed))
                    + 21 * popcount(support);
             
-            v += (SteadyCenterSquares & s) && (SteadyCenterSupport & support);
+            v += 2 * ((SteadyCenterSquares & s) && (SteadyCenterSupport & support));
 
             score += make_score(v, v * (r - 2) / 4);
         }
