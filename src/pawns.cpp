@@ -42,7 +42,7 @@ namespace {
   // Connected pawn bonus
   constexpr int Connected[RANK_NB] = { 0, 7, 8, 12, 29, 48, 86 };
   constexpr int Supported[FILE_NB] = { 21, 21, 21, 21, 21, 21, 21, 21 };
-  constexpr int Supporting[FILE_NB] = { 0, 0, 0, -5, -5, 0, 0, 0 };
+  constexpr int Supporting[FILE_NB] = { 0, -15, -15, -15, -15, -15, -15, 0 };
   
   // Strength of pawn shelter for our king by [distance from edge][rank].
   // RANK_1 = 0 is used for files where we have no pawn, or pawn is behind our king.
@@ -132,16 +132,16 @@ namespace {
         // full attack info.
         if (passed)
             e->passedPawns[Us] |= s;
+        
+        int v = 0;
 
         // Score this pawn
-        if (supported | phalanx)
-        {
-            int v =  Connected[r] * (2 + bool(phalanx) - bool(opposed))
-                   + Supported[f] * popcount(supported)
-                   + Supporting[f] * popcount(supporting);
+        if (more_than_one(supporting))
+            v += Supporting[f];
 
-            score += make_score(v, v * (r - 2) / 4);
-        }
+        if (supported | phalanx)
+            v =  Connected[r] * (2 + bool(phalanx) - bool(opposed))
+               + Supported[f] * popcount(supported);
 
         else if (!neighbours)
             score -=   Isolated
@@ -154,6 +154,8 @@ namespace {
         if (!supported)
             score -=   Doubled * doubled
                      + WeakLever * more_than_one(lever);
+
+        score += make_score(v, v * (r - 2) / 4);
     }
 
     return score;
