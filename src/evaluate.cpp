@@ -332,6 +332,18 @@ namespace {
                             : pos.piece_on(s + d + d) == make_piece(Us, PAWN) ? CorneredBishop * 2
                                                                               : CorneredBishop;
             }
+            
+            if (Pt == BISHOP)
+            {
+                Thread* th = pos.this_thread();
+                double rho = 1.0 / 4096.0;
+                int mob2 = popcount(b & mobilityArea[Us] & ~pos.pieces(Us));
+
+                th->badBishopAverage = (1.0 - rho) * th->badBishopAverage + rho * (mob2 <= 3);
+
+                if (th->badBishopAverage > 0.6)
+                    score -= make_score(0, 40);
+            }
         }
 
         if (Pt == ROOK)
@@ -359,17 +371,6 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-        }
-        
-        if (Pt == BISHOP)
-        {
-            Thread* th = pos.this_thread();
-            double rho = 1.0 / 4096.0;
-            
-            th->badBishopAverage = (1.0 - rho) * th->badBishopAverage + rho * (mob <= 3);
-            
-            if (th->badBishopAverage > 0.6)
-               score -= make_score(0, 20);
         }
     }
     if (T)
