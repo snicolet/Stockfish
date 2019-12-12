@@ -366,10 +366,10 @@ namespace {
             Thread* th = pos.this_thread();
             double rho = 1.0 / 4096.0;
             
-            th->badBishopAverage[Us] = (1.0 - rho) * th->badBishopAverage[Us] + rho * (mob <= 3);
+            th->badBishopAverage = (1.0 - rho) * th->badBishopAverage + rho * (mob <= 3);
             
-            if (th->badBishopAverage[Us] > 0.6)
-               score -= make_score(20, 20);
+            if (th->badBishopAverage > 0.6)
+               score -= make_score(0, 20);
         }
     }
     if (T)
