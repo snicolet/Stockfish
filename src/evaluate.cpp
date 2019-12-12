@@ -288,7 +288,7 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
         
-        if (Pt == BISHOP)
+        if (Pt == BISHOP && !pos.pieces(Them, BISHOP))
         {
             Thread* th = pos.this_thread();
             constexpr double rho = 1.0 / 4096.0;
