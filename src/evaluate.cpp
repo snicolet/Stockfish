@@ -360,6 +360,17 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
         }
+        
+        if (Pt == BISHOP)
+        {
+            Thread* th = pos.this_thread();
+            double rho = 1.0 / 4096.0;
+            
+            th->badBishopAverage[Us] = (1.0 - rho) * th->badBishopAverage[Us] + rho * (mob <= 3);
+            
+            if (th->badBishopAverage[Us] > 0.6)
+               score -= make_score(0, 20);
+        }
     }
     if (T)
         Trace::add(Pt, Us, score);

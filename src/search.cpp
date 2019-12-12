@@ -378,6 +378,8 @@ void Thread::search() {
 
   multiPV = std::min(multiPV, rootMoves.size());
   ttHitAverage = ttHitAverageWindow * ttHitAverageResolution / 2;
+  badBishopAverage[WHITE] = 0.5;
+  badBishopAverage[BLACK] = 0.5;
 
   int ct = int(Options["Contempt"]) * PawnValueEg / 100; // From centipawns
 
