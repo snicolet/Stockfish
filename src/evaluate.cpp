@@ -287,6 +287,18 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+        
+        if (Pt == BISHOP)
+        {
+            Thread* th = pos.this_thread();
+            constexpr double rho = 1.0 / 4096.0;
+            int mob2 = popcount(b & mobilityArea[Us] & ~pos.pieces(Us));
+
+            th->badBishopAverage = (1.0 - rho) * th->badBishopAverage + rho * (mob2 <= 3);
+
+            if (th->badBishopAverage > 0.6)
+                score -= make_score(0, 40);
+        }
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -331,18 +343,6 @@ namespace {
                     score -= !pos.empty(s + d + pawn_push(Us))                ? CorneredBishop * 4
                             : pos.piece_on(s + d + d) == make_piece(Us, PAWN) ? CorneredBishop * 2
                                                                               : CorneredBishop;
-            }
-            
-            if (Pt == BISHOP)
-            {
-                Thread* th = pos.this_thread();
-                double rho = 1.0 / 4096.0;
-                int mob2 = popcount(b & mobilityArea[Us] & ~pos.pieces(Us));
-
-                th->badBishopAverage = (1.0 - rho) * th->badBishopAverage + rho * (mob2 <= 3);
-
-                if (th->badBishopAverage > 0.6)
-                    score -= make_score(0, 40);
             }
         }
 
