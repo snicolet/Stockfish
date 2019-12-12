@@ -369,7 +369,7 @@ namespace {
             th->badBishopAverage[Us] = (1.0 - rho) * th->badBishopAverage[Us] + rho * (mob <= 3);
             
             if (th->badBishopAverage[Us] > 0.6)
-               score -= make_score(0, 20);
+               score -= make_score(20, 20);
         }
     }
     if (T)
