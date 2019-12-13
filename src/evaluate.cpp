@@ -297,7 +297,7 @@ namespace {
             th->badBishopAverage = (1.0 - rho) * th->badBishopAverage + rho * (mob2 <= 3);
 
             if (th->badBishopAverage > 0.6)
-                score -= make_score(0, 40);
+                score -= make_score(0, 20);
         }
 
         if (Pt == BISHOP || Pt == KNIGHT)
