@@ -296,7 +296,7 @@ namespace {
 
             th->badBishopAverage = (1.0 - rho) * th->badBishopAverage + rho * (mob2 <= 3);
 
-            if (th->badBishopAverage > 0.7)
+            if (th->badBishopAverage > 0.75)
                 score -= make_score(0, 40);
         }
 
