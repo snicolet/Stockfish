@@ -723,7 +723,7 @@ namespace {
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 12 * infiltration
-                    + 24 * pawnsOnBothFlanks
+                    + 18 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     +150 * bishopPairEndgame
                     - 43 * almostUnwinnable
