@@ -730,7 +730,7 @@ namespace {
                     + 12 * infiltration
                     + 21 * pawnsOnBothFlanks
                     + 51 * !npm
-                    + 75 * bishopPairEndgame
+                    + 225 * bishopPairEndgame
                     - 43 * almostUnwinnable
                     - 100 ;
 
