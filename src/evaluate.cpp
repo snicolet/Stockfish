@@ -717,7 +717,8 @@ namespace {
 
     bool bishopPairEndgame =   pos.count<BISHOP>(WHITE) * pos.count<BISHOP>(BLACK) == 0
                             && pawnsOnBothFlanks
-                            && (   npm == 2 * BishopValueMg + 2 * KnightValueMg
+                            && (   npm == 2 * BishopValueMg + KnightValueMg + KnightValueMg
+                                || npm == 2 * BishopValueMg + RookValueMg        
                                 || npm == 2 * BishopValueMg + RookValueMg + KnightValueMg);
                                 
                             
@@ -729,7 +730,7 @@ namespace {
                     + 12 * infiltration
                     + 21 * pawnsOnBothFlanks
                     + 51 * !npm
-                    +150 * bishopPairEndgame
+                    + 75 * bishopPairEndgame
                     - 43 * almostUnwinnable
                     - 100 ;
 
