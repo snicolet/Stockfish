@@ -700,6 +700,7 @@ namespace {
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
+    Value npm = pos.non_pawn_material();
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
@@ -715,16 +716,19 @@ namespace {
                            && !pawnsOnBothFlanks;
 
     bool bishopPairEndgame =   pos.count<BISHOP>(WHITE) * pos.count<BISHOP>(BLACK) == 0
-                            && pos.non_pawn_material() == 2 * (BishopValueMg + KnightValueMg)
-                            && pawnsOnBothFlanks;
+                            && pawnsOnBothFlanks
+                            && (   npm == 2 * BishopValueMg + 2 * KnightValueMg
+                                || npm == 2 * BishopValueMg + RookValueMg        );
+                                
+                            
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 12 * infiltration
-                    + 18 * pawnsOnBothFlanks
-                    + 51 * !pos.non_pawn_material()
+                    + 21 * pawnsOnBothFlanks
+                    + 51 * !npm
                     +150 * bishopPairEndgame
                     - 43 * almostUnwinnable
                     - 100 ;
