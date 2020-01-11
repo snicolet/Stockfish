@@ -721,7 +721,7 @@ namespace {
                     + 12 * infiltration
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
-                    + 12 * (int(mg) * int(eg) < -50)
+                    + 36 * (int(mg) * int(eg) < -50)
                     - 43 * almostUnwinnable
                     - 100 ;
 
