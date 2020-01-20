@@ -87,7 +87,7 @@ namespace {
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = e->pawnAttacksSpan[Us] = pawn_attacks_bb<Us>(ourPawns);
 
-    // Find the frontmost pawns of any chain three pawns or longer.
+    // Find the frontmost pawns of any chain three pawns or longer
     Bitboard b = pawn_attacks_bb<Us>(ourPawns) & ourPawns;
     e->pawnChainFronts[Us] = pawn_attacks_bb<Us>(b) & ourPawns;
 
@@ -137,7 +137,7 @@ namespace {
         if (support | phalanx)
         {
             int v =  Connected[r] * (2 + bool(phalanx) - bool(opposed))
-                   + 20 * popcount(support);
+                   + 21 * popcount(support);
 
             score += make_score(v, v * (r - 2) / 4);
         }
