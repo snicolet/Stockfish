@@ -436,30 +436,32 @@ namespace {
 
     // Find the squares that opponent attacks in our king flank, the squares
     // which they attack twice in that flank, and the squares that we defend.
-    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
-    b2 = b1 & attackedBy2[Them];
-    b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
-    b4 = pe->pawn_chain_fronts(Them) & KingFlank[file_of(ksq)] & Camp;
+    b1 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
+    b2 = pe->pawn_chain_fronts(Them) & KingFlank[file_of(ksq)] & Camp;
+    b3 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
+    b4 = b3 & attackedBy2[Them];
 
-    int kingFlankAttack = popcount(b1) + popcount(b2);
-    int kingFlankDefense = popcount(b3);
+    int kingFlankDefense = popcount(b1);
+    int kingFlankChains = bool(b2);
+    int kingFlankAttack = popcount(b3) + popcount(b4);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
-                 +  75 * bool(b4)
+                 +  69 * kingFlankChains
                  +   3 * kingFlankAttack * kingFlankAttack / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
-                 +  10;
+                 +  35;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
-    score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+    if (kingDanger > 100)
+        score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
