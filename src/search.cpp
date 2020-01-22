@@ -1163,7 +1163,6 @@ moves_loop: // When in check, search starts from here
               // castling moves, because they are coded as "king captures rook" and
               // hence break make_move(). (~2 Elo)
               else if (    type_of(move) == NORMAL
-                       && !inCheck
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2;
 
