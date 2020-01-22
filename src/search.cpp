@@ -1183,8 +1183,7 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              if (ss->statScore < 0)
-                  r -= ss->statScore / 16384;
+              r -= clamp(ss->statScore / 16384, -1, 1);
           }
 
           // Increase reduction for captures/promotions if late move and at low depth
