@@ -714,6 +714,12 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    int npm = pos.non_pawn_material();
+
+    bool fortress =   almostUnwinnable
+                   && npm <= QueenValueMg + RookValueMg + BishopValueMg
+                   && pos.count<PAWN>() <= 6;
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -722,6 +728,7 @@ namespace {
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
+                    - 250 * fortress
                     - 100 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
