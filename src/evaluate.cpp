@@ -715,7 +715,7 @@ namespace {
                            && !pawnsOnBothFlanks;
 
     bool fortress =   almostUnwinnable
-                   && pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK)
+                   //&& pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK)
                    && pos.non_pawn_material() <= 3 * RookValueMg + BishopValueMg
                    && pos.count<PAWN>() <= 7
                    && (shift<NORTH>(pos.pieces(WHITE, PAWN)) & pos.pieces(BLACK, PAWN));
