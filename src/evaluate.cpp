@@ -715,10 +715,9 @@ namespace {
                            && !pawnsOnBothFlanks;
 
     bool fortress =   almostUnwinnable
-                  // && pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK)
-                   && pos.non_pawn_material() <= QueenValueMg + RookValueMg + BishopValueMg
+                   && pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK)
+                   && pos.non_pawn_material() <= 3 * RookValueMg + BishopValueMg
                    && pos.count<PAWN>() <= 7
-                   && pos.count<QUEEN>() >= 1
                    && (shift<NORTH>(pos.pieces(WHITE, PAWN)) & pos.pieces(BLACK, PAWN));
 
     // Compute the initiative bonus for the attacking side
