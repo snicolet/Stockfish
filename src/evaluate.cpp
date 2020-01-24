@@ -715,8 +715,8 @@ namespace {
                            && !pawnsOnBothFlanks;
 
     bool ambiguity =   pos.count<ALL_PIECES>() >= 22
-                    && int(mg) * int(eg) < -50
-                    && int(eg) * eg_value(pos.this_thread()->contempt) > 0;
+                    && int(mg) * int(eg) < -16
+                    && int(eg) * eg_value(pos.this_thread()->contempt) < 0;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
@@ -731,8 +731,8 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
-    int u = ((mg > 0) - (mg < 0)) * std::max(-abs(mg), std::min(complexity + 50, -6 * ambiguity));
-    int v = ((eg > 0) - (eg < 0)) * std::max(-abs(eg), complexity + 12 * ambiguity);
+    int u = ((mg > 0) - (mg < 0)) * std::max(-abs(mg), std::min(complexity + 50, -80 * ambiguity));
+    int v = ((eg > 0) - (eg < 0)) * std::max(-abs(eg), complexity + 80 * ambiguity);
 
     if (T)
         Trace::add(INITIATIVE, make_score(u, v));
