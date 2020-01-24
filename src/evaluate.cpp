@@ -731,8 +731,8 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
-    int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity + 50, 0), -abs(mg));
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity + 6 * ambiguity, -abs(eg));
+    int u = ((mg > 0) - (mg < 0)) * std::max(-abs(mg), std::min(complexity + 50, -6 * ambiguity));
+    int v = ((eg > 0) - (eg < 0)) * std::max(-abs(eg), complexity + 6 * ambiguity);
 
     if (T)
         Trace::add(INITIATIVE, make_score(u, v));
