@@ -715,7 +715,7 @@ namespace {
                            && !pawnsOnBothFlanks;
 
     int ambiguity =  3 * (pos.count<ALL_PIECES>() > 22)
-                       * (int(mg) * int(eg) < -40);
+                       * (int(mg) * int(eg) < -60);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
