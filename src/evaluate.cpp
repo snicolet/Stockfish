@@ -714,7 +714,7 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    int ambiguity =  5 * (pos.count<ALL_PIECES>() > 22)
+    int ambiguity =  4 * (pos.count<ALL_PIECES>() > 22)
                        * (int(mg) * int(eg) < -50);
 
     // Compute the initiative bonus for the attacking side
