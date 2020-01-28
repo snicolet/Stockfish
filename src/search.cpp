@@ -702,6 +702,7 @@ namespace {
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ttHit
+        && pos.rule50_count() <= 8
         && tte->depth() >= depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
@@ -728,8 +729,7 @@ namespace {
             }
         }
 
-        if (pos.rule50_count() < 90)
-            return ttValue;
+        return ttValue;
     }
 
     // Step 5. Tablebases probe
@@ -1403,6 +1403,7 @@ moves_loop: // When in check, search starts from here
 
     if (  !PvNode
         && ttHit
+        && pos.rule50_count() <= 8
         && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
