@@ -526,6 +526,20 @@ namespace {
        &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(b);
 
+constexpr Score OverProtection = make_score(5,5);
+constexpr Score EverythingIsProtected = make_score(20,20);
+
+    // Avoid over-protection
+   // b =   (pos.pieces(Us) ^ pos.pieces(Us, KING, QUEEN))
+     //   & attackedBy2[Us];
+    //score -= OverProtection * popcount(b);
+    
+    // Avoid hanging pieces
+    b =   (pos.pieces(Us) ^ pos.pieces(Us, KING, QUEEN))
+       & ~attackedBy[Us][ALL_PIECES];
+    if (b)
+        score -= EverythingIsProtected;
+
     // Protected or unattacked squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
 
