@@ -531,7 +531,8 @@ namespace {
     b =   (pos.pieces(Us) ^ pos.pieces(Us, KING, QUEEN))
        & ~attackedBy[Us][ALL_PIECES];
     if (   b
-        && pos.pieces(QUEEN))
+        && pos.count<QUEEN>(Us) == 0
+        && pos.count<QUEEN>(Them) > 0)
         score -= LoosePieces;
 
     // Protected or unattacked squares
