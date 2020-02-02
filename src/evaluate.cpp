@@ -136,6 +136,7 @@ namespace {
   constexpr Score LongDiagonalBishop = S( 45,  0);
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score Outpost            = S( 30, 21);
+  constexpr Score OverConcentration  = S(  0, 20);
   constexpr Score PassedFile         = S( 11,  8);
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score RestrictedPiece    = S(  7,  7);
@@ -520,11 +521,16 @@ namespace {
     }
 
     // Bonus for restricting their piece moves
-    // Greater bonus when landing square is occupied
     b =   attackedBy[Them][ALL_PIECES]
        & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(b);
+
+    // Avoid over-concentration of strength
+    b =  pos.pieces(Us)
+       & attackedBy2[Us]
+       & ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
+    score -= OverConcentration * popcount(b);
 
     // Protected or unattacked squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
