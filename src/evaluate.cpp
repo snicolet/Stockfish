@@ -134,7 +134,7 @@ namespace {
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
   constexpr Score LongDiagonalBishop = S( 45,  0);
-  constexpr Score LoosePieces        = S( 20,  0);
+  constexpr Score LoosePieces        = S( 10,  0);
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score Outpost            = S( 30, 21);
   constexpr Score PassedFile         = S( 11,  8);
@@ -528,10 +528,9 @@ namespace {
     score += RestrictedPiece * popcount(b);
 
     // Avoid loose pieces
-    b =   (pos.pieces(Us) ^ pos.pieces(Us, KING, PAWN))
+    b =   (pos.pieces(Us) ^ pos.pieces(Us, KING, QUEEN))
        & ~attackedBy[Us][ALL_PIECES];
-    if (b)
-        score -= LoosePieces;
+    score -= LoosePieces * popcount(b);
 
     // Protected or unattacked squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
