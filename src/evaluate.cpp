@@ -530,7 +530,8 @@ namespace {
     // Avoid loose pieces
     b =   (pos.pieces(Us) ^ pos.pieces(Us, KING, QUEEN))
        & ~attackedBy[Us][ALL_PIECES];
-    score -= LoosePieces * popcount(b);
+    if (b)
+        score -= LoosePieces;
 
     // Protected or unattacked squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
