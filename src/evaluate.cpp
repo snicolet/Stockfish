@@ -528,7 +528,7 @@ namespace {
     score += RestrictedPiece * popcount(b);
 
     // Avoid loose pieces
-    b =   (pos.pieces(Us) ^ pos.pieces(Us, KING, QUEEN))
+    b =   (pos.pieces(Us) ^ pos.pieces(Us, KING, PAWN))
        & ~attackedBy[Us][ALL_PIECES];
     if (b)
         score -= LoosePieces;
