@@ -755,7 +755,7 @@ namespace {
 
         if (   pos.count<QUEEN>() == 1
             && pos.rule50_count() > 0)
-            sf -= sf / 4;
+            sf -= 10;
 
         sf = std::max(0, sf - (pos.rule50_count() - 12) / 4);
     }
