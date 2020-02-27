@@ -300,7 +300,7 @@ namespace {
                 bool attacking =    !attackedByKnight 
                                  && (b & target);
 
-                score += Outpost * (Pt == KNIGHT ? 2 : 1 + attacking);
+                score += Outpost * (Pt == KNIGHT ? 2 + attacking : 1);
             }
 
             else if (Pt == KNIGHT && bb & b & ~pos.pieces(Us))
