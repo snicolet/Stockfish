@@ -293,9 +293,14 @@ namespace {
             bb = OutpostRanks & attackedBy[Us][PAWN] & ~pe->pawn_attacks_span(Them);
             if (bb & s)
             {
-                Bitboard opp = pos.pieces(Them) ^ pos.pieces(Them, Pt);
-                Bitboard attacking = b & opp;
-                score += Outpost * (Pt == KNIGHT ? 2 : 1) * (attacking ? 2 : 1);
+                Bitboard attackedByKnight = pos.attacks_from<KNIGHT>(s) & pos.pieces(Them, KNIGHT);
+                Bitboard target = pos.pieces(Them) ^ pos.pieces(Them, Pt);
+                //target &= KingFlank[file_of(pos.square<KING>(Them))];
+                
+                bool attacking =    !attackedByKnight 
+                                 && (b & target);
+
+                score += Outpost * (Pt == KNIGHT ? 2 : 1 + attacking);
             }
 
             else if (Pt == KNIGHT && bb & b & ~pos.pieces(Us))
