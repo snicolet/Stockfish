@@ -317,7 +317,7 @@ namespace {
                 Bitboard target =   pos.pawns_on_same_color_squares(Them, s)
                                  & ~attackedBy[Them][PAWN];
 
-                score += make_score(6, 6) * popcount(target);
+                score += make_score(8, 8) * popcount(target);
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
