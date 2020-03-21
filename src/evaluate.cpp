@@ -722,8 +722,8 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    -210;
-                    
+                    -230;
+
     // dbg_mean_of(complexity);
 
     Value mg = mg_value(score);
