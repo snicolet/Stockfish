@@ -723,9 +723,10 @@ namespace {
                     + 21 * pawnsOnBothFlanks
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
+                    + (exchanges == 0 ? 24 : 0)
                     - 43 * almostUnwinnable
-                    -  8 * exchanges
-                    - 52 ;
+                    
+                    - 110 ;
 
 
     Value mg = mg_value(score);
