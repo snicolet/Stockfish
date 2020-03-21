@@ -714,20 +714,17 @@ namespace {
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
-    int exchanges = 16 - (pos.count<ALL_PIECES>() - pos.count<PAWN>());
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
-                    + 11 * pos.count<PAWN>()
+                    + 11 * pos.count<ALL_PIECES>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
-                    + (exchanges == 0 ? 24 : 0)
                     - 43 * almostUnwinnable
+                    -210;
                     
-                    - 110 ;
-
+    // dbg_mean_of(complexity);
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
