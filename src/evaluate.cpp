@@ -127,6 +127,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties
+  constexpr Score BishopCoordination  = S(  4,  4);
   constexpr Score BishopPawns         = S(  3,  7);
   constexpr Score CorneredBishop      = S( 50, 50);
   constexpr Score FlankAttacks        = S(  8,  0);
@@ -483,6 +484,8 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = pawn_push(Us);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  TheirCamp = (Us == WHITE ? AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB
+                                                 : AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -562,6 +565,17 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+    }
+    
+    // Bonus for good bishop coordination
+    if (pos.count<BISHOP>(Us) >= 2)
+    {
+        b = pos.pieces(Us, BISHOP) | attackedBy[Us][BISHOP];
+        b &=  KingFlank[file_of(pos.square<KING>(Them))]
+            & (shift<NORTH>(b) | shift<SOUTH>(b))
+            & TheirCamp;
+
+        score += BishopCoordination * popcount(b);
     }
 
     if (T)
