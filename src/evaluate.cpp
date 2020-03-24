@@ -131,6 +131,7 @@ namespace {
   constexpr Score CorneredBishop      = S( 50, 50);
   constexpr Score FlankAttacks        = S(  8,  0);
   constexpr Score Hanging             = S( 69, 36);
+  constexpr Score KnightCoordination  = S( 14,  0);
   constexpr Score KingProtector       = S(  7,  8);
   constexpr Score KnightOnQueen       = S( 16, 12);
   constexpr Score LongDiagonalBishop  = S( 45,  0);
@@ -480,9 +481,12 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::threats() const {
 
-    constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
-    constexpr Direction Up       = pawn_push(Us);
-    constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Color     Them      = (Us == WHITE ? BLACK   : WHITE);
+    constexpr Direction Up        = pawn_push(Us);
+    constexpr Bitboard  TRank3BB  = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  TheirCamp = (Us == WHITE ? AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB
+                                                 : AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB);
+
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -562,6 +566,18 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+    }
+
+    // Bonus for good knight coordination
+    if (pos.count<KNIGHT>(Us) >= 2)
+    {
+        b = pos.pieces(Us, KNIGHT) | attackedBy[Us][KNIGHT];
+        b &=  KingFlank[file_of(pos.square<KING>(Them))]
+            & (shift<NORTH>(b) | shift<SOUTH>(b))
+            & TheirCamp;
+
+         if (popcount(b) >= 4)
+           score += KnightCoordination;
     }
 
     if (T)
