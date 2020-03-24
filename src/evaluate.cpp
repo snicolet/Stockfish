@@ -571,8 +571,7 @@ namespace {
     if (pos.count<ROOK>(Us) >= 2)
     {
         b = pos.pieces(Us, ROOK) | attackedBy[Us][ROOK];
-        b &=  (KingFlank[file_of(pos.square<KING>(Them))] | CenterFiles)
-            & (shift<WEST>(b) | shift<EAST>(b))
+        b &=  (shift<WEST>(b) | shift<EAST>(b))
             & TheirCamp;
 
         score += RookCoordination * popcount(b);
