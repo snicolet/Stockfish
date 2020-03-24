@@ -127,7 +127,6 @@ namespace {
   };
 
   // Assorted bonuses and penalties
-  constexpr Score BishopCoordination  = S(  3,  3);
   constexpr Score BishopPawns         = S(  3,  7);
   constexpr Score CorneredBishop      = S( 50, 50);
   constexpr Score FlankAttacks        = S(  8,  0);
@@ -140,6 +139,7 @@ namespace {
   constexpr Score PassedFile          = S( 11,  8);
   constexpr Score PawnlessFlank       = S( 17, 95);
   constexpr Score RestrictedPiece     = S(  7,  7);
+  constexpr Score RookCoordination    = S(  4,  4);
   constexpr Score RookOnQueenFile     = S(  7,  6);
   constexpr Score SliderOnQueen       = S( 59, 18);
   constexpr Score ThreatByKing        = S( 24, 89);
@@ -567,15 +567,15 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
     
-    // Bonus for good bishop coordination
-    if (pos.count<BISHOP>(Us) >= 2)
+    // Bonus for good rook coordination
+    if (pos.count<ROOK>(Us) >= 2)
     {
-        b = pos.pieces(Us, BISHOP) | attackedBy[Us][BISHOP];
+        b = pos.pieces(Us, ROOK) | attackedBy[Us][ROOK];
         b &=  KingFlank[file_of(pos.square<KING>(Them))]
-            & (shift<NORTH>(b) | shift<SOUTH>(b))
+            & (shift<WEST>(b) | shift<EAST>(b))
             & TheirCamp;
 
-        score += BishopCoordination * popcount(b);
+        score += RookCoordination * popcount(b);
     }
 
     if (T)
