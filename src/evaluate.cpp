@@ -446,7 +446,7 @@ namespace {
     int kingFlankDefense = popcount(b3);
     
     // King mobility
-    b1 = attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces();
+    b1 = attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us);
     int mob = popcount(b1);
     
     
