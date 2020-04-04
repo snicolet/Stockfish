@@ -446,7 +446,7 @@ namespace {
     int kingFlankDefense = popcount(b3);
     
     // King mobility
-    b1 = attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us);
+    b1 = attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces();
     int mob = popcount(b1);
     
     
@@ -463,7 +463,7 @@ namespace {
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
-                 +  50 * (mob <= 1)
+                 +  60 * (mob <= 1)
                  +   3 * kingFlankAttack * kingFlankAttack / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  - 873 * !pos.count<QUEEN>(Them)
