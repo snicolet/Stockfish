@@ -446,9 +446,8 @@ namespace {
     int kingFlankDefense = popcount(b3);
 
     // King mobility
-    b1 = attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us);
-    int mob = popcount(b1);
-    
+    Bitboard mob = attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us);
+
 //     if (mob == 0)
 //     {
 //         std::cerr << pos << std::endl;
@@ -475,8 +474,8 @@ namespace {
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
     // Malus when our king has very low mobility
-    if (mob <= 0)
-        score -= make_score(50, 50);
+    if (!mob)
+        score -= make_score(40, 100);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
