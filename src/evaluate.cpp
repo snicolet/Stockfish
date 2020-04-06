@@ -475,7 +475,7 @@ namespace {
 
     // Malus when our king has very low mobility
     if (!more_than_one(mob))
-        score -= make_score(20, 50);
+        score -= (mob ? make_score(10, 25) : make_score(20, 50));
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
