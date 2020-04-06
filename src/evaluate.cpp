@@ -474,7 +474,7 @@ namespace {
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
     // Malus when our king has very low mobility
-    if (!mob)
+    if (!more_than_one(mob))
         score -= make_score(20, 50);
 
     // Penalty when our king is on a pawnless flank
