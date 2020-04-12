@@ -829,8 +829,8 @@ namespace {
     v = (pos.side_to_move() == WHITE ? v : -v) + Tempo; 
 
     // 50 moves rule
-    const int aux = 20;
-	if (pos.rule50_count() > aux)
+    const int aux = 30;
+    if (pos.rule50_count() > aux)
         v = v * (5 * (2 * aux - pos.rule50_count()) + 6) / 256;
 
     return v;
