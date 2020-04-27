@@ -379,10 +379,15 @@ namespace {
     Bitboard weak, b1, b2, b3, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
     int kingDanger = 0;
+    int k;
     const Square ksq = pos.square<KING>(Us);
 
     // Init the score with king shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos);
+    
+    // King mobility
+    Bitboard mob = attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us);
+    k = mob ? 1 : 2;
 
     // Attacked squares defended at most once by our queen or king
     weak =  attackedBy[Them][ALL_PIECES]
@@ -399,8 +404,8 @@ namespace {
     // Enemy rooks checks
     rookChecks = b1 & safe & attackedBy[Them][ROOK];
     if (rookChecks)
-        kingDanger += more_than_one(rookChecks) ? RookSafeCheck * 3/2
-                                                : RookSafeCheck;
+        kingDanger += more_than_one(rookChecks) ? RookSafeCheck * 3 * k /2
+                                                : RookSafeCheck * k ;
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
@@ -412,8 +417,8 @@ namespace {
                  & ~attackedBy[Us][QUEEN]
                  & ~rookChecks;
     if (queenChecks)
-        kingDanger += more_than_one(queenChecks) ? QueenSafeCheck * 3/2
-                                                 : QueenSafeCheck;
+        kingDanger += more_than_one(queenChecks) ? QueenSafeCheck * 3 * k /2
+                                                 : QueenSafeCheck * k;
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
@@ -422,16 +427,16 @@ namespace {
                   & safe
                   & ~queenChecks;
     if (bishopChecks)
-        kingDanger += more_than_one(bishopChecks) ? BishopSafeCheck * 3/2
-                                                  : BishopSafeCheck;
+        kingDanger += more_than_one(bishopChecks) ? BishopSafeCheck * 3 * k /2
+                                                  : BishopSafeCheck * k;
     else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
     // Enemy knights checks
     knightChecks = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
     if (knightChecks & safe)
-        kingDanger += more_than_one(knightChecks & safe) ? KnightSafeCheck * 3/2
-                                                         : KnightSafeCheck;
+        kingDanger += more_than_one(knightChecks & safe) ? KnightSafeCheck * 3 * k /2
+                                                         : KnightSafeCheck * k;
     else
         unsafeChecks |= knightChecks;
 
@@ -446,7 +451,7 @@ namespace {
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 + 148 * popcount(unsafeChecks)
+                 + 148 * popcount(unsafeChecks) * k
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
@@ -456,7 +461,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
                  +  37;
-
+        
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
