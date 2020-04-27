@@ -387,7 +387,7 @@ namespace {
     
     // King mobility
     Bitboard mob = attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us);
-    k = mob ? 128 : 192;
+    k = mob ? 128 : 160;
 
     // Attacked squares defended at most once by our queen or king
     weak =  attackedBy[Them][ALL_PIECES]
