@@ -387,7 +387,7 @@ namespace {
     
     // King mobility
     Bitboard mob = attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us);
-    k = mob ? 1 : 2;
+    k = mob ? 128 : 192;
 
     // Attacked squares defended at most once by our queen or king
     weak =  attackedBy[Them][ALL_PIECES]
@@ -404,8 +404,8 @@ namespace {
     // Enemy rooks checks
     rookChecks = b1 & safe & attackedBy[Them][ROOK];
     if (rookChecks)
-        kingDanger += more_than_one(rookChecks) ? RookSafeCheck * 3 * k /2
-                                                : RookSafeCheck * k ;
+        kingDanger += more_than_one(rookChecks) ? RookSafeCheck * 3/2
+                                                : RookSafeCheck;
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
@@ -417,8 +417,8 @@ namespace {
                  & ~attackedBy[Us][QUEEN]
                  & ~rookChecks;
     if (queenChecks)
-        kingDanger += more_than_one(queenChecks) ? QueenSafeCheck * 3 * k /2
-                                                 : QueenSafeCheck * k;
+        kingDanger += more_than_one(queenChecks) ? QueenSafeCheck * 3/2
+                                                 : QueenSafeCheck;
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
@@ -427,18 +427,20 @@ namespace {
                   & safe
                   & ~queenChecks;
     if (bishopChecks)
-        kingDanger += more_than_one(bishopChecks) ? BishopSafeCheck * 3 * k /2
-                                                  : BishopSafeCheck * k;
+        kingDanger += more_than_one(bishopChecks) ? BishopSafeCheck * 3/2
+                                                  : BishopSafeCheck;
     else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
     // Enemy knights checks
     knightChecks = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
     if (knightChecks & safe)
-        kingDanger += more_than_one(knightChecks & safe) ? KnightSafeCheck * 3 * k /2
-                                                         : KnightSafeCheck * k;
+        kingDanger += more_than_one(knightChecks & safe) ? KnightSafeCheck * 3/2
+                                                         : KnightSafeCheck;
     else
         unsafeChecks |= knightChecks;
+
+    kingDanger = kingDanger * k / 128;
 
     // Find the squares that opponent attacks in our king flank, the squares
     // which they attack twice in that flank, and the squares that we defend.
@@ -451,7 +453,7 @@ namespace {
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 + 148 * popcount(unsafeChecks) * k
+                 + 148 * popcount(unsafeChecks) * k / 128
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
