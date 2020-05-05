@@ -852,7 +852,15 @@ namespace {
         Trace::add(TOTAL, score);
     }
 
-    return  (pos.side_to_move() == WHITE ? v : -v) + Tempo; // Side to move point of view
+    // Side to move point of view
+    v = (pos.side_to_move() == WHITE ? v : -v) + Tempo; 
+
+    // 50 moves rule
+    const int aux = 50;
+    if (pos.rule50_count() > aux)
+        v = v * (5 * (2 * aux - pos.rule50_count()) + 6) / 256;
+
+    return v;
   }
 
 } // namespace
