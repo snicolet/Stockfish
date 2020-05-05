@@ -157,7 +157,7 @@ public:
   bool has_game_cycle(int ply) const;
   bool has_repeated() const;
   int rule50_count() const;
-  int aging() const;
+  Key aging() const;
   Score psq_score() const;
   Value non_pawn_material(Color c) const;
   Value non_pawn_material() const;
@@ -368,8 +368,8 @@ inline int Position::rule50_count() const {
   return st->rule50;
 }
 
-inline int Position::aging() const {
-  return st->rule50 <= 50 ? 0 : ((1 + (st->rule50 - 50) / 16) << 16);
+inline Key Position::aging() const {
+  return st->rule50 <= 50 ? 0 : (uint64_t(1 + (st->rule50 - 50) / 16) << 48);
 }
 
 inline bool Position::opposite_bishops() const {
