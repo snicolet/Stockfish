@@ -855,10 +855,9 @@ namespace {
     // Side to move point of view
     v = (pos.side_to_move() == WHITE ? v : -v) + Tempo; 
 
-    // 50 moves rule
-    const int aux = 50;
-    if (pos.rule50_count() > aux)
-        v = v * (5 * (2 * aux - pos.rule50_count()) + 6) / 256;
+    // Damp down the eval after 18 moves of shuffling
+    if (pos.rule50_count() > 36)
+        v = v * (4 * (100 - pos.rule50_count())) / 256;
 
     return v;
   }
