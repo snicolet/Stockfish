@@ -860,7 +860,7 @@ namespace {
 
     // Damp down the eval after 25 moves of shuffling
     if (pos.rule50_count() > 50)
-        v = v * std::max(6, -44 + 6 * (100 - pos.rule50_count())) / 256;
+        v = v * (5 * (100 - pos.rule50_count()) + 6) / 256;
 
     return v;
   }
