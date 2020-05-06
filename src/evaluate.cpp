@@ -860,7 +860,7 @@ namespace {
 
     // Damp down the eval after 25 moves of shuffling
     if (pos.rule50_count() > 50)
-        v = v * (5 * (100 - pos.rule50_count()) + 6) / 256;
+        v = v * (3 * (100 - pos.rule50_count()) + 106) / 256;
 
     return v;
   }
