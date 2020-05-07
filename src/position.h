@@ -369,7 +369,7 @@ inline int Position::rule50_count() const {
 }
 
 inline Key Position::aging() const {
-  return st->rule50 <= 50 ? 0 : (uint64_t(1 + (st->rule50 - 50) / 16) << 48);
+  return st->rule50 <= 50 ? 0 : (uint64_t(1 + (st->rule50 - 50) / 16) << 16);
 }
 
 inline bool Position::opposite_bishops() const {
