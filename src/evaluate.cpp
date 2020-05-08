@@ -327,7 +327,7 @@ namespace {
                     score += LongDiagonalBishop;
 
                 // Stochastic mobility, to avoid getting bad bishops
-                score += make_score(0, 2 * (pos.this_thread()->nodes & 3) - 3);
+                score += make_score(2 * (pos.this_thread()->nodes & 3) - 3, 0);
 
                 // An important Chess960 pattern: a cornered bishop blocked by a friendly
                 // pawn diagonally in front of it is a very serious problem, especially
