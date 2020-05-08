@@ -326,6 +326,9 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
 
+                // Stochastic mobility, to avoid getting bad bishops
+                score += make_score(0, 2 * (pos.this_thread()->nodes & 3) - 3);
+
                 // An important Chess960 pattern: a cornered bishop blocked by a friendly
                 // pawn diagonally in front of it is a very serious problem, especially
                 // when that pawn is also blocked.
