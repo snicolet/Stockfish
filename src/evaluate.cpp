@@ -810,7 +810,7 @@ namespace {
     
     // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
     int random_eval = 2 * (pos.this_thread()->nodes & 7) - 7;
-    score += make_score(random_eval, random_eval);
+    score += make_score(random_eval, -random_eval);
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
