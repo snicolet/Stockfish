@@ -807,6 +807,10 @@ namespace {
     // the position object (material + piece square tables) and the material
     // imbalance. Score is computed internally from the white point of view.
     Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
+    
+    // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
+    int random_eval = 2 * (pos.this_thread()->nodes & 3) - 3;
+    score += make_score(random_eval, random_eval);
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
