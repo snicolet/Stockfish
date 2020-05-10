@@ -809,8 +809,8 @@ namespace {
     Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
     
     // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
-    int random_eval = 2 * (pos.this_thread()->nodes & 7) - 7;
-    score += make_score(random_eval, 0);
+    int random_eval = 2 * (pos.this_thread()->nodes & 15) - 15;
+    score += make_score(random_eval, -random_eval);
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
