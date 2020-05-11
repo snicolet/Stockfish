@@ -809,11 +809,8 @@ namespace {
     Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
     
     // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
-    if (pos.pieces(QUEEN))
-    {
-        int random_eval = (pos.key() + pos.this_thread()->nodes) & 15;
-        score += make_score(random_eval, -random_eval);
-    }
+    int random_eval = (pos.key() + pos.this_thread()->nodes) & 15;
+    score += make_score(random_eval, -random_eval);
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
