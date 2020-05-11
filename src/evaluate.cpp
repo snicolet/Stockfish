@@ -831,6 +831,10 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
+    // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
+    int random_eval = 4 * ((pos.key() + pos.this_thread()->nodes) & 7) - 14;
+    score += make_score(random_eval, random_eval);
+
     // More complex interactions that require fully populated attack bitboards
     score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
