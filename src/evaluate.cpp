@@ -807,10 +807,6 @@ namespace {
     // the position object (material + piece square tables) and the material
     // imbalance. Score is computed internally from the white point of view.
     Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
-    
-    // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
-    int random_eval = (pos.key() + pos.this_thread()->nodes) & 15;
-    score += make_score(random_eval, -random_eval);
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
@@ -834,6 +830,10 @@ namespace {
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
+
+    // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
+    int random_eval = ((pos.key() + pos.this_thread()->nodes) & 15) - 7;
+    score += make_score(random_eval, -random_eval);
 
     // More complex interactions that require fully populated attack bitboards
     score +=  king<   WHITE>() - king<   BLACK>()
