@@ -64,6 +64,11 @@ namespace {
   constexpr uint64_t TtHitAverageWindow     = 4096;
   constexpr uint64_t TtHitAverageResolution = 1024;
 
+  // random noise
+  inline int noise(Position& pos, int amplitude) {
+    return 2 * ((pos.key() + pos.this_thread()->nodes) & amplitude) - amplitude;
+  }
+
   // Razor and futility margins
   constexpr int RazorMargin = 531;
   Value futility_margin(Depth d, bool improving) {
@@ -1080,7 +1085,7 @@ moves_loop: // When in check, search starts from here
           &&  pos.legal(move))
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
-          Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
+          Depth singularDepth = (depth - 1 + 3 * formerPv) / 2 + noise(pos, 1);
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
