@@ -64,11 +64,6 @@ namespace {
   constexpr uint64_t TtHitAverageWindow     = 4096;
   constexpr uint64_t TtHitAverageResolution = 1024;
 
-  // random noise
-  inline int noise(Position& pos, int amplitude) {
-    return 2 * ((pos.key() + pos.this_thread()->nodes) & amplitude) - amplitude;
-  }
-
   // Razor and futility margins
   constexpr int RazorMargin = 531;
   Value futility_margin(Depth d, bool improving) {
@@ -1177,7 +1172,7 @@ moves_loop: // When in check, search starts from here
               || cutNode
               || thisThread->ttHitAverage < 375 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
-          Depth r = reduction(improving, depth, moveCount+ noise(pos, 1));
+          Depth r = reduction(improving, depth, moveCount);
 
           // Decrease reduction if the ttHit running average is large
           if (thisThread->ttHitAverage > 500 * TtHitAverageResolution * TtHitAverageWindow / 1024)

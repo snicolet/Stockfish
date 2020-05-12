@@ -71,6 +71,11 @@ namespace Trace {
 
 using namespace Trace;
 
+// random noise
+  inline int noise(const Position& pos, int amplitude) {
+    return 2 * ((pos.key() + pos.this_thread()->nodes) & amplitude) - amplitude;
+  }
+
 namespace {
 
   // Threshold for lazy and space evaluation
@@ -462,6 +467,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
+                 +       noise(pos, 7) + 7
                  +  37;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
