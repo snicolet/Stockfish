@@ -829,7 +829,7 @@ namespace {
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += (mobility[WHITE] - mobility[BLACK]);
-    score += (mobility[WHITE] - mobility[BLACK]) / 4;
+    score += (mobility[WHITE] - mobility[BLACK]) / 8;
 
     // Stochastic mobility, see http://www.dcs.bbk.ac.uk/~mark/download/ply.pdf
     int random_eval = ((pos.key() + pos.this_thread()->nodes) & 31) - 15;
