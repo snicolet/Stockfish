@@ -105,8 +105,11 @@ namespace {
         neighbours = ourPawns   & adjacent_files_bb(s);
         phalanx    = neighbours & rank_bb(s);
         support    = neighbours & rank_bb(s - Up);
+        
+        if (more_than_one(leverPush))
+            blocked |= leverPush;
 
-        e->blockedCount += blocked || more_than_one(leverPush);
+        e->blockedCount += bool(blocked);
 
         // A pawn is backward when it is behind all pawns of the same color on
         // the adjacent files and cannot safely advance.
@@ -156,8 +159,8 @@ namespace {
             score -=   Doubled * doubled
                      + WeakLever * more_than_one(lever);
 
-        if (blocked && r >= RANK_5)
-            score += AdvancedBlocked;
+        //if (blocked && r >= RANK_5)
+        //    score += AdvancedBlocked;
     }
 
     return score;
