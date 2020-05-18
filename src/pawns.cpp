@@ -32,6 +32,7 @@ namespace {
   #define S(mg, eg) make_score(mg, eg)
 
   // Pawn penalties
+  constexpr Score AdvancedBlocked = S(10, 5);
   constexpr Score Backward      = S( 9, 24);
   constexpr Score BlockedStorm  = S(82, 82);
   constexpr Score Doubled       = S(11, 56);
@@ -154,6 +155,9 @@ namespace {
         if (!support)
             score -=   Doubled * doubled
                      + WeakLever * more_than_one(lever);
+
+        if (blocked && r >= RANK_5)
+            score += AdvancedBlocked;
     }
 
     return score;
