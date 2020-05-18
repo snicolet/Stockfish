@@ -32,7 +32,6 @@ namespace {
   #define S(mg, eg) make_score(mg, eg)
 
   // Pawn penalties
-  constexpr Score AdvancedBlocked = S(5, 10);
   constexpr Score Backward      = S( 9, 24);
   constexpr Score BlockedStorm  = S(82, 82);
   constexpr Score Doubled       = S(11, 56);
@@ -105,7 +104,7 @@ namespace {
         neighbours = ourPawns   & adjacent_files_bb(s);
         phalanx    = neighbours & rank_bb(s);
         support    = neighbours & rank_bb(s - Up);
-        
+
         if (more_than_one(leverPush))
             blocked |= leverPush;
 
@@ -158,9 +157,6 @@ namespace {
         if (!support)
             score -=   Doubled * doubled
                      + WeakLever * more_than_one(lever);
-
-        //if (blocked && r >= RANK_5)
-        //    score += AdvancedBlocked;
     }
 
     return score;
