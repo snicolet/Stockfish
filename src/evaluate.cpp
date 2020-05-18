@@ -719,8 +719,8 @@ namespace {
   template<Tracing T>
   Score Evaluation<T>::initiative(Score score) const {
 
-    int outflanking =  2 * distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                         - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+    int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
+                     - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
@@ -739,7 +739,7 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    -  4 * pos.rule50_count()
+                    -  2 * pos.rule50_count()
                     -110 ;
 
     Value mg = mg_value(score);
