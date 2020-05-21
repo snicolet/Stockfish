@@ -154,6 +154,9 @@ namespace {
         if (!support)
             score -=   Doubled * doubled
                      + WeakLever * more_than_one(lever);
+
+        if (!opposed)
+            e->asymmetryCount++;
     }
 
     return score;
@@ -177,7 +180,8 @@ Entry* probe(const Position& pos) {
       return e;
 
   e->key = key;
-  e->blockedCount = 0;
+  e->blockedCount = e->asymmetryCount = 0;
+
   e->scores[WHITE] = evaluate<WHITE>(pos, e);
   e->scores[BLACK] = evaluate<BLACK>(pos, e);
 
