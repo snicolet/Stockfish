@@ -602,9 +602,7 @@ namespace {
         // Can we lever the blocker of a candidate passer?
         leverable =  shift<Up>(pos.pieces(Us, PAWN))
                    & ~pos.pieces(Them)
-                   & (~attackedBy2[Them] | attackedBy[Us][ALL_PIECES])
-                   & (~(attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
-                     | (attackedBy[Us  ][KNIGHT] | attackedBy[Us  ][BISHOP]));
+                   & (~attackedBy2[Them] | attackedBy[Us][ALL_PIECES]);
 
         // Remove candidate otherwise
         b &= ~candidatePassers
@@ -733,7 +731,7 @@ namespace {
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
-                    + 11 * pos.count<PAWN>()
+                    + 12 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 24 * infiltration
