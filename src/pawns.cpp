@@ -156,7 +156,10 @@ namespace {
                      + WeakLever * more_than_one(lever);
 
         if (!opposed)
-            e->asymmetryCount++;
+            e->asymmetryCount +=   1 
+                                 - bool(doubled)
+                                 + bool(backward) 
+                                 + bool(passed) * (1 + bool(support));
     }
 
     return score;
