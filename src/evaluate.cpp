@@ -154,6 +154,13 @@ namespace {
 
 #undef S
 
+  int asymmetry_weight = 4;
+  int passed_weight    = 4;
+  int offset           = -110;
+  
+  TUNE(SetRange(-10, 25), asymmetry_weight, passed_weight);
+  TUNE(SetRange(-300, 100), offset);
+
   // Evaluation class computes and stores attacks tables and other working data
   template<Tracing T>
   class Evaluation {
@@ -729,8 +736,8 @@ namespace {
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   4 * pe->passed_count()
-                    +  4 * pe->asymmetry()
+    int complexity =   passed_weight    * pe->passed_count()
+                    +  asymmetry_weight * pe->asymmetry()
                     + 12 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
@@ -738,7 +745,7 @@ namespace {
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
                     -  2 * pos.rule50_count()
-                    -110 ;
+                    + (offset) ;
 
 //dbg_mean_of(complexity);
 //dbg_mean_of(2 * pe->passed_count()+  8 * pe->asymmetry());
