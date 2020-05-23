@@ -735,8 +735,8 @@ namespace {
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   (9 + passed_weight)    * pe->passed_count()
-                    +  (0 + asymmetry_weight) * pe->asymmetry()
+    int complexity =   (4 + passed_weight)    * pe->passed_count()
+                    +  (4 + asymmetry_weight) * pe->asymmetry()
                     + 12 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
