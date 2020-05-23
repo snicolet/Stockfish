@@ -158,7 +158,7 @@ namespace {
   int passed_weight    = 0;
   int offset           = 0;
   
-  TUNE(SetRange(-100, 100), asymmetry_weight, passed_weight, offset);
+  TUNE(SetRange(-1000, 1000), asymmetry_weight, passed_weight, offset);
 
   // Evaluation class computes and stores attacks tables and other working data
   template<Tracing T>
