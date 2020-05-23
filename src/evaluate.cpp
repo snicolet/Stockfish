@@ -154,8 +154,8 @@ namespace {
 
 #undef S
 
-  int asymmetry_weight = 4;
-  int passed_weight    = 4;
+  int asymmetry_weight = 0;
+  int passed_weight    = 9;
   int offset           = -110;
   
   TUNE(SetRange(-10, 25), asymmetry_weight, passed_weight);
