@@ -738,7 +738,7 @@ namespace {
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
                     -  2 * pos.rule50_count()
-                    + (-110 + (-6)) ;
+                    + (-110 + (-16)) ;
 
 //dbg_mean_of(complexity);
 //dbg_mean_of(2 * pe->passed_count()+  8 * pe->asymmetry());
