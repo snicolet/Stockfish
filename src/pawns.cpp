@@ -32,7 +32,7 @@ namespace {
   #define S(mg, eg) make_score(mg, eg)
 
   // Pawn penalties
-  constexpr Score Backward      = S( 9, 24);
+  constexpr Score Backward      = S( 24, 29);
   constexpr Score Doubled       = S(11, 56);
   constexpr Score Isolated      = S( 5, 15);
   constexpr Score WeakLever     = S( 0, 56);
@@ -161,6 +161,9 @@ namespace {
         if (!support)
             score -=   Doubled * doubled
                      + WeakLever * more_than_one(lever);
+
+        if (!opposed)
+            e->asymmetryCount++;
     }
 
     return score;
@@ -184,9 +187,12 @@ Entry* probe(const Position& pos) {
       return e;
 
   e->key = key;
-  e->blockedCount = 0;
+  e->blockedCount = e->asymmetryCount = 0;
+
   e->scores[WHITE] = evaluate<WHITE>(pos, e);
   e->scores[BLACK] = evaluate<BLACK>(pos, e);
+
+  e->passedCount = popcount(e->passedPawns[WHITE] | e->passedPawns[BLACK]);
 
   return e;
 }
