@@ -163,7 +163,7 @@ namespace {
                      + WeakLever * more_than_one(lever);
 
         if (!opposed)
-            e->asymmetryCount++;
+            e->asymmetryCount += (1 + !!passed);
     }
 
     return score;
