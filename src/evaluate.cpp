@@ -329,11 +329,6 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
 
-                // Bonus if our bishop has no opposing bishop
-                Bitboard sq = (DarkSquares & s) ? DarkSquares : ~DarkSquares;
-                if (!(pos.pieces(Them, BISHOP) & sq))
-                    score += make_score(0, 10);
-
                 // An important Chess960 pattern: a cornered bishop blocked by a friendly
                 // pawn diagonally in front of it is a very serious problem, especially
                 // when that pawn is also blocked.
