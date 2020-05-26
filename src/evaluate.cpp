@@ -744,7 +744,7 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    -  4 * rule50
+                    -  2 * rule50
                     -110 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
