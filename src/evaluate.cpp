@@ -718,6 +718,9 @@ namespace {
 
   template<Tracing T>
   Score Evaluation<T>::initiative(Score score) const {
+  
+    Value mg = mg_value(score);
+    Value eg = eg_value(score);
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
@@ -731,6 +734,8 @@ namespace {
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
+    int rule50 = (int(mg) * int(eg)) < 0 ? 0 : pos.rule50_count();
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 12 * pos.count<PAWN>()
@@ -739,11 +744,8 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    -  2 * pos.rule50_count()
+                    -  8 * rule50
                     -110 ;
-
-    Value mg = mg_value(score);
-    Value eg = eg_value(score);
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
