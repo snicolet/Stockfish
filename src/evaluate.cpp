@@ -332,7 +332,7 @@ namespace {
                 // Bonus if our bishop has no opposing bishop
                 Bitboard sq = (DarkSquares & s) ? DarkSquares : ~DarkSquares;
                 if (!(pos.pieces(Them, BISHOP) & sq))
-                    score += make_score(30, 30);
+                    score += make_score(5, 5);
 
                 // An important Chess960 pattern: a cornered bishop blocked by a friendly
                 // pawn diagonally in front of it is a very serious problem, especially
