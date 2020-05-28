@@ -737,7 +737,7 @@ TUNE(SetRange(-100, 100) , offset);
     int asymmetry = pe->asymmetry() * pe->asymmetry();
 
     // Compute the initiative bonus for the attacking side
-    int complexity =  (0 + (6)) * asymmetry
+    int complexity =  (0 + (2)) * asymmetry
                     //+ (9 + (2)) * pe->passed_count()
                     + 12 * pos.count<PAWN>()
                     +  9 * outflanking
