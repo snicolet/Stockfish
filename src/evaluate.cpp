@@ -711,6 +711,9 @@ namespace {
     return score;
   }
 
+int offset = 0;
+
+TUNE(SetRange(-100, 100) , offset);
 
   // Evaluation::initiative() computes the initiative correction value
   // for the position. It is a second order bonus/malus based on the
@@ -743,7 +746,7 @@ namespace {
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
                     -  2 * pos.rule50_count()
-                    + (-122);
+                    + (-122 + offset);
 
 //dbg_mean_of(complexity);
 //dbg_mean_of(2 * pe->passed_count()+  8 * pe->asymmetry());
