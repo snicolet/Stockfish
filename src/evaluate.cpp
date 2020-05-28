@@ -711,10 +711,6 @@ namespace {
     return score;
   }
 
-int offset = 0;
-
-TUNE(SetRange(-100, 100) , offset);
-
   // Evaluation::initiative() computes the initiative correction value
   // for the position. It is a second order bonus/malus based on the
   // known attacking/defending status of the players.
@@ -737,8 +733,7 @@ TUNE(SetRange(-100, 100) , offset);
     int asymmetry = pe->asymmetry() * pe->asymmetry();
 
     // Compute the initiative bonus for the attacking side
-    int complexity =  (0 + (2)) * asymmetry
-                    //+ (9 + (2)) * pe->passed_count()
+    int complexity =  (0 + (3)) * asymmetry
                     + 12 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
@@ -746,10 +741,7 @@ TUNE(SetRange(-100, 100) , offset);
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
                     -  2 * pos.rule50_count()
-                    + (-122 + offset);
-
-//dbg_mean_of(complexity);
-//dbg_mean_of(2 * pe->passed_count()+  8 * pe->asymmetry());
+                    + (-122);
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
