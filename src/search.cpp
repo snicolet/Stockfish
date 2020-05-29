@@ -806,7 +806,8 @@ namespace {
     {
         // Never assume anything about values stored in TT
         ss->staticEval = eval = tte->eval();
-        if (eval == VALUE_NONE)
+        if (   eval == VALUE_NONE 
+            || pos.rule50_count() > 50)
             ss->staticEval = eval = evaluate(pos);
 
         if (eval == VALUE_DRAW)
@@ -814,6 +815,7 @@ namespace {
 
         // Can ttValue be used as a better position evaluation?
         if (    ttValue != VALUE_NONE
+            && pos.rule50_count() <= 50
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
     }
@@ -1133,6 +1135,9 @@ moves_loop: // When in check, search starts from here
 
       // Castling extension
       if (type_of(move) == CASTLING)
+          extension = 1;
+
+      if (PvNode && move == ttMove && pos.rule50_count() > 75)
           extension = 1;
 
       // Late irreversible move extension
