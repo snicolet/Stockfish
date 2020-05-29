@@ -806,7 +806,7 @@ namespace {
     {
         // Never assume anything about values stored in TT
         ss->staticEval = eval = tte->eval();
-        if (   eval == VALUE_NONE 
+        if (   eval == VALUE_NONE
             || pos.rule50_count() > 50)
             ss->staticEval = eval = evaluate(pos);
 
@@ -815,6 +815,7 @@ namespace {
 
         // Can ttValue be used as a better position evaluation?
         if (    ttValue != VALUE_NONE
+            &&  pos.rule50_count() <= 50
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
     }
@@ -822,7 +823,7 @@ namespace {
     {
         if ((ss-1)->currentMove != MOVE_NULL)
         {
-            int bonus = -(ss-1)->statScore / 512;
+            int bonus = pos.rule50_count() > 50 ? 0 : -(ss-1)->statScore / 512;
 
             ss->staticEval = eval = evaluate(pos) + bonus;
         }
