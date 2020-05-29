@@ -815,7 +815,6 @@ namespace {
 
         // Can ttValue be used as a better position evaluation?
         if (    ttValue != VALUE_NONE
-            && pos.rule50_count() <= 50
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
     }
