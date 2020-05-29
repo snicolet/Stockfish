@@ -164,7 +164,7 @@ namespace {
 
         if (!opposed)
             e->asymmetryCount +=   1
-                                 + bool(passed) * (1 + 2 * bool(support));
+                                 + bool(passed) * (1 + bool(support));
     }
 
     return score;
