@@ -561,7 +561,7 @@ namespace {
     b &= ~attackedBy[Them][PAWN] & safe;
 
     // Pawn mobility
-    score += PawnSafePush * popcount(b);
+    score += PawnSafePush * popcount(b & KingFlank[file_of(pos.square<KING>(Them))]);
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
