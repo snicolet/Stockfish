@@ -863,10 +863,10 @@ namespace {
     // Side to move point of view
     v = (pos.side_to_move() == WHITE ? v : -v) + Tempo; 
 
-    // Damp down the eval after 18 moves of shuffling
-    if (   pos.rule50_count() > 36
+    // Damp down the eval after 25 moves of shuffling
+    if (   pos.rule50_count() > 50
         && pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK))
-        v = v * (4 * (100 - pos.rule50_count())) / 256;
+        v = v * (6 + 5 * (100 - pos.rule50_count())) / 256;
 
     return v;
   }
