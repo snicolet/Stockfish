@@ -861,7 +861,14 @@ namespace {
     }
 
     // Side to move point of view
-    return (pos.side_to_move() == WHITE ? v : -v) + Tempo;
+    v = (pos.side_to_move() == WHITE ? v : -v) + Tempo; 
+
+    // Damp down the eval after 10 moves of shuffling
+    if (   pos.rule50_count() > 20
+        && pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK))
+        v = v * (16 + 3 * (100 - pos.rule50_count())) / 256;
+
+    return v;
   }
 
 } // namespace
