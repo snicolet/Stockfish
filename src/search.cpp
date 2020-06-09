@@ -1444,7 +1444,7 @@ moves_loop: // When in check, search starts from here
     }
     else
     {
-        bool shuffling = PvNode && (pos.rule50_count() > 4);
+        bool shuffling = PvNode && (pos.rule50_count() > 8);
         if (ttHit && !shuffling)
         {
             // Never assume anything about values stored in TT
