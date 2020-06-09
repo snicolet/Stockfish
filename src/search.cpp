@@ -1522,6 +1522,10 @@ moves_loop: // When in check, search starts from here
           }
       }
 
+      // Don't search moves with negative SEE values
+      if (  !ss->inCheck && !pos.see_ge(move, Value(-200)))
+          continue;
+
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
 
