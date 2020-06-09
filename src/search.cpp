@@ -1444,7 +1444,8 @@ moves_loop: // When in check, search starts from here
     }
     else
     {
-        if (ttHit)
+        bool shuffling = PvNode && (pos.rule50_count() > 4);
+        if (ttHit && !shuffling)
         {
             // Never assume anything about values stored in TT
             if ((ss->staticEval = bestValue = tte->eval()) == VALUE_NONE)
