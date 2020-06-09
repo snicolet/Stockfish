@@ -1444,7 +1444,7 @@ moves_loop: // When in check, search starts from here
     }
     else
     {
-        if (ttHit)
+        if (!PvNode && ttHit)
         {
             // Never assume anything about values stored in TT
             if ((ss->staticEval = bestValue = tte->eval()) == VALUE_NONE)
