@@ -738,8 +738,10 @@ namespace {
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
-    bool ambiguity =   int(eg) * int(mg) < -50
-                    && pos.count<QUEEN>() > 0;
+    bool ambiguity =   int(eg) * int(mg) < -20
+                    && pos.count<QUEEN>() > 0
+                    // && int(eg) * int(eg_value(pos.this_thread()->contempt)) > 0
+                    ;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
@@ -748,7 +750,7 @@ namespace {
                     + 21 * pawnsOnBothFlanks
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
-                    - 24 * ambiguity
+                    - 48 * ambiguity
                     - 43 * almostUnwinnable
                     -110 ;
 
