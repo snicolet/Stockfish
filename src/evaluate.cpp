@@ -738,8 +738,7 @@ namespace {
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
-    bool ambiguity =   int(eg) * int(mg) < -20
-                    && pos.count<QUEEN>() > 0
+    bool ambiguity =   int(eg) * int(mg) * (pos.count<QUEEN>() > 0)
                     // && int(eg) * int(eg_value(pos.this_thread()->contempt)) > 0
                     ;
 
@@ -756,8 +755,8 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
-    int u = ((mg > 0) - (mg < 0)) * Utility::clamp(complexity + 50, -abs(mg), 50 * ambiguity);
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity,            -abs(eg) - 48 * ambiguity);
+    int u = ((mg > 0) - (mg < 0)) * Utility::clamp(complexity + 50, -abs(mg), 0);
+    int v = ((eg > 0) - (eg < 0)) * std::max(complexity + ambiguity, -abs(eg));
 
     mg += u;
     eg += v;
