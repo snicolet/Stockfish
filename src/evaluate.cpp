@@ -738,8 +738,9 @@ namespace {
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
-    bool ambiguity =   int(eg) * int(mg) * (pos.count<QUEEN>() > 0)
-                    // && int(eg) * int(eg_value(pos.this_thread()->contempt)) > 0
+    bool ambiguity =   int(eg) * int(mg) 
+                     * (pos.count<QUEEN>() > 0)
+                     * (int(eg) * int(eg_value(pos.this_thread()->contempt)) < 0)
                     ;
 
     // Compute the initiative bonus for the attacking side
