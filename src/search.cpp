@@ -798,7 +798,7 @@ namespace {
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
     }
 
-    if (pos.rule50_count() >= 3)
+    if (pos.rule50_count() >= 6)
         ss->staticEval = eval = eval * (256 - ss->ply) / 256;
 
     if (!ttHit)
@@ -1464,7 +1464,7 @@ moves_loop: // When in check, search starts from here
             (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
                                              : -(ss-1)->staticEval + 2 * Tempo;
 
-        if (pos.rule50_count() >= 3)
+        if (pos.rule50_count() >= 6)
             ss->staticEval = bestValue = bestValue * (256 - ss->ply) / 256;
 
         // Stand pat. Return immediately if static value is at least beta
