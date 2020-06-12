@@ -738,7 +738,7 @@ namespace {
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
-    int ambiguity = Utility::clamp(int(eg) * int(mg) * (pos.count<QUEEN>() > 0), 0, 16);
+    int ambiguity = Utility::clamp(int(eg) * int(mg) * (pos.count<QUEEN>() > 0), -24, 24);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
@@ -748,13 +748,13 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    -118 ;
+                    -110 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
     int u = ((mg > 0) - (mg < 0)) * Utility::clamp(complexity + 50, -abs(mg), 0);
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity + ambiguity, -abs(eg));
+    int v = ((eg > 0) - (eg < 0)) * std::max(complexity - ambiguity, -abs(eg));
 
     mg += u;
     eg += v;
