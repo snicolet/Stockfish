@@ -796,9 +796,13 @@ namespace {
         }
         else
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
-
-        tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
+
+    if (pos.rule50_count() >= 3)
+        ss->staticEval = eval = eval * (256 - ss->ply) / 256;
+
+    if (!ttHit)
+        tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
 
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
@@ -1459,6 +1463,9 @@ moves_loop: // When in check, search starts from here
             ss->staticEval = bestValue =
             (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
                                              : -(ss-1)->staticEval + 2 * Tempo;
+
+        if (pos.rule50_count() >= 3)
+            ss->staticEval = bestValue = bestValue * (256 - ss->ply) / 256;
 
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
