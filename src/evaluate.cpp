@@ -863,6 +863,8 @@ namespace {
     // Damp down the evaluation linearly when shuffling
     v = v * (100 - pos.rule50_count()) / 100;
 
+    v += Value(2 * ((pos.key() + pos.this_thread()->nodes) & 1) - 1);
+
     return v;
   }
 
