@@ -815,9 +815,9 @@ namespace {
     Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
 
     int contempt = mg_value(pos.this_thread()->contempt);
-    int m = pos.count<ALL_PIECES>() - pos.count<PAWN>();
-    score += contempt > 0 ?  make_score(0, m) :
-             contempt < 0 ? -make_score(0, m)
+    int m = pos.count<PAWN>();
+    score += contempt > 0 ?  make_score(m, m) :
+             contempt < 0 ? -make_score(m, m)
                           : SCORE_ZERO;
 
     // Probe the pawn hash table
