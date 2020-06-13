@@ -87,6 +87,17 @@ namespace {
     return d > 15 ? 28 : 19 * d * d + 135 * d - 136;
   }
 
+  // PruningSafety[rootColor][cut type] : pruning safety table
+  const int PruningSafety[2][2] = {
+     {  0 , -25 },  // ~rootColor : alpha, beta
+     { 75 ,  0  }   //  rootColor : alpha, beta
+  };
+  enum CutType { ALPHA, BETA };
+  template <CutType T>
+  int pruning_safety(int ply) {
+      return PruningSafety[ply & 1][T];
+  }
+
   // Add a small random component to draw evaluations to avoid 3fold-blindness
   Value value_draw(Thread* thisThread) {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
@@ -803,7 +814,7 @@ namespace {
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth == 1
-        &&  eval <= alpha - RazorMargin)
+        &&  eval + RazorMargin + pruning_safety<ALPHA>(ss->ply) <= alpha)
         return qsearch<NT>(pos, ss, alpha, beta);
 
     improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval > (ss-4)->staticEval
@@ -812,7 +823,7 @@ namespace {
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 6
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval - futility_margin(depth, improving) - pruning_safety<BETA>(ss->ply) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -873,7 +884,7 @@ namespace {
         &&  depth > 5
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        Value raisedBeta = beta + 182 - 48 * improving;
+        Value raisedBeta = beta + 182 - 48 * improving + pruning_safety<BETA>(ss->ply);
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
@@ -1003,7 +1014,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 6
                   && !ss->inCheck
-                  && ss->staticEval + 252 + 176 * lmrDepth <= alpha
+                  && ss->staticEval + 252 + 176 * lmrDepth + pruning_safety<ALPHA>(ss->ply) <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
