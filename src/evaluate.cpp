@@ -757,11 +757,8 @@ namespace {
     int u = ((mg > 0) - (mg < 0)) * Utility::clamp(complexity + 50, -abs(mg), 0);
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
-    if (!ambiguity)
-    {
-        mg += u;
-        eg += v;
-    }
+    mg += u * (1 + ambiguity);
+    eg += v * (1 + ambiguity);
 
     // Compute the scale factor for the winning side
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
