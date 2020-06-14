@@ -726,7 +726,7 @@ namespace {
     Value mg = mg_value(score);
     Value eg = eg_value(score);
     
-    bool ambiguity =   int(mg) * int(eg) < -30
+    bool ambiguity =   int(mg) * int(eg) < -60
                     && pos.pieces(QUEEN);
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
