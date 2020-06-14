@@ -817,8 +817,8 @@ namespace {
     int contempt = mg_value(pos.this_thread()->contempt);
     int p = pos.count<PAWN>();
     //int m = pos.count<ALL_PIECES>() - p;
-    score += contempt > 0 ?  make_score(0, p) :
-             contempt < 0 ? -make_score(0, p)
+    score += contempt > 0 ?  make_score(-p, 0) :
+             contempt < 0 ? -make_score(-p, 0)
                           : SCORE_ZERO;
 
     // Probe the pawn hash table
