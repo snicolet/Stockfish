@@ -89,8 +89,8 @@ namespace {
 
   // PruningSafety[rootColor][cut type] : pruning safety table
   const int PruningSafety[2][2] = {
-     {  0 , -25 },  // ~rootColor : alpha, beta
-     { 75 ,  0  }   //  rootColor : alpha, beta
+     { -25 , -75 },  // ~rootColor : alpha, beta
+     {  50 , -25 }   //  rootColor : alpha, beta
   };
   enum CutType { ALPHA, BETA };
   template <CutType T>
@@ -814,7 +814,7 @@ namespace {
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth == 1
-        &&  eval + RazorMargin + pruning_safety<ALPHA>(ss->ply) <= alpha)
+        &&  eval + RazorMargin <= alpha)
         return qsearch<NT>(pos, ss, alpha, beta);
 
     improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval > (ss-4)->staticEval
@@ -884,7 +884,7 @@ namespace {
         &&  depth > 5
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        Value raisedBeta = beta + 182 - 48 * improving + pruning_safety<BETA>(ss->ply);
+        Value raisedBeta = beta + 182 - 48 * improving;
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
