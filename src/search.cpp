@@ -95,7 +95,7 @@ namespace {
   enum CutType { ALPHA, BETA };
   template <CutType T>
   int pruning_safety(int ply) {
-      return PruningSafety[(ply+1) & 1][T];
+      return PruningSafety[ply & 1][T];
   }
 
   // Add a small random component to draw evaluations to avoid 3fold-blindness
