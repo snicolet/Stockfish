@@ -67,7 +67,7 @@ namespace {
   // Razor and futility margins
   constexpr int RazorMargin = 516;
   Value futility_margin(Depth d, bool improving) {
-    return Value(224 * (d - improving));
+    return Value(224 * (d - improving) - 75);
   }
 
   // Reductions lookup table, initialized at startup
@@ -89,8 +89,8 @@ namespace {
 
   // PruningSafety[rootColor][cut type] : pruning safety table
   const int PruningSafety[2][2] = {
-     {   0 , -50 },  // ~rootColor : alpha, beta
-     {  75 ,   0 }   //  rootColor : alpha, beta
+     {  0 ,  0 },  // ~rootColor : alpha, beta
+     { 75 , 50 }   //  rootColor : alpha, beta
   };
   enum CutType { ALPHA, BETA };
   template <CutType T>
