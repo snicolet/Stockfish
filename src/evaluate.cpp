@@ -748,10 +748,14 @@ namespace {
     Value mg = mg_value(score);
     Value eg = eg_value(score);
 
+    // bool c1 = mg_value(pos.this_thread()->contempt) > 0;
+    // bool c2 = mg > 0;
+    // dbg_mean_of(c1 == c2);
+
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
-    int u = ((mg > 0) - (mg < 0)) * Utility::clamp(complexity + 50, -abs(mg), 0);
+    int u = ((mg > 0) - (mg < 0)) * (Utility::clamp(complexity + 50, -abs(mg), 0) - pos.count<PAWN>());
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     mg += u;
@@ -818,8 +822,9 @@ namespace {
     // bool c2 = pos.this_thread()->rootColor == WHITE;
     // dbg_mean_of(c1 == c2);
 
-    int p = pos.count<PAWN>();
-    score += pos.this_thread()->rootColor == WHITE ? make_score(-p, 0) : make_score(p, 0);
+    
+    // int p = pos.count<PAWN>();
+    // score += pos.this_thread()->rootColor == WHITE ? make_score(-p, 0) : make_score(p, 0);
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
