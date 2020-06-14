@@ -815,7 +815,7 @@ namespace {
     Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
 
     int p = pos.count<PAWN>();
-    score += pos.side_to_move() == pos.this_thread()->rootColor ? make_score(-p, 0) : -make_score(-p, 0);
+    score += pos.side_to_move() == pos.this_thread()->rootColor ? make_score(p, 0) : make_score(-p, 0);
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
