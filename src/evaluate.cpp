@@ -722,6 +722,12 @@ namespace {
 
   template<Tracing T>
   Value Evaluation<T>::winnable(Score score) const {
+  
+    Value mg = mg_value(score);
+    Value eg = eg_value(score);
+    
+    bool ambiguity =   int(mg) * int(eg) < -30
+                    && pos.pieces(QUEEN);
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
@@ -745,20 +751,19 @@ namespace {
                     - 43 * almostUnwinnable
                     -110 ;
 
-    Value mg = mg_value(score);
-    Value eg = eg_value(score);
-
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
     int u = ((mg > 0) - (mg < 0)) * Utility::clamp(complexity + 50, -abs(mg), 0);
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
-    mg += u;
-    eg += v;
+    if (!ambiguity)
+    {
+        mg += u;
+        eg += v;
+    }
 
     // Compute the scale factor for the winning side
-
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     int sf = me->scale_factor(pos, strongSide);
 
