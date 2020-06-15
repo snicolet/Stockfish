@@ -857,14 +857,14 @@ namespace {
 
     // Evaluation grain
     v = (v / 16) * 16;
+    
+    v += Value(((pos.key() + pos.this_thread()->nodes) & 8) - 4);
 
     // Side to move point of view
     v = (pos.side_to_move() == WHITE ? v : -v) + Tempo;
 
     // Damp down the evaluation linearly when shuffling
     v = v * (100 - pos.rule50_count()) / 100;
-
-    v += Value(((pos.key() + pos.this_thread()->nodes) & 8) - 4);
 
     return v;
   }
