@@ -754,7 +754,7 @@ namespace {
     int u = ((mg > 0) - (mg < 0)) * Utility::clamp(complexity + 50, -abs(mg), 0);
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
-    mg += u + Value(((pos.key() + pos.this_thread()->nodes) & 16) - 8);
+    mg += u;
     eg += v;
 
     // Compute the scale factor for the winning side
