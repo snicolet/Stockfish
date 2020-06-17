@@ -91,7 +91,7 @@ namespace {
   Value value_draw(Position &pos) {
   
     Color stm = pos.side_to_move();
-    Value pawn = Value(pos.count<PAWN>(stm));
+    Value pawn = Value(-pos.count<PAWN>(stm));
     
     return VALUE_DRAW + pawn + Value(2 * (pos.this_thread()->nodes & 1) - 1);
   }
