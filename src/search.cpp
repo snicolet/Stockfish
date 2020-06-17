@@ -92,7 +92,7 @@ namespace {
   
     Color stm = pos.side_to_move();
     int balance = pos.count<PAWN>(stm) - pos.count<PAWN>(~stm);
-    Value pawn = Value(balance);
+    Value pawn = Value(-balance);
     
     return VALUE_DRAW + pawn + Value(2 * (pos.this_thread()->nodes & 1) - 1);
   }
