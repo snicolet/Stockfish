@@ -90,11 +90,9 @@ namespace {
   // Add a small random component to draw evaluations to avoid 3fold-blindness
   Value value_draw(Position &pos) {
   
-    Color stm = pos.side_to_move();
-    int balance = pos.count<PAWN>(stm) - pos.count<PAWN>(~stm);
-    Value pawn = Value(-balance);
+    Value drawBonus = pos.checkers() ? Value(0) : evaluate(pos) / 64;
     
-    return VALUE_DRAW + pawn + Value(2 * (pos.this_thread()->nodes & 1) - 1);
+    return VALUE_DRAW + drawBonus + Value(2 * (pos.this_thread()->nodes & 1) - 1);
   }
 
   // Skill structure is used to implement strength limit
