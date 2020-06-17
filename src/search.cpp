@@ -90,10 +90,9 @@ namespace {
   // Add a small random component to draw evaluations to avoid 3fold-blindness
   Value value_draw(Position &pos) {
   
-    Color stm = pos.side_to_move();
-    Value pawn = Value(pos.count<PAWN>(stm));
-    
-    return VALUE_DRAW + 2 * pawn + Value(2 * (pos.this_thread()->nodes & 1) - 1);
+    Value plies = Value(pos.game_ply() / 8);
+
+    return VALUE_DRAW + plies + Value(2 * (pos.this_thread()->nodes & 1) - 1);
   }
 
   // Skill structure is used to implement strength limit
