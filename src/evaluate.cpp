@@ -350,7 +350,9 @@ namespace {
 
         if (Pt == ROOK)
         {
-            // Bonus for rook on the same file as opponent queen
+            // Bonus for rook on the same file queen, double if opponent queen
+            if (file_bb(s) & pos.pieces(QUEEN))
+                score += RookOnQueenFile;
             if (file_bb(s) & pos.pieces(Them, QUEEN))
                 score += RookOnQueenFile;
 
