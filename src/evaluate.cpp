@@ -858,7 +858,7 @@ namespace {
     // Evaluation grain
     v = (v / 16) * 16;
 
-    if (pos.pieces(QUEEN))
+    if (pos.pieces(BISHOP))
         v += Value(((pos.key() + pos.this_thread()->nodes) & 16) - 8);
 
     // Side to move point of view
