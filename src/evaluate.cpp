@@ -878,6 +878,21 @@ Value Eval::evaluate(const Position& pos) {
 }
 
 
+/// A version of evaluate() using the given contempt
+
+Value Eval::evaluate(const Position& pos, Score contempt) {
+
+  Value v;
+  Score old_contempt = pos.this_thread()->contempt;
+
+  pos.this_thread()->contempt = contempt; 
+  v = Evaluation<NO_TRACE>(pos).value();
+  pos.this_thread()->contempt = old_contempt;
+  
+  return v;
+}
+
+
 /// trace() is like evaluate(), but instead of returning a value, it returns
 /// a string (suitable for outputting to stdout) that contains the detailed
 /// descriptions and values of each evaluation term. Useful for debugging.

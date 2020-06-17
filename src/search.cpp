@@ -359,8 +359,9 @@ void Thread::search() {
           : Options["Analysis Contempt"] == "Black" && us == WHITE ? -ct
           : ct;
 
-  // In tournament mode, force the contempt to zero when playing Black
-  if (us == BLACK)
+  // In tournament mode, force the contempt to zero if at a disadvantage
+  if (   !rootPos.checkers() 
+      && evaluate(rootPos, SCORE_ZERO) < 0)
       ct = 0;
 
   // Evaluation score is from the white point of view
