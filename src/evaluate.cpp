@@ -23,6 +23,7 @@
 #include <cstring>   // For std::memset
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -857,8 +858,11 @@ namespace {
 
     // Evaluation grain
     v = (v / 16) * 16;
+    
+    //for (int k = -50 ; k <= 50 ; k++)
+    //    std::cerr << "k = " << k << "   ====>  (k/16)*16 = " << (k/16)*16 << std::endl;
 
-    if (pos.pieces(BISHOP))
+    if (!pos.pieces(QUEEN))
         v += Value(((pos.key() + pos.this_thread()->nodes) & 16) - 8);
 
     // Side to move point of view
