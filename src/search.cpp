@@ -92,7 +92,7 @@ namespace {
   
     Value plies = Value(pos.game_ply() / 8);
 
-    return VALUE_DRAW + plies + Value(2 * (pos.this_thread()->nodes & 1) - 1);
+    return VALUE_DRAW - plies + Value(2 * (pos.this_thread()->nodes & 1) - 1);
   }
 
   // Skill structure is used to implement strength limit
