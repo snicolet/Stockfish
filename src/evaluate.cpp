@@ -754,7 +754,7 @@ namespace {
     int u = ((mg > 0) - (mg < 0)) * Utility::clamp(complexity + 50, -abs(mg), 0);
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
-    mg += u;
+    mg += u + Value(((pos.key() + pos.this_thread()->nodes) & 16) - 8);
     eg += v;
 
     // Compute the scale factor for the winning side
@@ -857,8 +857,6 @@ namespace {
 
     // Evaluation grain
     v = (v / 16) * 16;
-    
-    v += Value(((pos.key() + pos.this_thread()->nodes) & 16) - 8);
 
     // Side to move point of view
     v = (pos.side_to_move() == WHITE ? v : -v) + Tempo;
