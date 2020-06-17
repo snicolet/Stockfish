@@ -361,7 +361,7 @@ void Thread::search() {
 
   // In tournament mode, force the contempt to zero if at a disadvantage
   if (   !rootPos.checkers() 
-      && evaluate(rootPos, SCORE_ZERO) < 0)
+      && evaluate(rootPos, SCORE_ZERO) < -20)
       ct = 0;
 
   // Evaluation score is from the white point of view
