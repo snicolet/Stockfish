@@ -359,6 +359,10 @@ void Thread::search() {
           : Options["Analysis Contempt"] == "Black" && us == WHITE ? -ct
           : ct;
 
+  // In tournament mode, force the contempt to zero when playing Black
+  if (us == BLACK)
+      ct = 0;
+
   // Evaluation score is from the white point of view
   contempt = (us == WHITE ?  make_score(ct, ct / 2)
                           : -make_score(ct, ct / 2));
