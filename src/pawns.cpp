@@ -224,13 +224,6 @@ Score Entry::evaluate_shelter(const Position& pos, Square ksq) {
           bonus -= make_score(UnblockedStorm[d][theirRank], 0);
   }
 
-  // A large enemy pawn majority in the king side is a big danger
-  Bitboard kf = KingFlank[file_of(ksq)];
-  int majority = popcount(theirPawns & kf) - popcount(ourPawns & kf);
-
-  if (majority >= 2)
-      bonus -= make_score(30, 0);
-
   return bonus;
 }
 
