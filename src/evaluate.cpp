@@ -462,7 +462,7 @@ namespace {
     Bitboard kf = KingFlank[file_of(ksq)];
     int majority = popcount(pos.pieces(Them, PAWN) & kf) - popcount(pos.pieces(Us, PAWN) & kf);
     if (majority >= 2)
-        kingDanger += 6;
+        kingDanger += 14;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
