@@ -94,7 +94,7 @@ namespace {
     if (!pos.this_thread()->isPositive)
        plyBonus = -plyBonus;
 
-    if (pos.side_to_move() != pos.this_thread()->rootColor)
+    if (pos.side_to_move() == pos.this_thread()->rootColor)
        plyBonus = -plyBonus;
        
     return VALUE_DRAW + plyBonus + Value(2 * (pos.this_thread()->nodes & 1) - 1);
