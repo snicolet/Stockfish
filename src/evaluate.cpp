@@ -756,6 +756,9 @@ namespace {
 
     mg += u;
     eg += v;
+    
+    if (int(mg) * int(eg) < -40)
+        mg -= mg / 4;
 
     // Compute the scale factor for the winning side
 
