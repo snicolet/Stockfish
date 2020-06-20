@@ -781,6 +781,11 @@ namespace {
        + eg * int(PHASE_MIDGAME - me->game_phase()) * ScaleFactor(sf) / SCALE_FACTOR_NORMAL;
     v /= PHASE_MIDGAME;
 
+    
+    int risk = int(mg) * int(eg) >= 0 ? 0 : abs(v - eg);
+    
+    v += ((mg > 0) - (mg < 0)) * Utility::clamp(-risk / 4, -100, 100);
+
     if (T)
     {
         Trace::add(WINNABLE, make_score(u, eg * ScaleFactor(sf) / SCALE_FACTOR_NORMAL - eg_value(score)));
