@@ -782,8 +782,8 @@ namespace {
     v /= PHASE_MIDGAME;
 
 
-    int risk = int(mg) * int(eg) >= 0 ? 0 : abs(v - eg);
-    risk = Utility::clamp(risk, -100, 100);
+    int risk = int(mg) * int(eg) >= -100 ? 0 : abs(v - eg);
+    risk = Utility::clamp(risk, -400, 400);
 
     if (risk)
     {
