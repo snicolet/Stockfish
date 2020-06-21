@@ -781,10 +781,18 @@ namespace {
        + eg * int(PHASE_MIDGAME - me->game_phase()) * ScaleFactor(sf) / SCALE_FACTOR_NORMAL;
     v /= PHASE_MIDGAME;
 
-    
+
     int risk = int(mg) * int(eg) >= 0 ? 0 : abs(v - eg);
-    
-    v += ((mg > 0) - (mg < 0)) * Utility::clamp(-risk / 4, -100, 100);
+    risk = Utility::clamp(risk, -100, 100);
+
+    if (risk)
+    {
+        if (pos.this_thread()->rootColor == WHITE && mg > 0)
+            v -= risk / 4;
+        
+        if (pos.this_thread()->rootColor == BLACK && mg < 0)
+            v += risk / 4;
+    }
 
     if (T)
     {
