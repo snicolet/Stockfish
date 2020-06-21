@@ -1112,6 +1112,16 @@ bool Position::see_ge(Move m, Value threshold) const {
   return bool(res);
 }
 
+
+/// Position::stockfish_to_move() is useful in search of evaluation to know
+/// if the position is accessed in a search node where the side to move and
+/// and the color of the root color are the same.
+
+bool Position::stockfish_to_move() const {
+  return sideToMove == this_thread()->rootColor;
+}
+
+
 /// Position::is_draw() tests whether the position is drawn by 50-move rule
 /// or by repetition. It does not detect stalemates.
 
