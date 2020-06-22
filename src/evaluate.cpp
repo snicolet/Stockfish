@@ -471,6 +471,9 @@ namespace {
                  -   4 * kingFlankDefense
                  +  37;
 
+    if (queenChecks)
+        kingDanger = std::min(kingDanger, 1800);
+
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
