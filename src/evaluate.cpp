@@ -471,7 +471,7 @@ namespace {
                  -   4 * kingFlankDefense
                  +  37;
 
-    if (queenChecks)
+    if (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) < 3 * PawnValueEg)
         kingDanger = std::min(kingDanger, 1800);
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
