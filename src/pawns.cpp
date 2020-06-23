@@ -34,6 +34,7 @@ namespace {
   // Pawn penalties
   constexpr Score Backward      = S( 9, 24);
   constexpr Score Doubled       = S(11, 56);
+  constexpr Score FrenchBind    = S( 5,  5);
   constexpr Score Isolated      = S( 5, 15);
   constexpr Score WeakLever     = S( 0, 56);
   constexpr Score WeakUnopposed = S(13, 27);
@@ -71,6 +72,9 @@ namespace {
 
     constexpr Color     Them = ~Us;
     constexpr Direction Up   = pawn_push(Us);
+    const Bitboard FrenchBindMask1 = (Us == WHITE ? SquareBB[SQ_E5] : SquareBB[SQ_E4]);
+    const Bitboard FrenchBindMask2 = (Us == WHITE ? SquareBB[SQ_H5] | SquareBB[SQ_H6] 
+                                                  : SquareBB[SQ_H4] | SquareBB[SQ_H3]);
 
     Bitboard neighbours, stoppers, support, phalanx, opposed;
     Bitboard lever, leverPush, blocked;
@@ -88,6 +92,10 @@ namespace {
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = e->pawnAttacksSpan[Us] = pawn_attacks_bb<Us>(ourPawns);
     e->blockedCount += popcount(shift<Up>(ourPawns) & (theirPawns | doubleAttackThem));
+
+    if (   ourPawns & FrenchBindMask1 
+        && ourPawns & FrenchBindMask2)
+        score += FrenchBind;
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
