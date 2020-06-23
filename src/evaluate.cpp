@@ -583,6 +583,11 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    if (Us == pos.this_thread()->rootColor)
+    {
+        score += make_score(10, 0);
+    }
+
     if (T)
         Trace::add(THREAT, Us, score);
 
