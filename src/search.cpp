@@ -402,8 +402,8 @@ void Thread::search() {
               // Adjust endgame avoidance based on root move's previousScore
               int dea = ea + (110 - ea / 2) * prev / (abs(prev) + 140);
 
-              endgame_avoidance = (us == WHITE ?  make_score(dea, dea / 2)
-                                               : -make_score(dea, dea / 2));
+              endgame_avoidance = (us == WHITE ?  make_score(dea / 2, -dea / 2)
+                                               : -make_score(dea / 2, -dea / 2));
           }
 
           // Start with a small aspiration window and, in the case of a fail
