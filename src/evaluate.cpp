@@ -821,7 +821,7 @@ namespace {
     // Initialize score by reading the incrementally updated scores included in
     // the position object (material + piece square tables) and the material
     // imbalance. Score is computed internally from the white point of view.
-    Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
+    Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->endgame_avoidance;
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
@@ -897,7 +897,7 @@ std::string Eval::trace(const Position& pos) {
 
   std::memset(scores, 0, sizeof(scores));
 
-  pos.this_thread()->contempt = SCORE_ZERO; // Reset any dynamic contempt
+  pos.this_thread()->endgame_avoidance = SCORE_ZERO;
 
   Value v = Evaluation<TRACE>(pos).value();
 
