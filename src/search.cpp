@@ -348,13 +348,12 @@ void Thread::search() {
 
   multiPV = std::min(multiPV, rootMoves.size());
   ttHitAverage = TtHitAverageWindow * TtHitAverageResolution / 2;
-  
-  int ea = 12 * PawnValueEg / 100; // From centipawns
+
+  int ea = 24 * PawnValueEg / 100; // From centipawns
 
   // Evaluation score is from the white point of view
-  endgame_avoidance = (us == WHITE ?  make_score(ea, -ea)
-                                   : -make_score(ea, -ea));
-
+  endgame_avoidance = (us == WHITE ?  make_score(ea / 2, -ea / 2)
+                                   : -make_score(ea / 2, -ea / 2));
 
   int searchAgainCounter = 0;
 
