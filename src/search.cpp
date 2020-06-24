@@ -398,16 +398,10 @@ void Thread::search() {
               delta = Value(19);
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
-              
-              if ((prev > 0) ^ (us == WHITE))
-                  endgame_avoidance += make_score(-1, 1);
-              else 
-                  endgame_avoidance -= make_score(1, -1);
 
-//             ea += (prev > 0 ? 1 : -1);
-//             endgame_avoidance = (us == WHITE ?  make_score(ea, -ea)
-//                                              : -make_score(ea, -ea));
-              
+            ea = std::max(0, ea + (prev > 0 ? 1 : -1));
+            endgame_avoidance = (us == WHITE ?  make_score(ea, -ea)
+                                             : -make_score(ea, -ea));
           }
 
           // Start with a small aspiration window and, in the case of a fail
