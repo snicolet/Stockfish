@@ -398,12 +398,6 @@ void Thread::search() {
               delta = Value(19);
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
-
-              // Adjust endgame avoidance based on root move's previousScore
-              int dea = ea + (110 - ea / 2) * prev / (abs(prev) + 140);
-
-              endgame_avoidance = (us == WHITE ?  make_score(dea, -dea)
-                                               : -make_score(dea, -dea));
           }
 
           // Start with a small aspiration window and, in the case of a fail
