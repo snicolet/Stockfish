@@ -349,11 +349,11 @@ void Thread::search() {
   multiPV = std::min(multiPV, rootMoves.size());
   ttHitAverage = TtHitAverageWindow * TtHitAverageResolution / 2;
 
-  int ea = 24 * PawnValueEg / 100; // From centipawns
+  int ea = 12 * PawnValueEg / 100; // From centipawns
 
   // Evaluation score is from the white point of view
-  endgame_avoidance = (us == WHITE ?  make_score(ea / 2, -ea / 2)
-                                   : -make_score(ea / 2, -ea / 2));
+  endgame_avoidance = (us == WHITE ?  make_score(ea, -ea)
+                                   : -make_score(ea, -ea));
 
   int searchAgainCounter = 0;
 
@@ -402,8 +402,8 @@ void Thread::search() {
               // Adjust endgame avoidance based on root move's previousScore
               int dea = ea + (110 - ea / 2) * prev / (abs(prev) + 140);
 
-              endgame_avoidance = (us == WHITE ?  make_score(dea / 2, -dea / 2)
-                                               : -make_score(dea / 2, -dea / 2));
+              endgame_avoidance = (us == WHITE ?  make_score(dea, -dea)
+                                               : -make_score(dea, -dea));
           }
 
           // Start with a small aspiration window and, in the case of a fail
