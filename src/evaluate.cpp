@@ -502,6 +502,8 @@ namespace {
     constexpr Color     Them     = ~Us;
     constexpr Direction Up       = pawn_push(Us);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  BlockedMask = (Us == WHITE ? Rank6BB | Rank7BB
+                                                   : Rank3BB | Rank2BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -583,9 +585,17 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    if (Us == pos.this_thread()->rootColor)
+    
     {
-        score += make_score(10, 0);
+        Bitboard blocked = shift<Up>(pos.pieces(Us, PAWN)) & pos.pieces(Them, PAWN);
+        int x = popcount(blocked & BlockedMask);
+        
+        score += make_score(0,  8 * x);
+        
+//         if (Us != pos.this_thread()->rootColor)
+//             score += make_score( 4 * x,  4 * x);
+//         else
+//             score += make_score(-4 * x, -4 * x);
     }
 
     if (T)
