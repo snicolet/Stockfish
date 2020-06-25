@@ -577,7 +577,7 @@ namespace {
     {
         Square s = pos.square<QUEEN>(Them);
         safe =   mobilityArea[Us]
-              & ~pos.pieces(Us, PAWN, KING)
+              & ~pos.pieces(Us, PAWN)
               & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & attacks_bb<KNIGHT>(s);
