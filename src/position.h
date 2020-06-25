@@ -316,7 +316,7 @@ inline int Position::pawns_on_same_color_squares(Color c, Square s) const {
 }
 
 inline Key Position::key() const {
-  return st->key;
+  return st->key ^ ((st->rule50 / 16) << 16);
 }
 
 inline Key Position::pawn_key() const {
