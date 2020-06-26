@@ -47,9 +47,9 @@ namespace {
     {                                   }, // Bishop pair
     {  36,                              }, // Pawn
     {   9,   63,                        }, // Knight      OUR PIECES
-    {  59,   65,  42,                   }, // Bishop
-    {  46,   39,  24,   -24,            }, // Rook
-    {  97,  100, -42,   137,  268,      }  // Queen
+    {  59,   65,   42,                   }, // Bishop
+    {  46,   39,   24,  -24,            }, // Rook
+    { -53,  100, -192,  137,  268,      }  // Queen
   };
 
   // Endgame evaluation and scaling functions are accessed directly and not through
