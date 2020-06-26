@@ -663,6 +663,9 @@ namespace {
     // position key in case of an excluded move.
     excludedMove = ss->excludedMove;
     posKey = pos.key() ^ (Key(excludedMove) << 48); // Isn't a very good hash
+    if (PvNode && pos.rule50_count() > 16)
+       posKey = posKey ^ (pos.rule50_count() / 16);
+
     tte = TT.probe(posKey, ttHit);
     ttValue = ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
@@ -1427,6 +1430,9 @@ moves_loop: // When in check, search starts from here
                                                   : DEPTH_QS_NO_CHECKS;
     // Transposition table lookup
     posKey = pos.key();
+    if (PvNode && pos.rule50_count() > 16)
+       posKey = posKey ^ (pos.rule50_count() / 16);
+
     tte = TT.probe(posKey, ttHit);
     ttValue = ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove = ttHit ? tte->move() : MOVE_NONE;
