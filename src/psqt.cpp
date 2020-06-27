@@ -99,6 +99,7 @@ constexpr Score PBonus[RANK_NB][FILE_NB] =
    { S( -7,  0), S(  7,-11), S( -3, 12), S(-13, 21), S(  5, 25), S(-16, 19), S( 10,  4), S( -8,  7) }
   };
 
+#undef T
 #undef S
 
 Score psq[PIECE_NB][SQUARE_NB];
