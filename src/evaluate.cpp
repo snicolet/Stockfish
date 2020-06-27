@@ -863,17 +863,17 @@ namespace {
         Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
     }
 
-    // Add random term if position is unclear
-    if (pos.non_pawn_material() > 8000 
-        && abs(mg_value(score) - eg_value(score)) > Value(400)
-        && abs(v) < Value(160))
-       v += Value(2 * ((pos.key() + pos.this_thread()->nodes) & 1) - 1) * int(mg_value(score) - eg_value(score)) / 128;
-
     // Evaluation grain
     v = (v / 16) * 16;
 
     // Side to move point of view
     v = (pos.side_to_move() == WHITE ? v : -v) + Tempo;
+
+    // Add random term if position is unclear
+    if (pos.non_pawn_material() > 8000 
+        && abs(mg_value(score) - eg_value(score)) > Value(400)
+        && abs(v) < Value(160))
+       v += Value(2 * ((pos.key() + pos.this_thread()->nodes) & 1) - 1) * int(mg_value(score) - eg_value(score)) / 128;
 
     // Damp down the evaluation linearly when shuffling
     v = v * (100 - pos.rule50_count()) / 100;
