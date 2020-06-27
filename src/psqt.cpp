@@ -86,7 +86,7 @@ constexpr Score Bonus[][RANK_NB][int(FILE_NB) / 2] = {
   }
 };
 
-#define T(mg, eg)   S( (mg), ((eg) + 1) )
+#define T(mg, eg)   S( ((mg) - 1), ((eg) + 2) )
 
 constexpr Score PBonus[RANK_NB][FILE_NB] =
   { // Pawn (asymmetric distribution)
