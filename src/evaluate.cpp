@@ -871,8 +871,7 @@ namespace {
 
     // Add random term if position is unclear
     if (pos.non_pawn_material() > 8000 
-        && abs(mg_value(score) - eg_value(score)) > Value(400)
-        && abs(v) < Value(160))
+        && abs(mg_value(score) - eg_value(score)) > Value(400))
        v += Value(2 * ((pos.key() + pos.this_thread()->nodes) & 1) - 1) * int(mg_value(score) - eg_value(score)) / 128;
 
     // Damp down the evaluation linearly when shuffling
