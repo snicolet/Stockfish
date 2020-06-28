@@ -769,29 +769,33 @@ namespace {
     // Compute the scale factor for the winning side
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-    int sf = me->scale_factor(pos, strongSide);
-
-    // If scale is not already specific, scale down the endgame via general heuristics
-    if (   sf == SCALE_FACTOR_NORMAL
-        && int(mg) * int(eg) >= 0 )
+    int sf = SCALE_FACTOR_NORMAL;
+    
+    if (int(mg) * int(eg) >= 0)
     {
-        if (pos.opposite_bishops())
+        sf = me->scale_factor(pos, strongSide);
+
+        // If scale is not already specific, scale down the endgame via general heuristics
+        if (sf == SCALE_FACTOR_NORMAL)
         {
-            if (   pos.non_pawn_material(WHITE) == BishopValueMg
-                && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = 18 + 4 * popcount(pe->passed_pawns(strongSide));
+            if (pos.opposite_bishops())
+            {
+                if (   pos.non_pawn_material(WHITE) == BishopValueMg
+                    && pos.non_pawn_material(BLACK) == BishopValueMg)
+                    sf = 18 + 4 * popcount(pe->passed_pawns(strongSide));
+                else
+                    sf = 22 + 3 * pos.count<ALL_PIECES>(strongSide);
+            }
+            else if(   pos.non_pawn_material(WHITE) == RookValueMg
+                    && pos.non_pawn_material(BLACK) == RookValueMg
+                    && !pe->passed_pawns(strongSide)
+                    && pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide) <= 1
+                    && bool(KingSide & pos.pieces(strongSide, PAWN)) != bool(QueenSide & pos.pieces(strongSide, PAWN))
+                    && (attacks_bb<KING>(pos.square<KING>(~strongSide)) & pos.pieces(~strongSide, PAWN)))
+                sf = 36;
             else
-                sf = 22 + 3 * pos.count<ALL_PIECES>(strongSide);
+                sf = std::min(sf, 36 + 7 * pos.count<PAWN>(strongSide));
         }
-        else if(   pos.non_pawn_material(WHITE) == RookValueMg
-                && pos.non_pawn_material(BLACK) == RookValueMg
-                && !pe->passed_pawns(strongSide)
-                && pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide) <= 1
-                && bool(KingSide & pos.pieces(strongSide, PAWN)) != bool(QueenSide & pos.pieces(strongSide, PAWN))
-                && (attacks_bb<KING>(pos.square<KING>(~strongSide)) & pos.pieces(~strongSide, PAWN)))
-            sf = 36;
-        else
-            sf = std::min(sf, 36 + 7 * pos.count<PAWN>(strongSide));
     }
 
     // Interpolate between the middlegame and (scaled by 'sf') endgame score
