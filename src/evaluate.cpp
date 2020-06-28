@@ -780,7 +780,7 @@ namespace {
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
                 sf = 18 + 4 * popcount(pe->passed_pawns(strongSide));
             else
-                sf = std::min(58, 22 + 4 * pos.count<ALL_PIECES>(strongSide));
+                sf = std::min(61, 22 + 4 * pos.count<ALL_PIECES>(strongSide));
         }
         else
             sf = std::min(sf, 36 + 7 * pos.count<PAWN>(strongSide));
