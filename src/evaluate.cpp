@@ -796,7 +796,7 @@ namespace {
 
     // Interpolate between the middlegame and endgame score, then apply the scale factor
     int phase = me->game_phase();
-    v = (mg * phase + eg * int(PHASE_MIDGAME - phase)) / PHASE_MIDGAME;
+    v = (mg * phase + eg * (PHASE_MIDGAME - phase)) / PHASE_MIDGAME;
 
     v = v * ScaleFactor(sf) / SCALE_FACTOR_NORMAL;
 
