@@ -792,8 +792,8 @@ namespace {
     v /= PHASE_MIDGAME;
 
     int risk = int(mg) * int(eg) >= -100 ? 0 : 1;
-    if (risk)
-        v += ((pos.key() + pos.this_thread()->nodes) & 16) - 8;
+    if (!risk)
+        v += ((pos.key() + pos.this_thread()->nodes) & 8) - 4;
 
     if (T)
     {
