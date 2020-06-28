@@ -787,10 +787,13 @@ namespace {
 
     if (risk)
     {
-        if (pos.this_thread()->rootColor == WHITE)
+    
+        if (   pos.this_thread()->rootColor == WHITE
+            && pos.side_to_move() == BLACK)
             v -= risk;
 
-        if (pos.this_thread()->rootColor == BLACK)
+        if (pos.this_thread()->rootColor == BLACK
+            && pos.side_to_move == WHITE)
             v += risk;
     }
 
