@@ -783,7 +783,7 @@ namespace {
                 sf = 22 + 3 * pos.count<ALL_PIECES>(strongSide);
         }
         else if (pos.count<QUEEN>() == 1)
-            sf = 37;
+            sf = 30 + pos.count<ALL_PIECES>();
         else
             sf = std::min(sf, 36 + 7 * pos.count<PAWN>(strongSide));
     }
