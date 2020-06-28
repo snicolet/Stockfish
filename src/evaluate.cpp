@@ -794,10 +794,11 @@ namespace {
             sf = std::min(sf, 36 + 7 * pos.count<PAWN>(strongSide));
     }
 
-    // Interpolate between the middlegame and (scaled by 'sf') endgame score
-    v =  mg * int(me->game_phase())
-       + eg * int(PHASE_MIDGAME - me->game_phase()) * ScaleFactor(sf) / SCALE_FACTOR_NORMAL;
-    v /= PHASE_MIDGAME;
+    // Interpolate between the middlegame and endgame score, then apply the scale factor
+    int phase = me->game_phase();
+    v = (mg * phase + eg * int(PHASE_MIDGAME - phase)) / PHASE_MIDGAME;
+
+    v = v * ScaleFactor(sf) / SCALE_FACTOR_NORMAL;
 
     if (T)
     {
