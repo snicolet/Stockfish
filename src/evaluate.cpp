@@ -792,17 +792,19 @@ namespace {
     v /= PHASE_MIDGAME;
 
 
-    int risk = int(mg) * int(eg) >= 0 ? 0 : abs(v - eg) / 4;
+    int risk = int(mg) * int(eg) >= -100 ? 0 : abs(v - eg);
     risk = Utility::clamp(risk, -25, 25);
 
     if (risk)
     {
     
         if (   pos.this_thread()->rootColor == WHITE
+            && v > 0
             && pos.side_to_move() == BLACK)
             v -= risk;
 
         if (   pos.this_thread()->rootColor == BLACK
+            && v < 0
             && pos.side_to_move() == WHITE)
             v += risk;
     }
