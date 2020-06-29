@@ -814,7 +814,7 @@ namespace {
   template<Tracing T>
   Value Evaluation<T>::recalibrate(Value value) const {
   
-      if (pos.stockfish_is_attacking(value))
+      if (!pos.stockfish_is_attacking(value))
           return value;
 
       int material =  9 * pos.count<QUEEN>() + 5 * pos.count<ROOK>() + pos.count<PAWN>()
