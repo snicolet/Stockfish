@@ -777,9 +777,9 @@ namespace {
         {
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = 17 + 4 * popcount(pe->passed_pawns(strongSide));
+                sf = 19 + 4 * popcount(pe->passed_pawns(strongSide));
             else
-                sf = 21 + 3 * pos.count<ALL_PIECES>(strongSide);
+                sf = 23 + 3 * pos.count<ALL_PIECES>(strongSide);
         }
         else if (  pos.non_pawn_material(WHITE) == RookValueMg
                 && pos.non_pawn_material(BLACK) == RookValueMg
@@ -787,11 +787,11 @@ namespace {
                 && pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide) <= 1
                 && bool(KingSide & pos.pieces(strongSide, PAWN)) != bool(QueenSide & pos.pieces(strongSide, PAWN))
                 && (attacks_bb<KING>(pos.square<KING>(~strongSide)) & pos.pieces(~strongSide, PAWN)))
-            sf = 35;
+            sf = 37;
         else if (pos.count<QUEEN>() == 1)
-            sf = 36;
+            sf = 38;
         else
-            sf = std::min(sf, 35 + 7 * pos.count<PAWN>(strongSide));
+            sf = std::min(sf, 37 + 7 * pos.count<PAWN>(strongSide));
     }
 
     // Interpolate between the middlegame and endgame score, then apply the scale factor
