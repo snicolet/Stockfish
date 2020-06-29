@@ -845,7 +845,7 @@ namespace {
         || (pos.this_thread()->rootColor == BLACK && v <= 0))
         return v;
 
-    return v * (2 * Threshold + mat) / (3 * Threshold);
+    return v * (Threshold + 2 * mat) / (3 * Threshold);
   }
 
 
