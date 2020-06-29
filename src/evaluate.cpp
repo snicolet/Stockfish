@@ -821,7 +821,7 @@ namespace {
     // http://cassio.free.fr/stockfish/win-probability-by-score-and-material.jpg
     // The value 5700 for material is about 22 pawns in the standard 1-3-3-5-9 system.
 
-    constexpr int Threshold = 5700;
+    constexpr int Threshold = 5100;
     int mat = pos.material();
     
     // constexpr int Threshold = 2 * QueenValueMg;
@@ -846,7 +846,7 @@ namespace {
         || (pos.this_thread()->rootColor == BLACK && v <= 0))
         return v;
 
-    return v * (Threshold + 2 * mat) / (3 * Threshold);
+    return v * (Threshold + mat) / (2 * Threshold);
   }
 
 
