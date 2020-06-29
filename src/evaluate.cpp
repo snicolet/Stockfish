@@ -837,9 +837,15 @@ namespace {
     // int   x = v * (Threshold + 2 * mat) / (3 * Threshold);
     // if (mat <= 500)
     //     dbg_mean_of(1000 * x / v);
+    
+    if (mat >= Threshold)
+        return v;
+    
+    if (   (pos.this_thread()->rootColor == WHITE && v >= 0)
+        || (pos.this_thread()->rootColor == BLACK && v <= 0))
+        return v;
 
-    return mat >= Threshold ? v
-                            : v * (Threshold + mat) / (2 * Threshold);
+    return v * (Threshold + mat) / (2 * Threshold);
   }
 
 
