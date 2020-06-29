@@ -841,11 +841,11 @@ namespace {
     if (mat >= Threshold)
         return v;
     
-    if (   (pos.this_thread()->rootColor == WHITE && v <= 0)
-        || (pos.this_thread()->rootColor == BLACK && v >= 0))
+    if (   (pos.this_thread()->rootColor == WHITE && v >= 0)
+        || (pos.this_thread()->rootColor == BLACK && v <= 0))
         return v;
 
-    return v * (Threshold + mat) / (2 * Threshold);
+    return v * (2 * Threshold + mat) / (3 * Threshold);
   }
 
 
