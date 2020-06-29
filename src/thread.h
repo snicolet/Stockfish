@@ -69,6 +69,7 @@ public:
   Position rootPos;
   Search::RootMoves rootMoves;
   Depth rootDepth, completedDepth;
+  Color rootColor;
   CounterMoveHistory counterMoves;
   ButterflyHistory mainHistory;
   LowPlyHistory lowPlyHistory;
