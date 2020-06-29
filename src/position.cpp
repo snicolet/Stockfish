@@ -1104,6 +1104,16 @@ bool Position::see_ge(Move m, Value threshold) const {
 }
 
 
+/// Position::stockfish_is_attacking() is useful in evaluation to know
+/// if the given value is good for Stockfish. We use the sign of the 
+/// value and the rootColor of the search tree to give this information.
+
+bool Position::stockfish_is_attacking(Value v) const {
+  return    (this_thread()->rootColor == WHITE && v >=  2)
+         || (this_thread()->rootColor == BLACK && v <= -2);
+}
+
+
 /// Position::is_draw() tests whether the position is drawn by 50-move rule
 /// or by repetition. It does not detect stalemates.
 
