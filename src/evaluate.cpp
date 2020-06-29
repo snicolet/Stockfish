@@ -75,6 +75,7 @@ namespace {
 
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold  = Value(1400);
+  constexpr Value SpaceThreshold = Value(12222);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
@@ -692,6 +693,10 @@ namespace {
 
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
+
+    // Early exit if, for example, both queens or 6 minor pieces have been exchanged
+    if (pos.non_pawn_material() < SpaceThreshold)
+        return SCORE_ZERO;
 
     constexpr Color Them     = ~Us;
     constexpr Direction Down = -pawn_push(Us);
