@@ -837,7 +837,7 @@ namespace {
     int mat = pos.material();
 
     return mat >= Threshold ? v
-                            : v * (Threshold + 2 * mat) / (3 * Threshold);
+                            : v * (Threshold + mat) / (2 * Threshold);
   }
 
 
