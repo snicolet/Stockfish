@@ -146,6 +146,12 @@ public:
   Key material_key() const;
   Key pawn_key() const;
 
+  // Material 
+  Value non_pawn_material(Color c) const;
+  Value non_pawn_material() const;
+  Value material() const;
+  int standard_material() const;
+
   // Other properties of the position
   Color side_to_move() const;
   int game_ply() const;
@@ -156,8 +162,6 @@ public:
   bool has_repeated() const;
   int rule50_count() const;
   Score psq_score() const;
-  Value non_pawn_material(Color c) const;
-  Value non_pawn_material() const;
 
   // Position consistency check, for debugging
   bool pos_is_ok() const;
@@ -337,6 +341,14 @@ inline Value Position::non_pawn_material(Color c) const {
 
 inline Value Position::non_pawn_material() const {
   return non_pawn_material(WHITE) + non_pawn_material(BLACK);
+}
+
+inline Value Position::material() const {
+  return non_pawn_material() + PawnValueMg * count<PAWN>();
+}
+
+inline int Position::standard_material() const {
+  return count<PAWN>() + 3 * count<KNIGHT>() + 3 * count<BISHOP>() + 5 * count<ROOK>() + 9 * count<QUEEN>();
 }
 
 inline int Position::game_ply() const {
