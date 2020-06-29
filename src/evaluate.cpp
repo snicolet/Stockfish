@@ -715,9 +715,9 @@ namespace {
 
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 3 + std::min(pe->blocked_count(), 9);
-    Score score = make_score(bonus * weight * weight / 64, 0);
+    Score score = make_score(bonus * weight * weight / 32 - 10, 0);
 
-    //dbg_mean_of(mg_value(score));
+    // dbg_mean_of(mg_value(score));
 
     if (T)
         Trace::add(SPACE, Us, score);
