@@ -821,6 +821,10 @@ namespace {
     // The value 5700 for material is about 22 pawns in the standard 1-3-3-5-9 system.
 
     constexpr int Threshold = 5700;
+    int mat = pos.material();
+    
+    // constexpr int Threshold = 2 * QueenValueMg;
+    // int mat = pos.non_pawn_material();
     
     // int material = pos.material();
     // int standard_mat = pos.standard_material();
@@ -834,10 +838,8 @@ namespace {
     // if (mat <= 500)
     //     dbg_mean_of(1000 * x / v);
 
-    int mat = pos.material();
-
     return mat >= Threshold ? v
-                            : v * (Threshold + 3 * mat) / (4 * Threshold);
+                            : v * (Threshold + mat) / (2 * Threshold);
   }
 
 
