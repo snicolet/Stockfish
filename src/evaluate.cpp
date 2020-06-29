@@ -819,10 +819,8 @@ namespace {
 
       int material =  9 * pos.count<QUEEN>() + 5 * pos.count<ROOK>() + pos.count<PAWN>()
                     + 3 * (pos.count<KNIGHT>() + pos.count<BISHOP>());
-      Value Threshold = Value(std::max((3956 - 76 * material) / 16, 0));
-      return value >  Threshold ? value - Threshold / 4 :
-             value < -Threshold ? value + Threshold / 4
-                                : value * 3 / 4;
+      int threshold = std::max((2640 - 51 * material) / 16, 0);
+      return std::abs(value) >= threshold ? value : value * std::abs(value) / threshold;
   }
 
 
