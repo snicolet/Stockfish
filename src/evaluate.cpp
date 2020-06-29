@@ -176,6 +176,7 @@ namespace {
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
     Value winnable(Score score) const;
+    Value recalibrate(Value v) const;
 
     const Position& pos;
     Material::Entry* me;
@@ -809,6 +810,37 @@ namespace {
   }
 
 
+  // Evaluation::recalibrate() changes the final evaluation value for late endgame
+  
+  template<Tracing T>
+  Value Evaluation<T>::recalibrate(Value v) const {
+  
+    // We recalibrate the evaluation in late endgames because endgame positions
+    // have a much lower probability of win for the uncalibrated evaluation, see
+    // http://cassio.free.fr/stockfish/win-probability-by-score-and-material.jpg
+    // The value 5700 for material is about 22 pawns in the standard 1-3-3-5-9 system.
+
+    constexpr int Threshold = 5700;
+    
+    // int material = pos.material();
+    // int standard_mat = pos.standard_material();
+    // if (standard_mat)
+    //     dbg_mean_of( 1000 * mat / (256 * standard_mat) );
+    // bool c1 = standard_mat <= 22;
+    // bool c2 = mat <= 5700;
+    // dbg_mean_of(c1 == c2);
+    
+    // int   x = v * (Threshold + 2 * mat) / (3 * Threshold);
+    // if (mat <= 500)
+    //     dbg_mean_of(1000 * x / v);
+
+    int mat = pos.material();
+
+    return mat >= Threshold ? v
+                            : v * (Threshold + 2 * mat) / (3 * Threshold);
+  }
+
+
   // Evaluation::value() is the main function of the class. It computes the various
   // parts of the evaluation and returns the value of the position from the point
   // of view of the side to move.
@@ -860,7 +892,7 @@ namespace {
             + space<  WHITE>() - space<  BLACK>();
 
     // Derive single value from mg and eg parts of score
-    v = winnable(score);
+    v = recalibrate(winnable(score));
 
     // In case of tracing add all remaining individual evaluation terms
     if (T)

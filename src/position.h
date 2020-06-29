@@ -344,7 +344,7 @@ inline Value Position::non_pawn_material() const {
 }
 
 inline Value Position::material() const {
-  return non_pawn_material() + PawnValueMg * count<PAWN>();
+  return non_pawn_material() + PawnValueEg * count<PAWN>();
 }
 
 inline int Position::standard_material() const {
