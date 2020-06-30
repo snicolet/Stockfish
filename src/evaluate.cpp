@@ -547,7 +547,7 @@ namespace {
         score += WeakQueenProtection * popcount(weak & attackedBy[Them][QUEEN]);
     }
 
-    if (Us == pos.this_thread()->rootColor)
+    if (Us != pos.this_thread()->rootColor)
     {
         b =   pos.pieces(Them, PAWN)
            & ~attackedBy[Them][PAWN]
