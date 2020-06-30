@@ -551,8 +551,7 @@ namespace {
     {
         b =   pos.pieces(Them, PAWN)
            & ~attackedBy[Them][PAWN]
-           &  attackedBy[Us][ALL_PIECES]
-           & ~attackedBy[Us][PAWN];
+           &  attackedBy[Us][ALL_PIECES];
         score += make_score(10, 5) * popcount(b);
     }
 
