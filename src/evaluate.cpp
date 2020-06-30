@@ -547,13 +547,10 @@ namespace {
         score += WeakQueenProtection * popcount(weak & attackedBy[Them][QUEEN]);
     }
 
-    if (Us != pos.this_thread()->rootColor)
-    {
-        b =   pos.pieces(Them, PAWN)
-           & ~attackedBy[Them][PAWN]
-           &  attackedBy[Us][ALL_PIECES];
-        score += make_score(10, 5) * popcount(b);
-    }
+    b =   pos.pieces(Them, PAWN)
+       & ~attackedBy[Them][PAWN]
+       &  attackedBy[Us][ALL_PIECES];
+    score += make_score(10, 5) * popcount(b);
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
