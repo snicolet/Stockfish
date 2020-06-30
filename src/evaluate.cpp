@@ -552,7 +552,7 @@ namespace {
         b =   pos.pieces(Them, PAWN)
            & ~attackedBy[Them][PAWN]
            &  attackedBy[Us][ALL_PIECES];
-        score += make_score(10, 5) * popcount(b);
+        score += make_score(6, 3) * popcount(b);
     }
 
     // Bonus for restricting their piece moves
