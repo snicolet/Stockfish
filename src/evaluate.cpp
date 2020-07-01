@@ -833,9 +833,9 @@ namespace {
     Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
     
     if (pos.stockfish_is_attacking(score, WHITE))
-        score -= score / 16;
-    else
         score += score / 16;
+    else
+        score -= score / 16;
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
