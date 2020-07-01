@@ -588,11 +588,6 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    if (pos.stockfish_is_attacking(score, Us))
-        score += score / 16;
-    else
-        score -= score / 16;
-
     if (T)
         Trace::add(THREAT, Us, score);
 
@@ -836,6 +831,11 @@ namespace {
     // the position object (material + piece square tables) and the material
     // imbalance. Score is computed internally from the white point of view.
     Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
+    
+    if (pos.stockfish_is_attacking(score, WHITE))
+        score -= score / 16;
+    else
+        score += score / 16;
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
