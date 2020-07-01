@@ -80,11 +80,12 @@ namespace {
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
 
-  // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 772;
-  constexpr int RookSafeCheck   = 1084;
-  constexpr int BishopSafeCheck = 645;
-  constexpr int KnightSafeCheck = 792;
+  // SafeCheck[PieceType][normal/multiple] contains safe check bonus by piece type,
+  // higher if multiple safe checks are possible for that piece type.
+  enum Check { NORMAL, MULTIPLE };
+  constexpr int SafeCheck[][2] = {
+      {}, {}, {792, 1283}, {645, 967}, {1084, 1897}, {772, 1119}
+  };
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -175,6 +176,7 @@ namespace {
     template<Color Us> Score threats() const;
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
+    template<Color Us, PieceType Pt> int analyse_check(Bitboard checks, Bitboard interpositions, Square ksq) const;
     Value winnable(Score score) const;
 
     const Position& pos;
@@ -389,6 +391,17 @@ namespace {
     return score;
   }
 
+  template<Tracing T> template<Color Us, PieceType Pt>
+  int Evaluation<T>::analyse_check(Bitboard checks, Bitboard interpositions, Square ksq) const
+  {
+     if (more_than_one(checks))
+        return SafeCheck[Pt][MULTIPLE];
+
+     if (interpositions & between_bb(ksq, lsb(checks)))
+        return SafeCheck[Pt][NORMAL] / 3;
+
+     return SafeCheck[Pt][NORMAL];
+  }
 
   // Evaluation::king() assigns bonuses and penalties to a king of a given color
 
@@ -401,6 +414,7 @@ namespace {
 
     Bitboard weak, b1, b2, b3, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
+    Bitboard interpositions;
     int kingDanger = 0;
     const Square ksq = pos.square<KING>(Us);
 
@@ -411,6 +425,8 @@ namespace {
     weak =  attackedBy[Them][ALL_PIECES]
           & ~attackedBy2[Us]
           & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
+    
+    interpositions = attackedBy2[Us] & ~attackedBy[Them][ALL_PIECES];
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
@@ -422,8 +438,7 @@ namespace {
     // Enemy rooks checks
     rookChecks = b1 & safe & attackedBy[Them][ROOK];
     if (rookChecks)
-        kingDanger += more_than_one(rookChecks) ? RookSafeCheck * 175/100
-                                                : RookSafeCheck;
+        kingDanger += analyse_check<Us, ROOK>(rookChecks, interpositions, ksq);
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
@@ -435,8 +450,7 @@ namespace {
                  & ~attackedBy[Us][QUEEN]
                  & ~rookChecks;
     if (queenChecks)
-        kingDanger += more_than_one(queenChecks) ? QueenSafeCheck * 145/100
-                                                 : QueenSafeCheck;
+        kingDanger += analyse_check<Us, QUEEN>(queenChecks, interpositions, ksq);
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
@@ -445,16 +459,14 @@ namespace {
                   & safe
                   & ~queenChecks;
     if (bishopChecks)
-        kingDanger += more_than_one(bishopChecks) ? BishopSafeCheck * 3/2
-                                                  : BishopSafeCheck;
+        kingDanger += analyse_check<Us, BISHOP>(bishopChecks, interpositions, ksq);
     else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
     // Enemy knights checks
     knightChecks = attacks_bb<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
     if (knightChecks & safe)
-        kingDanger += more_than_one(knightChecks & safe) ? KnightSafeCheck * 162/100
-                                                         : KnightSafeCheck;
+        kingDanger += analyse_check<Us, KNIGHT>(knightChecks & safe, 0, ksq);
     else
         unsafeChecks |= knightChecks;
 
