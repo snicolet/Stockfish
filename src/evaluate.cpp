@@ -124,7 +124,7 @@ namespace {
   };
 
   // PawnPressure[attack/defense] contains bonus for Leela-like pawn pressure
-  constexpr Score PawnPressure[] = { S(0, 5), S(6, 3) };
+  constexpr Score PawnPressure[] = { S(0, 4), S(6, 3) };
 
   // PassedRank[Rank] contains a bonus according to the rank of a passed pawn
   constexpr Score PassedRank[RANK_NB] = {
