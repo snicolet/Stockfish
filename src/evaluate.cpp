@@ -438,7 +438,10 @@ namespace {
     // Enemy rooks checks
     rookChecks = b1 & safe & attackedBy[Them][ROOK];
     if (rookChecks)
-        kingDanger += analyse_check<Us, ROOK>(ksq, rookChecks, interpositions);
+        kingDanger += analyse_check<Us, ROOK>(ksq, rookChecks, interpositions &
+                                                                ( attackedBy[Us][KNIGHT]
+                                                                | attackedBy[Us][BISHOP]
+                                                                | attackedBy[Us][ROOK]));
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
@@ -450,7 +453,11 @@ namespace {
                  & ~attackedBy[Us][QUEEN]
                  & ~rookChecks;
     if (queenChecks)
-        kingDanger += analyse_check<Us, QUEEN>(ksq, queenChecks, interpositions);
+        kingDanger += analyse_check<Us, QUEEN>(ksq, queenChecks, interpositions &
+                                                                 ( attackedBy[Us][KNIGHT]
+                                                                 | attackedBy[Us][BISHOP]
+                                                                 | attackedBy[Us][ROOK]
+                                                                 | attackedBy[Us][QUEEN]));
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
@@ -459,7 +466,9 @@ namespace {
                   & safe
                   & ~queenChecks;
     if (bishopChecks)
-        kingDanger += analyse_check<Us, BISHOP>(ksq, bishopChecks, interpositions);
+        kingDanger += analyse_check<Us, BISHOP>(ksq, bishopChecks, interpositions &
+                                                                   ( attackedBy[Us][KNIGHT]
+                                                                   | attackedBy[Us][BISHOP]));
     else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
