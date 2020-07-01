@@ -588,6 +588,11 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    if (pos.stockfish_is_attacking(score, Us))
+        score += score / 16;
+    else
+        score -= score / 16;
+
     if (T)
         Trace::add(THREAT, Us, score);
 
