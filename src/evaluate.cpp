@@ -80,11 +80,11 @@ namespace {
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
 
-  // SafeCheck[PieceType][normal/multiple] contains safe check bonus by piece type,
-  // higher if multiple safe checks are possible for that piece type.
-  enum Check { NORMAL, MULTIPLE };
-  constexpr int SafeCheck[][2] = {
-      {}, {}, {792, 1283}, {645, 967}, {1084, 1897}, {772, 1119}
+  // SafeCheck[PieceType][normal/multiple/interpose] contains safe check bonus by
+  // piece type, higher if multiple safe checks are possible for that piece type.
+  enum Check { NORMAL, MULTIPLE, INTERPOSE };
+  constexpr int SafeCheck[][3] = {
+      {}, {}, {792, 1283, 0}, {645, 967, 300}, {1084, 1897, 300}, {772, 1119, 300}
   };
 
 #define S(mg, eg) make_score(mg, eg)
@@ -395,10 +395,10 @@ namespace {
   int Evaluation<T>::analyse_check(Square ksq, Bitboard checks, Bitboard interpositions) const
   {
      if (more_than_one(checks))
-        return SafeCheck[Pt][MULTIPLE];
+         return SafeCheck[Pt][MULTIPLE];
 
      if (interpositions & between_bb(ksq, lsb(checks)))
-        return SafeCheck[Pt][NORMAL] / 3;
+         return SafeCheck[Pt][INTERPOSE];
 
      return SafeCheck[Pt][NORMAL];
   }
