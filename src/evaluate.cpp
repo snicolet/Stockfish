@@ -73,6 +73,8 @@ using namespace Trace;
 
 namespace {
 
+  enum Status { ATTACK, DEFENSE };
+
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold  = Value(1400);
   constexpr Value SpaceThreshold = Value(12222);
@@ -121,6 +123,9 @@ namespace {
     S(0, 0), S(3, 46), S(37, 68), S(42, 60), S(0, 38), S(58, 41)
   };
 
+  // PawnPressure[attack/defense] contains bonus for Leela-like pawn pressure
+  constexpr Score PawnPressure[] = { S(9, 5), S(5, 10) };
+
   // PassedRank[Rank] contains a bonus according to the rank of a passed pawn
   constexpr Score PassedRank[RANK_NB] = {
     S(0, 0), S(10, 28), S(17, 33), S(15, 41), S(62, 72), S(168, 177), S(276, 260)
@@ -154,7 +159,6 @@ namespace {
   constexpr Score TrappedRook         = S( 55, 13);
   constexpr Score WeakQueenProtection = S( 14,  0);
   constexpr Score WeakQueen           = S( 56, 15);
-
 
 #undef S
 
@@ -547,13 +551,11 @@ namespace {
         score += WeakQueenProtection * popcount(weak & attackedBy[Them][QUEEN]);
     }
 
-    // if (Us != pos.this_thread()->rootColor)
-    {
-        b =   pos.pieces(Them, PAWN)
-           & ~attackedBy[Them][PAWN]
-           &  attackedBy[Us][ALL_PIECES];
-        score += make_score(5, 10) * popcount(b);
-    }
+    int status = (Us == pos.this_thread()->rootColor ? ATTACK : DEFENSE);
+    b =   pos.pieces(Them, PAWN)
+       & ~attackedBy[Them][PAWN]
+       &  attackedBy[Us][ALL_PIECES];
+    score += PawnPressure[status] * popcount(b);
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
