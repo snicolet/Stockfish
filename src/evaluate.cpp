@@ -84,7 +84,7 @@ namespace {
   // piece type, higher if multiple safe checks are possible for that piece type.
   enum Check { NORMAL, MULTIPLE, INTERPOSE };
   constexpr int SafeCheck[][3] = {
-      {}, {}, {792, 1283, 0}, {645, 967, 500}, {1084, 1897, 500}, {772, 1119, 257}
+      {}, {}, {792, 1283, 0}, {645, 967, 545}, {1084, 1897, 984}, {772, 1119, 257}
   };
 
 #define S(mg, eg) make_score(mg, eg)
