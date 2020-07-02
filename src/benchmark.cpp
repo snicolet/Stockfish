@@ -79,6 +79,9 @@ const vector<string> Defaults = {
 
   // 7-man positions
   "8/R7/2q5/8/6k1/8/1P5p/K6R w - - 0 124", // Draw
+  
+  // 8-man positions
+  "7k/6n1/6r1/4P2p/5Q1P/K7/8/8 w - - 4 51", // Draw (fortress)
 
   // Mate and stalemate positions
   "6k1/3b3r/1p1p4/p1n2p2/1PPNpP1q/P3Q1p1/1R1RB1P1/5K2 b - - 0 1",
