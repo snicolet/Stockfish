@@ -439,9 +439,7 @@ namespace {
     rookChecks = b1 & safe & attackedBy[Them][ROOK];
     if (rookChecks)
         kingDanger += analyse_check<ROOK>(ksq, rookChecks, interpositions &
-                                                           ( attackedBy[Us][KNIGHT]
-                                                           | attackedBy[Us][BISHOP]
-                                                           | attackedBy[Us][ROOK]));
+                                                           ( attackedBy[Us][ROOK]));
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
@@ -454,8 +452,7 @@ namespace {
                  & ~rookChecks;
     if (queenChecks)
         kingDanger += analyse_check<QUEEN>(ksq, queenChecks, interpositions &
-                                                             ( attackedBy[Us][KNIGHT]
-                                                             | attackedBy[Us][BISHOP]
+                                                             ( attackedBy[Us][BISHOP]
                                                              | attackedBy[Us][ROOK]
                                                              | attackedBy[Us][QUEEN]));
 
@@ -467,8 +464,7 @@ namespace {
                   & ~queenChecks;
     if (bishopChecks)
         kingDanger += analyse_check<BISHOP>(ksq, bishopChecks, interpositions &
-                                                               ( attackedBy[Us][KNIGHT]
-                                                               | attackedBy[Us][BISHOP]));
+                                                               (attackedBy[Us][BISHOP]));
     else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
