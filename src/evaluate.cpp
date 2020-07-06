@@ -83,7 +83,7 @@ namespace {
   // SafeCheck[PieceType][single/multiple] contains safe check bonus by piece type,
   // higher if multiple safe checks are possible for that piece type.
   constexpr int SafeCheck[][2] = {
-      {}, {}, {792, 1283}, {645, 967}, {1084, 1897}, {772, 1119}
+      {}, {}, {791, 1283}, {644, 968}, {1084, 1898}, {772, 1119}
   };
 
 #define S(mg, eg) make_score(mg, eg)
@@ -111,7 +111,7 @@ namespace {
 
   // Outpost[knight/bishop] contains bonuses for each knight or bishop occupying a
   // pawn protected square on rank 4 to 6 which is also safe from a pawn attack.
-  constexpr Score Outpost[] = { S(56, 36), S(30, 23) };
+  constexpr Score Outpost[] = { S(55, 37), S(31, 23) };
 
   // PassedRank[Rank] contains a bonus according to the rank of a passed pawn
   constexpr Score PassedRank[RANK_NB] = {
