@@ -128,12 +128,9 @@ TTEntry* TranspositionTable::probe(Position& pos, const Key key, bool& found) co
           int rule50 = pos.rule50_count();
           
           found =    (bool)tte[i].key16
-                  && (rule50 <= 15 || (rule50 % 9 != 0))
-                  ;
+                  && (rule50 <= 15 || (rule50 % 13 != 5));
 
           return &tte[i];
-
-          // return found = false, &tte[i];
       }
 
   // Find an entry to be replaced according to the replacement strategy
