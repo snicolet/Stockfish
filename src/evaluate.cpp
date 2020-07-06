@@ -871,10 +871,12 @@ namespace {
     // Side to move point of view
     v = (pos.side_to_move() == WHITE ? v : -v) + Tempo;
 
-    // Damp down the evaluation linearly when shuffling
-    v = v * (100 - pos.rule50_count()) / 100;
+    // Damp down the evaluation quadratically when shuffling
+    long long w = v;
+    long long x = 100 - pos.rule50_count();
+    long long z = w * x * x / 10000;
 
-    return v;
+    return Value(z);
   }
 
 } // namespace
