@@ -126,7 +126,7 @@ TTEntry* TranspositionTable::probe(Position& pos, const Key key, bool& found) co
           tte[i].genBound8 = uint8_t(generation8 | (tte[i].genBound8 & 0x7)); // Refresh
 
           int rule50 = pos.rule50_count();
-          
+
           found =    (bool)tte[i].key16
                   && (rule50 <= 15 || ((rule50 % 9) >= 2));
 
