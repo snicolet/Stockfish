@@ -583,7 +583,7 @@ namespace {
 
     // Dive into quiescence search when the depth reaches zero
     if (   depth <= 0
-        || (depth <= 2 && pos.rule50_count() >= 15))
+        || (depth <= 4 && pos.rule50_count() >= 15))
         return qsearch<NT>(pos, ss, alpha, beta);
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
