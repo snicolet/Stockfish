@@ -1109,6 +1109,12 @@ moves_loop: // When in check, search starts from here
       if (type_of(move) == CASTLING)
           extension = 1;
 
+      // Force extension when shuffling (to reach the damping regime faster)
+      if (   depth <= 2
+          && pos.rule50_count() > 15
+          && pos.rule50_count() < 50)
+          extension = 1;
+
       // Late irreversible move extension
       if (   move == ttMove
           && pos.rule50_count() > 80
