@@ -1111,6 +1111,7 @@ moves_loop: // When in check, search starts from here
 
       // Force extension when shuffling (to reach the damping regime faster)
       if (   depth <= 2
+          && (move == ttMove || !ttMove)
           && pos.rule50_count() > 15
           && pos.rule50_count() < 50)
           extension = 1;
