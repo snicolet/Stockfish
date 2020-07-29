@@ -142,7 +142,7 @@ namespace {
   constexpr Score CorneredBishop      = S( 50, 50);
   constexpr Score FlankAttacks        = S(  8,  0);
   constexpr Score Hanging             = S( 69, 36);
-  constexpr Score KnightOnQueen       = S( 16, 11);
+  constexpr Score KnightOnQueen       = S( 32, 22);
   constexpr Score LongDiagonalBishop  = S( 45,  0);
   constexpr Score MinorBehindPawn     = S( 18,  3);
   constexpr Score PassedFile          = S( 11,  8);
@@ -152,7 +152,7 @@ namespace {
   constexpr Score RestrictedPiece     = S(  7,  7);
   constexpr Score RookOnKingRing      = S( 16,  0);
   constexpr Score RookOnQueenFile     = S(  6, 11);
-  constexpr Score SliderOnQueen       = S( 60, 18);
+  constexpr Score SliderOnQueen       = S(120, 36);
   constexpr Score ThreatByKing        = S( 24, 89);
   constexpr Score ThreatByPawnPush    = S( 48, 39);
   constexpr Score ThreatBySafePawn    = S(173, 94);
@@ -578,7 +578,9 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        safe = mobilityArea[Us] & ~stronglyProtected;
+        safe =   mobilityArea[Us]
+              & ~pos.pieces(Us, PAWN)
+              & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & attacks_bb<KNIGHT>(s);
 
