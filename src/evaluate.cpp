@@ -946,12 +946,9 @@ Value Eval::evaluate(const Position& pos) {
       return Evaluation<NO_TRACE>(pos).value();
 
   // Keep material (contempt-like)
-  Score c = (pos.side_to_move() == WHITE ?  pos.this_thread()->contempt
-                                         : -pos.this_thread()->contempt);
-  Value mg = mg_value(c);
-  Value eg = eg_value(c);
-  int pieces = pos.count<ALL_PIECES>();
-  int keep_material = eg + pieces * (mg - eg) / 32;
+  Value c = (pos.side_to_move() == WHITE ?  mg_value(pos.this_thread()->contempt)
+                                         : -mg_value(pos.this_thread()->contempt));
+  int keep_material = pos.count<ALL_PIECES>() * c / 32;
 
   // Add tempo and keep_material to NNUE eval
   Value v = NNUE::evaluate(pos) + Tempo + keep_material;
