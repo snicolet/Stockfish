@@ -941,14 +941,22 @@ make_v:
 
 Value Eval::evaluate(const Position& pos) {
 
-  if (Eval::useNNUE)
-  {
-      Value v = eg_value(pos.psq_score());
-      // Take NNUE eval only on balanced positions
-      if (abs(v) < NNUEThreshold)
-         return NNUE::evaluate(pos) + Tempo;
-  }
-  return Evaluation<NO_TRACE>(pos).value();
+  long A = 4;   // the weight for the hand crafted eval
+  long B = 4;   // the weight for the neural network eval
+  
+  if (   Eval::useNNUE
+      && abs(eg_value(pos.psq_score())) < NNUEThreshold)
+      A = 0, B = 8;
+  else
+      A = 8, B = 0;
+  
+  if (!B)
+      return Evaluation<NO_TRACE>(pos).value();
+
+  if (!A)
+      return NNUE::evaluate(pos) + Tempo;
+
+  return VALUE_ZERO;
 }
 
 /// trace() is like evaluate(), but instead of returning a value, it returns
