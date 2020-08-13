@@ -941,14 +941,11 @@ make_v:
 
 Value Eval::evaluate(const Position& pos) {
 
-  if (Eval::useNNUE)
-  {
-      Value v = eg_value(pos.psq_score());
-      // Take NNUE eval only on balanced positions
-      if (abs(v) < NNUEThreshold)
-         return NNUE::evaluate(pos) + Tempo;
-  }
-  return Evaluation<NO_TRACE>(pos).value();
+  // Use hand-crafted eval if the position is very unbalanced
+  if (!Eval::useNNUE || abs(eg_value(pos.psq_score())) >= NNUEThreshold)
+      return Evaluation<NO_TRACE>(pos).value();
+
+  return NNUE::evaluate(pos) + Tempo;
 }
 
 /// trace() is like evaluate(), but instead of returning a value, it returns
