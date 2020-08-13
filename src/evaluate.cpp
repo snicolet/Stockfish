@@ -944,7 +944,7 @@ Value Eval::evaluate(const Position& pos) {
   // Use hand-crafted eval?
   if (   !Eval::useNNUE 
       || abs(eg_value(pos.psq_score())) >= NNUEThreshold
-      || pos.non_pawn_material() <= 4000)
+      || pos.non_pawn_material() <= 3000)
       return Evaluation<NO_TRACE>(pos).value();
 
   // Add tempo to NNUE eval
