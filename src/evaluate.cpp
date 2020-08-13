@@ -948,8 +948,8 @@ Value Eval::evaluate(const Position& pos) {
   int64_t hand_crafted   = Evaluation<NO_TRACE>(pos).value();
   int64_t neural_network = NNUE::evaluate(pos) + Tempo;
 
-  int64_t A = 2;   // weight for the hand crafted eval
-  int64_t B = 6;   // weight for the neural network eval
+  int64_t A = 3;   // weight for the hand crafted eval
+  int64_t B = 5;   // weight for the neural network eval
 
   int64_t v = (A * hand_crafted + B * neural_network) / 8;
 
