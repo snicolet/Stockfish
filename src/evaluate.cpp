@@ -941,22 +941,19 @@ make_v:
 
 Value Eval::evaluate(const Position& pos) {
 
-  long A = 4;   // the weight for the hand crafted eval
-  long B = 4;   // the weight for the neural network eval
-  
-  if (   Eval::useNNUE
-      && abs(eg_value(pos.psq_score())) < NNUEThreshold)
-      A = 0, B = 8;
-  else
-      A = 8, B = 0;
-  
-  if (!B)
+  if (   !Eval::useNNUE
+      || abs(eg_value(pos.psq_score())) >= NNUEThreshold)
       return Evaluation<NO_TRACE>(pos).value();
 
-  if (!A)
-      return NNUE::evaluate(pos) + Tempo;
+  int64_t hand_crafted   = Evaluation<NO_TRACE>(pos).value();
+  int64_t neural_network = NNUE::evaluate(pos) + Tempo;
+  
+  int64_t A = 4;   // weight for the hand crafted eval
+  int64_t B = 4;   // weight for the neural network eval
+  
+  int64_t v = (A * hand_crafted + B * neural_network) / 8;
 
-  return VALUE_ZERO;
+  return Value(v);
 }
 
 /// trace() is like evaluate(), but instead of returning a value, it returns
