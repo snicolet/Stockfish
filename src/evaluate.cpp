@@ -945,7 +945,19 @@ Value Eval::evaluate(const Position& pos) {
   if (!Eval::useNNUE || abs(eg_value(pos.psq_score())) >= NNUEThreshold)
       return Evaluation<NO_TRACE>(pos).value();
 
-  return NNUE::evaluate(pos) + Tempo;
+  // Keep material (contempt-like)
+  Score c = (pos.side_to_move() == WHITE ?  pos.this_thread()->contempt
+                                         : -pos.this_thread()->contempt);
+  Value mg = mg_value(c);
+  Value eg = eg_value(c);
+  int pieces = pos.count<ALL_PIECES>();
+  int keep_material = eg + pieces * (mg - eg) / 32;
+
+  // Add tempo and keep_material to NNUE eval
+  Value v = NNUE::evaluate(pos) + Tempo + keep_material;
+  
+  // Clamp the return value to avoid clashes with tablebase values
+  return Utility::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 }
 
 /// trace() is like evaluate(), but instead of returning a value, it returns
