@@ -945,13 +945,11 @@ Value Eval::evaluate(const Position& pos) {
   if (!Eval::useNNUE || abs(eg_value(pos.psq_score())) >= NNUEThreshold)
       return Evaluation<NO_TRACE>(pos).value();
 
-  // Keep material (contempt-like)
-  Value c = (pos.side_to_move() == WHITE ?  mg_value(pos.this_thread()->contempt)
-                                         : -mg_value(pos.this_thread()->contempt));
-  int keep_material = (pos.count<ALL_PIECES>() - pos.count<PAWN>()) * c / 16;
+  // Keep pawns (contempt-like)
+  int a = mg_value(pos.this_thread()->contempt) * pos.count<PAWN>() / 16;
 
   // Add tempo and keep_material to NNUE eval
-  Value v = NNUE::evaluate(pos) + Tempo + keep_material;
+  Value v = NNUE::evaluate(pos) + Tempo + (pos.side_to_move() == WHITE ? a : -a);
 
   // Clamp the return value to avoid clashes with tablebase values
   return Utility::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
