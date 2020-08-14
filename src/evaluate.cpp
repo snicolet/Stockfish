@@ -41,7 +41,8 @@ namespace Eval {
     useNNUE = Options["Use NNUE"];
     std::string eval_file = std::string(Options["EvalFile"]);
     if (useNNUE && eval_file_loaded != eval_file)
-        if (Eval::NNUE::load_eval_file(eval_file))
+        if (   Eval::NNUE::load_eval_file(eval_file)
+            || Eval::NNUE::load_eval_file(ProgramPath + eval_file))
             eval_file_loaded = eval_file;
   }
 
