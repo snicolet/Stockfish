@@ -1473,6 +1473,12 @@ moves_loop: // When in check, search starts from here
                             : (tte->bound() & BOUND_UPPER)))
         return ttValue;
 
+    // If using the NNUE eval, stand pat
+    if (   Eval::useNNUE
+        && !ss->inCheck
+        && depth <= -6)
+        return evaluate(pos);
+
     // Evaluate the position statically
     if (ss->inCheck)
     {
