@@ -1476,7 +1476,7 @@ moves_loop: // When in check, search starts from here
     // If using the NNUE eval, stand pat
     if (   Eval::useNNUE
         && !ss->inCheck
-        && depth <= -4)
+        && depth <= -3)
         return evaluate(pos);
 
     // Evaluate the position statically
