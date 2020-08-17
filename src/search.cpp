@@ -89,7 +89,7 @@ namespace {
   Value value_draw(const Position& pos) {
     return   VALUE_DRAW
            + Value(2 * (pos.this_thread()->nodes & 1) - 1)
-           + (pos.checkers() ? 0 : evaluate(pos) / 16);
+           + (pos.checkers() ? 0 : evaluate(pos) / 64);
   }
 
   // Skill structure is used to implement strength limit
