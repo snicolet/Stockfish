@@ -939,15 +939,9 @@ namespace {
             }
     }
 
-    // Step 11. Internal iterative deepening (~1 Elo)
+    // Step 11. On unknown positions, instead of internal iterative deepening, just decrease depth by 1
     if (depth >= 7 && !ttMove)
-    {
-        search<NT>(pos, ss, alpha, beta, depth - 7, cutNode);
-
-        tte = TT.probe(posKey, ttHit);
-        ttValue = ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
-        ttMove = ttHit ? tte->move() : MOVE_NONE;
-    }
+        depth--;
 
 moves_loop: // When in check, search starts from here
 
