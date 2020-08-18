@@ -934,8 +934,7 @@ make_v:
 
 inline Value nnue_trampoline(const Position& pos) {
     Value v = Eval::NNUE::evaluate(pos);
-    return pos.side_to_move() == WHITE ? 3 * v / 2 + Tempo
-                                       : v         + Tempo;
+    return 5 * v / 4 + Tempo;
 }
 
 
