@@ -922,9 +922,6 @@ make_v:
         Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
     }
 
-    // Evaluation grain
-    v = (v / 16) * 16;
-
     // Side to move point of view
     v = (pos.side_to_move() == WHITE ? v : -v) + Tempo;
 
@@ -936,9 +933,9 @@ make_v:
 
 
 inline Value nnue_trampoline(const Position& pos) {
-    using namespace Eval::NNUE;
-    
-    return Eval::NNUE::compute_eval(pos);
+    Value v = Eval::NNUE::evaluate(pos);
+    return pos.side_to_move() == WHITE ? 3 * v / 2 + Tempo
+                                       : v         + Tempo;
 }
 
 
@@ -950,10 +947,13 @@ Value Eval::evaluate(const Position& pos) {
   bool classical = !Eval::useNNUE
                 ||  abs(eg_value(pos.psq_score())) * 16 > NNUEThreshold1 * (16 + pos.rule50_count());
   Value v = classical ? Evaluation<NO_TRACE>(pos).value()
-                      : nnue_trampoline(pos) * 5 / 4 + Tempo;
+                      : nnue_trampoline(pos);
 
   if (classical && Eval::useNNUE && abs(v) * 16 < NNUEThreshold2 * (16 + pos.rule50_count()))
-      v = nnue_trampoline(pos) * 5 / 4 + Tempo;
+      v = nnue_trampoline(pos);
+
+  // Evaluation grain
+  v = (v / 16) * 16;
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
