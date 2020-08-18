@@ -938,7 +938,7 @@ make_v:
 inline Value nnue_trampoline(const Position& pos) {
     using namespace Eval::NNUE;
     
-    return Eval::NNUE::evaluate(pos);
+    return Eval::NNUE::compute_eval(pos);
 }
 
 
