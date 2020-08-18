@@ -940,7 +940,7 @@ namespace {
     }
 
     // Step 11. On unknown positions, instead of internal iterative deepening, just decrease depth by 1
-    if (depth >= 7 && !ttMove)
+    if (PvNode && depth >= 7 && !ttMove)
         depth--;
 
 moves_loop: // When in check, search starts from here
