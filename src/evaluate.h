@@ -52,13 +52,13 @@ namespace Eval {
       Key   key;
       Key   pawnKey;
       Key   materialKey;
-      int   rule50Key;
-      Score psqtKey;
+      int   rule50;
+      Score psqt;
+      Score contempt;
       Value value;
   };
 
   typedef HashTable<Entry, 131072> Table;
-  Entry* probe(const Position& pos);
 
 } // namespace Eval
 

@@ -940,19 +940,21 @@ make_v:
 Value Eval::evaluate(const Position& pos) {
   
   // Probe the evaluation hash
+  Value v;
   Key key = pos.key();
   Eval::Entry *e = pos.this_thread()->evalTable[key];
   
   if (   e->key         == key
       && e->pawnKey     == pos.pawn_key()
       && e->materialKey == pos.material_key()
-      && e->rule50Key   == pos.rule50_count()
-      && e->psqtKey     == pos.psq_score())
+      && e->rule50      == pos.rule50_count()
+      && e->psqt        == pos.psq_score()
+      && e->contempt    == pos.this_thread()->contempt)
       return e->value;
   
   // Not found, we have to evaluate
-  Value v = Eval::useNNUE ? NNUE::evaluate(pos) * 5 / 4 + Tempo
-                          : Evaluation<NO_TRACE>(pos).value();
+  v = Eval::useNNUE ? NNUE::evaluate(pos) * 5 / 4 + Tempo
+                    : Evaluation<NO_TRACE>(pos).value();
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
@@ -964,8 +966,9 @@ Value Eval::evaluate(const Position& pos) {
   e->key         = key;
   e->pawnKey     = pos.pawn_key();
   e->materialKey = pos.material_key();
-  e->rule50Key   = pos.rule50_count();
-  e->psqtKey     = pos.psq_score();
+  e->rule50      = pos.rule50_count();
+  e->psqt        = pos.psq_score();
+  e->contempt    = pos.this_thread()->contempt;
   e->value       = v;
   
   return v;
