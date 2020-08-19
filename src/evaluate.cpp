@@ -938,18 +938,36 @@ make_v:
 /// evaluation of the position from the point of view of the side to move.
 
 Value Eval::evaluate(const Position& pos) {
-
-  bool classical = !Eval::useNNUE;
   
-  Value v = classical ? Evaluation<NO_TRACE>(pos).value()
-                      : NNUE::evaluate(pos) * 5 / 4 + Tempo;
+  // Probe the evaluation hash
+  Key key = pos.key();
+  Eval::Entry *e = pos.this_thread()->evalTable[key];
+  
+  if (   e->key         == key
+      && e->pawnKey     == pos.pawn_key()
+      && e->materialKey == pos.material_key()
+      && e->rule50Key   == pos.rule50_count()
+      && e->psqtKey     == pos.psq_score())
+      return e->value;
+  
+  // Not found, we have to evaluate
+  Value v = Eval::useNNUE ? NNUE::evaluate(pos) * 5 / 4 + Tempo
+                          : Evaluation<NO_TRACE>(pos).value();
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
 
   // Guarantee evalution outside of TB range
   v = Utility::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
-
+  
+  // Store the evaluation in the hash, and return the value
+  e->key         = key;
+  e->pawnKey     = pos.pawn_key();
+  e->materialKey = pos.material_key();
+  e->rule50Key   = pos.rule50_count();
+  e->psqtKey     = pos.psq_score();
+  e->value       = v;
+  
   return v;
 }
 

@@ -22,8 +22,6 @@
 #include "material.h"
 #include "thread.h"
 
-using namespace std;
-
 namespace {
 
   // Polynomial material imbalance parameters

@@ -21,6 +21,7 @@
 
 #include <string>
 
+#include "misc.h"
 #include "types.h"
 
 class Position;
@@ -43,6 +44,21 @@ namespace Eval {
     bool  load_eval_file(const std::string& evalFile);
 
   } // namespace NNUE
+  
+  
+  // Small hash table stuff for caching evals
+  
+  struct Entry {
+      Key   key;
+      Key   pawnKey;
+      Key   materialKey;
+      int   rule50Key;
+      Score psqtKey;
+      Value value;
+  };
+
+  typedef HashTable<Entry, 131072> Table;
+  Entry* probe(const Position& pos);
 
 } // namespace Eval
 
