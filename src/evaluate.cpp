@@ -115,8 +115,6 @@ namespace {
   constexpr Value LazyThreshold1 =  Value(1400);
   constexpr Value LazyThreshold2 =  Value(1300);
   constexpr Value SpaceThreshold = Value(12222);
-  constexpr Value NNUEThreshold1 =   Value(550);
-  constexpr Value NNUEThreshold2 =   Value(150);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
@@ -203,7 +201,7 @@ namespace {
 #undef S
 
   // Evaluation class computes and stores attacks tables and other working data
-  template<Tracing T>
+  template<Tracing T = NO_TRACE>
   class Evaluation {
 
   public:
@@ -927,7 +925,7 @@ make_v:
     v = (v / 16) * 16;
 
     // Side to move point of view
-    v = (pos.side_to_move() == WHITE ? v : -v) + Tempo;
+    v = (pos.side_to_move() == WHITE ? v : -v);
 
     return v;
   }
@@ -940,13 +938,23 @@ make_v:
 
 Value Eval::evaluate(const Position& pos) {
 
-  bool classical = !Eval::useNNUE
-                ||  abs(eg_value(pos.psq_score())) * 16 > NNUEThreshold1 * (16 + pos.rule50_count());
-  Value v = classical ? Evaluation<NO_TRACE>(pos).value()
-                      : NNUE::evaluate(pos) * 5 / 4 + Tempo;
+  Value v = Value(0);
 
-  if (classical && Eval::useNNUE && abs(v) * 16 < NNUEThreshold2 * (16 + pos.rule50_count()))
-      v = NNUE::evaluate(pos) * 5 / 4 + Tempo;
+  if (Eval::useNNUE)
+  {
+      int r50 = pos.rule50_count();
+
+      if (abs(eg_value(pos.psq_score())) > 550 + 34 * r50)
+          v = Evaluation<>(pos).value();
+
+      if (abs(v) < 150 + 9 * r50)
+          v = NNUE::evaluate(pos) * 5 / 4;
+  }
+  else
+      v = Evaluation<>(pos).value();
+
+  // Add tempo bonus for the side to move
+  v += Tempo;
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
