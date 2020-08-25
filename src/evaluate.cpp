@@ -940,12 +940,12 @@ Value Eval::evaluate(const Position& pos) {
 
   if (Eval::useNNUE)
   {
-      int r50 = pos.rule50_count();
+      int shuffling = pos.rule50_count();
 
-      if (abs(eg_value(pos.psq_score())) > 550 + 34 * r50)
+      if (abs(eg_value(pos.psq_score())) > 550 + 34 * shuffling)
           v = Evaluation<>(pos).value();
 
-      if (abs(v) < 165 + 9 * r50)
+      if (abs(v) < 165 + 9 * shuffling)
           v = NNUE::evaluate(pos) * 5 / 4;
   }
   else
