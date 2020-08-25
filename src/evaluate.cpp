@@ -925,9 +925,7 @@ make_v:
     v = (v / 16) * 16;
 
     // Side to move point of view
-    v = (pos.side_to_move() == WHITE ? v : -v);
-
-    return v;
+    return pos.side_to_move() == WHITE ? v : -v;
   }
 
 } // namespace
@@ -947,7 +945,7 @@ Value Eval::evaluate(const Position& pos) {
       if (abs(eg_value(pos.psq_score())) > 550 + 34 * r50)
           v = Evaluation<>(pos).value();
 
-      if (abs(v) < 135 + 9 * r50)
+      if (abs(v) < 165 + 9 * r50)
           v = NNUE::evaluate(pos) * 5 / 4;
   }
   else
