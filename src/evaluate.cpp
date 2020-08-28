@@ -945,7 +945,7 @@ Value Eval::evaluate(const Position& pos) {
       if (abs(eg_value(pos.psq_score())) > 565 + 34 * shuffling)
           v = Evaluation<>(pos).value();
 
-      if (abs(v) < 180 + 9 * shuffling)
+      if (abs(v) < 165 + 9 * shuffling)
           v = NNUE::evaluate(pos) * 5 / 4;
   }
   else
