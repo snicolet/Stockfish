@@ -1020,12 +1020,12 @@ Value Eval::evaluate(const Position& pos) {
                 ||  useClassical
                 || (abs(eg_value(pos.psq_score())) > PawnValueMg / 8 && !(pos.this_thread()->nodes & 0xF));
   Value v = classical ? Evaluation<NO_TRACE>(pos).value()
-                      : NNUE::evaluate(pos) * 5 / 4 + Tempo;
+                      : NNUE::evaluate(pos) * 10 / 4 + Tempo;
 
   if (   useClassical 
       && Eval::useNNUE 
       && abs(v) * 16 < NNUEThreshold2 * (16 + pos.rule50_count()))
-      v = NNUE::evaluate(pos) * 5 / 4 + Tempo;
+      v = NNUE::evaluate(pos) * 10 / 4 + Tempo;
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
