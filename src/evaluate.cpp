@@ -1010,6 +1010,16 @@ make_v:
 } // namespace
 
 
+inline Value Eval::tapering(Score score, const Position& pos) {
+
+  Value npm = std::clamp(pos.non_pawn_material(), EndgameLimit, MidgameLimit);
+  int gamePhase = (npm - EndgameLimit) * PHASE_MIDGAME / (MidgameLimit - EndgameLimit);
+  Value v = (mg_value(score) * gamePhase + eg_value(score) * (PHASE_MIDGAME - gamePhase)) / PHASE_MIDGAME;
+
+  return v;
+}
+
+
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
@@ -1019,13 +1029,17 @@ Value Eval::evaluate(const Position& pos) {
   bool classical = !Eval::useNNUE
                 ||  useClassical
                 || (abs(eg_value(pos.psq_score())) > PawnValueMg / 8 && !(pos.this_thread()->nodes & 0xF));
+
+  Score contempt = pos.side_to_move() == WHITE ?  pos.this_thread()->contempt
+                                               : -pos.this_thread()->contempt;
+
   Value v = classical ? Evaluation<NO_TRACE>(pos).value()
-                      : NNUE::evaluate(pos) * 5 / 4 + Tempo;
+                      : NNUE::evaluate(pos) * 5 / 4 + Tempo + tapering(contempt, pos);
 
   if (   useClassical 
       && Eval::useNNUE 
       && abs(v) * 16 < NNUEThreshold2 * (16 + pos.rule50_count()))
-      v = NNUE::evaluate(pos) * 5 / 4 + Tempo;
+      v = NNUE::evaluate(pos) * 5 / 4 + Tempo + tapering(contempt, pos);
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
