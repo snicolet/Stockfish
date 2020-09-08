@@ -190,8 +190,6 @@ namespace {
   constexpr Value LazyThreshold1 =  Value(1400);
   constexpr Value LazyThreshold2 =  Value(1300);
   constexpr Value SpaceThreshold = Value(12222);
-  constexpr Value NNUEThreshold1 =   Value(550);
-  constexpr Value NNUEThreshold2 =   Value(150);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
@@ -278,7 +276,7 @@ namespace {
 #undef S
 
   // Evaluation class computes and stores attacks tables and other working data
-  template<Tracing T>
+  template<Tracing T = NO_TRACE>
   class Evaluation {
 
   public:
@@ -1015,17 +1013,22 @@ make_v:
 
 Value Eval::evaluate(const Position& pos) {
 
-  bool useClassical = abs(eg_value(pos.psq_score())) * 16 > NNUEThreshold1 * (16 + pos.rule50_count());
-  bool classical = !Eval::useNNUE
-                ||  useClassical
-                || (abs(eg_value(pos.psq_score())) > PawnValueMg / 8 && !(pos.this_thread()->nodes & 0xF));
-  Value v = classical ? Evaluation<NO_TRACE>(pos).value()
-                      : NNUE::evaluate(pos) * 5 / 4 + Tempo;
+  Value v = Value(0);
 
-  if (   useClassical 
-      && Eval::useNNUE 
-      && abs(v) * 16 < NNUEThreshold2 * (16 + pos.rule50_count()))
-      v = NNUE::evaluate(pos) * 5 / 4 + Tempo;
+  if (Eval::useNNUE)
+  {
+      int psqt = abs(eg_value(pos.psq_score()));
+      int shuffling = pos.rule50_count();
+
+      if (   (psqt * 16 > 550 * (16 + shuffling))
+          || (psqt > PawnValueMg / 8 && !(pos.this_thread()->nodes & 0xF)))
+          v = Evaluation<>(pos).value();
+
+      if (abs(v) * 16 < 150 * (16 + shuffling))
+          v = NNUE::evaluate(pos) * 5 / 4 + Tempo;
+  }
+  else
+     v = Evaluation<>(pos).value();
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
