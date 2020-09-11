@@ -1023,7 +1023,7 @@ Value Eval::evaluate(const Position& pos) {
                 ||  useClassical
                 || (abs(eg_value(pos.psq_score())) > PawnValueMg / 4 && !(pos.this_thread()->nodes & 0xB));
   Value v = classical ? Evaluation<NO_TRACE>(pos).value()
-                      : NNUE::evaluate(pos) * 7 / 4 + Tempo;
+                      : NNUE::evaluate(pos) * 6 / 4 + Tempo;
 
   if (   useClassical 
       && Eval::useNNUE 
