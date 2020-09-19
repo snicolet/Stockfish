@@ -1020,7 +1020,7 @@ Value Eval::evaluate(const Position& pos) {
   int psq = abs(eg_value(pos.psq_score()));
   int shuffling = pos.rule50_count();
 
-  bool useClassical = psq > 550 + 34 * shuffling;
+  bool useClassical = psq > 550 + 35 * shuffling;
   bool classical = !Eval::useNNUE
                 ||  useClassical
                 || (psq > PawnValueMg / 4 && !(pos.this_thread()->nodes & 0xB));
