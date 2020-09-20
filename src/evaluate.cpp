@@ -1018,9 +1018,8 @@ Value Eval::evaluate(const Position& pos) {
   // as derived from the node counter.
 
   int psq = abs(eg_value(pos.psq_score()));
-  int shuffling = pos.rule50_count();
 
-  bool useClassical = psq > 550 + 35 * shuffling;
+  bool useClassical = psq > 550 + 35 * pos.rule50_count();
   bool classical = !Eval::useNNUE
                 ||  useClassical
                 || (psq > PawnValueMg / 4 && !(pos.this_thread()->nodes & 0xB));
@@ -1030,11 +1029,11 @@ Value Eval::evaluate(const Position& pos) {
 
   if (   useClassical 
       && Eval::useNNUE 
-      && abs(v) * 16 < 150 * (16 + shuffling))
+      && abs(v) * 16 < 150 * (16 + pos.rule50_count()))
       v = NNUE::evaluate(pos) * 5 / 4 + Tempo;
 
   // Damp down the evaluation linearly when shuffling
-  v = v * (100 - shuffling) / 100;
+  v = v * (100 - pos.rule50_count()) / 100;
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
