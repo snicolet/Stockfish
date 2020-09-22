@@ -54,6 +54,7 @@ public:
   void idle_loop();
   void start_searching();
   void wait_for_search_finished();
+  size_t index() {return idx;};
 
   Pawns::Table pawnsTable;
   Material::Table materialTable;
@@ -73,6 +74,7 @@ public:
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];
   Score contempt;
+  bool useNNUE;
 };
 
 

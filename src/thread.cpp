@@ -203,6 +203,7 @@ void ThreadPool::start_thinking(Position& pos, StateListPtr& states,
       th->rootMoves = rootMoves;
       th->rootPos.set(pos.fen(), pos.is_chess960(), &th->rootState, th);
       th->rootState = setupStates->back();
+      th->useNNUE = Eval::useNNUE && (th->index() % 8 != 7);
   }
 
   main()->start_searching();

@@ -1017,7 +1017,7 @@ Value Eval::evaluate(const Position& pos) {
 
   Value v;
 
-  if (!Eval::useNNUE)
+  if (!pos.this_thread()->useNNUE)
       v = Evaluation<NO_TRACE>(pos).value();
   else
   {
