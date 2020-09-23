@@ -1564,7 +1564,8 @@ moves_loop: // When in check, search starts from here
                                                                 [to_sq(move)];
 
       // CounterMove based pruning
-      if (  !captureOrPromotion
+      if (   !ss->inCheck
+          && !captureOrPromotion
           && moveCount
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
