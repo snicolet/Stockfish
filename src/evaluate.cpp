@@ -1022,7 +1022,7 @@ Value Eval::evaluate(const Position& pos) {
   else
   {
       // scale and shift NNUE for compatibility with search and classical evaluation
-      auto  adjusted_NNUE = [&](){ return NNUE::evaluate(pos) * 44 / 32 + Tempo; };
+      auto  adjusted_NNUE = [&](){ return NNUE::evaluate(pos) * 46 / 32 + Tempo; };
 
       // if there is PSQ imbalance use classical eval, with small probability if it is small
       Value psq = Value(abs(eg_value(pos.psq_score())));
