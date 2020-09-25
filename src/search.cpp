@@ -1475,9 +1475,9 @@ moves_loop: // When in check, search starts from here
                 bestValue = ttValue;
         }
         else
-            ss->staticEval = bestValue =
-            (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
-                                             : -(ss-1)->staticEval + 2 * Tempo;
+            ss->staticEval = bestValue = 
+                (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
+                                                 : -(ss-1)->staticEval + 2 * Tempo;
 
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
@@ -1516,8 +1516,6 @@ moves_loop: // When in check, search starts from here
       givesCheck = pos.gives_check(move);
       captureOrPromotion = pos.capture_or_promotion(move);
 
-      moveCount++;
-
       // Futility pruning
       if (   !ss->inCheck
           && !givesCheck
@@ -1527,7 +1525,7 @@ moves_loop: // When in check, search starts from here
           assert(type_of(move) != ENPASSANT); // Due to !pos.advanced_pawn_push
 
           // moveCount pruning
-          if (moveCount > 2)
+          if (moveCount > 1)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
@@ -1556,10 +1554,7 @@ moves_loop: // When in check, search starts from here
 
       // Check for legality just before making the move
       if (!pos.legal(move))
-      {
-          moveCount--;
           continue;
-      }
 
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
@@ -1569,10 +1564,11 @@ moves_loop: // When in check, search starts from here
 
       // CounterMove based pruning
       if (  !captureOrPromotion
-          && moveCount
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
           continue;
+
+      moveCount++;
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
