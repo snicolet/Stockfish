@@ -896,9 +896,9 @@ namespace {
         {
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = 5 + 4 * popcount(pe->passed_pawns(strongSide));
+                sf = 14 + 4 * popcount(pe->passed_pawns(strongSide));
             else
-                sf = 9 + 3 * pos.count<ALL_PIECES>(strongSide);
+                sf = 18 + 3 * pos.count<ALL_PIECES>(strongSide);
         }
         else if (  pos.non_pawn_material(WHITE) == RookValueMg
                 && pos.non_pawn_material(BLACK) == RookValueMg
