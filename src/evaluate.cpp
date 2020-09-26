@@ -896,9 +896,9 @@ namespace {
         {
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = 14 + 4 * popcount(pe->passed_pawns(strongSide));
+                sf = 18 + 4 * popcount(pe->passed_pawns(strongSide));
             else
-                sf = 18 + 3 * pos.count<ALL_PIECES>(strongSide);
+                sf = 22 + 3 * pos.count<ALL_PIECES>(strongSide);
         }
         else if (  pos.non_pawn_material(WHITE) == RookValueMg
                 && pos.non_pawn_material(BLACK) == RookValueMg
@@ -1028,15 +1028,18 @@ Value Eval::evaluate(const Position& pos) {
       Value psq = Value(abs(eg_value(pos.psq_score())));
       int   r50 = 16 + pos.rule50_count();
       bool  largePsq = psq * 16 > (NNUEThreshold1 + pos.non_pawn_material() / 64) * r50;
-      bool  classical = largePsq || (psq > PawnValueMg / 4 && !(pos.this_thread()->nodes & 0xB));
+      bool  classical =    (largePsq || (psq > PawnValueMg / 4 && !(pos.this_thread()->nodes & 0xB)))
+                        && !pos.opposite_bishops();
 
       v = classical ? Evaluation<NO_TRACE>(pos).value() : adjusted_NNUE();
 
       // If the classical eval is small and imbalance large, use NNUE nevertheless
-      if (   largePsq
+      if (   classical
+          && largePsq
           && abs(v) * 16 < NNUEThreshold2 * r50)
           v = adjusted_NNUE();
   }
+
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
