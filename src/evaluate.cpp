@@ -1025,7 +1025,7 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&](){ 
          int material = pos.non_pawn_material() / 128;
          int pawns    = pos.count<PAWN>();
-         return NNUE::evaluate(pos) * (245 + material + pawns) / 256 + Tempo; 
+         return NNUE::evaluate(pos) * (512 + material + pawns) / 512 + Tempo; 
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
