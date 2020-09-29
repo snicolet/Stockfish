@@ -135,6 +135,7 @@ public:
   bool pawn_passed(Color c, Square s) const;
   bool opposite_bishops() const;
   int  pawns_on_same_color_squares(Color c, Square s) const;
+  Bitboard blocked_pawns() const;
 
   // Doing and undoing moves
   void do_move(Move m, StateInfo& newSt);
@@ -326,6 +327,11 @@ inline bool Position::advanced_pawn_push(Move m) const {
 
 inline int Position::pawns_on_same_color_squares(Color c, Square s) const {
   return popcount(pieces(c, PAWN) & ((DarkSquares & s) ? DarkSquares : ~DarkSquares));
+}
+
+inline Bitboard Position::blocked_pawns() const {
+  return   (pieces(WHITE, PAWN) & shift<SOUTH>(pieces(BLACK, PAWN)))
+         | (pieces(BLACK, PAWN) & shift<NORTH>(pieces(WHITE, PAWN)));
 }
 
 inline Key Position::key() const {
