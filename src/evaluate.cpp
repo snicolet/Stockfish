@@ -1026,7 +1026,7 @@ Value Eval::evaluate(const Position& pos) {
          int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
          int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                           - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-         // dbg_mean_of(outflanking);
+         // dbg_mean_of(outflanking); 
          return NNUE::evaluate(pos) * (800 + 16 * outflanking + mat / 32) / 1024 + Tempo;
       };
 
