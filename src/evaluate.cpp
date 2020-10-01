@@ -1024,10 +1024,9 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
          int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
-         int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                          - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-         // dbg_mean_of(outflanking); 
-         return NNUE::evaluate(pos) * (780 + 16 * outflanking + mat / 32) / 1024 + Tempo;
+         int dist = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+
+         return NNUE::evaluate(pos) * (720 + 50 * (dist >= 3) + mat / 32) / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
