@@ -1026,7 +1026,7 @@ Value Eval::evaluate(const Position& pos) {
          int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
          int dist = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
-         return NNUE::evaluate(pos) * (720 + 50 * (dist >= 3) + mat / 32) / 1024 + Tempo;
+         return NNUE::evaluate(pos) * (720 + 100 * (dist >= 3) + mat / 32) / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
