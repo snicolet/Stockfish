@@ -1027,7 +1027,7 @@ Value Eval::evaluate(const Position& pos) {
          int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                           - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
-         return NNUE::evaluate(pos) * (860 + 16 * outflanking + mat / 32) / 1024 + Tempo;
+         return NNUE::evaluate(pos) * (820 + 16 * outflanking + mat / 32) / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
