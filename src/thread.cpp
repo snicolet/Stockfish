@@ -203,6 +203,7 @@ void ThreadPool::start_thinking(Position& pos, StateListPtr& states,
       th->rootMoves = rootMoves;
       th->rootPos.set(pos.fen(), pos.is_chess960(), &th->rootState, th);
       th->rootState = setupStates->back();
+      th->rootColor = pos.side_to_move();
   }
 
   main()->start_searching();
