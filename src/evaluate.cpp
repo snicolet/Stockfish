@@ -1028,7 +1028,7 @@ Value Eval::evaluate(const Position& pos) {
 
          int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
          bool SF_is_attacking = (nnue > 0) == (pos.side_to_move() == pos.this_thread()->rootColor);
-         int aging = SF_is_attacking ? 0 : 4 * pos.rule50_count();
+         int aging = SF_is_attacking ? 4 * pos.rule50_count() : 0;
 
          int scale = std::max(100, 720 + mat / 32 - aging);
 
