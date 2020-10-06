@@ -1025,9 +1025,12 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&](){
 
          Value nnue = NNUE::evaluate(pos);
+
          int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
-         int aging = 32 * pos.rule50_count();
-         int scale = std::max(100, (720 + mat / 32 - aging));
+         bool SF_is_attacking = (nnue > 0) == (pos.side_to_move() == pos.this_thread()->rootColor);
+         int aging = SF_is_attacking ? 32 * pos.rule50_count() : 0;
+
+         int scale = std::max(100, 720 + mat / 32 - aging);
 
          return nnue * scale / 1024 + Tempo;
       };
