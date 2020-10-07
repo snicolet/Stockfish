@@ -1029,7 +1029,7 @@ Value Eval::evaluate(const Position& pos) {
          int elevation = pos.elevation(WHITE) + pos.elevation(BLACK);
          int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
          
-         int scale = 680 + mat / 32 + 4 * elevation;
+         int scale = 700 + mat / 32 + 4 * elevation;
 
          return nnue * scale / 1024 + Tempo;
       };
