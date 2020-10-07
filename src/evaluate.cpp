@@ -1023,15 +1023,25 @@ Value Eval::evaluate(const Position& pos) {
   {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
+
          Value nnue = NNUE::evaluate(pos);
+
          
-         Color stm = pos.side_to_move();
-         int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
-         int elevation = pos.elevation(nnue > 0 ? stm : ~stm);
+         //Color stm = pos.side_to_move();
+         //int elevation = pos.elevation(nnue > 0 ? stm : ~stm);
+         //int mat = pos.non_pawn_material() + 120 * elevation;
+         
+         int elevation = pos.elevation(WHITE) + pos.elevation(BLACK);
+         int mat = pos.non_pawn_material() + 60 * elevation;
+         
+         int scale = 720 + mat / 32;
 
-         //dbg_mean_of(elevation);
+         //int x = abs(60 * elevation - PieceValue[MG][PAWN] * pos.count<PAWN>());
+         //dbg_mean_of(x);
+         //dbg_mean_of(64 * elevation);
+         //dbg_mean_of(PieceValue[MG][PAWN] * pos.count<PAWN>());
 
-         return nnue * (680 + mat / 32 + elevation * 4) / 1024 + Tempo;
+         return nnue * scale / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
