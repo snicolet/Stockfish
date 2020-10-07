@@ -1025,21 +1025,11 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&](){
 
          Value nnue = NNUE::evaluate(pos);
-
-         
-         //Color stm = pos.side_to_move();
-         //int elevation = pos.elevation(nnue > 0 ? stm : ~stm);
-         //int mat = pos.non_pawn_material() + 120 * elevation;
          
          int elevation = pos.elevation(WHITE) + pos.elevation(BLACK);
-         int mat = pos.non_pawn_material() + 60 * elevation;
+         int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
          
-         int scale = 720 + mat / 32;
-
-         //int x = abs(60 * elevation - PieceValue[MG][PAWN] * pos.count<PAWN>());
-         //dbg_mean_of(x);
-         //dbg_mean_of(64 * elevation);
-         //dbg_mean_of(PieceValue[MG][PAWN] * pos.count<PAWN>());
+         int scale = 680 + mat / 32 + 4 * elevation;
 
          return nnue * scale / 1024 + Tempo;
       };
