@@ -1031,7 +1031,7 @@ Value Eval::evaluate(const Position& pos) {
 
          //dbg_mean_of(elevation);
 
-         return nnue * (700 + mat / 32 + elevation * 4) / 1024 + Tempo;
+         return nnue * (680 + mat / 32 + elevation * 4) / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
