@@ -1025,7 +1025,7 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&](){
          int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
          bool ocb = pos.opposite_bishops();
-         int scale = 720 + mat / 32 - 300 * ocb;
+         int scale = 720 + mat / 32 - 500 * ocb;
 
          return NNUE::evaluate(pos) * scale / 1024 + Tempo;
       };
