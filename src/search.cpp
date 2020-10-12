@@ -1117,7 +1117,7 @@ moves_loop: // When in check, search starts from here
       // Irreversible move extension
       if (   (pos.rule50_count() & 7) == 7
           && type_of(movedPiece) == PAWN)
-          extension = 1;
+          extension = 2;
 
       // Late irreversible move extension
       if (   move == ttMove
