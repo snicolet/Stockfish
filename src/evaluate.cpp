@@ -1023,7 +1023,7 @@ Value Eval::evaluate(const Position& pos) {
          int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
          int r = pos.rule50_count();
 
-         return NNUE::evaluate(pos) * (720 + mat / 32 + r * 8) / 1024 + Tempo;
+         return NNUE::evaluate(pos) * (720 + mat / 32 + r * 16) / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
@@ -1046,7 +1046,7 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Damp down the evaluation linearly when shuffling
-  v = v * (32 - pos.rule50_count()) / 32;
+  v = v * std::max(1, 32 - pos.rule50_count()) / 32;
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
