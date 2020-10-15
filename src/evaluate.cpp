@@ -1022,14 +1022,13 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&](){
       
          Value nnue = NNUE::evaluate(pos);
-         
-         Score contempt = pos.this_thread()->contempt;
-         Value c = (mg_value(contempt) + eg_value(contempt)) / 2;
-         if (pos.side_to_move() != WHITE)
-             c = -c;
+
+         Score c = (pos.side_to_move() == WHITE ? pos.this_thread()->contempt : -pos.this_thread()->contempt);
+         Value contempt = (mg_value(c) + eg_value(c)) / 2;
 
          int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
-         return (nnue + c) * (720 + mat / 32) / 1024 + Tempo;
+         
+         return (nnue + contempt) * (720 + mat / 32) / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
