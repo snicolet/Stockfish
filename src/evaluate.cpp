@@ -1021,7 +1021,7 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
          int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
-         int random = (pos.this_thread()->nodes & 31) + (pos.key() & 31) - 31;
+         int random = (pos.this_thread()->nodes & 3) + (pos.key() & 3) - 3;
          return (NNUE::evaluate(pos) + random) * (720 + mat / 32) / 1024 + Tempo;
       };
 
