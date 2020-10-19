@@ -1022,7 +1022,7 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&](){
          int mat = pos.non_pawn_material() + PieceValue[MG][PAWN] * pos.count<PAWN>();
          int random = (pos.this_thread()->nodes & 15) + (pos.key() & 15) - 15;
-         return (NNUE::evaluate(pos) + random) * (720 + mat / 32) / 1024 + Tempo;
+         return (NNUE::evaluate(pos) + random) * (730 + mat / 32) / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
