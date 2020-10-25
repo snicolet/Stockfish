@@ -101,7 +101,7 @@ namespace {
     
     HEURISTICS_NB      = 4
   };
-  int probability[HEURISTICS_NB] = {122, 122, 122, 122};
+  int probability[HEURISTICS_NB] = {122, 128, 128, 128};
 
   inline bool prune_or_reduce(Heuristic h, Position& pos) {
     int random = (pos.this_thread()->nodes ^ pos.key() ^ make_key(134638169147 * h)) & 127;
