@@ -30,8 +30,8 @@ class Position;
 namespace Search {
 
 /// Threshold used for countermoves based pruning
-constexpr int CounterMovePruneThreshold = 0;
 
+constexpr int CounterMovePruneThreshold = 0;
 
 /// Stack struct keeps track of the information we need to remember from nodes
 /// shallower and deeper in the tree during the search. Each search thread has
@@ -100,6 +100,9 @@ struct LimitsType {
 };
 
 extern LimitsType Limits;
+
+
+
 
 void init();
 void clear();

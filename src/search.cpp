@@ -65,7 +65,7 @@ namespace {
   // Razor and futility margins
   constexpr int RazorMargin = 510;
   Value futility_margin(Depth d, bool improving) {
-    return Value(223 * (d - improving));
+    return Value(173 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -88,6 +88,24 @@ namespace {
   // Add a small random component to draw evaluations to avoid 3fold-blindness
   Value value_draw(Thread* thisThread) {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
+  }
+  
+  // Array containing the probability flag for each heuristic rule we use in search.
+  // The probabilities are normalized to 128, so that 0 = 0% , 64 = 50%, 128 = 100%
+
+  enum Heuristic : int {
+    FUTILITY_PRUNING = 0,
+    NULL_MOVE_PRUNING,
+    PROBCUT_PRUNING,
+    NOT_TT_REDUCTION,
+    
+    HEURISTICS_NB      = 4
+  };
+  int probability[HEURISTICS_NB] = {122, 122, 122, 122};
+
+  inline bool prune_or_reduce(Heuristic h, Position& pos) {
+    int random = (pos.this_thread()->nodes ^ pos.key() ^ make_key(134638169147 * h)) & 127;
+    return random < probability[h];
   }
 
   // Skill structure is used to implement strength limit
@@ -813,7 +831,8 @@ namespace {
     if (   !PvNode
         &&  depth < 8
         &&  eval - futility_margin(depth, improving) >= beta
-        &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
+        &&  eval < VALUE_KNOWN_WIN  // Do not return unproven wins
+        &&  prune_or_reduce(FUTILITY_PRUNING, pos))
         return eval;
 
     // Step 9. Null move search with verification search (~40 Elo)
@@ -825,7 +844,8 @@ namespace {
         &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 182
         && !excludedMove
         &&  pos.non_pawn_material(us)
-        && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
+        && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor)
+        && prune_or_reduce(NULL_MOVE_PRUNING, pos))
     {
         assert(eval - beta >= 0);
 
@@ -881,7 +901,8 @@ namespace {
         && !(   ss->ttHit
              && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
-             && ttValue < probCutBeta))
+             && ttValue < probCutBeta)
+             && prune_or_reduce(PROBCUT_PRUNING, pos))
     {
         // if ttMove is a capture and value from transposition table is good enough produce probCut
         // cutoff without digging into actual probCut search
@@ -944,7 +965,8 @@ namespace {
     // Step 11. If the position is not in TT, decrease depth by 2
     if (   PvNode
         && depth >= 6
-        && !ttMove)
+        && !ttMove
+        && prune_or_reduce(NOT_TT_REDUCTION, pos))
         depth -= 2;
 
 moves_loop: // When in check, search starts from here
