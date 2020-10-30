@@ -1564,7 +1564,7 @@ moves_loop: // When in check, search starts from here
                                                                 [to_sq(move)];
 
       // CounterMove based pruning
-      if (   !ss->inCheck 
+      if (   !(ss->inCheck && bestValue <= -VALUE_KNOWN_WIN)
           && !captureOrPromotion
           && moveCount
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
@@ -1601,7 +1601,10 @@ moves_loop: // When in check, search starts from here
     // All legal moves have been searched. A special case: if we're in check
     // and no legal moves were found, it is checkmate.
     if (ss->inCheck && bestValue == -VALUE_INFINITE)
+    {
+        assert(!MoveList<LEGAL>(pos).size());
         return mated_in(ss->ply); // Plies to mate from the root
+    }
 
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER :
