@@ -1079,6 +1079,9 @@ Value Eval::evaluate(const Position& pos) {
           v = adjusted_NNUE();
   }
 
+  // Damp down the evaluation linearly for very long games
+  v = v * (512 - pos.game_ply()) / 512;
+
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
 
