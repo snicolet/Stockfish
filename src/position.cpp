@@ -736,7 +736,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
       do_castling<true>(us, from, to, rfrom, rto);
 
       st->arrivalDate2 = arrivalDate[rfrom];
-      arrivalDate[to] = arrivalDate[rto] = gamePly;
+      arrivalDate[rto] = gamePly;
 
       k ^= Zobrist::psq[captured][rfrom] ^ Zobrist::psq[captured][rto];
       captured = NO_PIECE;

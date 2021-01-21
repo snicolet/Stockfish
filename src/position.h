@@ -165,7 +165,7 @@ public:
   Value non_pawn_material(Color c) const;
   Value non_pawn_material() const;
   int immobility(Square s) const;
-  int immobility(Bitboard b) const;
+  int immobility(Bitboard pieces) const;
   int immobility(Color c) const;
 
   // Position consistency check, for debugging
@@ -364,11 +364,16 @@ inline int Position::immobility(Square s) const {
   return gamePly - arrivalDate[s];
 }
 
-inline int Position::immobility(Bitboard b) const {
-  int sum = 0;
+inline int Position::immobility(Bitboard pieces) const {
+  Bitboard b = pieces;
+  // int sum = 0;
+  // while (b)
+  //    sum += immobility(pop_lsb(&b));
+  // return sum;
+  int result = 0;
   while (b)
-     sum += immobility(pop_lsb(&b));
-  return sum;
+      result = std::max(result, immobility(pop_lsb(&b)));
+  return result;
 }
 
 inline int Position::immobility(Color c) const {
