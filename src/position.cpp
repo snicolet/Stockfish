@@ -277,6 +277,9 @@ Position& Position::set(const string& fenStr, bool isChess960, StateInfo* si, Th
   // handle also common incorrect FEN with fullmove = 0.
   gamePly = std::max(2 * (gamePly - 1), 0) + (sideToMove == BLACK);
 
+  for (Square s = SQ_A1; s <= SQ_H8; ++s)
+      arrivalDate[s] = gamePly;
+
   chess960 = isChess960;
   thisThread = th;
   set_state(st);
@@ -722,6 +725,8 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
   assert(captured == NO_PIECE || color_of(captured) == (type_of(m) != CASTLING ? them : us));
   assert(type_of(captured) != KING);
 
+  st->arrivalDate1 = arrivalDate[from];
+
   if (type_of(m) == CASTLING)
   {
       assert(pc == make_piece(us, KING));
@@ -729,6 +734,9 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
 
       Square rfrom, rto;
       do_castling<true>(us, from, to, rfrom, rto);
+
+      st->arrivalDate2 = arrivalDate[rfrom];
+      arrivalDate[to] = arrivalDate[rto] = gamePly;
 
       k ^= Zobrist::psq[captured][rfrom] ^ Zobrist::psq[captured][rto];
       captured = NO_PIECE;
@@ -772,6 +780,9 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
       if (type_of(m) == EN_PASSANT)
           board[capsq] = NO_PIECE;
 
+      // Remember arrival date of captured piece
+      st->arrivalDate2 = arrivalDate[capsq];
+
       // Update material hash key and prefetch access to materialTable
       k ^= Zobrist::psq[captured][capsq];
       st->materialKey ^= Zobrist::psq[captured][pieceCount[captured]];
@@ -780,6 +791,9 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
       // Reset rule 50 counter
       st->rule50 = 0;
   }
+
+  // Set arrival date of moved piece
+  arrivalDate[to] = gamePly;
 
   // Update hash key
   k ^= Zobrist::psq[pc][from] ^ Zobrist::psq[pc][to];
@@ -929,10 +943,15 @@ void Position::undo_move(Move m) {
   {
       Square rfrom, rto;
       do_castling<false>(us, from, to, rfrom, rto);
+
+      arrivalDate[from]  = st->arrivalDate1;
+      arrivalDate[rfrom] = st->arrivalDate2;
   }
   else
   {
       move_piece(to, from); // Put the piece back at the source square
+
+      arrivalDate[from] = st->arrivalDate1;
 
       if (st->capturedPiece)
       {
@@ -950,6 +969,8 @@ void Position::undo_move(Move m) {
           }
 
           put_piece(st->capturedPiece, capsq); // Restore the captured piece
+
+          arrivalDate[capsq] = st->arrivalDate2;
       }
   }
 

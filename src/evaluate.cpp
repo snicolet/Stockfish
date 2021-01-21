@@ -1079,6 +1079,10 @@ Value Eval::evaluate(const Position& pos) {
           v = adjusted_NNUE();
   }
 
+  Color stm = pos.side_to_move();
+  int immobility = pos.immobility(~stm) - pos.immobility(stm);
+  v += immobility;
+
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
 

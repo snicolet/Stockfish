@@ -55,6 +55,7 @@ struct StateInfo {
   Bitboard   pinners[COLOR_NB];
   Bitboard   checkSquares[PIECE_TYPE_NB];
   int        repetition;
+  int        arrivalDate1, arrivalDate2;
 
   // Used by NNUE
   Eval::NNUE::Accumulator accumulator;
@@ -163,6 +164,9 @@ public:
   Score psq_score() const;
   Value non_pawn_material(Color c) const;
   Value non_pawn_material() const;
+  int immobility(Square s) const;
+  int immobility(Bitboard b) const;
+  int immobility(Color c) const;
 
   // Position consistency check, for debugging
   bool pos_is_ok() const;
@@ -190,7 +194,7 @@ private:
   Bitboard byColorBB[COLOR_NB];
   int pieceCount[PIECE_NB];
   int castlingRightsMask[SQUARE_NB];
-  int immobility[SQUARE_NB];
+  int arrivalDate[SQUARE_NB];
   Square castlingRookSquare[CASTLING_RIGHT_NB];
   Bitboard castlingPath[CASTLING_RIGHT_NB];
   int gamePly;
@@ -352,6 +356,23 @@ inline int Position::game_ply() const {
 
 inline int Position::rule50_count() const {
   return st->rule50;
+}
+
+inline int Position::immobility(Square s) const {
+  assert(is_ok(s));
+  assert(!empty(s));
+  return gamePly - arrivalDate[s];
+}
+
+inline int Position::immobility(Bitboard b) const {
+  int sum = 0;
+  while (b)
+     sum += immobility(pop_lsb(&b));
+  return sum;
+}
+
+inline int Position::immobility(Color c) const {
+   return immobility(pieces(c, KNIGHT, BISHOP) | pieces(c, ROOK, QUEEN));
 }
 
 inline bool Position::opposite_bishops() const {
