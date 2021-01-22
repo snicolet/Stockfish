@@ -1054,8 +1054,8 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&](){
       
       
-         int mat = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         int sc = 680 + mat / 32;
+         int mat = pos.non_pawn_material() + 3 * PawnValueMg * pos.count<PAWN>();
+         int sc = 601 + mat / 32;
          
          // dbg_mean_of(sc);
          
