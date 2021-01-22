@@ -1084,7 +1084,7 @@ Value Eval::evaluate(const Position& pos) {
   int b = pos.immobility( stm);
   
   //int immobility = 2 * (a - b);
-  int immobility = 2 * (a - b) / (a + b + 1);
+  int immobility = 16 * (a - b) / (a + b + 1);
   //int immobility = (a * a - b * b) / 32;
   
   //dbg_mean_of(abs(immobility));
