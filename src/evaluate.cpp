@@ -1055,7 +1055,7 @@ Value Eval::evaluate(const Position& pos) {
       
       
          int mat = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         int sc = 639 + mat / 32;
+         int sc = 643 + mat / 32;
          
          // dbg_mean_of(sc);
          
