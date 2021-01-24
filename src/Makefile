@@ -291,6 +291,18 @@ endif
 
 endif
 
+pext = no
+sse = no
+mmx = no
+sse2 = no
+ssse3 = no
+sse41 = no
+avx2 = no
+avx512 = no
+vnni256 = no
+vnni512 = no
+neon = no
+
 ### ==========================================================================
 ### Section 3. Low-level Configuration
 ### ==========================================================================
