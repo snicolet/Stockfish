@@ -1050,7 +1050,7 @@ Key Position::key_after(Move m) const {
   Square to = to_sq(m);
   Piece pc = piece_on(from);
   Piece captured = piece_on(to);
-  Key k = key() ^ Zobrist::side;
+  Key k = st->key ^ Zobrist::side;
 
   if (captured)
       k ^= Zobrist::psq[captured][to];
