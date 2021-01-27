@@ -219,11 +219,11 @@ typedef int Depth;
 enum : int {
   DEPTH_QS_CHECKS     = -1,
   DEPTH_QS_NO_CHECKS  = -2,
-  DEPTH_QS_RECAPTURES = -5,
+  DEPTH_QS_RECAPTURES = -6,
 
-  DEPTH_NONE   = -6,
+  DEPTH_NONE   = -7,
 
-  DEPTH_OFFSET = -7 // value used only for TT entry occupancy check
+  DEPTH_OFFSET = -8 // value used only for TT entry occupancy check
 };
 
 enum Square : int {
