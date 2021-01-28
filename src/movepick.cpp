@@ -239,7 +239,9 @@ top:
 
   case QCAPTURE:
       if (select<Best>([&](){ return   depth > DEPTH_QS_RECAPTURES
-                                    || to_sq(*cur) == recaptureSquare; }))
+                                    || to_sq(*cur) == recaptureSquare
+                                    || type_of(pos.piece_on(to_sq(*cur))) == QUEEN
+                                    || type_of(pos.piece_on(to_sq(*cur))) == ROOK ; }))
           return *(cur - 1);
 
       // If we did not find any move and we do not try checks, we have finished
