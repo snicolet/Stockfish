@@ -1096,7 +1096,7 @@ Value Eval::evaluate(const Position& pos) {
          scale1 = 679 + material / 32;
          scale2 = Evaluation<NO_TRACE>(pos).scale(strongSide);
 
-         return nnue * scale1 * scale2 / (1024 * SCALE_FACTOR_NORMAL) + Tempo;
+         return nnue * scale2 / SCALE_FACTOR_NORMAL + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
