@@ -297,7 +297,8 @@ namespace {
     template<Color Us> Score threats() const;
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
-    Value winnable(Score score) const;
+    ScaleFactor scale_factor(Value v) const;
+    Value winnable(Score score, ScaleFactor sf) const;
 
     const Position& pos;
     Material::Entry* me;
@@ -859,54 +860,21 @@ namespace {
   }
 
 
-  // Evaluation::winnable() adjusts the midgame and endgame score components, based on
-  // the known attacking/defending status of the players. The final value is derived
-  // by interpolation from the midgame and endgame values.
+  // Evaluation::scale_factor() adjusts returns a scale factor for the evaluation, 
+  // mainly based on endgame features of the position.
 
   template<Tracing T>
-  Value Evaluation<T>::winnable(Score score) const {
-
-    int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                    + int(rank_of(pos.square<KING>(WHITE)) - rank_of(pos.square<KING>(BLACK)));
-
-    bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
-                            && (pos.pieces(PAWN) & KingSide);
-
-    bool almostUnwinnable =   outflanking < 0
-                           && !pawnsOnBothFlanks;
-
-    bool infiltration =   rank_of(pos.square<KING>(WHITE)) > RANK_4
-                       || rank_of(pos.square<KING>(BLACK)) < RANK_5;
-
-    // Compute the initiative bonus for the attacking side
-    int complexity =   9 * pe->passed_count()
-                    + 12 * pos.count<PAWN>()
-                    +  9 * outflanking
-                    + 21 * pawnsOnBothFlanks
-                    + 24 * infiltration
-                    + 51 * !pos.non_pawn_material()
-                    - 43 * almostUnwinnable
-                    -110 ;
-
-    Value mg = mg_value(score);
-    Value eg = eg_value(score);
-
-    // Now apply the bonus: note that we find the attacking side by extracting the
-    // sign of the midgame or endgame values, and that we carefully cap the bonus
-    // so that the midgame and endgame scores do not change sign after the bonus.
-    int u = ((mg > 0) - (mg < 0)) * std::clamp(complexity + 50, -abs(mg), 0);
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
-
-    mg += u;
-    eg += v;
+  ScaleFactor Evaluation<T>::scale_factor(Value v) const {
 
     // Compute the scale factor for the winning side
-    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
+    Color strongSide = v > VALUE_DRAW ? WHITE : BLACK;
     int sf = me->scale_factor(pos, strongSide);
 
     // If scale factor is not already specific, scale down via general heuristics
     if (sf == SCALE_FACTOR_NORMAL)
     {
+        bool pawnsOnBothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
+
         if (pos.opposite_bishops())
         {
             // For pure opposite colored bishops endgames use scale factor
@@ -941,6 +909,51 @@ namespace {
         // Reduce scale factor in case of pawns being on a single flank
         sf -= 4 * !pawnsOnBothFlanks;
     }
+    
+    return ScaleFactor(sf);
+  }
+
+
+  // Evaluation::winnable() adjusts the midgame and endgame score components, based on
+  // the known attacking/defending status of the players. The final value is derived
+  // by interpolation from the midgame and endgame values.
+
+  template<Tracing T>
+  Value Evaluation<T>::winnable(Score score, ScaleFactor sf) const {
+
+    int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
+                    + int(rank_of(pos.square<KING>(WHITE)) - rank_of(pos.square<KING>(BLACK)));
+
+    bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
+                            && (pos.pieces(PAWN) & KingSide);
+
+    bool almostUnwinnable =   outflanking < 0
+                           && !pawnsOnBothFlanks;
+
+    bool infiltration =   rank_of(pos.square<KING>(WHITE)) > RANK_4
+                       || rank_of(pos.square<KING>(BLACK)) < RANK_5;
+
+    // Compute the initiative bonus for the attacking side
+    int complexity =   9 * pe->passed_count()
+                    + 12 * pos.count<PAWN>()
+                    +  9 * outflanking
+                    + 21 * pawnsOnBothFlanks
+                    + 24 * infiltration
+                    + 51 * !pos.non_pawn_material()
+                    - 43 * almostUnwinnable
+                    -110 ;
+
+    Value mg = mg_value(score);
+    Value eg = eg_value(score);
+
+    // Now apply the bonus: note that we find the attacking side by extracting the
+    // sign of the midgame or endgame values, and that we carefully cap the bonus
+    // so that the midgame and endgame scores do not change sign after the bonus.
+    int u = ((mg > 0) - (mg < 0)) * std::clamp(complexity + 50, -abs(mg), 0);
+    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
+
+    mg += u;
+    eg += v;
 
     // Interpolate between the middlegame and (scaled by 'sf') endgame score
     v =  mg * int(me->game_phase())
@@ -1016,7 +1029,7 @@ namespace {
 
 make_v:
     // Derive single value from mg and eg parts of score
-    Value v = winnable(score);
+    Value v = winnable(score, scale_factor(eg_value(score)));
 
     // In case of tracing add all remaining individual evaluation terms
     if (T)
@@ -1052,14 +1065,10 @@ Value Eval::evaluate(const Position& pos) {
   {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
-         int material, ocb, scale;
+         int material, scale;
          
          material = pos.non_pawn_material() + PawnValueMg * pos.count<PAWN>();
-         ocb =    pos.opposite_bishops() 
-               && pos.non_pawn_material(WHITE) == BishopValueMg
-               && pos.non_pawn_material(BLACK) == BishopValueMg;
          scale = 679 + material / 32;
-         scale = ocb ? scale / 2 : scale;
 
          return NNUE::evaluate(pos) * scale / 1024 + Tempo;
       };
