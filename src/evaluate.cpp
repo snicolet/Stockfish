@@ -288,7 +288,9 @@ namespace {
     Evaluation() = delete;
     explicit Evaluation(const Position& p) : pos(p) {}
     Evaluation& operator=(const Evaluation&) = delete;
+
     Value value();
+    ScaleFactor scale(Color c);
 
   private:
     template<Color Us> void initialize();
@@ -297,8 +299,8 @@ namespace {
     template<Color Us> Score threats() const;
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
-    ScaleFactor scale_factor(Value v) const;
-    Value winnable(Score score, ScaleFactor sf) const;
+    ScaleFactor scale_factor(Color c) const;
+    Value winnable(Score score) const;
 
     const Position& pos;
     Material::Entry* me;
@@ -860,14 +862,14 @@ namespace {
   }
 
 
-  // Evaluation::scale_factor() adjusts returns a scale factor for the evaluation, 
-  // mainly based on endgame features of the position.
+  // Evaluation::scale_factor() adjusts returns a scale factor for the evaluation,
+  // mainly based on endgame features of the position and the color of the (estimated)
+  // winning side.
 
   template<Tracing T>
-  ScaleFactor Evaluation<T>::scale_factor(Value v) const {
+  ScaleFactor Evaluation<T>::scale_factor(Color strongSide) const {
 
     // Compute the scale factor for the winning side
-    Color strongSide = v > VALUE_DRAW ? WHITE : BLACK;
     int sf = me->scale_factor(pos, strongSide);
 
     // If scale factor is not already specific, scale down via general heuristics
@@ -909,7 +911,7 @@ namespace {
         // Reduce scale factor in case of pawns being on a single flank
         sf -= 4 * !pawnsOnBothFlanks;
     }
-    
+
     return ScaleFactor(sf);
   }
 
@@ -919,7 +921,7 @@ namespace {
   // by interpolation from the midgame and endgame values.
 
   template<Tracing T>
-  Value Evaluation<T>::winnable(Score score, ScaleFactor sf) const {
+  Value Evaluation<T>::winnable(Score score) const {
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                     + int(rank_of(pos.square<KING>(WHITE)) - rank_of(pos.square<KING>(BLACK)));
@@ -954,6 +956,10 @@ namespace {
 
     mg += u;
     eg += v;
+
+    // Compute the scale factor for the winning side
+    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
+    ScaleFactor sf = scale_factor(strongSide);
 
     // Interpolate between the middlegame and (scaled by 'sf') endgame score
     v =  mg * int(me->game_phase())
@@ -1029,7 +1035,7 @@ namespace {
 
 make_v:
     // Derive single value from mg and eg parts of score
-    Value v = winnable(score, scale_factor(eg_value(score)));
+    Value v = winnable(score);
 
     // In case of tracing add all remaining individual evaluation terms
     if (T)
@@ -1049,6 +1055,21 @@ make_v:
     return v;
   }
 
+  // Evaluation::scale() returns the scale factor used by the classical evaluation
+
+  template<Tracing T>
+  ScaleFactor Evaluation<T>::scale(Color strongSide) {
+
+    me = Material::probe(pos);
+
+    if (me->specialized_eval_exists())
+        return SCALE_FACTOR_NORMAL;
+
+    pe = Pawns::probe(pos);
+
+    return scale_factor(strongSide);
+  }
+
 } // namespace
 
 
@@ -1065,12 +1086,17 @@ Value Eval::evaluate(const Position& pos) {
   {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
-         int material, scale;
-         
-         material = pos.non_pawn_material() + PawnValueMg * pos.count<PAWN>();
-         scale = 679 + material / 32;
+         int material, scale1, scale2;
+         Value nnue;
 
-         return NNUE::evaluate(pos) * scale / 1024 + Tempo;
+         nnue = NNUE::evaluate(pos);
+         material = pos.non_pawn_material() + PawnValueMg * pos.count<PAWN>();
+         Color strongSide = nnue > VALUE_DRAW ? pos.side_to_move() : ~pos.side_to_move();
+
+         scale1 = 679 + material / 32;
+         scale2 = Evaluation<NO_TRACE>(pos).scale(strongSide);
+
+         return nnue * scale1 * scale2 / (1024 * SCALE_FACTOR_NORMAL) + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
