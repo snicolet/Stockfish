@@ -862,9 +862,8 @@ namespace {
   }
 
 
-  // Evaluation::scale_factor() adjusts returns a scale factor for the evaluation,
-  // mainly based on endgame features of the position and the color of the (estimated)
-  // winning side.
+  // Evaluation::scale_factor() returns a scale factor for the evaluation, mainly based
+  // on endgame features of the position and the color of the (estimated) winning side.
 
   template<Tracing T>
   ScaleFactor Evaluation<T>::scale_factor(Color strongSide) const {
