@@ -1052,9 +1052,13 @@ Value Eval::evaluate(const Position& pos) {
   {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
-         int material = pos.non_pawn_material() + PawnValueMg * pos.count<PAWN>();
-         int ocb      = pos.opposite_bishops();
-         int scale    = 679 + material / 32;
+         int material, ocb, scale;
+         
+         material = pos.non_pawn_material() + PawnValueMg * pos.count<PAWN>();
+         ocb =    pos.opposite_bishops() 
+               && pos.non_pawn_material(WHITE) == BishopValueMg
+               && pos.non_pawn_material(BLACK) == BishopValueMg;
+         scale = 679 + material / 32;
          scale = ocb ? scale / 2 : scale;
 
          return NNUE::evaluate(pos) * scale / 1024 + Tempo;
