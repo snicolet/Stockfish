@@ -289,7 +289,9 @@ namespace {
     Evaluation() = delete;
     explicit Evaluation(const Position& p) : pos(p) {}
     Evaluation& operator=(const Evaluation&) = delete;
+
     Value value();
+    ScaleFactor scale(Color c);
 
   private:
     template<Color Us> void initialize();
@@ -298,6 +300,7 @@ namespace {
     template<Color Us> Score threats() const;
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
+    ScaleFactor scale_factor(Color c) const;
     Value winnable(Score score) const;
 
     const Position& pos;
@@ -860,6 +863,59 @@ namespace {
   }
 
 
+  // Evaluation::scale_factor() returns a scale factor for the evaluation, mainly based
+  // on endgame features of the position and the color of the (estimated) winning side.
+
+  template<Tracing T>
+  ScaleFactor Evaluation<T>::scale_factor(Color strongSide) const {
+
+    // Compute the scale factor for the winning side
+    int sf = me->scale_factor(pos, strongSide);
+
+    // If scale factor is not already specific, scale down via general heuristics
+    if (sf == SCALE_FACTOR_NORMAL)
+    {
+        bool pawnsOnBothFlanks = (pos.pieces(PAWN) & QueenSide) && (pos.pieces(PAWN) & KingSide);
+
+        if (pos.opposite_bishops())
+        {
+            // For pure opposite colored bishops endgames use scale factor
+            // based on the number of passed pawns of the strong side.
+            if (   pos.non_pawn_material(WHITE) == BishopValueMg
+                && pos.non_pawn_material(BLACK) == BishopValueMg)
+                sf = 18 + 4 * popcount(pe->passed_pawns(strongSide));
+            // For every other opposite colored bishops endgames use scale factor
+            // based on the number of all pieces of the strong side.
+            else
+                sf = 22 + 3 * pos.count<ALL_PIECES>(strongSide);
+        }
+        // For rook endgames with strong side not having overwhelming pawn number advantage
+        // and its pawns being on one flank and weak side protecting its pieces with a king
+        // use lower scale factor.
+        else if (  pos.non_pawn_material(WHITE) == RookValueMg
+                && pos.non_pawn_material(BLACK) == RookValueMg
+                && pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide) <= 1
+                && bool(KingSide & pos.pieces(strongSide, PAWN)) != bool(QueenSide & pos.pieces(strongSide, PAWN))
+                && (attacks_bb<KING>(pos.square<KING>(~strongSide)) & pos.pieces(~strongSide, PAWN)))
+            sf = 36;
+        // For queen vs no queen endgames use scale factor
+        // based on number of minors of side that doesn't have queen.
+        else if (pos.count<QUEEN>() == 1)
+            sf = 37 + 3 * (pos.count<QUEEN>(WHITE) == 1 ? pos.count<BISHOP>(BLACK) + pos.count<KNIGHT>(BLACK)
+                                                        : pos.count<BISHOP>(WHITE) + pos.count<KNIGHT>(WHITE));
+        // In every other case use scale factor based on
+        // the number of pawns of the strong side reduced if pawns are on a single flank.
+        else
+            sf = std::min(sf, 36 + 7 * pos.count<PAWN>(strongSide)) - 4 * !pawnsOnBothFlanks;
+
+        // Reduce scale factor in case of pawns being on a single flank
+        sf -= 4 * !pawnsOnBothFlanks;
+    }
+
+    return ScaleFactor(sf);
+  }
+
+
   // Evaluation::winnable() adjusts the midgame and endgame score components, based on
   // the known attacking/defending status of the players. The final value is derived
   // by interpolation from the midgame and endgame values.
@@ -903,45 +959,7 @@ namespace {
 
     // Compute the scale factor for the winning side
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-    int sf = me->scale_factor(pos, strongSide);
-
-    // If scale factor is not already specific, scale down via general heuristics
-    if (sf == SCALE_FACTOR_NORMAL)
-    {
-        if (pos.opposite_bishops())
-        {
-            // For pure opposite colored bishops endgames use scale factor
-            // based on the number of passed pawns of the strong side.
-            if (   pos.non_pawn_material(WHITE) == BishopValueMg
-                && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = 18 + 4 * popcount(pe->passed_pawns(strongSide));
-            // For every other opposite colored bishops endgames use scale factor
-            // based on the number of all pieces of the strong side.
-            else
-                sf = 22 + 3 * pos.count<ALL_PIECES>(strongSide);
-        }
-        // For rook endgames with strong side not having overwhelming pawn number advantage
-        // and its pawns being on one flank and weak side protecting its pieces with a king
-        // use lower scale factor.
-        else if (  pos.non_pawn_material(WHITE) == RookValueMg
-                && pos.non_pawn_material(BLACK) == RookValueMg
-                && pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide) <= 1
-                && bool(KingSide & pos.pieces(strongSide, PAWN)) != bool(QueenSide & pos.pieces(strongSide, PAWN))
-                && (attacks_bb<KING>(pos.square<KING>(~strongSide)) & pos.pieces(~strongSide, PAWN)))
-            sf = 36;
-        // For queen vs no queen endgames use scale factor
-        // based on number of minors of side that doesn't have queen.
-        else if (pos.count<QUEEN>() == 1)
-            sf = 37 + 3 * (pos.count<QUEEN>(WHITE) == 1 ? pos.count<BISHOP>(BLACK) + pos.count<KNIGHT>(BLACK)
-                                                        : pos.count<BISHOP>(WHITE) + pos.count<KNIGHT>(WHITE));
-        // In every other case use scale factor based on
-        // the number of pawns of the strong side reduced if pawns are on a single flank.
-        else
-            sf = std::min(sf, 36 + 7 * pos.count<PAWN>(strongSide)) - 4 * !pawnsOnBothFlanks;
-
-        // Reduce scale factor in case of pawns being on a single flank
-        sf -= 4 * !pawnsOnBothFlanks;
-    }
+    ScaleFactor sf = scale_factor(strongSide);
 
     // Interpolate between the middlegame and (scaled by 'sf') endgame score
     v =  mg * int(me->game_phase())
@@ -1037,6 +1055,21 @@ make_v:
     return v;
   }
 
+  // Evaluation::scale() returns the scale factor used by the classical evaluation
+
+  template<Tracing T>
+  ScaleFactor Evaluation<T>::scale(Color strongSide) {
+
+    me = Material::probe(pos);
+
+    if (me->specialized_eval_exists())
+        return SCALE_FACTOR_NORMAL;
+
+    pe = Pawns::probe(pos);
+
+    return scale_factor(strongSide);
+  }
+
 } // namespace
 
 
@@ -1053,8 +1086,16 @@ Value Eval::evaluate(const Position& pos) {
   {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
-         int mat = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         return NNUE::evaluate(pos) * (641 + mat / 32 - 4 * pos.rule50_count()) / 1024 + Tempo;
+         int material, scale1, scale2;
+
+         Value nnue = NNUE::evaluate(pos);
+         material = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
+         Color strongSide = nnue > VALUE_DRAW ? pos.side_to_move() : ~pos.side_to_move();
+
+         scale1 = Evaluation<NO_TRACE>(pos).scale(strongSide);
+         scale2 = 600 + scale1 + material / 32 - 4 * pos.rule50_count();
+
+         return nnue * scale2 / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
