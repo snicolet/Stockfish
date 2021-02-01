@@ -1058,7 +1058,7 @@ Value Eval::evaluate(const Position& pos) {
          int scale =  641 
                     + material / 32 
                     - 4 * pos.rule50_count()
-                    + 32 * (king_separation >= 4);
+                    + 128 * (king_separation >= 4);
          
          return NNUE::evaluate(pos) * scale / 1024 + Tempo;
       };
