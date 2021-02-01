@@ -1093,7 +1093,7 @@ Value Eval::evaluate(const Position& pos) {
          Color strongSide = nnue > VALUE_DRAW ? pos.side_to_move() : ~pos.side_to_move();
 
          scale1 = Evaluation<NO_TRACE>(pos).scale(strongSide);
-         scale2 = 580 + scale1 + material / 32 - 4 * pos.rule50_count();
+         scale2 = 620 + scale1 + material / 32 - 4 * pos.rule50_count();
 
          return nnue * scale2 / 1024 + Tempo;
       };
