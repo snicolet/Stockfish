@@ -1053,13 +1053,15 @@ Value Eval::evaluate(const Position& pos) {
   {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
-         int material = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         int king_separation =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-         int scale =  641 
-                    + material / 32 
-                    - 4 * pos.rule50_count()
-                    + 16 * king_separation;
-         
+         int material, separation, scale;
+
+         material = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
+         separation = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+         scale =  641
+                + material / 32
+                - 4 * pos.rule50_count()
+                + 8 * separation;
+
          return NNUE::evaluate(pos) * scale / 1024 + Tempo;
       };
 
