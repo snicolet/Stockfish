@@ -1057,7 +1057,7 @@ Value Eval::evaluate(const Position& pos) {
 
          material = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
          separation = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-         scale =  620
+         scale =  660
                 + material / 32
                 - 4 * pos.rule50_count()
                 + 64 * (separation >= 4);
