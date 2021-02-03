@@ -1057,10 +1057,10 @@ Value Eval::evaluate(const Position& pos) {
 
          material = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
          separation = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-         scale =  641
+         scale =  620
                 + material / 32
                 - 4 * pos.rule50_count()
-                + 64 * (separation >= 5);
+                + 64 * (separation >= 4);
 
          return NNUE::evaluate(pos) * scale / 1024 + Tempo;
       };
