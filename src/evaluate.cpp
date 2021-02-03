@@ -1060,9 +1060,9 @@ Value Eval::evaluate(const Position& pos) {
          scale =  641
                 + material / 32
                 - 4 * pos.rule50_count()
-                + 16 * separation * (separation >= 4);
+                + 64 * (separation >= 4);
 
-         return NNUE::evaluate(pos) * scale / 1024 + Tempo;
+         return (NNUE::evaluate(pos) + Tempo) * scale / 1024;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
