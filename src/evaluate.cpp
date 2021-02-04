@@ -1058,7 +1058,7 @@ Value Eval::evaluate(const Position& pos) {
 
          int ct = mg_value(pos.this_thread()->contempt);
          ct = (pos.side_to_move() == WHITE ? ct : -ct);
-         int contempt = material * ((ct > 0) - (ct < 0)) / 2048;
+         int contempt = material * ((ct > 0) - (ct < 0)) / 4096;
 
          return (nnue + contempt) * (641 + material / 32 - 4 * pos.rule50_count()) / 1024 + Tempo;
       };
