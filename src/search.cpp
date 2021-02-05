@@ -780,7 +780,9 @@ namespace {
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
-        ss->staticEval = eval = -(ss-1)->staticEval;
+        ss->staticEval = eval = ((ss-1)->inCheck ? VALUE_NONE
+                                                 :  -(ss-1)->staticEval - PieceValue[MG][pos.captured_piece()]);
+
         improving =  (ss-2)->staticEval == VALUE_NONE
                    ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                    : ss->staticEval > (ss-2)->staticEval;
