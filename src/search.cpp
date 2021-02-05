@@ -780,12 +780,12 @@ namespace {
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
-        // Skip early pruning when in check
         ss->staticEval = eval = -(ss-1)->staticEval;
         improving =  (ss-2)->staticEval == VALUE_NONE
                    ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                    : ss->staticEval > (ss-2)->staticEval;
 
+        // Skip early pruning when in check
         goto moves_loop;
     }
     else if (ss->ttHit)
