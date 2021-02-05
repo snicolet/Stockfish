@@ -781,8 +781,11 @@ namespace {
     if (ss->inCheck)
     {
         // Skip early pruning when in check
-        ss->staticEval = eval = VALUE_NONE;
         improving = false;
+        eval = VALUE_NONE;
+
+        ss->staticEval = -(ss-1)->staticEval;
+
         goto moves_loop;
     }
     else if (ss->ttHit)
