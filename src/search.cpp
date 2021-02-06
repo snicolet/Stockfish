@@ -89,6 +89,17 @@ namespace {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
   }
 
+  // PruningSafety[rootColor][cut type] : pruning safety table
+  const int PruningSafety[2][2] = {
+     {  0 , -25 },  // ~rootColor : alpha, beta
+     { 75 ,  0  }   //  rootColor : alpha, beta
+  };
+  enum CutType { ALPHA, BETA };
+  template <CutType T> 
+  int pruning_safety(const Position& pos) {
+      return PruningSafety[pos.side_to_move() == pos.this_thread()->rootColor][T];
+  }
+
   // Skill structure is used to implement strength limit
   struct Skill {
     explicit Skill(int l) : level(l) {}
@@ -222,7 +233,7 @@ void MainThread::search() {
       return;
   }
 
-  Color us = rootPos.side_to_move();
+  Color us = rootColor = rootPos.side_to_move();
   Time.init(Limits, us, rootPos.game_ply());
   TT.new_search();
 
@@ -832,7 +843,7 @@ namespace {
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 9
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval - futility_margin(depth, improving) - pruning_safety<BETA>(pos) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -886,7 +897,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 194 - 49 * improving;
+    probCutBeta = beta + 194 - 49 * improving + pruning_safety<BETA>(pos);
 
     // Step 9. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -1063,7 +1074,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
                   && !ss->inCheck
-                  && ss->staticEval + 254 + 159 * lmrDepth <= alpha
+                  && ss->staticEval + 254 + 159 * lmrDepth + pruning_safety<ALPHA>(pos) <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
