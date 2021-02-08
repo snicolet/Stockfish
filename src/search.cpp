@@ -92,7 +92,7 @@ namespace {
   // PruningSafety[rootColor][cut type] : pruning safety table
   const int PruningSafety[2][2] = {
      { 0  ,  0  },   // ~rootColor : alpha, beta
-     { 0  ,  50 }     //  rootColor : alpha, beta
+     { 0  ,  25 }     //  rootColor : alpha, beta
   };
   enum CutType { ALPHA, BETA };
   template <CutType T> 
