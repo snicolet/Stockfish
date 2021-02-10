@@ -106,6 +106,7 @@ void MovePicker::score() {
       else if (Type == QUIETS)
       {
           Color sideToMove = pos.side_to_move();
+          Bitboard theirPawns = pos.pieces(~sideToMove, PAWN);
 
           m.value =         (*mainHistory)[sideToMove][from_to(m)]
                    +    2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
@@ -113,7 +114,8 @@ void MovePicker::score() {
                    +        (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +        (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
                    +        (ply < MAX_LPH ? std::min(4, depth / 3) * (*lowPlyHistory)[ply][from_to(m)] : 0)
-                   +  500 * !!(pos.pieces( sideToMove, PAWN) & pawn_attacks_bb(~sideToMove, to_sq(m)));  // protected by pawn?
+                   + 5000 * bool(theirPawns & pawn_attacks_bb(sideToMove, from_sq(m)))  // escape from pawn capture?
+                   - 5000 * bool(theirPawns & pawn_attacks_bb(sideToMove, to_sq(m)));   // moving to square attacked by pawn?
       }
 
       else // Type == EVASIONS
