@@ -114,8 +114,8 @@ void MovePicker::score() {
                    +        (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +        (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
                    +        (ply < MAX_LPH ? std::min(4, depth / 3) * (*lowPlyHistory)[ply][from_to(m)] : 0)
-                   + 3000 * bool(theirPawns & pawn_attacks_bb(sideToMove, from_sq(m)))  // escape from pawn capture?
-                   - 5000 * bool(theirPawns & pawn_attacks_bb(sideToMove, to_sq(m)));   // moving to square attacked by pawn?
+                   + 1000 * bool(theirPawns & pawn_attacks_bb(sideToMove, from_sq(m)))  // escape from pawn capture?
+                   - 1000 * bool(theirPawns & pawn_attacks_bb(sideToMove, to_sq(m)));   // moving to square attacked by pawn?
       }
 
       else // Type == EVASIONS
