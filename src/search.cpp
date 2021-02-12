@@ -97,7 +97,7 @@ namespace {
   enum CutType { ALPHA, BETA };
   template <CutType T>
   int pruning_safety(int ply, Depth depth) {
-      return std::min(depth, 16) * PruningSafety[ply & 1][T] / 16;
+      return std::max(16 - depth, 0) * PruningSafety[ply & 1][T] / 16;
   }
 
   // Skill structure is used to implement strength limit
