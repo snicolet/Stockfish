@@ -1043,7 +1043,7 @@ make_v:
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
-Value Eval::evaluate(const Position& pos) {
+Value Eval::evaluate(const Position& pos, Value alpha, Value beta) {
 
   Value v;
 
@@ -1056,9 +1056,12 @@ Value Eval::evaluate(const Position& pos) {
          int mat = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
          return NNUE::evaluate(pos) * (641 + mat / 32 - 4 * pos.rule50_count()) / 1024 + Tempo;
       };
+      
+      int midpoint;
+      midpoint = (alpha > -VALUE_KNOWN_WIN && beta < VALUE_KNOWN_WIN) ? (alpha + beta) / 2 : 0;
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
-      Value psq = Value(abs(eg_value(pos.psq_score())));
+      Value psq = Value(abs(eg_value(pos.psq_score()) - midpoint));
       int   r50 = 16 + pos.rule50_count();
       bool  largePsq = psq * 16 > (NNUEThreshold1 + pos.non_pawn_material() / 64) * r50;
       bool  classical = largePsq || (psq > PawnValueMg / 4 && !(pos.this_thread()->nodes & 0xB));
@@ -1073,9 +1076,9 @@ Value Eval::evaluate(const Position& pos) {
       // For the case of opposite colored bishops, switch to NNUE eval with
       // small probability if the classical eval is less than the threshold.
       if (   largePsq && !strongClassical
-          && (   abs(v) * 16 < NNUEThreshold2 * r50
+          && (   abs(v - midpoint) * 16 < NNUEThreshold2 * r50
               || (   pos.opposite_bishops()
-                  && abs(v) * 16 < (NNUEThreshold1 + pos.non_pawn_material() / 64) * r50
+                  && abs(v - midpoint) * 16 < (NNUEThreshold1 + pos.non_pawn_material() / 64) * r50
                   && !(pos.this_thread()->nodes & 0xB))))
           v = adjusted_NNUE();
   }
@@ -1087,6 +1090,10 @@ Value Eval::evaluate(const Position& pos) {
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 
   return v;
+}
+
+Value Eval::evaluate(const Position& pos) {
+    return Eval::evaluate(pos, -VALUE_KNOWN_WIN, VALUE_KNOWN_WIN);
 }
 
 /// trace() is like evaluate(), but instead of returning a value, it returns
