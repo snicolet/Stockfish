@@ -91,13 +91,13 @@ namespace {
 
   // PruningSafety[rootColor][cut type] : pruning safety table
   const int PruningSafety[2][2] = {
-     {  10  ,  10 },    //  rootColor : alpha, beta
-     {  10  ,  10 }     // ~rootColor : alpha, beta
+     {  20  ,  20 },    //  rootColor : alpha, beta
+     {   0  ,   0 }     // ~rootColor : alpha, beta
   };
   enum CutType { ALPHA, BETA };
   template <CutType T>
   int pruning_safety(int ply, Depth depth) {
-      return std::max(16 - depth, 0) * PruningSafety[ply & 1][T] / 16;
+      return std::min(depth, 16) * PruningSafety[ply & 1][T] / 16;
   }
 
   // Skill structure is used to implement strength limit
