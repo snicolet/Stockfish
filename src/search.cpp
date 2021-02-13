@@ -616,6 +616,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -650,6 +651,7 @@ namespace {
 
     (ss+1)->ply = ss->ply + 1;
     (ss+1)->ttPv = false;
+    (ss+1)->distanceFromPv = ss->distanceFromPv;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
@@ -1159,6 +1161,8 @@ moves_loop: // When in check, search starts from here
       // Step 14. Make the move
       pos.do_move(move, st, givesCheck);
 
+      (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
+
       // Step 15. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
@@ -1191,6 +1195,10 @@ moves_loop: // When in check, search starts from here
 
           // More reductions for late moves if position was not in previous PV
           if (moveCountPruning && !formerPv)
+              r++;
+        
+          // More reductions if we are far from the PV
+          if (ss->distanceFromPv > 20)
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
@@ -1453,6 +1461,7 @@ moves_loop: // When in check, search starts from here
 
     Thread* thisThread = pos.this_thread();
     (ss+1)->ply = ss->ply + 1;
+    (ss+1)->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
     moveCount = 0;
