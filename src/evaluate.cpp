@@ -1055,7 +1055,7 @@ Value Eval::evaluate(const Position& pos) {
 
     vv *= PawnValueEg;
 
-    vv += Value(2 * (pos.this_thread()->nodes & 3) - 3);
+    vv += Value(2 * (pos.this_thread()->nodes & 31) - 31);
 
     return  Value(pos.side_to_move() == WHITE ? vv : -vv);
 
