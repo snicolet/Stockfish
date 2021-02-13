@@ -616,7 +616,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-    ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
+    ss->distanceFromPv = (PvNode ? (ss-1)->distanceFromPv : ss->distanceFromPv);
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1196,13 +1196,16 @@ moves_loop: // When in check, search starts from here
           // More reductions for late moves if position was not in previous PV
           if (moveCountPruning && !formerPv)
               r++;
-        
+
+          // dbg_mean_of((ss+1)->distanceFromPv < 6);
+          // dbg_mean_of((ss+1)->distanceFromPv > 40);
+
           // More reductions if we are far from the PV
-          if (ss->distanceFromPv > 50)
+          if ((ss+1)->distanceFromPv > 40)
               r++;
 
           // Less reduction if we are close to the PV
-          // if (ss->distanceFromPv < 4)
+          //if ((ss+1)->distanceFromPv < 6)
           //    r--;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
@@ -1465,7 +1468,7 @@ moves_loop: // When in check, search starts from here
 
     Thread* thisThread = pos.this_thread();
     (ss+1)->ply = ss->ply + 1;
-    (ss+1)->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
+    (ss+1)->distanceFromPv = ss->distanceFromPv;
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
     moveCount = 0;
