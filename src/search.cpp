@@ -1201,10 +1201,10 @@ moves_loop: // When in check, search starts from here
           // dbg_mean_of((ss+1)->distanceFromPv > 40);
 
           // More reductions if we are far from the PV
-          // if ((ss+1)->distanceFromPv > 40)
-          //    r++;
+          if ((ss+1)->distanceFromPv > 30)
+              r++;
 
-          // Less reduction if we are close to the PV
+          // Less reductions if we are close to the PV
           if ((ss+1)->distanceFromPv < 5)
               r--;
 
