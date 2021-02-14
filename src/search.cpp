@@ -1205,8 +1205,8 @@ moves_loop: // When in check, search starts from here
           //    r++;
 
           // Less reductions if we are close to the PV
-          if ((ss+1)->distanceFromPv < 3)
-              r--;
+          if ((ss+1)->distanceFromPv < 5)
+              r -= 2;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
