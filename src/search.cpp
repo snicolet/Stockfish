@@ -651,7 +651,6 @@ namespace {
 
     (ss+1)->ply = ss->ply + 1;
     (ss+1)->ttPv = false;
-    (ss+1)->distanceFromPv = ss->distanceFromPv;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
@@ -1205,8 +1204,8 @@ moves_loop: // When in check, search starts from here
           //    r++;
 
           // Less reductions if we are close to the PV
-          if ((ss+1)->distanceFromPv < 4)
-              r -= 2;
+          if ((ss+1)->distanceFromPv < 5)
+              r--;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
@@ -1468,7 +1467,6 @@ moves_loop: // When in check, search starts from here
 
     Thread* thisThread = pos.this_thread();
     (ss+1)->ply = ss->ply + 1;
-    (ss+1)->distanceFromPv = ss->distanceFromPv;
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
     moveCount = 0;
