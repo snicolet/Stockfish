@@ -1200,12 +1200,12 @@ moves_loop: // When in check, search starts from here
           // dbg_mean_of((ss+1)->distanceFromPv > 40);
 
           // More reductions if we are far from the PV
-          // if ((ss+1)->distanceFromPv > 50)
-          //    r++;
+          if ((ss+1)->distanceFromPv > 40)
+              r++;
 
           // Less reductions if we are close to the PV
-          if ((ss+1)->distanceFromPv < 6)
-              r--;
+          // if ((ss+1)->distanceFromPv < 6)
+          //    r--;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
