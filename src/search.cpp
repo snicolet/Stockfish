@@ -617,7 +617,7 @@ namespace {
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
     ss->distanceFromPv = (PvNode ? (ss-1)->distanceFromPv : ss->distanceFromPv);
-    pruningSafety = 30 - ss->distanceFromPv;
+    pruningSafety = 40 - ss->distanceFromPv;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
