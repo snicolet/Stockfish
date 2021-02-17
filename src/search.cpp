@@ -885,6 +885,8 @@ namespace {
                 return nullValue;
         }
     }
+    
+moves_loop: // When in check, search starts from here
 
     probCutBeta = beta + 209 - 44 * improving;
 
@@ -919,7 +921,8 @@ namespace {
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
 
-        while (   (move = mp.next_move()) != MOVE_NONE
+        while ( !ss->inCheck
+               && (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode)
             if (move != excludedMove && pos.legal(move))
             {
@@ -966,8 +969,6 @@ namespace {
         && depth >= 6
         && !ttMove)
         depth -= 2;
-
-moves_loop: // When in check, search starts from here
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
