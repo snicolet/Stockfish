@@ -674,6 +674,7 @@ namespace {
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
     formerPv = ss->ttPv && !PvNode;
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Update low ply history for previous move if we are near root and position is or has been in PV
     if (   ss->ttPv
@@ -701,7 +702,7 @@ namespace {
             if (ttValue >= beta)
             {
                 // Bonus for a quiet ttMove that fails high
-                if (!pos.capture_or_promotion(ttMove))
+                if (!ttCapture)
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
@@ -709,7 +710,7 @@ namespace {
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
-            else if (!pos.capture_or_promotion(ttMove))
+            else if (!ttCapture)
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
@@ -783,6 +784,21 @@ namespace {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
+
+        // Try a small version of probcut when in check
+        probCutBeta = beta + 400;
+        if (   ss->inCheck
+            && !PvNode
+            && depth >= 4
+            && ttCapture
+            && (tte->bound() & BOUND_LOWER)
+            && tte->depth() >= depth - 3
+            && ttValue >= probCutBeta
+            && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY - 420
+            && abs(beta)    < VALUE_TB_WIN_IN_MAX_PLY - 420
+           )
+            return probCutBeta;
+
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -909,8 +925,7 @@ namespace {
             && tte->depth() >= depth - 3
             && ttValue != VALUE_NONE
             && ttValue >= probCutBeta
-            && ttMove
-            && pos.capture_or_promotion(ttMove))
+            && ttCapture)
             return probCutBeta;
 
         assert(probCutBeta < VALUE_INFINITE);
@@ -968,20 +983,6 @@ namespace {
         depth -= 2;
 
 moves_loop: // When in check, search starts from here
-
-    // Try a small version of probcut when in check
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    probCutBeta = beta + 400;
-    if (    ss->inCheck
-         && !PvNode
-         && depth >= 4
-         && ttCapture
-         && (tte->bound() & BOUND_LOWER)
-         && tte->depth() >= depth - 3
-         && ttValue >= probCutBeta
-         && abs(ttValue) <= VALUE_KNOWN_WIN
-         && abs(beta) <= VALUE_KNOWN_WIN)
-        return probCutBeta;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
