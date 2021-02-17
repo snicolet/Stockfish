@@ -886,6 +886,12 @@ namespace {
         }
     }
     
+    // Step 10. If the position is not in TT, decrease depth by 2
+    if (   PvNode
+        && depth >= 6
+        && !ttMove)
+        depth -= 2;
+    
 moves_loop: // When in check, search starts from here
 
     probCutBeta = beta + 209 - 44 * improving;
@@ -963,12 +969,6 @@ moves_loop: // When in check, search starts from here
             }
          ss->ttPv = ttPv;
     }
-
-    // Step 10. If the position is not in TT, decrease depth by 2
-    if (   PvNode
-        && depth >= 6
-        && !ttMove)
-        depth -= 2;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
