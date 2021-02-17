@@ -971,7 +971,7 @@ moves_loop: // When in check, search starts from here
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
     
-    // Small probcut when in check ?
+    // Try a small version of probcut when in check
     probCutBeta = beta + 500;
     if (    ss->inCheck
          && !PvNode
