@@ -26,7 +26,6 @@
 
 #include "../layers/input_slice.h"
 #include "../layers/affine_transform.h"
-#include "../layers/clipped_relu.h"
 
 namespace Eval::NNUE {
 
@@ -41,9 +40,10 @@ namespace Layers {
 
 // Define network structure
 using InputLayer = InputSlice<kTransformedFeatureDimensions * 2>;
-using HiddenLayer1 = ClippedReLU<AffineTransform<InputLayer, 32>>;
-using HiddenLayer2 = ClippedReLU<AffineTransform<HiddenLayer1, 32>>;
-using OutputLayer = AffineTransform<HiddenLayer2, 1>;
+using HiddenLayer1 = AffineTransform<InputLayer, 32, true>;
+using HiddenLayer2 = AffineTransform<HiddenLayer1, 32, true>;
+using HiddenLayer3 = AffineTransform<HiddenLayer2, 32, true>;
+using OutputLayer = AffineTransform<HiddenLayer3, 1, false>;
 
 }  // namespace Layers
 

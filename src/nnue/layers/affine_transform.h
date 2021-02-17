@@ -27,12 +27,12 @@
 namespace Eval::NNUE::Layers {
 
   // Affine transformation layer
-  template <typename PreviousLayer, IndexType OutputDimensions>
+  template <typename PreviousLayer, IndexType OutputDimensions, bool UseRelu>
   class AffineTransform {
    public:
     // Input/output type
     using InputType = typename PreviousLayer::OutputType;
-    using OutputType = std::int32_t;
+    using OutputType = typename std::conditional<UseRelu, std::uint8_t, std::int32_t>::type;
     static_assert(std::is_same<InputType, std::uint8_t>::value, "");
 
     // Number of input/output dimensions
@@ -62,6 +62,15 @@ namespace Eval::NNUE::Layers {
    // Read network parameters
     bool ReadParameters(std::istream& stream) {
       if (!previous_layer_.ReadParameters(stream)) return false;
+
+      scale_ = read_little_endian<std::int32_t>(stream);
+      scale_bits_ = read_little_endian<std::int32_t>(stream);
+      input_offset_ = read_little_endian<std::int32_t>(stream);
+      weight_offset_ = read_little_endian<std::int32_t>(stream);
+      output_offset_ = read_little_endian<std::int32_t>(stream);
+      activation_min_ = read_little_endian<std::int32_t>(stream);
+      activation_max_ = read_little_endian<std::int32_t>(stream);
+
       for (std::size_t i = 0; i < kOutputDimensions; ++i)
         biases_[i] = read_little_endian<BiasType>(stream);
       for (std::size_t i = 0; i < kOutputDimensions * kPaddedInputDimensions; ++i)
@@ -80,21 +89,39 @@ namespace Eval::NNUE::Layers {
       for (IndexType i = 0; i < kOutputDimensions; ++i) {
         const IndexType offset = i * kPaddedInputDimensions;
 
-        OutputType sum = biases_[i];
+        std::int32_t sum = biases_[i];
         for (IndexType j = 0; j < kInputDimensions; ++j) {
-          sum += weights_[offset + j] * input[j];
+          // TODO: Implement the fast input/weight offset version.
+          // https://github.com/google/gemmlowp/blob/master/doc/low-precision.md#efficient-handling-of-offsets
+          sum += (weights_[offset + j] + weight_offset_) * (input[j] + input_offset_);
         }
-        output[i] = sum;
+        // TODO: This is not quite correct, it doesn't handle rounding towards zero.
+        sum = (static_cast<std::int64_t>(sum) * scale_) >> scale_bits_;
+        sum += output_offset_;
+        if (UseRelu) {
+          sum = std::max(sum, activation_min_);
+          sum = std::min(sum, activation_max_);
+        }
+        output[i] = static_cast<OutputType>(sum);
       }
 
       return output;
     }
 
    private:
-    using BiasType = OutputType;
-    using WeightType = std::int8_t;
+    using BiasType = std::int32_t;
+    using WeightType = std::uint8_t;
 
     PreviousLayer previous_layer_;
+
+    // Quantization parameters
+    std::int32_t scale_;
+    std::int32_t scale_bits_;
+    std::int32_t input_offset_;
+    std::int32_t weight_offset_;
+    std::int32_t output_offset_;
+    std::int32_t activation_min_;
+    std::int32_t activation_max_;
 
     alignas(kCacheLineSize) BiasType biases_[kOutputDimensions];
     alignas(kCacheLineSize) WeightType weights_[kOutputDimensions * kPaddedInputDimensions];
