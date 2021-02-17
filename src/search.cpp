@@ -790,7 +790,6 @@ namespace {
         if (   ss->inCheck
             && !PvNode
             && depth >= 4
-            && ttCapture
             && (tte->bound() & BOUND_LOWER)
             && tte->depth() >= depth - 3
             && ttValue >= probCutBeta
