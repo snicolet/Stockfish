@@ -601,10 +601,10 @@ namespace {
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
-    Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
+    Value bestValue, value, ttValue, eval, maxValue, probCutBeta, halfPruningValue;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture, singularQuietLMR;
+         ttCapture, singularQuietLMR, halfPruning;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -616,6 +616,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    halfPruning = false;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -834,10 +835,11 @@ namespace {
         &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-        return eval;
+        halfPruning = true, halfPruningValue = eval;
 
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
+        && !halfPruning
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 22661
         &&  eval >= beta
@@ -868,7 +870,11 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14))
-                return nullValue;
+            {
+                halfPruning = true, halfPruningValue = nullValue;
+            }
+            else
+            {
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
@@ -882,7 +888,8 @@ namespace {
             thisThread->nmpMinPly = 0;
 
             if (v >= beta)
-                return nullValue;
+                halfPruning = true, halfPruningValue = nullValue;
+            }
         }
     }
 
@@ -892,6 +899,7 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
+        && !halfPruning
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
@@ -911,7 +919,7 @@ namespace {
             && ttValue >= probCutBeta
             && ttMove
             && pos.capture_or_promotion(ttMove))
-            return probCutBeta;
+            halfPruning = true, halfPruningValue = probCutBeta;
 
         assert(probCutBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
@@ -919,7 +927,8 @@ namespace {
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
 
-        while (   (move = mp.next_move()) != MOVE_NONE
+        while (   !halfPruning
+               && (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode)
             if (move != excludedMove && pos.legal(move))
             {
@@ -955,17 +964,27 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
-                    return value;
+                    halfPruning = true, halfPruningValue = value;
                 }
             }
          ss->ttPv = ttPv;
     }
 
-    // Step 10. If the position is not in TT, decrease depth by 2
+    // Step 10. Depth tweaks
+    
+    // If the position is not in TT, decrease depth by 2
     if (   PvNode
         && depth >= 6
         && !ttMove)
         depth -= 2;
+
+    // If the above heuristics have discovered a good reason to prune the node:
+    // 1. prune the node when depth is low (hard pruning)
+    // 2. continue with half the depth when depth is large (soft pruning)
+    if (halfPruning && depth < 6)
+        return halfPruningValue;
+    if (halfPruning)
+        depth = depth / 2;
 
 moves_loop: // When in check, search starts from here
 
