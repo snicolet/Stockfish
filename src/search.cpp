@@ -971,7 +971,7 @@ namespace {
     }
 
     // Step 10. Depth tweaks
-    
+
     // If the position is not in TT, decrease depth by 2
     if (   PvNode
         && depth >= 6
@@ -981,7 +981,7 @@ namespace {
     // If the above heuristics have discovered a good reason to prune the node:
     // 1. prune the node when depth is low (hard pruning)
     // 2. continue with half the depth when depth is large (soft pruning)
-    if (halfPruning && depth < 6)
+    if (halfPruning && depth < 4)
         return halfPruningValue;
     if (halfPruning)
         depth = depth / 2;
