@@ -1201,8 +1201,12 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Less reductions when close to the PV
-          if ((ss+1)->distanceFromPv < 5)
-              r -= 2;
+          if (   (ss+1)->distanceFromPv < 5
+              && (ss+1)->ply <= 7)
+          {
+              // dbg_mean_of((ss+1)->ply);
+              r--;
+          }
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
