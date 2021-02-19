@@ -1202,7 +1202,7 @@ moves_loop: // When in check, search starts from here
 
           // Less reductions when close to the PV
           if (   (ss+1)->distanceFromPv < 5
-              && (ss->ply & 1))
+              && depth <= 9)
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
