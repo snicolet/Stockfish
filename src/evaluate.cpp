@@ -1057,7 +1057,7 @@ Value Eval::evaluate(const Position& pos) {
          //int material = 12 * PawnValueMg * pos.count<PAWN>();
          //int scale = 641 + material / 32 - 4 * pos.rule50_count();
 
-         int material = pos.non_pawn_material() + 10 * PawnValueMg * pos.count<PAWN>();
+         int material = pos.non_pawn_material() + 12 * PawnValueMg * pos.count<PAWN>();
          int scale = 641 + material / 64 - 4 * pos.rule50_count();
 
          //dbg_mean_of(scale);
