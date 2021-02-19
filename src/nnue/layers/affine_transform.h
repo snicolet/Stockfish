@@ -96,7 +96,7 @@ namespace Eval::NNUE::Layers {
           sum += (weights_[offset + j] - weight_zero_point_) * (input[j] - input_zero_point_);
         }
         // TODO: This is not quite correct, it doesn't handle rounding towards zero.
-        sum = (static_cast<std::int64_t>(sum) * scale_) >> scale_bits_;
+        sum = rounding_shift(static_cast<std::int64_t>(sum) * scale_, scale_bits_);
         sum -= output_zero_point__;
         if (UseRelu) {
           sum = std::max(sum, activation_min_);

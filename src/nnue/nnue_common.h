@@ -127,12 +127,14 @@ namespace Eval::NNUE {
       return result;
   }
 
-  /*
-  std::int32_t rounding_scale(std::int64_t x, std::int32_t exponent) {
-    std::int64_t mask = 1ULL << exponent;
+  // This function shifts right by exponent, rounding the result towards the nearest integer.
+  // Eg. 500,8 would return 2, instead of (500 >> 8) == 1.  This avoids biasing the net.
+  inline std::int32_t rounding_shift(std::int64_t x, std::int32_t exponent) {
+    std::int64_t mask = (1ULL << exponent) - 1;
     std::int64_t remainder = x & mask;
-    std::int64_t threshold = (mask >> 1) + (
-  }*/
+    std::int64_t threshold = (mask >> 1) + (x < 0 ? 0 : 1);
+    return (x >> exponent) + (remainder > threshold ? 1 : 0);
+  }
 
 }  // namespace Eval::NNUE
 

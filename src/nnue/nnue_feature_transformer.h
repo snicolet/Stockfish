@@ -87,8 +87,7 @@ namespace Eval::NNUE {
         //printf("half:\n");
         for (IndexType j = 0; j < kHalfDimensions; ++j) {
           BiasType sum = accumulation[static_cast<int>(perspectives[p])][0][j];
-          // TODO: This is not quite correct, it doesn't handle rounding towards zero.
-          sum = (static_cast<std::int64_t>(sum) * scale_) >> scale_bits_;
+          sum = rounding_shift(static_cast<std::int64_t>(sum) * scale_, scale_bits_);
           sum -= output_zero_point__;
           sum = std::max(sum, activation_min_);
           sum = std::min(sum, activation_max_);
