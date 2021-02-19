@@ -1162,7 +1162,7 @@ moves_loop: // When in check, search starts from here
       // Step 15. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          &&  moveCount > 1
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
@@ -1184,6 +1184,10 @@ moves_loop: // When in check, search starts from here
           // and node is not likely to fail low. (~10 Elo)
           if (ss->ttPv && !likelyFailLow)
               r -= 2;
+
+          // Less reduction at root nodes, in general
+          if (rootNode)
+              r--;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
