@@ -1162,7 +1162,8 @@ moves_loop: // When in check, search starts from here
 
       // Extension if we are close to the PV
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
-      if (   moveCount > 1
+      if (   depth >= 4
+          && moveCount > 1
           && (ss+1)->distanceFromPv < 5)
           newDepth++;
 
