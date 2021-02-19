@@ -56,11 +56,12 @@ namespace Eval::NNUE {
 
     // Read network parameters
     bool ReadParameters(std::istream& stream) {
-
       scale_ = read_little_endian<std::int32_t>(stream);
       scale_bits_ = read_little_endian<std::int32_t>(stream);
-      weight_offset_ = read_little_endian<std::int32_t>(stream);
-      output_offset_ = read_little_endian<std::int32_t>(stream);
+      // unused, input_offset_
+      read_little_endian<std::int32_t>(stream);
+      weight_zero_point_ = read_little_endian<std::int32_t>(stream);
+      output_zero_point__ = read_little_endian<std::int32_t>(stream);
       activation_min_ = read_little_endian<std::int32_t>(stream);
       activation_max_ = read_little_endian<std::int32_t>(stream);
 
@@ -83,16 +84,19 @@ namespace Eval::NNUE {
       for (IndexType p = 0; p < 2; ++p) {
         const IndexType offset = kHalfDimensions * p;
 
+        //printf("half:\n");
         for (IndexType j = 0; j < kHalfDimensions; ++j) {
           BiasType sum = accumulation[static_cast<int>(perspectives[p])][0][j];
           // TODO: This is not quite correct, it doesn't handle rounding towards zero.
           sum = (static_cast<std::int64_t>(sum) * scale_) >> scale_bits_;
-          sum += output_offset_;
+          sum -= output_zero_point__;
           sum = std::max(sum, activation_min_);
           sum = std::min(sum, activation_max_);
           output[offset + j] = static_cast<OutputType>(sum);
+          //printf("%.4f,", output[offset+j]*0.18726);
         }
-
+        //printf("\n");
+  
       }
     }
 
@@ -156,7 +160,7 @@ namespace Eval::NNUE {
             const IndexType offset = kHalfDimensions * index;
 
             for (IndexType j = 0; j < kHalfDimensions; ++j)
-              st->accumulator.accumulation[c][0][j] -= weights_[offset + j] + weight_offset_;
+              st->accumulator.accumulation[c][0][j] -= weights_[offset + j] - weight_zero_point_;
           }
 
           // Difference calculation for the activated features
@@ -165,7 +169,7 @@ namespace Eval::NNUE {
             const IndexType offset = kHalfDimensions * index;
 
             for (IndexType j = 0; j < kHalfDimensions; ++j)
-              st->accumulator.accumulation[c][0][j] += weights_[offset + j] + weight_offset_;
+              st->accumulator.accumulation[c][0][j] += weights_[offset + j] - weight_zero_point_;
           }
         }
       }
@@ -185,19 +189,19 @@ namespace Eval::NNUE {
           const IndexType offset = kHalfDimensions * index;
 
           for (IndexType j = 0; j < kHalfDimensions; ++j)
-            accumulator.accumulation[c][0][j] += weights_[offset + j] + weight_offset_;
+            accumulator.accumulation[c][0][j] += weights_[offset + j] - weight_zero_point_;
         }
       }
     }
 
     using BiasType = std::int32_t;
-    using WeightType = std::uint8_t;
+    using WeightType = std::int8_t;
 
     // Quantization parameters
     std::int32_t scale_;
     std::int32_t scale_bits_;
-    std::int32_t weight_offset_;
-    std::int32_t output_offset_;
+    std::int32_t weight_zero_point_;
+    std::int32_t output_zero_point__;
     std::int32_t activation_min_;
     std::int32_t activation_max_;
 

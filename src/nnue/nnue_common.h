@@ -127,6 +127,13 @@ namespace Eval::NNUE {
       return result;
   }
 
+  /*
+  std::int32_t rounding_scale(std::int64_t x, std::int32_t exponent) {
+    std::int64_t mask = 1ULL << exponent;
+    std::int64_t remainder = x & mask;
+    std::int64_t threshold = (mask >> 1) + (
+  }*/
+
 }  // namespace Eval::NNUE
 
 #endif // #ifndef NNUE_COMMON_H_INCLUDED

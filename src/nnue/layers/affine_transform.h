@@ -65,9 +65,9 @@ namespace Eval::NNUE::Layers {
 
       scale_ = read_little_endian<std::int32_t>(stream);
       scale_bits_ = read_little_endian<std::int32_t>(stream);
-      input_offset_ = read_little_endian<std::int32_t>(stream);
-      weight_offset_ = read_little_endian<std::int32_t>(stream);
-      output_offset_ = read_little_endian<std::int32_t>(stream);
+      input_zero_point_ = read_little_endian<std::int32_t>(stream);
+      weight_zero_point_ = read_little_endian<std::int32_t>(stream);
+      output_zero_point__ = read_little_endian<std::int32_t>(stream);
       activation_min_ = read_little_endian<std::int32_t>(stream);
       activation_max_ = read_little_endian<std::int32_t>(stream);
 
@@ -93,11 +93,11 @@ namespace Eval::NNUE::Layers {
         for (IndexType j = 0; j < kInputDimensions; ++j) {
           // TODO: Implement the fast input/weight offset version.
           // https://github.com/google/gemmlowp/blob/master/doc/low-precision.md#efficient-handling-of-offsets
-          sum += (weights_[offset + j] + weight_offset_) * (input[j] + input_offset_);
+          sum += (weights_[offset + j] - weight_zero_point_) * (input[j] - input_zero_point_);
         }
         // TODO: This is not quite correct, it doesn't handle rounding towards zero.
         sum = (static_cast<std::int64_t>(sum) * scale_) >> scale_bits_;
-        sum += output_offset_;
+        sum -= output_zero_point__;
         if (UseRelu) {
           sum = std::max(sum, activation_min_);
           sum = std::min(sum, activation_max_);
@@ -110,16 +110,16 @@ namespace Eval::NNUE::Layers {
 
    private:
     using BiasType = std::int32_t;
-    using WeightType = std::uint8_t;
+    using WeightType = std::int8_t;
 
     PreviousLayer previous_layer_;
 
     // Quantization parameters
     std::int32_t scale_;
     std::int32_t scale_bits_;
-    std::int32_t input_offset_;
-    std::int32_t weight_offset_;
-    std::int32_t output_offset_;
+    std::int32_t input_zero_point_;
+    std::int32_t weight_zero_point_;
+    std::int32_t output_zero_point__;
     std::int32_t activation_min_;
     std::int32_t activation_max_;
 
