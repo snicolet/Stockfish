@@ -1202,7 +1202,7 @@ moves_loop: // When in check, search starts from here
 
           // Less reductions when close to the PV
           if (   (ss+1)->distanceFromPv < 5
-              && (ss+1)->ply <= 7)
+              && (ss+1)->ply > 7)
           {
               // dbg_mean_of((ss+1)->ply);
               r--;
