@@ -1054,7 +1054,7 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&](){
 
          //int mat = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         int mat = 11 * PawnValueMg * pos.count<PAWN>();
+         int mat = 8 * PawnValueMg * pos.count<PAWN>();
          int scale = 641 + mat / 32 - 4 * pos.rule50_count();
 
          //dbg_mean_of(scale);
