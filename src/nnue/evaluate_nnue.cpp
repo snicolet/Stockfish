@@ -114,14 +114,14 @@ namespace Eval::NNUE {
 #if defined(ALIGNAS_ON_STACK_VARIABLES_BROKEN)
     TransformedFeatureType transformed_features_unaligned[
       FeatureTransformer::kBufferSize + alignment / sizeof(TransformedFeatureType)];
-    char buffer_unaligned[Network::kBufferSize + alignment];
+    char buffer_unaligned[Network::kBufferSize + alignment] = {0};
 
     auto* transformed_features = align_ptr_up<alignment>(&transformed_features_unaligned[0]);
     auto* buffer = align_ptr_up<alignment>(&buffer_unaligned[0]);
 #else
     alignas(alignment)
       TransformedFeatureType transformed_features[FeatureTransformer::kBufferSize];
-    alignas(alignment) char buffer[Network::kBufferSize];
+    alignas(alignment) char buffer[Network::kBufferSize]= {0};
 #endif
 
     ASSERT_ALIGNED(transformed_features, alignment);
