@@ -58,12 +58,7 @@ namespace Eval::NNUE {
     bool ReadParameters(std::istream& stream) {
       scale_ = read_little_endian<std::int32_t>(stream);
       scale_bits_ = read_little_endian<std::int32_t>(stream);
-      // unused, input_offset_
-      read_little_endian<std::int32_t>(stream);
       weight_zero_point_ = read_little_endian<std::int32_t>(stream);
-      output_zero_point__ = read_little_endian<std::int32_t>(stream);
-      activation_min_ = read_little_endian<std::int32_t>(stream);
-      activation_max_ = read_little_endian<std::int32_t>(stream);
 
       for (std::size_t i = 0; i < kHalfDimensions; ++i)
         biases_[i] = read_little_endian<BiasType>(stream);
@@ -84,18 +79,13 @@ namespace Eval::NNUE {
       for (IndexType p = 0; p < 2; ++p) {
         const IndexType offset = kHalfDimensions * p;
 
-        //printf("half:\n");
         for (IndexType j = 0; j < kHalfDimensions; ++j) {
           BiasType sum = accumulation[static_cast<int>(perspectives[p])][0][j];
           sum = rounding_shift(static_cast<std::int64_t>(sum) * scale_, scale_bits_);
-          sum -= output_zero_point__;
-          sum = std::max(sum, activation_min_);
-          sum = std::min(sum, activation_max_);
+          sum = std::max(sum, 0);
+          sum = std::min(sum, 255);
           output[offset + j] = static_cast<OutputType>(sum);
-          //printf("%.4f,", output[offset+j]*0.18726);
         }
-        //printf("\n");
-  
       }
     }
 
@@ -200,9 +190,6 @@ namespace Eval::NNUE {
     std::int32_t scale_;
     std::int32_t scale_bits_;
     std::int32_t weight_zero_point_;
-    std::int32_t output_zero_point__;
-    std::int32_t activation_min_;
-    std::int32_t activation_max_;
 
     alignas(kCacheLineSize) BiasType biases_[kHalfDimensions];
     alignas(kCacheLineSize)

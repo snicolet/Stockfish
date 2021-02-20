@@ -65,11 +65,7 @@ namespace Eval::NNUE::Layers {
 
       scale_ = read_little_endian<std::int32_t>(stream);
       scale_bits_ = read_little_endian<std::int32_t>(stream);
-      input_zero_point_ = read_little_endian<std::int32_t>(stream);
       weight_zero_point_ = read_little_endian<std::int32_t>(stream);
-      output_zero_point__ = read_little_endian<std::int32_t>(stream);
-      activation_min_ = read_little_endian<std::int32_t>(stream);
-      activation_max_ = read_little_endian<std::int32_t>(stream);
 
       for (std::size_t i = 0; i < kOutputDimensions; ++i)
         biases_[i] = read_little_endian<BiasType>(stream);
@@ -93,14 +89,14 @@ namespace Eval::NNUE::Layers {
         for (IndexType j = 0; j < kInputDimensions; ++j) {
           // TODO: Implement the fast input/weight offset version.
           // https://github.com/google/gemmlowp/blob/master/doc/low-precision.md#efficient-handling-of-offsets
-          sum += (weights_[offset + j] - weight_zero_point_) * (input[j] - input_zero_point_);
+          sum += (weights_[offset + j] - weight_zero_point_) * (input[j]);
         }
-        // TODO: This is not quite correct, it doesn't handle rounding towards zero.
-        sum = rounding_shift(static_cast<std::int64_t>(sum) * scale_, scale_bits_);
-        sum -= output_zero_point__;
         if (UseRelu) {
-          sum = std::max(sum, activation_min_);
-          sum = std::min(sum, activation_max_);
+          sum = rounding_shift(static_cast<std::int64_t>(sum) * scale_, scale_bits_);
+          sum = std::max(sum, 0);
+          sum = std::min(sum, 255);
+        } else {
+          sum = rounding_shift(static_cast<std::int64_t>(sum * 600) * scale_, scale_bits_);
         }
         output[i] = static_cast<OutputType>(sum);
       }
@@ -117,11 +113,7 @@ namespace Eval::NNUE::Layers {
     // Quantization parameters
     std::int32_t scale_;
     std::int32_t scale_bits_;
-    std::int32_t input_zero_point_;
     std::int32_t weight_zero_point_;
-    std::int32_t output_zero_point__;
-    std::int32_t activation_min_;
-    std::int32_t activation_max_;
 
     alignas(kCacheLineSize) BiasType biases_[kOutputDimensions];
     alignas(kCacheLineSize) WeightType weights_[kOutputDimensions * kPaddedInputDimensions];

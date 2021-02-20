@@ -130,7 +130,7 @@ namespace Eval::NNUE {
     feature_transformer->Transform(pos, transformed_features);
     const auto output = network->Propagate(transformed_features, buffer);
 
-    return static_cast<Value>(output[0] / FV_SCALE);
+    return static_cast<Value>(output[0]);
   }
 
   // Load eval, from a file stream or a memory stream
