@@ -62,8 +62,9 @@ namespace Eval::NNUE {
 
       for (std::size_t i = 0; i < kHalfDimensions; ++i)
         biases_[i] = read_little_endian<BiasType>(stream);
+      // Note weights are stored as int8, but we expand to int16 for speed.
       for (std::size_t i = 0; i < kHalfDimensions * kInputDimensions; ++i)
-        weights_[i] = read_little_endian<WeightType>(stream);
+        weights_[i] = read_little_endian<std::int8_t>(stream) - weight_zero_point_;
       return !stream.fail();
     }
 
@@ -80,7 +81,7 @@ namespace Eval::NNUE {
         const IndexType offset = kHalfDimensions * p;
 
         for (IndexType j = 0; j < kHalfDimensions; ++j) {
-          BiasType sum = accumulation[static_cast<int>(perspectives[p])][0][j];
+          std::int32_t sum = accumulation[static_cast<int>(perspectives[p])][0][j];
           sum = rounding_shift(static_cast<std::int64_t>(sum) * scale_, scale_bits_);
           sum = std::max(sum, 0);
           sum = std::min(sum, 255);
@@ -149,7 +150,7 @@ namespace Eval::NNUE {
             const IndexType offset = kHalfDimensions * index;
 
             for (IndexType j = 0; j < kHalfDimensions; ++j)
-              st->accumulator.accumulation[c][0][j] -= weights_[offset + j] - weight_zero_point_;
+              st->accumulator.accumulation[c][0][j] -= weights_[offset + j];
           }
 
           // Difference calculation for the activated features
@@ -158,7 +159,7 @@ namespace Eval::NNUE {
             const IndexType offset = kHalfDimensions * index;
 
             for (IndexType j = 0; j < kHalfDimensions; ++j)
-              st->accumulator.accumulation[c][0][j] += weights_[offset + j] - weight_zero_point_;
+              st->accumulator.accumulation[c][0][j] += weights_[offset + j];
           }
         }
       }
@@ -178,13 +179,13 @@ namespace Eval::NNUE {
           const IndexType offset = kHalfDimensions * index;
 
           for (IndexType j = 0; j < kHalfDimensions; ++j)
-            accumulator.accumulation[c][0][j] += weights_[offset + j] - weight_zero_point_;
+            accumulator.accumulation[c][0][j] += weights_[offset + j];
         }
       }
     }
 
-    using BiasType = std::int32_t;
-    using WeightType = std::int8_t;
+    using BiasType = std::int16_t;
+    using WeightType = std::int16_t;
 
     // Quantization parameters
     std::int32_t scale_;
