@@ -82,19 +82,20 @@ namespace Eval::NNUE::Layers {
           transformed_features, buffer + kSelfBufferSize);
       auto output = reinterpret_cast<OutputType*>(buffer);
 
+      std::int32_t zero_point_sum = 0;
+      for (IndexType j = 0; j < kInputDimensions; ++j)
+        zero_point_sum += input[j];
       for (IndexType i = 0; i < kOutputDimensions; ++i) {
         const IndexType offset = i * kPaddedInputDimensions;
 
         std::int32_t sum = biases_[i];
         for (IndexType j = 0; j < kInputDimensions; ++j) {
-          // TODO: Implement the fast input/weight offset version.
-          // https://github.com/google/gemmlowp/blob/master/doc/low-precision.md#efficient-handling-of-offsets
-          sum += (weights_[offset + j] - weight_zero_point_) * (input[j]);
+          sum += weights_[offset + j] * input[j];
         }
+        sum -= zero_point_sum * weight_zero_point_;
         if (UseRelu) {
           sum = rounding_shift(static_cast<std::int64_t>(sum) * scale_, scale_bits_);
-          sum = std::max(sum, 0);
-          sum = std::min(sum, 255);
+          sum = std::max(std::min(sum, 255), 0);
         } else {
           sum = rounding_shift(static_cast<std::int64_t>(sum * 600) * scale_, scale_bits_);
         }

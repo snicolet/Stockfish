@@ -83,8 +83,7 @@ namespace Eval::NNUE {
         for (IndexType j = 0; j < kHalfDimensions; ++j) {
           std::int32_t sum = accumulation[static_cast<int>(perspectives[p])][0][j];
           sum = rounding_shift(static_cast<std::int64_t>(sum) * scale_, scale_bits_);
-          sum = std::max(sum, 0);
-          sum = std::min(sum, 255);
+          sum = std::max(std::min(sum, 255), 0);
           output[offset + j] = static_cast<OutputType>(sum);
         }
       }
