@@ -42,8 +42,7 @@ namespace Layers {
 using InputLayer = InputSlice<kTransformedFeatureDimensions * 2>;
 using HiddenLayer1 = AffineTransform<InputLayer, 32, true>;
 using HiddenLayer2 = AffineTransform<HiddenLayer1, 32, true>;
-using HiddenLayer3 = AffineTransform<HiddenLayer2, 32, true>;
-using OutputLayer = AffineTransform<HiddenLayer3, 1, false>;
+using OutputLayer = AffineTransform<HiddenLayer2, 1, false>;
 
 }  // namespace Layers
 
