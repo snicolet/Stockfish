@@ -829,8 +829,11 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
-    cutNode &= (eval >= beta - 300);
-    cutNode |= (eval >= beta + 300);
+    if (!PvNode)
+    {
+        cutNode &= (eval >= beta - 300);
+        cutNode |= (eval >= beta + 300);
+    }
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
