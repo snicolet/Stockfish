@@ -1269,16 +1269,22 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          if (d == newDepth)
+          {
+             doFullDepthSearch = !PvNode || moveCount > 1;
+             didLMR = false;
+          }
+          else
+          {
+             value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          doFullDepthSearch = value > alpha && d != newDepth;
-
-          didLMR = true;
+             doFullDepthSearch = value > alpha && d != newDepth;
+             didLMR = true;
+          }
       }
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
-
           didLMR = false;
       }
 
