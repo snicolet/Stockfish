@@ -466,7 +466,7 @@ endif
 ### 3.3 Optimization
 ifeq ($(optimize),yes)
 
-	CXXFLAGS += -O3 -fno-tree-vectorize
+	CXXFLAGS += -O1
 
 	ifeq ($(comp),gcc)
 		ifeq ($(OS), Android)
