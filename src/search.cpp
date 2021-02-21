@@ -1276,7 +1276,7 @@ moves_loop: // When in check, search starts from here
           }
           else
           {
-             value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+             value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, !cutNode);
 
              doFullDepthSearch = value > alpha && d != newDepth;
              didLMR = true;
