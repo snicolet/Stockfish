@@ -1283,6 +1283,8 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
+          if (doFullDepthSearch)
+              (ss+1)->distanceFromPv = ss->distanceFromPv;
 
           didLMR = true;
       }
