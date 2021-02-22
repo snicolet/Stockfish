@@ -136,6 +136,31 @@ namespace Eval::NNUE {
     return (x >> exponent) + (remainder > threshold ? 1 : 0);
   }
 
+  #if defined(USE_AVX512) || defined(USE_AVX2)
+  inline __m256i rounding_shift(__m256i x, std::int32_t exponent) {
+    __m256i zero = _mm256_setzero_si256();
+    __m256i one = _mm256_set1_epi32(1);
+    __m256i mask = _mm256_set1_epi32((1ULL << exponent) - 1);
+    __m256i remainder = _mm256_and_si256(x, mask);
+    __m256i xlt0 = _mm256_cmpgt_epi32(zero, x);
+    __m256i threshold = _mm256_add_epi32(_mm256_srai_epi32(mask, 1), _mm256_and_si256(xlt0, one));
+    return _mm256_add_epi32(_mm256_srai_epi32(x, exponent), _mm256_and_si256(_mm256_cmpgt_epi32(remainder, threshold), one));
+  }
+
+  // 16 bit in -> scaled up to 32 bit
+  inline __m256i mul16x16(__m256i a, __m256i scale, std::int32_t exponent) {
+    __m256i a0 = _mm256_cvtepi16_epi32(_mm256_castsi256_si128(a));
+    __m256i a1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(a, 1));
+    __m256i a0_scaled = _mm256_mullo_epi32(a0, scale);
+    __m256i a1_scaled = _mm256_mullo_epi32(a1, scale);
+    __m256i a0_shifted = rounding_shift(a0_scaled, exponent);
+    __m256i a1_shifted = rounding_shift(a1_scaled, exponent);
+    __m256i packed = _mm256_packs_epi32(a0_shifted, a1_shifted);
+    // permute [0,1,2,3] to [0,2,1,3]
+    __m256i result = _mm256_permute4x64_epi64(packed, 0xD8);
+    return result;
+  }
+  #endif
 }  // namespace Eval::NNUE
 
 #endif // #ifndef NNUE_COMMON_H_INCLUDED

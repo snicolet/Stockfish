@@ -29,6 +29,24 @@
 
 namespace Eval::NNUE {
 
+  // If vector instructions are enabled, we update and refresh the
+  // accumulator tile by tile such that each tile fits in the CPU's
+  // vector registers.
+  #define VECTOR
+
+  #if defined(USE_AVX512) || defined(USE_AVX2)
+  typedef __m256i vec_t;
+  #define vec_load(a) _mm256_load_si256(a)
+  #define vec_store(a,b) _mm256_store_si256(a,b)
+  #define vec_add_16(a,b) _mm256_add_epi16(a,b)
+  #define vec_sub_16(a,b) _mm256_sub_epi16(a,b)
+  static constexpr IndexType kNumRegs = 16;
+
+  #else
+  #undef VECTOR
+
+  #endif
+
   // Input feature converter
   class FeatureTransformer {
 
@@ -36,9 +54,14 @@ namespace Eval::NNUE {
     // Number of output dimensions for one side
     static constexpr IndexType kHalfDimensions = kTransformedFeatureDimensions;
 
+    #ifdef VECTOR
+    static constexpr IndexType kTileHeight = kNumRegs * sizeof(vec_t) / 2;
+    static_assert(kHalfDimensions % kTileHeight == 0, "kTileHeight must divide kHalfDimensions");
+    #endif
+
    public:
     // Output type
-    using OutputType = std::uint8_t;
+    using OutputType = TransformedFeatureType;
 
     // Number of input/output dimensions
     static constexpr IndexType kInputDimensions = RawFeatures::kDimensions;
@@ -56,13 +79,14 @@ namespace Eval::NNUE {
 
     // Read network parameters
     bool ReadParameters(std::istream& stream) {
-      scale_ = read_little_endian<std::int32_t>(stream);
-      scale_bits_ = read_little_endian<std::int32_t>(stream);
+      // TODO - hacking these down to 16 bits currently - should fix quantizer.
+      scale_ = read_little_endian<std::int32_t>(stream) >> 16;
+      scale_bits_ = read_little_endian<std::int32_t>(stream) - 16;
       weight_zero_point_ = read_little_endian<std::int32_t>(stream);
 
+      // Note weights are stored as int8, but we expand to int16 for speed.
       for (std::size_t i = 0; i < kHalfDimensions; ++i)
         biases_[i] = read_little_endian<BiasType>(stream);
-      // Note weights are stored as int8, but we expand to int16 for speed.
       for (std::size_t i = 0; i < kHalfDimensions * kInputDimensions; ++i)
         weights_[i] = read_little_endian<std::int8_t>(stream) - weight_zero_point_;
       return !stream.fail();
@@ -76,21 +100,50 @@ namespace Eval::NNUE {
 
       const auto& accumulation = pos.state()->accumulator.accumulation;
 
+  #if defined(USE_AVX512) || defined(USE_AVX2)
+      constexpr IndexType kNumChunks = kHalfDimensions / kSimdWidth;
+      constexpr int kControl = 0b11011000;
+      const __m256i kScale = _mm256_set1_epi32(scale_);
+  #endif
+
       const Color perspectives[2] = {pos.side_to_move(), ~pos.side_to_move()};
       for (IndexType p = 0; p < 2; ++p) {
         const IndexType offset = kHalfDimensions * p;
 
+  #if defined(USE_AVX512) || defined(USE_AVX2)
+        auto out = reinterpret_cast<__m256i*>(&output[offset]);
+        for (IndexType j = 0; j < kNumChunks; ++j) {
+          __m256i sum0 = _mm256_load_si256(
+              &reinterpret_cast<const __m256i*>(accumulation[perspectives[p]][0])[j * 2 + 0]);
+          __m256i sum1 = _mm256_load_si256(
+              &reinterpret_cast<const __m256i*>(accumulation[perspectives[p]][0])[j * 2 + 1]);
+          sum0 = mul16x16(sum0, kScale, 15);
+          sum1 = mul16x16(sum1, kScale, 15);
+          _mm256_store_si256(&out[j], _mm256_permute4x64_epi64(
+              _mm256_packus_epi16(sum0, sum1), kControl));
+        }
+
+  #else
         for (IndexType j = 0; j < kHalfDimensions; ++j) {
           std::int32_t sum = accumulation[static_cast<int>(perspectives[p])][0][j];
           sum = rounding_shift(static_cast<std::int64_t>(sum) * scale_, scale_bits_);
           sum = std::max(std::min(sum, 255), 0);
           output[offset + j] = static_cast<OutputType>(sum);
         }
+  #endif
+
       }
     }
 
    private:
     void UpdateAccumulator(const Position& pos, const Color c) const {
+
+  #ifdef VECTOR
+      // Gcc-10.2 unnecessarily spills AVX2 registers if this array
+      // is defined in the VECTOR code below, once in each branch
+      vec_t acc[kNumRegs];
+  #endif
+
       // Look for a usable accumulator of an earlier position. We keep track
       // of the estimated gain in terms of features to be added/subtracted.
       StateInfo *st = pos.state(), *next = nullptr;
@@ -136,6 +189,44 @@ namespace Eval::NNUE {
         // Now update the accumulators listed in info[], where the last element is a sentinel.
         StateInfo *info[3] =
           { next, next == pos.state() ? nullptr : pos.state(), nullptr };
+  #ifdef VECTOR
+        for (IndexType j = 0; j < kHalfDimensions / kTileHeight; ++j)
+        {
+          // Load accumulator
+          auto accTile = reinterpret_cast<vec_t*>(
+            &st->accumulator.accumulation[c][0][j * kTileHeight]);
+          for (IndexType k = 0; k < kNumRegs; ++k)
+            acc[k] = vec_load(&accTile[k]);
+
+          for (IndexType i = 0; info[i]; ++i)
+          {
+            // Difference calculation for the deactivated features
+            for (const auto index : removed[i])
+            {
+              const IndexType offset = kHalfDimensions * index + j * kTileHeight;
+              auto column = reinterpret_cast<const vec_t*>(&weights_[offset]);
+              for (IndexType k = 0; k < kNumRegs; ++k)
+                acc[k] = vec_sub_16(acc[k], column[k]);
+            }
+
+            // Difference calculation for the activated features
+            for (const auto index : added[i])
+            {
+              const IndexType offset = kHalfDimensions * index + j * kTileHeight;
+              auto column = reinterpret_cast<const vec_t*>(&weights_[offset]);
+              for (IndexType k = 0; k < kNumRegs; ++k)
+                acc[k] = vec_add_16(acc[k], column[k]);
+            }
+
+            // Store accumulator
+            accTile = reinterpret_cast<vec_t*>(
+              &info[i]->accumulator.accumulation[c][0][j * kTileHeight]);
+            for (IndexType k = 0; k < kNumRegs; ++k)
+              vec_store(&accTile[k], acc[k]);
+          }
+        }
+
+  #else
         for (IndexType i = 0; info[i]; ++i)
         {
           std::memcpy(info[i]->accumulator.accumulation[c][0],
@@ -161,6 +252,7 @@ namespace Eval::NNUE {
               st->accumulator.accumulation[c][0][j] += weights_[offset + j];
           }
         }
+  #endif
       }
       else
       {
@@ -170,6 +262,30 @@ namespace Eval::NNUE {
         Features::IndexList active;
         Features::HalfKP<Features::Side::kFriend>::AppendActiveIndices(pos, c, &active);
 
+  #ifdef VECTOR
+        for (IndexType j = 0; j < kHalfDimensions / kTileHeight; ++j)
+        {
+          auto biasesTile = reinterpret_cast<const vec_t*>(
+              &biases_[j * kTileHeight]);
+          for (IndexType k = 0; k < kNumRegs; ++k)
+            acc[k] = biasesTile[k];
+
+          for (const auto index : active)
+          {
+            const IndexType offset = kHalfDimensions * index + j * kTileHeight;
+            auto column = reinterpret_cast<const vec_t*>(&weights_[offset]);
+
+            for (unsigned k = 0; k < kNumRegs; ++k)
+              acc[k] = vec_add_16(acc[k], column[k]);
+          }
+
+          auto accTile = reinterpret_cast<vec_t*>(
+              &accumulator.accumulation[c][0][j * kTileHeight]);
+          for (unsigned k = 0; k < kNumRegs; k++)
+            vec_store(&accTile[k], acc[k]);
+        }
+
+  #else
         std::memcpy(accumulator.accumulation[c][0], biases_,
             kHalfDimensions * sizeof(BiasType));
 
@@ -180,6 +296,7 @@ namespace Eval::NNUE {
           for (IndexType j = 0; j < kHalfDimensions; ++j)
             accumulator.accumulation[c][0][j] += weights_[offset + j];
         }
+  #endif
       }
     }
 
