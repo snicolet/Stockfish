@@ -858,6 +858,8 @@ namespace {
 
         pos.do_null_move(st);
 
+        (ss+1)->distanceFromPv = ss->distanceFromPv;
+
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
@@ -937,6 +939,8 @@ namespace {
                                                                           [to_sq(move)];
 
                 pos.do_move(move, st);
+
+                (ss+1)->distanceFromPv = ss->distanceFromPv + probCutCount - 1;
 
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
@@ -1180,7 +1184,7 @@ moves_loop: // When in check, search starts from here
 
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
-      if (    depth >= 4
+      if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
