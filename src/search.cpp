@@ -1217,8 +1217,6 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Less reductions when close to the PV
-          if ((ss+1)->distanceFromPv < 3)
-              r--;
           if ((ss+1)->distanceFromPv < 5)
               r--;
 
