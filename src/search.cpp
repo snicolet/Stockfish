@@ -858,8 +858,6 @@ namespace {
 
         pos.do_null_move(st);
 
-        (ss+1)->distanceFromPv = ss->distanceFromPv;
-
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
@@ -939,8 +937,6 @@ namespace {
                                                                           [to_sq(move)];
 
                 pos.do_move(move, st);
-
-                (ss+1)->distanceFromPv = ss->distanceFromPv + probCutCount - 1;
 
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
