@@ -155,22 +155,22 @@ endif
 ifeq ($(findstring -ssse3,$(ARCH)),-ssse3)
 	sse = yes
 	sse2 = yes
-	ssse3 = yes
+	ssse3 = no
 endif
 
 ifeq ($(findstring -sse41,$(ARCH)),-sse41)
 	sse = yes
 	sse2 = yes
-	ssse3 = yes
-	sse41 = yes
+	ssse3 = no
+	sse41 = no
 endif
 
 ifeq ($(findstring -modern,$(ARCH)),-modern)
 	popcnt = yes
 	sse = yes
 	sse2 = yes
-	ssse3 = yes
-	sse41 = yes
+	ssse3 = no 
+	sse41 = no
 endif
 
 ifeq ($(findstring -avx2,$(ARCH)),-avx2)
@@ -200,7 +200,7 @@ ifeq ($(findstring -avx512,$(ARCH)),-avx512)
 	sse41 = yes
 	avx2 = yes
 	pext = yes
-	avx512 = yes
+	avx512 = no
 endif
 
 ifeq ($(findstring -vnni256,$(ARCH)),-vnni256)
@@ -211,7 +211,7 @@ ifeq ($(findstring -vnni256,$(ARCH)),-vnni256)
 	sse41 = yes
 	avx2 = yes
 	pext = yes
-	vnni256 = yes
+	vnni256 = no
 endif
 
 ifeq ($(findstring -vnni512,$(ARCH)),-vnni512)
@@ -222,8 +222,8 @@ ifeq ($(findstring -vnni512,$(ARCH)),-vnni512)
 	sse41 = yes
 	avx2 = yes
 	pext = yes
-	avx512 = yes
-	vnni512 = yes
+	avx512 = no 
+	vnni512 = no 
 endif
 
 ifeq ($(sse),yes)
@@ -466,7 +466,7 @@ endif
 ### 3.3 Optimization
 ifeq ($(optimize),yes)
 
-	CXXFLAGS += -O1
+	CXXFLAGS += -O3
 
 	ifeq ($(comp),gcc)
 		ifeq ($(OS), Android)
