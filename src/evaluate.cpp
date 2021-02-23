@@ -1038,6 +1038,8 @@ make_v:
 
 } // namespace
 
+Bitboard Camp[COLOR_NB] = { AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB ,
+                            AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB };
 
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
@@ -1052,8 +1054,25 @@ Value Eval::evaluate(const Position& pos) {
   {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
-         int mat = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         return NNUE::evaluate(pos) * (641 + mat / 32 - 4 * pos.rule50_count()) / 1024 + Tempo;
+      
+         Color us = pos.side_to_move();
+         Value nnue = NNUE::evaluate(pos);
+         int material = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
+         int attack =   popcount(pos.pieces( us) & Camp[~us] & KingFlank[file_of(pos.square<KING>(~us))])
+                      - popcount(pos.pieces(~us) & Camp[~us] & KingFlank[file_of(pos.square<KING>( us))]);
+         
+         attack *= (material / 512 - 22);    // positive during opening, negative during endgame 
+         //attack = mat * attack / 512;
+         
+         //if (attack)
+         //   dbg_mean_of(abs(attack));
+         
+         int scale =  641
+                    + attack * ((nnue > 0) - (nnue < 0))
+                    + material / 32
+                    - 4 * pos.rule50_count();
+         
+         return nnue * scale / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
