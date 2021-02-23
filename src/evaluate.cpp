@@ -1050,13 +1050,10 @@ Value Eval::evaluate(const Position& pos) {
       v = Evaluation<NO_TRACE>(pos).value();
   else
   {
-      return NNUE::evaluate(pos) + Tempo;
-  
-  
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
          int mat = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         int scale = 1141 + mat / 32 - 4 * pos.rule50_count();
+         int scale = 641 + mat / 32 - 4 * pos.rule50_count();
          
          return NNUE::evaluate(pos) * scale / 1024 + Tempo;
       };
