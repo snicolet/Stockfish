@@ -1059,12 +1059,12 @@ Value Eval::evaluate(const Position& pos) {
          Value nnue = NNUE::evaluate(pos);
          int material = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
          int attack =   popcount(pos.pieces( us) & Camp[~us] & KingFlank[file_of(pos.square<KING>(~us))])
-                      - popcount(pos.pieces(~us) & Camp[~us] & KingFlank[file_of(pos.square<KING>( us))]);
+                      - popcount(pos.pieces(~us) & Camp[ us] & KingFlank[file_of(pos.square<KING>( us))]);
          
          attack *= (material / 512 - 22);    // positive during opening, negative during endgame 
          //attack = mat * attack / 512;
          
-         //if (attack)
+         // if (attack)
          //   dbg_mean_of(abs(attack));
          
          int scale =  641
