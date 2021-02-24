@@ -1062,7 +1062,7 @@ Value Eval::evaluate(const Position& pos) {
                       - popcount(pos.pieces(~us) & Camp[ us]);
 
          //attack *= (material / 512 - 22);    // positive during opening, negative during endgame 
-         attack = material * attack / 256;
+         attack = material * attack / 128;
 
          // if (attack)
          //   dbg_mean_of(abs(attack));
