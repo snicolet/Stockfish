@@ -1038,8 +1038,8 @@ make_v:
 
 } // namespace
 
-Bitboard Camp[COLOR_NB] = { AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB ,
-                            AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB };
+Bitboard Camp[COLOR_NB] = { AllSquares ^ Rank5BB ^ Rank6BB ^ Rank7BB ^ Rank8BB ,
+                            AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB ^ Rank4BB};
 
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
