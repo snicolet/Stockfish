@@ -1063,7 +1063,7 @@ Value Eval::evaluate(const Position& pos) {
 
          //attack *= (material / 512 - 22);    // positive during opening, negative during endgame 
          //attack = material * attack / 256;
-         attack = 64 * attack;
+         attack = 16 * attack;
 
          // if (attack) 
          //     dbg_mean_of(abs(attack));
