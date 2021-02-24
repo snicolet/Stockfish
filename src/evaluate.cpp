@@ -1058,11 +1058,11 @@ Value Eval::evaluate(const Position& pos) {
          Color us = pos.side_to_move();
          Value nnue = NNUE::evaluate(pos);
          int material = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         int attack =   popcount(pos.pieces( us) & Camp[~us])
-                      - popcount(pos.pieces(~us) & Camp[ us]);
+         int attack =   popcount(pos.pieces( us) & (Center | Camp[~us]))
+                      - popcount(pos.pieces(~us) & (Center | Camp[ us]));
          
          //attack *= (material / 512 - 22);    // positive during opening, negative during endgame 
-         attack = material * attack / 1024;
+         attack = material * attack / 512;
          
          // if (attack)
          //   dbg_mean_of(abs(attack));
