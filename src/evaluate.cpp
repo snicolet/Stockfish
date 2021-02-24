@@ -1038,8 +1038,8 @@ make_v:
 
 } // namespace
 
-Bitboard Camp[COLOR_NB] = { AllSquares ^ Rank5BB ^ Rank6BB ^ Rank7BB ^ Rank8BB ,
-                            AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB ^ Rank4BB};
+Bitboard Camp[COLOR_NB] = { AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB ,
+                            AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB };
 
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
@@ -1058,12 +1058,12 @@ Value Eval::evaluate(const Position& pos) {
          Color us = pos.side_to_move();
          Value nnue = NNUE::evaluate(pos);
          int material = pos.non_pawn_material() + 5 * PawnValueMg * pos.count<PAWN>();
-         int attack =   popcount(pos.pieces( us) & (Camp[~us] | Center))
-                      - popcount(pos.pieces(~us) & (Camp[ us] | Center));
+         int attack =   popcount(pos.pieces( us) & Camp[~us])
+                      - popcount(pos.pieces(~us) & Camp[ us]);
 
          //attack *= (material / 512 - 22);    // positive during opening, negative during endgame 
          //attack = material * attack / 256;
-         attack = 32 * attack;
+         attack = 24 * attack;
 
          // if (attack) 
          //     dbg_mean_of(abs(attack));
