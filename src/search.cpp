@@ -1217,8 +1217,8 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Less reductions when close to the PV
-          if ((ss+1)->distanceFromPv < 2)
-              r--;
+          //if ((ss+1)->distanceFromPv < 2)
+          //    r--;
           if ((ss+1)->distanceFromPv < 5)
               r--;
 
@@ -1276,7 +1276,7 @@ moves_loop: // When in check, search starts from here
                   r -= ss->statScore / 14790;
           }
 
-          Depth d = std::clamp(newDepth - r, 1, newDepth);
+          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv < 5));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
