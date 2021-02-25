@@ -1063,11 +1063,15 @@ Value Eval::evaluate(const Position& pos) {
          int attack =   popcount(pos.pieces( us) & Camp[~us] & KingFlank[file_of(pos.square<KING>(~us))])
                       - popcount(pos.pieces(~us) & Camp[ us] & KingFlank[file_of(pos.square<KING>( us))]);
          
-         attack *= (material / 1024 - 11);    // positive during opening, negative during endgame 
+         // dbg_mean_of((material / 512 - 10) < 0);
+         // if (material / 512 - 10 > 0)
+         //    dbg_mean_of(material / 512 - 10);
+         
+         attack *= (material / 512 - 10);    // positive during opening, negative during endgame 
          //attack = material * attack / 512;
          
-         // if (attack)
-         //   dbg_mean_of(abs(attack));
+        //if (attack < 0)
+        //    dbg_mean_of(abs(attack));
          
          int scale =  641
                     + attack * ((nnue > 0) - (nnue < 0))
