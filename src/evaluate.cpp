@@ -1067,7 +1067,7 @@ Value Eval::evaluate(const Position& pos) {
          // if (material / 512 - 10 > 0)
          //    dbg_mean_of(material / 512 - 10);
          
-         attack *= std::max(0, material / 512 - 10);    // positive during opening, negative during endgame 
+         attack *= std::min(0, material / 512 - 10);    // positive during opening, negative during endgame 
          //attack = material * attack / 512;
          
         //if (attack < 0)
