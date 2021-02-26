@@ -1178,8 +1178,10 @@ moves_loop: // When in check, search starts from here
 
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
 
-      // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
-      // re-searched at full depth.
+      // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
+      // We use various heuristics for the sons of a node after the first son has
+      // been searched. In general we would like to reduce them, but there are many
+      // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
@@ -1277,6 +1279,7 @@ moves_loop: // When in check, search starts from here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
+          // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
           didLMR = true;
       }
