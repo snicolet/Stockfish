@@ -1194,9 +1194,9 @@ moves_loop: // When in check, search starts from here
           Depth r = reduction(improving, depth, moveCount);
 
           // Increase reduction if far from the PV
-          if (ss->distanceFromPv > 30)
+          if (ss->distanceFromPv > 40)
               r++;
-          //dbg_mean_of(ss->distanceFromPv > 30);
+          //dbg_mean_of(ss->distanceFromPv > 40);
 
           // Decrease reduction if the ttHit running average is large
           if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
