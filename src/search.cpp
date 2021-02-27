@@ -1194,7 +1194,7 @@ moves_loop: // When in check, search starts from here
           Depth r = reduction(improving, depth, moveCount);
 
           // Increase reduction if far from the PV
-          if (abs(ss->distanceFromPv - 35) <= 3)
+          if (abs(ss->distanceFromPv - 30) <= 3)
               r++;
           //dbg_mean_of(ss->distanceFromPv > 40);
 
