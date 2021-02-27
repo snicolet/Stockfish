@@ -1192,7 +1192,7 @@ moves_loop: // When in check, search starts from here
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           int averageMovecount = (ss+1)->distanceFromPv / (ss+1)->ply;
-          Depth r = reduction(improving, depth, 3 + averageMovecount);
+          Depth r = reduction(improving, depth, 4 + averageMovecount);
 
           // Decrease reduction if the ttHit running average is large
           if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
