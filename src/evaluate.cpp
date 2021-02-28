@@ -292,6 +292,7 @@ namespace {
 
     Value value();
     ScaleFactor scale(Color c);
+    bool specialized_endgame(Value &value);
 
   private:
     template<Color Us> void initialize();
@@ -1069,6 +1070,23 @@ make_v:
 
     return scale_factor(strongSide);
   }
+  
+  
+  // Evaluation::specialized_endgame() returns true if the classical evaluation
+  // has special endgame code for that position. The value is returned from the
+  // point of view of the side to move.
+
+  template<Tracing T>
+  bool Evaluation<T>::specialized_endgame(Value &value) {
+
+    me = Material::probe(pos);
+    if (me->specialized_eval_exists())
+    {
+        value = me->evaluate(pos);
+        return true;
+    }
+    return false;
+  }
 
 } // namespace
 
@@ -1078,31 +1096,22 @@ make_v:
 
 Value Eval::evaluate(const Position& pos) {
 
-  Value v;
+  Value v, val;
 
   if (!Eval::useNNUE)
       v = Evaluation<NO_TRACE>(pos).value();
+  else if (Evaluation<NO_TRACE>(pos).specialized_endgame(val))
+      v = val;
   else
   {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
-         int material, scale1, scale2;
+         int material, scale;
 
-         Value nnue = NNUE::evaluate(pos);
          material = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         Color strongSide = nnue > VALUE_DRAW ? pos.side_to_move() : ~pos.side_to_move();
+         scale = 641 + material / 32 - 4 * pos.rule50_count();
 
-         scale1 = Evaluation<NO_TRACE>(pos).scale(strongSide);
-         
-         //dbg_mean_of(scale1 == SCALE_FACTOR_DRAW);
-         //dbg_mean_of(scale1 > SCALE_FACTOR_NORMAL);
-         
-         if (scale1 <= SCALE_FACTOR_NORMAL)
-             scale2 = 641 + material / 32 - 4 * pos.rule50_count();
-         else
-             scale2 = 400 + material / 32 - 4 * pos.rule50_count();
-
-         return nnue * scale2 / 1024 + Tempo;
+         return NNUE::evaluate(pos) * scale / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
