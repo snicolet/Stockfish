@@ -641,10 +641,13 @@ namespace {
         // because we will never beat the current alpha. Same logic but with reversed
         // signs applies also in the opposite condition of being mated instead of giving
         // mate. In this case return a fail-high score.
-        alpha = std::max(mated_in(ss->ply), alpha);
-        beta = std::min(mate_in(ss->ply+1), beta);
-        if (alpha >= beta)
-            return alpha;
+        if (depth >= 2)
+        {
+            alpha = std::max(mated_in(ss->ply), alpha);
+            beta = std::min(mate_in(ss->ply+1), beta);
+            if (alpha >= beta)
+                return alpha;
+        }
     }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
