@@ -1098,9 +1098,11 @@ Value Eval::evaluate(const Position& pos) {
          //dbg_mean_of(scale1 > SCALE_FACTOR_NORMAL);
          
          if (scale1 >= SCALE_FACTOR_NORMAL)
-             scale2 = 641 + material / 32 - 4 * pos.rule50_count();
+             scale2 = 680 + material / 32 - 4 * pos.rule50_count();
          else
-             scale2 = 385 + 4 * scale1 + material / 32 - 4 * pos.rule50_count();
+             scale2 = 424 + 4 * scale1 + material / 32 - 4 * pos.rule50_count();
+        
+         // dbg_mean_of(scale2);
 
          return nnue * scale2 / 1024 + Tempo;
       };
