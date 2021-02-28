@@ -498,52 +498,60 @@ ScaleFactor Endgame<KRPKR>::operator()(const Position& pos) const {
           return ScaleFactor(24 - 2 * distance(strongKing, weakKing));
   }
 
-  // If White's pawn is on a6, with their rook in front of it and Black's rook behind it,
-  // then the endgame may be drawn due to the Vancura Defense. For now, only deal with 
-  // cases where it's Black to move, their rook is a1, and their king is somewhere 
-  // in the box of h8-g8-g6-h6. Also, if White has Ra8 then Black's king must be on the 7th rank.
-  if (strongPawn == SQ_A6 && (strongRook == SQ_A7 || strongRook == SQ_A8)
-      && weakRook == SQ_A1 && !tempo && file_of(weakKing) >= FILE_G
-      && rank_of(weakKing) >= RANK_6 && abs(rank_of(strongRook) - rank_of(weakKing) == 1))
+  // Vancura Defense: if White pawn is on a6, with their rook in front of it and Black
+  // rook behind it, then the endgame may be drawn. For now, only deal with cases where
+  // it is Black to move, their rook is a1, and their king is somewhere in the box of
+  // h8-g8-g6-h6. Also, if White has Ra8 then Black king must be on the 7th rank.
+  if (    strongPawn == SQ_A6
+      && (strongRook == SQ_A7 || strongRook == SQ_A8)
+      &&  weakRook == SQ_A1
+      && !tempo
+      && file_of(weakKing) >= FILE_G
+      && rank_of(weakKing) >= RANK_6
+      && abs(rank_of(strongRook) - rank_of(weakKing) == 1))
   {
       if (file_of(strongKing) <= FILE_D)
-      {
-          return   strongKing != SQ_D2 || weakKing == SQ_H6 || weakKing == SQ_G8 
-                || weakKing == SQ_H8 ? ScaleFactor(SCALE_FACTOR_MAX) : SCALE_FACTOR_DRAW;
-      }
-      else if (rank_of(strongKing) <= RANK_3 || file_of(strongKing) >= FILE_G)
-      {
-          return   strongKing == SQ_G6 
+          return   strongKing != SQ_D2
+                || weakKing == SQ_H6
+                || weakKing == SQ_G8
+                || weakKing == SQ_H8 ? SCALE_FACTOR_MAX
+                                     : SCALE_FACTOR_DRAW;
+
+      if (   rank_of(strongKing) <= RANK_3
+          || file_of(strongKing) >= FILE_G)
+          return   strongKing == SQ_G6
                 || (strongKing == SQ_E2 && (weakKing == SQ_H6 || weakKing == SQ_H8))
                 || (   weakKing == SQ_H8
-                    && (   strongKing == SQ_H6 || strongKing == SQ_G5 
+                    && (   strongKing == SQ_H6 || strongKing == SQ_G5
                         || strongKing == SQ_H5 || strongKing == SQ_G4))
-                ? ScaleFactor(SCALE_FACTOR_MAX) : SCALE_FACTOR_DRAW;
-      }
-      else if (file_of(strongKing) == FILE_E)
-      {
-          return   strongKing != SQ_E6 || weakKing == SQ_G6 || weakKing == SQ_H6 
-                || weakKing == SQ_H8 ? ScaleFactor(SCALE_FACTOR_MAX) : SCALE_FACTOR_DRAW;
-      }
-      // At this point, White's king is somewhere between f4 and f8.
-      else if (strongKing == SQ_F4)
-      {
-          return weakKing == SQ_H6 || weakKing == SQ_G8 || weakKing == SQ_H8 ? 
-                  ScaleFactor(SCALE_FACTOR_MAX) : SCALE_FACTOR_DRAW;
-      }
-      else if (strongKing == SQ_F5)
-      {
-          return weakKing == SQ_G7 ? SCALE_FACTOR_DRAW : ScaleFactor(SCALE_FACTOR_MAX);
-      }
-      else if (strongKing == SQ_F6 || strongKing == SQ_F7)
-      {
-          return ScaleFactor(SCALE_FACTOR_MAX);
-      }
-      else
-      {
-          assert(strongKing == SQ_F8);
-          return weakKing == SQ_G6 ? SCALE_FACTOR_DRAW : ScaleFactor(SCALE_FACTOR_MAX);
-      }
+                                     ? SCALE_FACTOR_MAX
+                                     : SCALE_FACTOR_DRAW;
+
+      if (file_of(strongKing) == FILE_E)
+          return   strongKing != SQ_E6
+                || weakKing == SQ_G6
+                || weakKing == SQ_H6
+                || weakKing == SQ_H8 ? SCALE_FACTOR_MAX
+                                     : SCALE_FACTOR_DRAW;
+
+      // At this point, White king is somewhere between f4 and f8
+      if (strongKing == SQ_F4)
+          return   weakKing == SQ_H6
+                || weakKing == SQ_G8
+                || weakKing == SQ_H8 ? SCALE_FACTOR_MAX
+                                     : SCALE_FACTOR_DRAW;
+
+      if (strongKing == SQ_F5)
+          return weakKing == SQ_G7 ? SCALE_FACTOR_DRAW
+                                   : SCALE_FACTOR_MAX;
+
+      if (   strongKing == SQ_F6
+          || strongKing == SQ_F7)
+          return SCALE_FACTOR_MAX;
+
+      assert(strongKing == SQ_F8);
+      return weakKing == SQ_G6 ? SCALE_FACTOR_DRAW
+                               : SCALE_FACTOR_MAX;
   }
 
   return SCALE_FACTOR_NONE;
