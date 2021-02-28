@@ -1097,10 +1097,10 @@ Value Eval::evaluate(const Position& pos) {
          //dbg_mean_of(scale1 == SCALE_FACTOR_DRAW);
          //dbg_mean_of(scale1 > SCALE_FACTOR_NORMAL);
          
-         if (scale1 >= 50)
+         if (scale1 >= 40)
              scale2 = 641 + material / 32 - 4 * pos.rule50_count();
          else
-             scale2 = 441 + 4 * scale1 + material / 32 - 4 * pos.rule50_count();
+             scale2 = 481 + 4 * scale1 + material / 32 - 4 * pos.rule50_count();
 
          return nnue * scale2 / 1024 + Tempo;
       };
