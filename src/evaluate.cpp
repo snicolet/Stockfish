@@ -1100,7 +1100,7 @@ Value Eval::evaluate(const Position& pos) {
          if (scale1 >= SCALE_FACTOR_NORMAL)
              scale2 = 641 + material / 32 - 4 * pos.rule50_count();
          else
-             scale2 = 400 + material / 32 - 4 * pos.rule50_count();
+             scale2 = 449 + 3 * scale1 + material / 32 - 4 * pos.rule50_count();
 
          return nnue * scale2 / 1024 + Tempo;
       };
