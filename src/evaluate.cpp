@@ -1098,9 +1098,9 @@ Value Eval::evaluate(const Position& pos) {
          //dbg_mean_of(scale1 > SCALE_FACTOR_NORMAL);
          
          if (scale1 >= SCALE_FACTOR_NORMAL)
-             scale2 = 656 + material / 32 - 4 * pos.rule50_count();
+             scale2 = 606 + material / 32 - 4 * pos.rule50_count();
          else
-             scale2 = 400 + 4 * scale1 + material / 32 - 4 * pos.rule50_count();
+             scale2 = 350 + 4 * scale1 + material / 32 - 4 * pos.rule50_count();
         
          // dbg_mean_of(scale2);
 
