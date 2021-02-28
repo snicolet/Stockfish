@@ -572,19 +572,33 @@ namespace {
     const bool rootNode = PvNode && ss->ply == 0;
     const Depth maxNextDepth = rootNode ? depth : depth + 1;
 
-    // Check if we have an upcoming move which draws by repetition, or
-    // if the opponent had an alternative move earlier to this position.
-    if (   pos.rule50_count() >= 3
-        && alpha < VALUE_DRAW
-        && !rootNode
-        && pos.has_game_cycle(ss->ply))
+    // Step 1. Cycle detection and mate pruning
+    if (!rootNode)
     {
-        alpha = value_draw(pos.this_thread());
+        // Check if we have an upcoming move which draws by repetition, or
+        // if the opponent had an alternative move earlier to this position.
+        if (   pos.rule50_count() >= 3
+            && alpha < VALUE_DRAW
+            && pos.has_game_cycle(ss->ply))
+        {
+            alpha = value_draw(pos.this_thread());
+            if (alpha >= beta)
+                return alpha;
+        }
+
+        // Try mate distance pruning. Even if we mate at the next move our score
+        // would be at best mate_in(ss->ply+1), but if alpha is already bigger because
+        // a shorter mate was found upward in the tree then there is no need to search
+        // because we will never beat the current alpha. Same logic but with reversed
+        // signs applies also in the opposite condition of being mated instead of giving
+        // mate. In this case return a fail-high score.
+        alpha = std::max(mated_in(ss->ply), alpha);
+        beta = std::min(mate_in(ss->ply+1), beta);
         if (alpha >= beta)
             return alpha;
     }
 
-    // Dive into quiescence search when the depth reaches zero
+    // Step 2. Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
         return qsearch<NT>(pos, ss, alpha, beta);
 
@@ -608,7 +622,7 @@ namespace {
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
-    // Step 1. Initialize node
+    // Step 3. Initialize node
     Thread* thisThread = pos.this_thread();
     ss->inCheck = pos.checkers();
     priorCapture = pos.captured_piece();
@@ -626,26 +640,13 @@ namespace {
     if (PvNode && thisThread->selDepth < ss->ply + 1)
         thisThread->selDepth = ss->ply + 1;
 
-    if (!rootNode)
-    {
-        // Step 2. Check for aborted search and immediate draw
-        if (   Threads.stop.load(std::memory_order_relaxed)
+    // Check for aborted search and immediate draw
+    if (   !rootNode
+        && (   Threads.stop.load(std::memory_order_relaxed)
             || pos.is_draw(ss->ply)
-            || ss->ply >= MAX_PLY)
-            return (ss->ply >= MAX_PLY && !ss->inCheck) ? evaluate(pos)
-                                                        : value_draw(pos.this_thread());
-
-        // Step 3. Mate distance pruning. Even if we mate at the next move our score
-        // would be at best mate_in(ss->ply+1), but if alpha is already bigger because
-        // a shorter mate was found upward in the tree then there is no need to search
-        // because we will never beat the current alpha. Same logic but with reversed
-        // signs applies also in the opposite condition of being mated instead of giving
-        // mate. In this case return a fail-high score.
-        alpha = std::max(mated_in(ss->ply), alpha);
-        beta = std::min(mate_in(ss->ply+1), beta);
-        if (alpha >= beta)
-            return alpha;
-    }
+            || ss->ply >= MAX_PLY))
+       return (ss->ply >= MAX_PLY && !ss->inCheck) ? evaluate(pos)
+                                                   : value_draw(pos.this_thread());
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -1454,12 +1455,6 @@ moves_loop: // When in check, search starts from here
     assert(alpha >= -VALUE_INFINITE && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
     assert(depth <= 0);
-
-    // Mate distance pruning
-    alpha = std::max(mated_in(ss->ply), alpha);
-    beta = std::min(mate_in(ss->ply+1), beta);
-    if (alpha >= beta)
-        return alpha;
 
     Move pv[MAX_PLY+1];
     StateInfo st;
