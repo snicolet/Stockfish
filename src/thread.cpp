@@ -26,7 +26,11 @@
 #include "syzygy/tbprobe.h"
 #include "tt.h"
 
-ThreadPool Threads; // Global object
+
+/// Global objects
+
+ThreadPool Threads;
+std::array<Breadcrumb, 1024> breadcrumbs;
 
 
 /// Thread constructor launches the thread and waits until it goes to sleep
