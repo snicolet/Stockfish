@@ -1061,7 +1061,7 @@ Value Eval::evaluate(const Position& pos) {
                        + 6 * PawnValueMg * pos.count<PAWN>(~strongSide)
                        ;
          
-         int scale =   560 
+         int scale =   550 
                      + material / 32 
                      - 4 * pos.rule50_count();
          
