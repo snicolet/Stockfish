@@ -1057,8 +1057,8 @@ Value Eval::evaluate(const Position& pos) {
          Color strongSide = nnue > 0 ? pos.side_to_move() : ~pos.side_to_move();
       
          int material =      pos.non_pawn_material()
-                       + 3 * PawnValueMg * pos.count<PAWN>( strongSide)
-                       + 1 * PawnValueMg * pos.count<PAWN>(~strongSide)
+                       + 1 * PawnValueMg * pos.count<PAWN>( strongSide)
+                       + 3 * PawnValueMg * pos.count<PAWN>(~strongSide)
                        ;
          
          int scale =   641 
