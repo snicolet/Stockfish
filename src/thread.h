@@ -168,7 +168,7 @@ struct ThreadHolding {
 
   ~ThreadHolding() {
      if (owning) // Free the marked location
-	     (*location).thread.store(nullptr, std::memory_order_relaxed);
+         (*location).thread.store(nullptr, std::memory_order_relaxed);
   }
 
   bool marked() { return otherThread; }
