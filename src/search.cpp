@@ -962,7 +962,7 @@ moves_loop: // When in check, search starts from here
     singularQuietLMR = moveCountPruning = false;
 
     // Mark this node as being searched
-    ThreadHolding th(thisThread, posKey, ss->ply);
+    ThreadHolding holding(thisThread, posKey, ss->ply);
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1155,8 +1155,8 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Increase reduction if other threads are searching this position
-          if (th.marked())
-              r++;
+          // if (holding.marked())
+           //   r++;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~10 Elo)
