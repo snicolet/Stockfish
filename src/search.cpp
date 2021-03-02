@@ -1154,10 +1154,6 @@ moves_loop: // When in check, search starts from here
           if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
               r--;
 
-          // Increase reduction if other threads are searching this position
-          // if (holding.marked())
-           //   r++;
-
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~10 Elo)
           if (ss->ttPv && !likelyFailLow)
