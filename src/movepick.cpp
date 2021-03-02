@@ -118,7 +118,7 @@ void MovePicker::score() {
               ThreadHolding holding(pos.this_thread(), pos.key_after(m), ply + 1);
 
               if (holding.marked())
-                  m.value -= 14000;
+                  m.value -= 55000;
 
               //dbg_mean_of(holding.marked());
               //dbg_mean_of(abs(m.value));
