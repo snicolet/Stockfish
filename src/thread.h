@@ -153,17 +153,17 @@ struct ThreadHolding {
     if (location)
     {
         // See if another already marked this location, if not, mark it ourselves
-  	    Thread* tmp = (*location).thread.load(std::memory_order_relaxed);
-	    if (tmp == nullptr)
-	    {
-		    (*location).thread.store(thisThread, std::memory_order_relaxed);
-		    (*location).key.store(posKey, std::memory_order_relaxed);
-		    owning = true;
-	    }
-	    else if (   tmp != thisThread
-			     && (*location).key.load(std::memory_order_relaxed) == posKey)
-		    otherThread = true;
-     }
+        Thread* tmp = (*location).thread.load(std::memory_order_relaxed);
+        if (tmp == nullptr)
+        {
+            (*location).thread.store(thisThread, std::memory_order_relaxed);
+            (*location).key.store(posKey, std::memory_order_relaxed);
+            owning = true;
+        }
+        else if (   tmp != thisThread
+                 && (*location).key.load(std::memory_order_relaxed) == posKey)
+                 otherThread = true;
+    }
   }
 
   ~ThreadHolding() {
