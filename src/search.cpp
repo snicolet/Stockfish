@@ -1199,7 +1199,7 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction if other threads are searching this position
           if (th.marked())
-              r = r + 2;
+              r = r + 3;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~10 Elo)
