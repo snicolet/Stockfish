@@ -137,7 +137,9 @@ struct Breadcrumb {
   std::atomic<Key> key;
 };
 
-extern std::array<Breadcrumb, 1024> breadcrumbs;
+typedef std::array<Breadcrumb, 1024> Breadcrumbs;
+
+extern Breadcrumbs breadcrumbs;
 
 /// ThreadHolding structure keeps track of which thread left breadcrumbs at the given
 /// node for potential reductions. A free node will be marked upon entering the moves

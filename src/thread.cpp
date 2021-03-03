@@ -30,7 +30,7 @@
 /// Global objects
 
 ThreadPool Threads;
-std::array<Breadcrumb, 1024> breadcrumbs;
+Breadcrumbs breadcrumbs;
 
 
 /// Thread constructor launches the thread and waits until it goes to sleep
