@@ -123,7 +123,7 @@ void MovePicker::score() {
                        + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                        - (1 << 28);
       }
-      int random = (pos.key() & 63) + (m.value & 63) - 63;
+      int random = (pos.key() & 127) - 63;
       //dbg_mean_of(random >= 0);
       m.value += random;
   }
