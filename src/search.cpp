@@ -1155,7 +1155,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Increase reduction if other threads are searching this position	
-          if (th.marked())	
+          if (holding.marked())	
               r += 2;
 
           // Decrease reduction if position is or has been on the PV
