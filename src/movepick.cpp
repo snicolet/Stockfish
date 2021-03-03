@@ -69,7 +69,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 /// MovePicker constructor for quiescence search
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                        const CapturePieceToHistory* cph, const PieceToHistory** ch, Square rs)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d) {
+           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), 
+             recaptureSquare(rs), depth(d), ply(10000) {
 
   assert(d <= 0);
 
@@ -82,7 +83,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 /// MovePicker constructor for ProbCut: we generate captures with SEE greater
 /// than or equal to the given threshold.
 MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePieceToHistory* cph)
-           : pos(p), captureHistory(cph), ttMove(ttm), threshold(th) {
+           : pos(p), captureHistory(cph), ttMove(ttm), threshold(th), ply(10000) {
 
   assert(!pos.checkers());
 
@@ -100,30 +101,18 @@ void MovePicker::score() {
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
   for (auto& m : *this)
+  {
       if constexpr (Type == CAPTURES)
           m.value =  int(PieceValue[MG][pos.piece_on(to_sq(m))]) * 6
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
 
       else if constexpr (Type == QUIETS)
-      {
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
                    + (ply < MAX_LPH ? std::min(4, depth / 3) * (*lowPlyHistory)[ply][from_to(m)] : 0);
-        
-          if (ply < 8)
-          {
-              ThreadHolding holding(pos.this_thread(), pos.key_after(m), ply + 1);
-
-              if (holding.marked())
-                  m.value -= 55000;
-
-              //dbg_mean_of(holding.marked());
-              //dbg_mean_of(abs(m.value));
-          }
-      }
 
       else // Type == EVASIONS
       {
@@ -135,6 +124,15 @@ void MovePicker::score() {
                        + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                        - (1 << 28);
       }
+
+      if (ply < 8)
+      {
+          ThreadHolding holding(pos.this_thread(), pos.key_after(m), ply + 1);
+
+          if (holding.marked())
+              m.value -= 55000;
+      }
+  }
 }
 
 /// MovePicker::select() returns the next move satisfying a predicate function.
