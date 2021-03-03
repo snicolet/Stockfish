@@ -130,7 +130,7 @@ void MovePicker::score() {
           ThreadHolding holding(pos.this_thread(), pos.key_after(m), ply + 1);
 
           if (holding.marked())
-              m.value -= 55000;
+              m.value -= 10000;
       }
   }
 }
