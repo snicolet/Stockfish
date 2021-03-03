@@ -107,7 +107,7 @@ void MovePicker::score() {
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
 
           if (ply < 8 && ThreadHolding(pos.this_thread(), pos.key_after(m), ply + 1).marked())
-              m.value += 10000;
+              m.value += 55000;
       }
 
       else if constexpr (Type == QUIETS)
