@@ -140,7 +140,7 @@ void MovePicker::score() {
               
               v = Value(0);
               if (!pos.see_ge(m.move, Value(0)))
-                  v -= 5000;
+                  v += 5000;
             
               // dbg_mean_of((v >= 0) == (m.value >= 0));
               
@@ -238,6 +238,8 @@ top:
 
           score<QUIETS>();
           partial_insertion_sort(cur, endMoves, -3000 * depth);
+          
+          //std::cerr << pos << std::endl;
       }
 
       ++stage;
