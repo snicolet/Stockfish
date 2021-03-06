@@ -116,10 +116,10 @@ void MovePicker::score() {
                    + (ply < MAX_LPH ? std::min(4, depth / 3) * (*lowPlyHistory)[ply][from_to(m)] : 0);
          
           // dbg_mean_of(ply <= 5);
-          if (ply <= 5)
+          if (ply <= 5 && !pos.gives_check(m.move))
           {   
               StateInfo st;
-              pos.do_move(m.move, st);
+              pos.do_move(m.move, st, false);
               m.value -= 16 * Eval::evaluate(pos);
               pos.undo_move(m.move);
           }
