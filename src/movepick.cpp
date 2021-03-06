@@ -21,6 +21,7 @@
 #include "misc.h"
 #include "movepick.h"
 #include "evaluate.h"
+#include "uci.h"
 
 namespace {
 
@@ -139,7 +140,7 @@ void MovePicker::score() {
               
               
               v = Value(0);
-              if (!pos.see_ge(m.move, Value(0)))
+              if (pos.see_ge(m.move, Value(0)))
                   v += 5000;
             
               // dbg_mean_of((v >= 0) == (m.value >= 0));
@@ -239,7 +240,19 @@ top:
           score<QUIETS>();
           partial_insertion_sort(cur, endMoves, -3000 * depth);
           
-          //std::cerr << pos << std::endl;
+//           if (false && ply == 0)
+//           {
+//                std::cerr << pos << std::endl;
+//                
+//                for (ExtMove *p = cur; p < endMoves; p++)
+//                {
+//                    std::cerr << UCI::move((*p).move, false) 
+//                              << "   "
+//                              << (*p).value 
+//                              << std::endl;
+// 
+//                }
+//           }
       }
 
       ++stage;
