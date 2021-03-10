@@ -1582,7 +1582,7 @@ moves_loop: // When in check, search starts from here
           && !pos.advanced_pawn_push(move))
       {
 
-          if (moveCount > 4)
+          if (moveCount > 5)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
