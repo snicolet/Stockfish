@@ -1589,12 +1589,6 @@ moves_loop: // When in check, search starts from here
           && !pos.advanced_pawn_push(move))
       {
 
-          if (moveCount >= 3)
-          {
-              if (picked->value < 4000)
-                 continue;
-          }
-
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
 
           if (futilityValue <= alpha)
@@ -1607,6 +1601,12 @@ moves_loop: // When in check, search starts from here
           {
               bestValue = std::max(bestValue, futilityBase);
               continue;
+          }
+          
+          if (moveCount >= 3)
+          {
+              if (picked->value < 4000)
+                 continue;
           }
       }
 
