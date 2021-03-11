@@ -927,6 +927,7 @@ namespace {
                && probCutCount < 2 + 2 * cutNode)
         {
             move = picked->move;
+
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -965,6 +966,7 @@ namespace {
                 }
             }
         }
+
         ss->ttPv = ttPv;
     }
 
@@ -1018,6 +1020,7 @@ moves_loop: // When in check, search starts from here
     while ((picked = mp.next_move(moveCountPruning)))
     {
       move = picked->move;
+
       assert(is_ok(move));
 
       if (move == excludedMove)
@@ -1218,8 +1221,19 @@ moves_loop: // When in check, search starts from here
               r++;
 
           // More reductions for late moves if position was not in previous PV
-          if (moveCountPruning && !formerPv)
+          if (   moveCountPruning 
+              && !formerPv)
+          {
+              // picked->policy < 10000 - 2000 * moveCount
+              //dbg_mean_of(ss->inCheck);
+              //if (!ss->inCheck)
+              //    dbg_mean_of(abs(picked->policy));
+              // dbg_mean_of(abs(picked->policy / 1000));
+              // dbg_mean_of(picked->policy > 5000);
+              //if (picked->policy > 5000)
+                  
               r++;
+          }
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
@@ -1234,7 +1248,10 @@ moves_loop: // When in check, search starts from here
               // Unless giving check, this capture is likely bad
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
-                  r++;
+                  {
+                      if (picked->policy < 4000)
+                          r++;
+                  }
           }
           else
           {
@@ -1575,6 +1592,7 @@ moves_loop: // When in check, search starts from here
     while ((picked = mp.next_move()))
     {
       move = picked->move;
+
       assert(is_ok(move));
 
       givesCheck = pos.gives_check(move);
@@ -1588,8 +1606,9 @@ moves_loop: // When in check, search starts from here
           &&  futilityBase > -VALUE_KNOWN_WIN
           && !pos.advanced_pawn_push(move))
       {
-
-          if (moveCount > 2)
+          if (   moveCount >= 3
+              && picked->policy < 10000 - 2000 * moveCount
+              )
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
