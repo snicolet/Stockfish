@@ -1586,15 +1586,12 @@ moves_loop: // When in check, search starts from here
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && !givesCheck
           &&  futilityBase > -VALUE_KNOWN_WIN
-          && !pos.advanced_pawn_push(move))
+          && !pos.advanced_pawn_push(move)
+          && picked->value < 0)
       {
 
-          if (moveCount > 3)
-          {
-              //dbg_mean_of(picked->value > 0);
-              if (picked->value < 0)
-                  continue;
-          }
+          if (moveCount > 2)
+              continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
 
