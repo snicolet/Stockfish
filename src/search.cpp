@@ -1590,7 +1590,11 @@ moves_loop: // When in check, search starts from here
       {
 
           if (moveCount > 2)
-              continue;
+          {
+              //dbg_mean_of(picked->value > 0);
+              if (picked->value < 0)
+                  continue;
+          }
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
 
