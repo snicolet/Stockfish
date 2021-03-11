@@ -1591,7 +1591,7 @@ moves_loop: // When in check, search starts from here
 
           if (moveCount >= 3)
           {
-              if (picked->value < 4000)
+              if (picked->value < 4000 - 2000 * (moveCount - 3) )
                  continue;
           }
 
