@@ -1589,7 +1589,7 @@ moves_loop: // When in check, search starts from here
           && !pos.advanced_pawn_push(move))
       {
 
-          if (moveCount > 2)
+          if (moveCount > 3)
           {
               //dbg_mean_of(picked->value > 0);
               if (picked->value < 0)
