@@ -1589,7 +1589,7 @@ moves_loop: // When in check, search starts from here
           && !pos.advanced_pawn_push(move))
       {
 
-          if (moveCount > 3)
+          if (moveCount > 1)
           {
               if (picked->value < 4000)
                  continue;
