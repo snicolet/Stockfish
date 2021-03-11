@@ -601,6 +601,7 @@ namespace {
 
     TTEntry* tte;
     Key posKey;
+    ExtMove* picked;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
@@ -922,8 +923,11 @@ namespace {
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
 
-        while (   (move = mp.next_move()) != MOVE_NONE
+        while (   (picked = mp.next_move())
                && probCutCount < 2 + 2 * cutNode)
+        {
+            move = picked->move;
+
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -961,7 +965,9 @@ namespace {
                     return value;
                 }
             }
-         ss->ttPv = ttPv;
+        }
+
+        ss->ttPv = ttPv;
     }
 
     // Step 10. If the position is not in TT, decrease depth by 2
@@ -1011,8 +1017,10 @@ moves_loop: // When in check, search starts from here
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
+    while ((picked = mp.next_move(moveCountPruning)))
     {
+      move = picked->move;
+
       assert(is_ok(move));
 
       if (move == excludedMove)
@@ -1213,7 +1221,8 @@ moves_loop: // When in check, search starts from here
               r++;
 
           // More reductions for late moves if position was not in previous PV
-          if (moveCountPruning && !formerPv)
+          if (   moveCountPruning 
+              && !formerPv)
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
@@ -1229,7 +1238,10 @@ moves_loop: // When in check, search starts from here
               // Unless giving check, this capture is likely bad
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
-                  r++;
+                  {
+                  if (picked->policy > 8000)
+                      r++;
+                  }
           }
           else
           {
@@ -1463,6 +1475,7 @@ moves_loop: // When in check, search starts from here
 
     TTEntry* tte;
     Key posKey;
+    ExtMove* picked;
     Move ttMove, move, bestMove;
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
@@ -1566,8 +1579,10 @@ moves_loop: // When in check, search starts from here
                                       to_sq((ss-1)->currentMove));
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
-    while ((move = mp.next_move()) != MOVE_NONE)
+    while ((picked = mp.next_move()))
     {
+      move = picked->move;
+
       assert(is_ok(move));
 
       givesCheck = pos.gives_check(move);
@@ -1581,8 +1596,8 @@ moves_loop: // When in check, search starts from here
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
-
-          if (moveCount > 2)
+          if (   moveCount >= 3
+              && picked->policy < 10000 - 2000 * moveCount)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];

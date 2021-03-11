@@ -113,7 +113,7 @@ typedef Stats<PieceToHistory, NOT_USED, PIECE_NB, SQUARE_NB> ContinuationHistory
 /// MovePicker class is used to pick one pseudo-legal move at a time from the
 /// current position. The most important method is next_move(), which returns a
 /// new pseudo-legal move each time it is called, until there are no moves left,
-/// when MOVE_NONE is returned. In order to improve the efficiency of the
+/// when nullptr is returned. In order to improve the efficiency of the
 /// alpha-beta algorithm, MovePicker attempts to return the moves which are most
 /// likely to get a cut-off first.
 class MovePicker {
@@ -135,10 +135,10 @@ public:
                                            Move,
                                            const Move*,
                                            int);
-  Move next_move(bool skipQuiets = false);
+  ExtMove* next_move(bool skipQuiets = false);
 
 private:
-  template<PickType T, typename Pred> Move select(Pred);
+  template<PickType T, typename Pred> ExtMove* select(Pred);
   template<GenType> void score();
   ExtMove* begin() { return cur; }
   ExtMove* end() { return endMoves; }
