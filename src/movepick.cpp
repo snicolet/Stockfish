@@ -128,7 +128,7 @@ void MovePicker::score() {
 /// MovePicker::select() returns the next move satisfying a predicate function.
 /// It never returns the TT move.
 template<MovePicker::PickType T, typename Pred>
-Move MovePicker::select(Pred filter) {
+ExtMove* MovePicker::select(Pred filter) {
 
   while (cur < endMoves)
   {
@@ -136,17 +136,19 @@ Move MovePicker::select(Pred filter) {
           std::swap(*cur, *std::max_element(cur, endMoves));
 
       if (*cur != ttMove && filter())
-          return *cur++;
+          return cur++;
 
       cur++;
   }
-  return MOVE_NONE;
+  return nullptr;
 }
 
 /// MovePicker::next_move() is the most important method of the MovePicker class. It
 /// returns a new pseudo-legal move every time it is called until there are no more
 /// moves left, picking the move with the highest score from a list of generated moves.
-Move MovePicker::next_move(bool skipQuiets) {
+ExtMove* MovePicker::next_move(bool skipQuiets) {
+
+ExtMove* next;
 
 top:
   switch (stage) {
@@ -156,7 +158,10 @@ top:
   case QSEARCH_TT:
   case PROBCUT_TT:
       ++stage;
-      return ttMove;
+      next = moves;
+      next->move  = ttMove;
+      next->value = 100000;
+      return next;
 
   case CAPTURE_INIT:
   case PROBCUT_INIT:
@@ -169,11 +174,11 @@ top:
       goto top;
 
   case GOOD_CAPTURE:
-      if (select<Best>([&](){
+      if ((next = select<Best>([&](){
                        return pos.see_ge(*cur, Value(-69 * cur->value / 1024)) ?
                               // Move losing capture to endBadCaptures to be tried later
-                              true : (*endBadCaptures++ = *cur, false); }))
-          return *(cur - 1);
+                              true : (*endBadCaptures++ = *cur, false); })))
+          return next;
 
       // Prepare the pointers to loop over the refutations array
       cur = std::begin(refutations);
@@ -188,10 +193,10 @@ top:
       [[fallthrough]];
 
   case REFUTATION:
-      if (select<Next>([&](){ return    *cur != MOVE_NONE
-                                    && !pos.capture(*cur)
-                                    &&  pos.pseudo_legal(*cur); }))
-          return *(cur - 1);
+      if ((next = select<Next>([&](){ return    *cur != MOVE_NONE
+                                             && !pos.capture(*cur)
+                                             &&  pos.pseudo_legal(*cur); })))
+          return next;
       ++stage;
       [[fallthrough]];
 
@@ -210,10 +215,10 @@ top:
 
   case QUIET:
       if (   !skipQuiets
-          && select<Next>([&](){return   *cur != refutations[0].move
-                                      && *cur != refutations[1].move
-                                      && *cur != refutations[2].move;}))
-          return *(cur - 1);
+          && (next = select<Next>([&](){return   *cur != refutations[0].move
+                                              && *cur != refutations[1].move
+                                              && *cur != refutations[2].move;})))
+          return next;
 
       // Prepare the pointers to loop over the bad captures
       cur = moves;
@@ -240,13 +245,13 @@ top:
       return select<Best>([&](){ return pos.see_ge(*cur, threshold); });
 
   case QCAPTURE:
-      if (select<Best>([&](){ return   depth > DEPTH_QS_RECAPTURES
-                                    || to_sq(*cur) == recaptureSquare; }))
-          return *(cur - 1);
+      if ((next = select<Best>([&](){ return   depth > DEPTH_QS_RECAPTURES
+                                            || to_sq(*cur) == recaptureSquare; })))
+          return next;
 
       // If we did not find any move and we do not try checks, we have finished
       if (depth != DEPTH_QS_CHECKS)
-          return MOVE_NONE;
+          return nullptr;
 
       ++stage;
       [[fallthrough]];
@@ -263,7 +268,7 @@ top:
   }
 
   assert(false);
-  return MOVE_NONE; // Silence warning
+  return nullptr; // Silence warning
 }
 
 } // namespace Stockfish
