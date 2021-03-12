@@ -1588,6 +1588,9 @@ moves_loop: // When in check, search starts from here
           &&  futilityBase > -VALUE_KNOWN_WIN
           && !pos.advanced_pawn_push(move))
       {
+          if (   moveCount >= 3
+              && picked->policy < 10000 - 2000 * moveCount)
+              continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
 
@@ -1601,12 +1604,6 @@ moves_loop: // When in check, search starts from here
           {
               bestValue = std::max(bestValue, futilityBase);
               continue;
-          }
-          
-          if (moveCount >= 3)
-          {
-              if (picked->policy < 4000)
-                 continue;
           }
       }
 
