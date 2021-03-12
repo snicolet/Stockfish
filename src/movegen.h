@@ -38,7 +38,7 @@ enum GenType {
 
 struct ExtMove {
   Move move;
-  int value;
+  int policy;
 
   operator Move() const { return move; }
   void operator=(Move m) { move = m; }
@@ -49,7 +49,7 @@ struct ExtMove {
 };
 
 inline bool operator<(const ExtMove& f, const ExtMove& s) {
-  return f.value < s.value;
+  return f.policy < s.policy;
 }
 
 template<GenType>
