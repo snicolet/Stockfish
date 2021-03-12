@@ -1593,7 +1593,7 @@ moves_loop: // When in check, search starts from here
           && !pos.advanced_pawn_push(move))
       {
           if (   moveCount >= 3
-              && picked->policy < 10000 - 2000 * moveCount)
+              && picked->policy < 9000 - 2000 * moveCount)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
