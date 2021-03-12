@@ -927,6 +927,7 @@ namespace {
                && probCutCount < 2 + 2 * cutNode)
         {
             move = picked->move;
+
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -965,6 +966,7 @@ namespace {
                 }
             }
         }
+
         ss->ttPv = ttPv;
     }
 
@@ -1018,6 +1020,7 @@ moves_loop: // When in check, search starts from here
     while ((picked = mp.next_move(moveCountPruning)))
     {
       move = picked->move;
+
       assert(is_ok(move));
 
       if (move == excludedMove)
@@ -1575,6 +1578,7 @@ moves_loop: // When in check, search starts from here
     while ((picked = mp.next_move()))
     {
       move = picked->move;
+
       assert(is_ok(move));
 
       givesCheck = pos.gives_check(move);
