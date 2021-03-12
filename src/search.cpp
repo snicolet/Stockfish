@@ -1069,7 +1069,8 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning =    moveCount >= futility_move_count(improving, depth)
+                             && picked->policy < 10000 - 2000 * moveCount;
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -1593,7 +1594,7 @@ moves_loop: // When in check, search starts from here
           && !pos.advanced_pawn_push(move))
       {
           if (   moveCount >= 3
-            //  && picked->policy < 4000
+              && picked->policy < 10000 - 2000 * moveCount
              )
              continue;
 
