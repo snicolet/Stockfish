@@ -1249,7 +1249,7 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   {
-                      if (picked->policy > 8000)
+                      if (picked->policy < 8000)
                           r++;
                   }
           }
@@ -1607,7 +1607,7 @@ moves_loop: // When in check, search starts from here
           && !pos.advanced_pawn_push(move))
       {
           if (   moveCount >= 3
-              // && picked->policy < 10000 - 2000 * moveCount
+              && picked->policy < 10000 - 2000 * moveCount
               )
               continue;
 
