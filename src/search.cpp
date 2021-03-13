@@ -1230,12 +1230,10 @@ moves_loop: // When in check, search starts from here
               //    dbg_mean_of(abs(picked->policy));
               // dbg_mean_of(abs(picked->policy / 1000));
               // dbg_mean_of(picked->policy > 5000);
-
-              if (picked->policy > 5000)
-                  r++;
+              //if (picked->policy > 5000)
+                  
+              r++;
           }
-          
-          // policy
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
@@ -1251,7 +1249,8 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   {
-                  r++;
+                      if (picked->policy > 8000)
+                          r++;
                   }
           }
           else
@@ -1608,7 +1607,8 @@ moves_loop: // When in check, search starts from here
           && !pos.advanced_pawn_push(move))
       {
           if (   moveCount >= 3
-              && picked->policy < 10000 - 2000 * moveCount)
+              // && picked->policy < 10000 - 2000 * moveCount
+              )
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
