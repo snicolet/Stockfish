@@ -1222,8 +1222,7 @@ moves_loop: // When in check, search starts from here
 
           // More reductions for late moves if position was not in previous PV
           if (   moveCountPruning 
-              && !formerPv
-              && picked->policy < 3500)
+              && !formerPv)
           {
               // picked->policy < 10000 - 2000 * moveCount
               //dbg_mean_of(ss->inCheck);
@@ -1248,7 +1247,11 @@ moves_loop: // When in check, search starts from here
               // Unless giving check, this capture is likely bad
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
-                  r++;
+                  {
+                  //dbg_mean_of(picked->policy > 8000);
+                  if (picked->policy > 8000)
+                      r++;
+                  }
           }
           else
           {
