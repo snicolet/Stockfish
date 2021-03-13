@@ -1221,8 +1221,19 @@ moves_loop: // When in check, search starts from here
               r++;
 
           // More reductions for late moves if position was not in previous PV
-          if (moveCountPruning && !formerPv)
+          if (   moveCountPruning 
+              && !formerPv
+              && picked->policy < 4000)
+          {
+              // picked->policy < 10000 - 2000 * moveCount
+              //dbg_mean_of(ss->inCheck);
+              //if (!ss->inCheck)
+              //    dbg_mean_of(abs(picked->policy));
+              // dbg_mean_of(abs(picked->policy / 1000));
+              //dbg_mean_of(picked->policy > 4000);
+
               r++;
+          }
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
