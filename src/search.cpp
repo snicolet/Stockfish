@@ -1229,9 +1229,9 @@ moves_loop: // When in check, search starts from here
               //if (!ss->inCheck)
               //    dbg_mean_of(abs(picked->policy));
               // dbg_mean_of(abs(picked->policy / 1000));
-              // dbg_mean_of(picked->policy > 8000);
+              // dbg_mean_of(picked->policy > 5000);
 
-              if (picked->policy < 8000)
+              if (picked->policy > 5000)
                   r++;
           }
           
