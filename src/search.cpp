@@ -1234,6 +1234,12 @@ moves_loop: // When in check, search starts from here
                   
               r++;
           }
+          
+          bool extend =   picked->policy > 10000
+                       && (ss+1)->distanceFromPv <= 4;
+          //dbg_mean_of(extend);
+          if (extend)
+             r--;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
@@ -1248,10 +1254,7 @@ moves_loop: // When in check, search starts from here
               // Unless giving check, this capture is likely bad
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
-                  {
-                      if (picked->policy < 4000)
-                          r++;
-                  }
+                  r++;
           }
           else
           {
