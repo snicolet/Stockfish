@@ -1223,7 +1223,7 @@ moves_loop: // When in check, search starts from here
           // More reductions for late moves if position was not in previous PV
           if (   moveCountPruning 
               && !formerPv
-              && picked->policy < 5000)
+              && picked->policy < 4500)
           {
               // picked->policy < 10000 - 2000 * moveCount
               //dbg_mean_of(ss->inCheck);
