@@ -88,7 +88,7 @@ public:
   // FEN string input/output
   Position& set(const std::string& fenStr, bool isChess960, StateInfo* si, Thread* th);
   Position& set(const std::string& code, Color c, StateInfo* si);
-  std::string fen() const;
+  const std::string fen() const;
 
   // Position representation
   Bitboard pieces(PieceType pt) const;

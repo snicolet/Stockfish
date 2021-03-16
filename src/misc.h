@@ -28,10 +28,11 @@
 
 #include "types.h"
 
+
 namespace Stockfish {
 
-std::string engine_info(bool to_uci = false);
-std::string compiler_info();
+const std::string engine_info(bool to_uci = false);
+const std::string compiler_info();
 void prefetch(void* addr);
 void start_logger(const std::string& fname);
 void* std_aligned_alloc(size_t alignment, size_t size);
