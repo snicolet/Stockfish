@@ -1278,12 +1278,13 @@ moves_loop: // When in check, search starts from here
                   decrease += ss->statScore / 14790;
           }
 
-          //dbg_mean_of(decrease > increase);
+          // dbg_mean_of(increase >= decrease + 3);
 
-          if (decrease > increase && increase > 0)
-             increase++;
+          // if (decrease > increase && increase > 0)
+          //   increase++;
 
-          if (increase > decrease && decrease > 0)
+          if (   increase >= decrease + 2 
+              && decrease > 0)
              decrease++;
 
           r = r + increase - decrease;
