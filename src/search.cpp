@@ -1285,10 +1285,7 @@ moves_loop: // When in check, search starts from here
           assert(increase >= 0);
           assert(decrease >= 0);
 
-          increase = std::clamp(increase, 0, 4);
-          decrease = std::clamp(decrease, 0, 4);
-
-          r = r + increase - decrease;
+          r = r + 2 * increase - decrease;
 
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
