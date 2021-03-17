@@ -1277,10 +1277,16 @@ moves_loop: // When in check, search starts from here
               else
                   decrease += ss->statScore / 14790;
           }
-          
+
+          //dbg_mean_of(decrease > increase);
+
+          if (decrease > increase && increase > 0)
+             increase++;
+
+          //if (increase > decrease && decrease > 0)
+          //   increase++;
+
           r = r + increase - decrease;
-          
-          dbg_mean_of(r != 0);
 
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
