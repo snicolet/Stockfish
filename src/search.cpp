@@ -1285,8 +1285,8 @@ moves_loop: // When in check, search starts from here
           assert(increase >= 0);
           assert(decrease >= 0);
 
-          increase = std::clamp(increase, 0, 2);
-          decrease = std::clamp(decrease, 0, 2);
+          increase = std::clamp(increase, 0, 3);
+          decrease = std::clamp(decrease, 0, 3);
 
           r = r + increase - decrease;
 
