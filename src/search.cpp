@@ -1283,8 +1283,7 @@ moves_loop: // When in check, search starts from here
           // if (decrease > increase && increase > 0)
           //   increase++;
 
-          if (   increase >= decrease + 3 
-              && decrease > 0)
+          if (   increase >= decrease + 3 )
              decrease++;
 
           r = r + increase - decrease;
