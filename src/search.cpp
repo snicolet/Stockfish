@@ -1270,21 +1270,23 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               // If we are not in check use statScore, but if we are in check we use
               // the sum of main history and first continuation history with an offset.
+              int x;
               if (ss->inCheck)
-                  decrease +=  (  thisThread->mainHistory[us][from_to(move)]
+                  x =  (  thisThread->mainHistory[us][from_to(move)]
                                 + (*contHist[0])[movedPiece][to_sq(move)] 
                                 - 3833) / 16384;
               else
-                  decrease += ss->statScore / 14790;
+                  x = ss->statScore / 14790;
+            
+              if (x > 0) decrease += x;
+              if (x < 0) increase += (-x);
           }
+          
+          assert(increase >= 0);
+          assert(decrease >= 0);
 
-          // dbg_mean_of(increase >= decrease + 3);
-
-          // if (decrease > increase && increase > 0)
-          //   increase++;
-
-          if (   increase >= decrease + 2 )
-             decrease++;
+          increase = std::clamp(increase, 0, 2);
+          decrease = std::clamp(decrease, 0, 2);
 
           r = r + increase - decrease;
 
