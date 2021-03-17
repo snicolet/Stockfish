@@ -1280,11 +1280,11 @@ moves_loop: // When in check, search starts from here
 
           //dbg_mean_of(decrease > increase);
 
-          if (decrease > increase && increase > 0)
-             increase++;
-
-          //if (increase > decrease && decrease > 0)
+          //if (decrease > increase && increase > 0)
           //   increase++;
+
+          if (increase > decrease && decrease > 0)
+             decrease++;
 
           r = r + increase - decrease;
 
