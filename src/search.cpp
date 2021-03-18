@@ -1220,6 +1220,10 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 13)
               r--;
 
+          // Decrease reductions for nodes near pv
+          if ((ss+1)->distanceFromPv <= 4)
+              r--;
+
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
