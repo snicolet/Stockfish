@@ -1216,6 +1216,10 @@ moves_loop: // When in check, search starts from here
           if (moveCountPruning && !formerPv)
               r++;
 
+          // Increase reduction for moves which are far from the PV
+          if (abs((ss+1)->distanceFromPv - 20) <= 1)
+              r++;
+
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
               r--;
