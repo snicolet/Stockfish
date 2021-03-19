@@ -1277,7 +1277,8 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
-          int x = (ss+1)->distanceFromPv <= 4  ? newDepth + 1
+          int x = depth <= 10                  ? newDepth :
+                  (ss+1)->distanceFromPv <= 4  ? newDepth + 1
                                                : newDepth ;
           Depth d = std::clamp(newDepth - r, 1, x);
 
