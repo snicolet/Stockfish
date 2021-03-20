@@ -1279,7 +1279,7 @@ moves_loop: // When in check, search starts from here
           // close to the principal variation the cap is at (newDepth + 1), which will
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
           int x = (ss+1)->distanceFromPv <= 2 ? 2 :
-                  (ss+1)->distanceFromPv <= 5 ? 1 : 0;
+                  (ss+1)->distanceFromPv <= 4 ? 1 : 0;
           Depth d = std::clamp(newDepth - r, 1, newDepth + x);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
