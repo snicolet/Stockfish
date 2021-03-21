@@ -1002,7 +1002,7 @@ moves_loop: // When in check, search starts from here
                                       countermove,
                                       ss->killers,
                                       ss->ply,
-                                      ss->distanceFromPv <= 4);
+                                      ss->distanceFromPv <= 3);
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
