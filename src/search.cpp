@@ -606,7 +606,7 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture, singularQuietLMR;
+         ttCapture, singularQuietLMR, almostPvNode;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -619,6 +619,7 @@ namespace {
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
     ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
+    almostPvNode = ss->distanceFromPv <= 2;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
