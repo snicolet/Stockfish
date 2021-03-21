@@ -966,7 +966,7 @@ namespace {
     }
 
     // Step 10. If the position is not in TT, decrease depth by 2
-    if (   almostPvNode
+    if (   PvNode
         && depth >= 6
         && !ttMove)
         depth -= 2;
@@ -1418,7 +1418,7 @@ moves_loop: // When in check, search starts from here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (   (depth >= 3 || PvNode)
+    else if (   (depth >= 3 || almostPvNode)
              && !priorCapture)
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
