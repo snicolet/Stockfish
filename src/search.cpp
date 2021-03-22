@@ -894,7 +894,7 @@ namespace {
     // Step 9. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   ss->distanceFromPv >= 4
+    if (   ss->distanceFromPv >= 2
         && depth > 4
         && abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
