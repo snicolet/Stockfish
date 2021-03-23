@@ -1061,7 +1061,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning =   ss->distanceFromPv >= 2
+          moveCountPruning =   ss->distanceFromPv >= 3
                             && moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
