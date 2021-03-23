@@ -1227,7 +1227,7 @@ moves_loop: // When in check, search starts from here
           // Increase reduction for lines with many shuffling moves
           if (   pos.rule50_count() > 7
               && pos.non_pawn_material() >= RookValueEg
-              && depth <= 6)
+              && depth <= 5)
               r++;
 
           if (captureOrPromotion)
