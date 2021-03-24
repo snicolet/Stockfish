@@ -605,7 +605,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
+    bool captureOrPromotion, doFullDepthSearch, moveCountReduction,
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
@@ -1004,14 +1004,14 @@ moves_loop: // When in check, search starts from here
                                       ss->ply);
 
     value = bestValue;
-    singularQuietLMR = moveCountPruning = false;
+    singularQuietLMR = moveCountReduction = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
+    while ((move = mp.next_move()) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1061,7 +1061,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountReduction = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -1162,6 +1162,11 @@ moves_loop: // When in check, search starts from here
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
+      // MoveCount reduction
+      if (   moveCountReduction 
+          && !captureOrPromotion)
+          extension -= 3;
+
       // Add extension to new depth
       newDepth += extension;
 
@@ -1187,7 +1192,7 @@ moves_loop: // When in check, search starts from here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
-              || moveCountPruning
+              || moveCountReduction
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
@@ -1213,7 +1218,7 @@ moves_loop: // When in check, search starts from here
               r++;
 
           // More reductions for late moves if position was not in previous PV
-          if (moveCountPruning && !formerPv)
+          if (moveCountReduction && !formerPv)
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
