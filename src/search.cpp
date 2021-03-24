@@ -1163,10 +1163,9 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // MoveCount reduction if position was not in previous PV
-      if (   moveCountReduction 
-          && !captureOrPromotion
+      if (   moveCountReduction
           && !formerPv)
-          extension -= 3;
+          extension -= 4;
 
       // Add extension to new depth
       newDepth += extension;
