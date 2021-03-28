@@ -1092,9 +1092,11 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&]()
       {
          int material = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
+         int king_separation =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
          int scale =  641
                     + material / 32
-                    - 4 * pos.rule50_count();
+                    - 4 * pos.rule50_count()
+                    + 64 * (king_separation >= 4);
 
          Value nnue = NNUE::evaluate(pos) * scale / 1024 + Tempo;
 
