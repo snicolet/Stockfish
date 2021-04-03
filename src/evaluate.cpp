@@ -1041,38 +1041,38 @@ make_v:
 
   /// Fisher Random Chess: correction for cornered bishops, to fix chess960 play with NNUE
 
-  Value fix_FRC(const Position& pos) {
-
-    constexpr Bitboard Corners =  1ULL << SQ_A1 | 1ULL << SQ_H1 | 1ULL << SQ_A8 | 1ULL << SQ_H8;
-
-    if (!(pos.pieces(BISHOP) & Corners))
-        return VALUE_ZERO;
-
-    int correction = 0;
-
-    if (   pos.piece_on(SQ_A1) == W_BISHOP
-        && pos.piece_on(SQ_B2) == W_PAWN)
-        correction += !pos.empty(SQ_B3) ? -CorneredBishop * 4
-                                        : -CorneredBishop * 3;
-
-    if (   pos.piece_on(SQ_H1) == W_BISHOP
-        && pos.piece_on(SQ_G2) == W_PAWN)
-        correction += !pos.empty(SQ_G3) ? -CorneredBishop * 4
-                                        : -CorneredBishop * 3;
-
-    if (   pos.piece_on(SQ_A8) == B_BISHOP
-        && pos.piece_on(SQ_B7) == B_PAWN)
-        correction += !pos.empty(SQ_B6) ? CorneredBishop * 4
-                                        : CorneredBishop * 3;
-
-    if (   pos.piece_on(SQ_H8) == B_BISHOP
-        && pos.piece_on(SQ_G7) == B_PAWN)
-        correction += !pos.empty(SQ_G6) ? CorneredBishop * 4
-                                        : CorneredBishop * 3;
-
-    return pos.side_to_move() == WHITE ?  Value(correction)
-                                       : -Value(correction);
-  }
+//   Value fix_FRC(const Position& pos) {
+// 
+//     constexpr Bitboard Corners =  1ULL << SQ_A1 | 1ULL << SQ_H1 | 1ULL << SQ_A8 | 1ULL << SQ_H8;
+// 
+//     if (!(pos.pieces(BISHOP) & Corners))
+//         return VALUE_ZERO;
+// 
+//     int correction = 0;
+// 
+//     if (   pos.piece_on(SQ_A1) == W_BISHOP
+//         && pos.piece_on(SQ_B2) == W_PAWN)
+//         correction += !pos.empty(SQ_B3) ? -CorneredBishop * 4
+//                                         : -CorneredBishop * 3;
+// 
+//     if (   pos.piece_on(SQ_H1) == W_BISHOP
+//         && pos.piece_on(SQ_G2) == W_PAWN)
+//         correction += !pos.empty(SQ_G3) ? -CorneredBishop * 4
+//                                         : -CorneredBishop * 3;
+// 
+//     if (   pos.piece_on(SQ_A8) == B_BISHOP
+//         && pos.piece_on(SQ_B7) == B_PAWN)
+//         correction += !pos.empty(SQ_B6) ? CorneredBishop * 4
+//                                         : CorneredBishop * 3;
+// 
+//     if (   pos.piece_on(SQ_H8) == B_BISHOP
+//         && pos.piece_on(SQ_G7) == B_PAWN)
+//         correction += !pos.empty(SQ_G6) ? CorneredBishop * 4
+//                                         : CorneredBishop * 3;
+// 
+//     return pos.side_to_move() == WHITE ?  Value(correction)
+//                                        : -Value(correction);
+//   }
 
 } // namespace Eval
 
@@ -1089,22 +1089,22 @@ Value Eval::evaluate(const Position& pos) {
   else
   {
       // Scale and shift NNUE for compatibility with search and classical evaluation
-      auto  adjusted_NNUE = [&]()
-      {
-         int material = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         int scale =  641
-                    + material / 32
-                    - 4 * pos.rule50_count();
-
-         Value nnue = NNUE::evaluate(pos) * scale / 1024 + Tempo;
-
-         if (pos.is_chess960())
-             nnue += fix_FRC(pos);
-
-         return nnue;
-      };
+//       auto  adjusted_NNUE = [&]()
+//       {
+//          int material = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
+//          int scale =  641
+//                     + material / 32
+//                     - 4 * pos.rule50_count();
+// 
+//          Value nnue = NNUE::evaluate(pos) * scale / 1024 + Tempo;
+// 
+//          if (pos.is_chess960())
+//              nnue += fix_FRC(pos);
+// 
+//          return nnue;
+//       };
       
-      v = adjusted_NNUE();
+      v = NNUE::evaluate(pos);
   }
 
   // Damp down the evaluation linearly when shuffling
