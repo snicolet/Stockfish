@@ -1092,9 +1092,10 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&]()
       {
          int material = pos.non_pawn_material() + 4 * PawnValueMg * pos.count<PAWN>();
-         int scale =  580
-                    + material / 32
+         int scale =  200
+                    + material / 16
                     - 4 * pos.rule50_count();
+         scale = std::max(scale, 0);
 
          Value nnue = NNUE::evaluate(pos) * scale / 1024 + Tempo;
 
