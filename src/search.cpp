@@ -1231,7 +1231,7 @@ moves_loop: // When in check, search starts from here
           if (   pos.rule50_count() > 4
               && pos.non_pawn_material() >= RookValueEg
               && depth <= 6
-              && abs(ss->staticEval) > 30)
+              && abs(ss->staticEval) > 70)
               r++;
 
           if (captureOrPromotion)
