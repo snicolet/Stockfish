@@ -1095,7 +1095,7 @@ Value Eval::evaluate(const Position& pos) {
          int fullset =   (pos.count<QUEEN>()  >= 1)
                        + (pos.count<ROOK>()   >= 2)
                        + (pos.count<BISHOP>() + pos.count<KNIGHT>() >= 6);
-         int scale =  570
+         int scale =  590
                     + material / 32
                     + 128 * (fullset >= 3)
                     - 4 * pos.rule50_count();
