@@ -1094,9 +1094,9 @@ Value Eval::evaluate(const Position& pos) {
          int material = pos.non_pawn_material() + 4 * PawnValueMg * pos.count<PAWN>();
          int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                           + int(rank_of(pos.square<KING>(WHITE)) - rank_of(pos.square<KING>(BLACK)));
-         int scale =  635
+         int scale =  655
                     + material / 32
-                    + 8 * outflanking
+                    + 16 * outflanking
                     - 4 * pos.rule50_count();
 
          Value nnue = NNUE::evaluate(pos) * scale / 1024 + Tempo;
