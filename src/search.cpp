@@ -1220,6 +1220,13 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
+          // Increase reduction for lines with many shuffling moves
+          if (   pos.rule50_count() > 4
+              && pos.non_pawn_material() >= RookValueEg
+              && depth <= 6
+              && abs(ss->staticEval) > 70)
+              r++;
+
           if (captureOrPromotion)
           {
               // Increase reduction for non-checking captures likely to be bad
