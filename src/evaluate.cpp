@@ -1103,7 +1103,16 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         Value nnue = NNUE::evaluate(pos) + Time.tempoNNUE;
+         int material = pos.non_pawn_material();
+         int pawns    = pos.count<PAWN>();
+
+         int scale =  970
+                     + 32 * material / 1024
+                     + 17 * pawns;
+
+         // dbg_mean_of(scale);
+
+         Value nnue = NNUE::evaluate(pos) * scale / 1024 + Time.tempoNNUE;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
@@ -1123,7 +1132,7 @@ Value Eval::evaluate(const Position& pos) {
       bool lowPieceEndgame =   pos.non_pawn_material() == BishopValueMg
                             || (pos.non_pawn_material() < 2 * RookValueMg && pos.count<PAWN>() < 2);
 
-      v = classical || lowPieceEndgame ? Evaluation<NO_TRACE>(pos).value()
+      v = classical || lowPieceEndgame ? Evaluation<NO_TRACE>(pos).value() 
                                        : adjusted_NNUE();
 
       // If the classical eval is small and imbalance large, use NNUE nevertheless.
