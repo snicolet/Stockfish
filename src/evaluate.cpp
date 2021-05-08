@@ -1108,8 +1108,7 @@ Value Eval::evaluate(const Position& pos) {
          int r50count = pos.rule50_count();
       
      //  int scale = 775 + material / 32 + 16 * pawns - 4 * r50count;
-         int scale = 1050 + material / 16 + 32 * pawns - 4 * r50count;
-
+         int scale = std::max(0, 200 + material / 16 + 32 * pawns - 4 * r50count);
 
          //int material = pos.non_pawn_material() + 4 * PawnValueMg * pos.count<PAWN>();
          //int scale    =  580
