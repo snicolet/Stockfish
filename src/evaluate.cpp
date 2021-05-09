@@ -1109,7 +1109,7 @@ Value Eval::evaluate(const Position& pos) {
 
          int scale = 200 + 96 * material / 1024 + 48 * pawns - 4 * r50count;
 
-         scale = std::max(800, scale);
+         scale = std::clamp(scale, 800, 2200);
         
          // dbg_mean_of(scale);
 
