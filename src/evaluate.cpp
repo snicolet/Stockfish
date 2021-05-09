@@ -1106,15 +1106,10 @@ Value Eval::evaluate(const Position& pos) {
          int material = pos.non_pawn_material();
          int pawns    = pos.count<PAWN>();
          int r50count = pos.rule50_count();
-      
-     //  int scale = 775 + material / 32 + 16 * pawns - 4 * r50count;
-         int scale = 550 + material / 16 + 32 * pawns - 4 * r50count;
 
+         int scale = 200 + 96 * material / 1024 + 48 * pawns - 4 * r50count;
 
-         //int material = pos.non_pawn_material() + 4 * PawnValueMg * pos.count<PAWN>();
-         //int scale    =  580
-         //              + material / 32
-         //              - 4 * pos.rule50_count();
+         scale = std::max(0, scale);
         
          // dbg_mean_of(scale);
 
