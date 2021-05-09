@@ -1107,11 +1107,11 @@ Value Eval::evaluate(const Position& pos) {
          int pawns    = pos.count<PAWN>();
          int r50count = pos.rule50_count();
 
-         int scale = 200 + 96 * material / 1024 + 48 * pawns - 4 * r50count;
+         int scale = -200 + 128 * material / 1024 + 64 * pawns - 4 * r50count;
 
          scale = std::max(0, scale);
         
-         // dbg_mean_of(scale);
+         dbg_mean_of(scale);
 
          Value nnue = NNUE::evaluate(pos) * scale / 1024 + Time.tempoNNUE;
 
