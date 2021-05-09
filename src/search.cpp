@@ -590,7 +590,7 @@ namespace {
     // but try to evaluate as far as possible with the same side to move.
     if (depth <= 0)
         return qsearch<NT>(pos, ss, alpha, beta);
-    if (depth <= 1 && (ss->ply & 1) == 0)
+    if (depth <= 1 && (ss->ply & 1) == 1)
         return qsearch<NT>(pos, ss, alpha, beta);
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
