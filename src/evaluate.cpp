@@ -1089,6 +1089,11 @@ make_v:
 } // namespace Eval
 
 
+int bucketWeight[8] = {128, 128, 128, 128, 128, 128, 128, 128};
+
+TUNE(bucketWeight);
+
+
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
@@ -1105,10 +1110,13 @@ Value Eval::evaluate(const Position& pos) {
       {
          int material = pos.non_pawn_material();
          int pawns    = pos.count<PAWN>();
+         int bucket   = (popcount(pos.pieces()) - 1) / 4;
 
          int scale =  970
                      + 32 * material / 1024
                      + 17 * pawns;
+
+         scale = scale * bucketWeight[bucket] / 128;
 
          // dbg_mean_of(scale);
 
