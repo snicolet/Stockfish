@@ -1089,8 +1089,10 @@ make_v:
 } // namespace Eval
 
 
-int averageScale[8] = {1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024};
-TUNE(averageScale);
+//int averageScale[8] = {1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024};
+//TUNE(averageScale);
+int averageScale[8] = {1021, 987, 1012, 1020, 1032, 1107, 1078, 1078};
+
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
