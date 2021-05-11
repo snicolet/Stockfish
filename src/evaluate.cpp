@@ -1089,7 +1089,11 @@ make_v:
 } // namespace Eval
 
 
-int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};
+
+int offset[8] = {503, -333, 2023, 570, 1077, 1908, 1581, 4630};    // offset for scale in each bucket
+int p_coeff[8] = {417, 265, -54, 116, 89, 20, 36, -93};            // pawn weight for scale in each bucket
+int m_coeff[8] = {-114, 348, -3, 118, 74, 63, 69, -7};             // material weight for scale in each bucket
+int tempo[8] = {6, -7, -37, -47, -52, -47, -54, 5};                // tempo correction for each bucket
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
@@ -1106,19 +1110,19 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
+         Value nnue   = NNUE::evaluate(pos);
+
          int material = pos.non_pawn_material();
          int pawns    = pos.count<PAWN>();
          int bucket   = (popcount(pos.pieces()) - 1) / 4;
 
-         int scale =  970
-                     + 32 * material / 1024
-                     + 17 * pawns;
-
-         scale = scale * bucketWeight[bucket] / 128;
+         int scale =    offset[bucket] 
+                     + m_coeff[bucket] * material / 1024 
+                     + p_coeff[bucket] * pawns;
 
          // dbg_mean_of(scale);
 
-         Value nnue = NNUE::evaluate(pos) * scale / 1024 + Time.tempoNNUE;
+         nnue = nnue * scale / 2048 + tempo[bucket] + Time.tempoNNUE;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
