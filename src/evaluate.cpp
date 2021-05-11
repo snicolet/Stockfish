@@ -1089,7 +1089,7 @@ make_v:
 } // namespace Eval
 
 
-int averageScale[8] = {1400, 1400, 1400, 1400, 1400, 1400, 1400, 1400};
+int averageScale[8] = {1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024};
 TUNE(averageScale);
 
 
