@@ -1091,8 +1091,8 @@ make_v:
 
 
 int offset[8] = {503, -333, 2023, 570, 1077, 1908, 1581, 4630};    // offset for scale in each bucket
-int p_coeff[8] = {417, 265, -54, 116, 89, 20, 36, -93};            // pawn weight for scale in each bucket
-int m_coeff[8] = {-114, 348, -3, 118, 74, 63, 69, -7};             // material weight for scale in each bucket
+int p_coeff[8] = {-114, 348, -3, 118, 74, 63, 69, -7};             // pawn weight for scale in each bucket
+int m_coeff[8] = {417, 265, -54, 116, 89, 20, 36, -93};            // material weight for scale in each bucket
 int tempo[8] = {6, -7, -37, -47, -52, -47, -54, 5};                // tempo correction for each bucket
 
 
