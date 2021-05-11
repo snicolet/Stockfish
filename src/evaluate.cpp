@@ -1089,9 +1089,7 @@ make_v:
 } // namespace Eval
 
 
-int bucketWeight[8] = {128, 128, 128, 128, 128, 128, 128, 128};
-
-TUNE(bucketWeight);
+int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
