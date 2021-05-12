@@ -1112,6 +1112,9 @@ Value Eval::evaluate(const Position& pos) {
          int   bucket   = (popcount(pos.pieces()) - 1) / 4;
          Score c        = (pos.side_to_move() == WHITE ? pos.this_thread()->contempt : -pos.this_thread()->contempt);
          Value contempt = mg_value(c) / 2;
+         
+         if (contempt > 0)
+            contempt = Value(0);
 
          int scale =  970
                      + 32 * material / 1024
