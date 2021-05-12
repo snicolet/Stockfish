@@ -1115,12 +1115,11 @@ Value Eval::evaluate(const Position& pos) {
 
          int scale =  970
                      + 32 * material / 1024
-                     + 17 * pawns
-                     -  4 * pos.rule50_count();
+                     + 17 * pawns;
 
          scale = scale * bucketWeight[bucket] / 128;
 
-         nnue = (nnue - contempt) * scale / 1024 + Time.tempoNNUE / 2;
+         nnue = (nnue - contempt) * scale / 1024 + Time.tempoNNUE;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
