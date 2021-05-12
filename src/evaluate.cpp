@@ -1120,7 +1120,7 @@ Value Eval::evaluate(const Position& pos) {
 
          scale = scale * bucketWeight[bucket] / 128;
 
-         nnue = nnue * scale / 1024 + Time.tempoNNUE - contempt;
+         nnue = (nnue - contempt) * scale / 1024 + Time.tempoNNUE;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
