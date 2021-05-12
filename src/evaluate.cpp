@@ -1113,9 +1113,9 @@ Value Eval::evaluate(const Position& pos) {
          Score c        = (pos.side_to_move() == WHITE ? pos.this_thread()->contempt : -pos.this_thread()->contempt);
          Value contempt = mg_value(c) / 2;
 
-         int scale =  1070
+         int scale =  925
                      + 30 * material / 1024
-                     +  8 * pawns
+                     + 26 * pawns
                      -  4 * pos.rule50_count();
 
          scale = scale * bucketWeight[bucket] / 128;
