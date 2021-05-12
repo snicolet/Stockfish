@@ -1089,7 +1089,7 @@ make_v:
 } // namespace Eval
 
 
-int bucketWeight[8] = {121, 134, 133, 127, 128, 141, 144, 152};
+int bucketWeight[8] = {120, 130, 133, 126, 127, 140, 145, 152};
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
@@ -1119,6 +1119,8 @@ Value Eval::evaluate(const Position& pos) {
                      -  4 * pos.rule50_count();
 
          scale = scale * bucketWeight[bucket] / 128;
+
+
 
          nnue = (nnue - contempt) * scale / 1024;
 
