@@ -1110,15 +1110,17 @@ Value Eval::evaluate(const Position& pos) {
          int   material = pos.non_pawn_material();
          int   pawns    = pos.count<PAWN>();
          int   bucket   = (popcount(pos.pieces()) - 1) / 4;
+         Score c        = (pos.side_to_move() == WHITE ? pos.this_thread()->contempt : -pos.this_thread()->contempt);
+         Value contempt = mg_value(c);
 
          int scale =  970
                      + 32 * material / 1024
                      + 17 * pawns
-                     -  5 * pos.rule50_count();
+                     -  4 * pos.rule50_count();
 
          scale = scale * bucketWeight[bucket] / 128;
 
-         nnue = (nnue - 36) * scale / 1024 + Time.tempoNNUE;
+         nnue = (nnue - 36 + contempt) * scale / 1024 + Time.tempoNNUE;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
