@@ -1110,8 +1110,6 @@ Value Eval::evaluate(const Position& pos) {
          int   material = pos.non_pawn_material();
          int   pawns    = pos.count<PAWN>();
          int   bucket   = (popcount(pos.pieces()) - 1) / 4;
-         Score c        = (pos.side_to_move() == WHITE ? pos.this_thread()->contempt : -pos.this_thread()->contempt);
-         Value contempt = mg_value(c) / 2;
 
          int scale =  970
                      + 32 * material / 1024
@@ -1122,7 +1120,7 @@ Value Eval::evaluate(const Position& pos) {
 
          // dbg_mean_of(scale);
 
-         nnue = (nnue - abs(contempt)) * scale / 1024;
+         nnue = (nnue - 28) * scale / 1024 + 28;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
