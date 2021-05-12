@@ -1113,7 +1113,7 @@ Value Eval::evaluate(const Position& pos) {
          Score c        = (pos.side_to_move() == WHITE ? pos.this_thread()->contempt : -pos.this_thread()->contempt);
          Value contempt = mg_value(c) / 2;
          
-         if (contempt > 0)
+         if (contempt < 0)
             contempt = Value(0);
 
          int scale =  970
