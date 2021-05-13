@@ -1089,10 +1089,11 @@ make_v:
 } // namespace Eval
 
 
-// int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};  // values after 17% of the LTC tune. Bench : 3262269   Elo = -0.67
-// int bucketWeight[8] = {122, 132, 133, 126, 126, 141, 140, 153};  // values after 27% of the LTC tune. Bench : 3679857   Elo = -3.24
+   int bucketWeight[8] = {116, 142, 117, 128, 128, 139, 138, 159};  // values extrapolated (v1) by hand from VLTC. Bench : 3456098
 
-   int bucketWeight[8] = {122, 132, 133, 126, 126, 141, 140, 153};  // values after 27% of the LTC tune. Bench : 3679857
+// int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};  // values after 17% of the LTC tune. Bench : 3262269   Elo = -0.67
+// int bucketWeight[8] = {122, 132, 133, 126, 126, 141, 140, 153};  // values after 27% of the LTC tune. Bench : 3679857   Elo = -3.04
+   
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
