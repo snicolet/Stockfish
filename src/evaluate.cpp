@@ -1089,7 +1089,10 @@ make_v:
 } // namespace Eval
 
 
-int bucketWeight[8] = {122, 132, 133, 126, 126, 141, 140, 153};
+// int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};  // values after 17% of the LTC tune. Bench : 3262269   Elo = -0.67
+// int bucketWeight[8] = {122, 132, 133, 126, 126, 141, 140, 153};  // values after 27% of the LTC tune. Bench : 3679857   Elo = -3.24
+
+   int bucketWeight[8] = {122, 132, 133, 126, 126, 141, 140, 153};  // values after 27% of the LTC tune. Bench : 3679857
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
@@ -1112,8 +1115,7 @@ Value Eval::evaluate(const Position& pos) {
 
          int scale =  970
                      + 32 * material / 1024
-                     + 17 * pawns
-                     -  4 * pos.rule50_count();
+                     + 17 * pawns;
 
          scale = scale * bucketWeight[bucket] / 128;
 
