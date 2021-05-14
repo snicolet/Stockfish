@@ -1095,20 +1095,25 @@ make_v:
                                        : -Value(correction);
   }
 
+
+  /// Simple material count, such that SimpleEval(pos) = SimpleEval(pos, WHITE) - SimpleEval(pos, BLACK);
+
+  int SimpleEval(const Position& pos, Color c) {
+
+    return   9 * pos.count<QUEEN>(c)
+           + 5 * pos.count<ROOK>(c)
+           + 3 * pos.count<BISHOP>(c)
+           + 3 * pos.count<KNIGHT>(c)
+           +     pos.count<PAWN>(c);
+  }
+
+
 } // namespace Eval
 
-// int bucketWeight[8] = {116, 119, 122, 128, 128, 139, 138, 159};  // smooth values by hand.                                    Bench : 3908308   Elo = -2.24
-// int bucketWeight[8] = {116, 142, 117, 128, 128, 139, 138, 159};  // values extrapolated (v1) by hand from VLTC                Bench : 3456098   Elo = ?
-// int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};  // values after 17% of the LTC tune.                         Bench : 3262269   Elo = -0.67
-// int bucketWeight[8] = {122, 132, 133, 126, 126, 141, 140, 153};  // values after 27% of the LTC tune.                         Bench : 3679857   Elo = -3.04
-// int bucketWeight[8] = {110, 146, 122, 126, 126, 152, 150, 165};  // values extrapolated (v2) by hand from VLTC                Bench : 3828025   Elo = ?
-// int bucketWeight[8] = {110,  70, 122, 126, 126, 152, 150, 165};  // values extrapolated (v3) by hand from VLTC                Bench : 3406750   Elo = ?
-// int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};  // values after 17% of the LTC tune, remove tempo from nuue  Bench : 3605577   Elo = ?
-
-int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};  // values after 17% of the LTC tune, use Tempo / 2     Bench : 3218323   Elo = 0.81...
 
 
-TUNE(SetRange(0,256), bucketWeight);
+int bucketBase[8] = {975, 975, 975, 975, 975, 975, 975, 975};   // Bench: 3290399
+
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
@@ -1126,18 +1131,16 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&]()
       {
          Value nnue   = NNUE::evaluate(pos);
+         
+         int material = clamp(SimpleEval(pos, WHITE) + SimpleEval(pos, BLACK), 0, 78);   // material with SimpleEval() formula, can be [0..78]
+         int f        = (material + 78) * (material - 78) / 78 + 78 ;
+         int bucket   = f / 10;
 
-         int material = pos.non_pawn_material();
-         int pawns    = pos.count<PAWN>();
-         int bucket   = (popcount(pos.pieces()) - 1) / 4;
-
-         int scale =  970
-                     + 32 * material / 1024
-                     + 17 * pawns;
-
-         scale = scale * bucketWeight[bucket] / 128;
-
-         // dbg_mean_of(scale);
+         assert( 0 <= material && material <= 78);
+         assert( 0 <= f        && f        <= 78);
+         assert( 0 <= bucket   && bucket   <= 7 );
+         
+         int scale = bucketBase[bucket] + 10 * material;
 
          nnue = nnue * scale / 1024;
 
