@@ -1116,7 +1116,7 @@ Value Eval::evaluate(const Position& pos) {
 
          int scale = param1 + param2 * pos.count<PAWN>() + param3 * pos.non_pawn_material() / 1024;
 
-         Value nnue = NNUE::evaluate(pos) * scale / 1024 + Time.tempoNNUE;
+         Value nnue = NNUE::evaluate(pos) * scale / 1024;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
