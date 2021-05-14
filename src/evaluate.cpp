@@ -1114,6 +1114,7 @@ make_v:
 
 int bucketBase[8] = {975, 975, 975, 975, 975, 975, 975, 975};   // Bench: 3290399
 
+TUNE(SetRange(500, 1500), bucketBase);
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
