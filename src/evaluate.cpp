@@ -1109,7 +1109,7 @@ make_v:
 // TUNE(SetRange(0,256), bucketWeight);
 
 
-int bucketWeight[8] = {116, 138, 133, 124, 127, 136, 143, 150};  // values after 5% of the LTC tune for new net      Bench : 3059042   Elo = ???
+int bucketWeight[8] = {116, 138, 133, 124, 127, 136, 143, 150};  // values after 5% of the LTC tune for new net      Bench : 4427747   Elo = 5.49 at LTC
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
@@ -1135,7 +1135,7 @@ Value Eval::evaluate(const Position& pos) {
          int scale =  970
                      + 32 * material / 1024
                      + 17 * pawns
-                     - 10 * pos.rule50_count();
+                     -  6 * pos.rule50_count();
 
          scale = scale * bucketWeight[bucket] / 128;
 
