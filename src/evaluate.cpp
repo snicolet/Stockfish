@@ -1111,11 +1111,8 @@ make_v:
 } // namespace Eval
 
 
-
-int bucketBase[8] = {975, 975, 975, 975, 975, 975, 975, 975};   // Bench: 3290399
-
-TUNE(SetRange(500, 1500), bucketBase);
-
+// int bucketBase[8] = {975, 975, 975, 975, 975, 975, 975, 975};   // Bench: 3290399
+// TUNE(SetRange(500, 1500), bucketBase);
 
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
@@ -1135,13 +1132,15 @@ Value Eval::evaluate(const Position& pos) {
          
          int material = clamp(SimpleEval(pos, WHITE) + SimpleEval(pos, BLACK), 0, 78);   // material with SimpleEval() formula, can be [0..78]
          int f        = (material + 78) * (material - 78) / 78 + 78 ;
-         int bucket   = f / 10;
+         //int bucket   = f / 10;
 
          assert( 0 <= material && material <= 78);
          assert( 0 <= f        && f        <= 78);
          assert( 0 <= bucket   && bucket   <= 7 );
          
-         int scale = bucketBase[bucket] + 10 * material;
+         int scale = 930 + 11 * f / 10 + 10 * material;
+         
+         //dbg_mean_of(scale);
 
          nnue = nnue * scale / 1024;
 
