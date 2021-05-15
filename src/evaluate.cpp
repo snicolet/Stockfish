@@ -1138,7 +1138,10 @@ Value Eval::evaluate(const Position& pos) {
          assert( 0 <= f        && f        <= 78);
          assert( 0 <= bucket   && bucket   <= 7 );
          
-         int scale = 930 + 11 * f / 10 + 10 * material;
+         int scale =   930 
+                     + 11 * f / 10 
+                     + 10 * material
+                     - 14 * pos.rule50_count();
          
          //dbg_mean_of(scale);
 
