@@ -1097,19 +1097,19 @@ make_v:
 
 } // namespace Eval
 
-// int bucketWeight[8] = {116, 119, 122, 128, 128, 139, 138, 159};  // smooth values by hand.                                    Bench : 3908308   Elo = -2.24
-// int bucketWeight[8] = {116, 142, 117, 128, 128, 139, 138, 159};  // values extrapolated (v1) by hand from VLTC                Bench : 3456098   Elo = ?
-// int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};  // values after 17% of the LTC tune.                         Bench : 3262269   Elo = -0.67
-// int bucketWeight[8] = {122, 132, 133, 126, 126, 141, 140, 153};  // values after 27% of the LTC tune.                         Bench : 3679857   Elo = -3.04
-// int bucketWeight[8] = {110, 146, 122, 126, 126, 152, 150, 165};  // values extrapolated (v2) by hand from VLTC                Bench : 3828025   Elo = ?
-// int bucketWeight[8] = {110,  70, 122, 126, 126, 152, 150, 165};  // values extrapolated (v3) by hand from VLTC                Bench : 3406750   Elo = ?
-// int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};  // values after 17% of the LTC tune, remove tempo from nuue  Bench : 3605577   Elo = ?
 
-// int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};  // values after 17% of the LTC tune, use Tempo / 2     Bench : 3218323   Elo = 0.81...
-// TUNE(SetRange(0,256), bucketWeight);
+// We tune the deltas of the model coefficients
 
+int A0 = 0;
+int A1 = 0;
+int A2 = 0;
+int A3 = 0;
+int B0 = 0;
+int B1 = 0;
 
-// int bucketWeight[8] = {116, 138, 133, 124, 127, 136, 143, 150};  // values after 5% of the LTC tune for new net      Bench : 4427747   Elo = 5.49 at LTC
+TUNE(SetRange(-128, 128), A0, B0);
+TUNE(SetRange(-30, 30), A1, A2, A3, B1);
+
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
@@ -1133,35 +1133,19 @@ Value Eval::evaluate(const Position& pos) {
          int pieces   = pos.count<ALL_PIECES>();
          
 
-         int scale =  970
-                     + 32 * material / 1024
-                     + 17 * pawns
-                     - 14 * pos.rule50_count();
+         int scale1 = (970 + A0)
+                     + (32 + A1) * material / 1024
+                     + (17 + A2) * pawns
+                     - (14 + A3) * pos.rule50_count();
                      
-         // int bucket   = (pieces - 1) / 4;
-         // int bucketWeight[8] = {116, 138, 133, 124, 127, 136, 143, 150};
-         // scale = scale * bucketWeight[bucket] / 128;
-         
-         
-         
-         // int pieces_scale = 117 + 5 * pieces / 4;
-         // scale = scale * pieces_scale / 128;
-         
-         // int pieces_scale = (468 + 5 * pieces) / 4;
-         // scale = scale * pieces_scale / 128;
-         
-         // int pieces_scale = 468 + 5 * pieces;
-         // scale = scale * pieces_scale / 512;
-         
-         // int pieces_scale = 936 + 10 * pieces;
-         // scale = scale * pieces_scale / 1024;
-         
-         int pieces_scale = 900 + 10 * pieces;
-         scale = scale * pieces_scale / 1024;
+         int scale2 = (900 + B0)
+                     + (10 + B1) * pieces;
 
-         // dbg_mean_of(scale);
 
-         nnue = nnue * scale / 1024;
+         // dbg_mean_of(scale1);
+         // dbg_mean_of(scale2);
+
+         nnue = nnue * (scale1 * scale2 / 1024) / 1024;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
