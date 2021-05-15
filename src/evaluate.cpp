@@ -1109,7 +1109,7 @@ make_v:
 // TUNE(SetRange(0,256), bucketWeight);
 
 
-int bucketWeight[8] = {116, 138, 133, 124, 127, 136, 143, 150};  // values after 5% of the LTC tune for new net      Bench : 4427747   Elo = 5.49 at LTC
+// int bucketWeight[8] = {116, 138, 133, 124, 127, 136, 143, 150};  // values after 5% of the LTC tune for new net      Bench : 4427747   Elo = 5.49 at LTC
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
@@ -1130,14 +1130,34 @@ Value Eval::evaluate(const Position& pos) {
 
          int material = pos.non_pawn_material();
          int pawns    = pos.count<PAWN>();
-         int bucket   = (popcount(pos.pieces()) - 1) / 4;
+         int pieces   = pos.count<ALL_PIECES>();
+         
 
          int scale =  970
                      + 32 * material / 1024
                      + 17 * pawns
-                     -  6 * pos.rule50_count();
-
-         scale = scale * bucketWeight[bucket] / 128;
+                     - 14 * pos.rule50_count();
+                     
+         // int bucket   = (pieces - 1) / 4;
+         // int bucketWeight[8] = {116, 138, 133, 124, 127, 136, 143, 150};
+         // scale = scale * bucketWeight[bucket] / 128;
+         
+         
+         
+         // int pieces_scale = 117 + 5 * pieces / 4;
+         // scale = scale * pieces_scale / 128;
+         
+         // int pieces_scale = (468 + 5 * pieces) / 4;
+         // scale = scale * pieces_scale / 128;
+         
+         // int pieces_scale = 468 + 5 * pieces;
+         // scale = scale * pieces_scale / 512;
+         
+         // int pieces_scale = 936 + 10 * pieces;
+         // scale = scale * pieces_scale / 1024;
+         
+         int pieces_scale = 900 + 10 * pieces;
+         scale = scale * pieces_scale / 1024;
 
          // dbg_mean_of(scale);
 
