@@ -1136,14 +1136,14 @@ Value Eval::evaluate(const Position& pos) {
 
          assert( 0 <= material && material <= 78);
          assert( 0 <= f        && f        <= 78);
-         assert( 0 <= bucket   && bucket   <= 7 );
+         //assert( 0 <= bucket   && bucket   <= 7 );
          
-         int scale =   930 
-                     + 11 * f / 10 
+         int scale =   1024
+                     + 141 * f / 128
                      + 10 * material
                      - 14 * pos.rule50_count();
          
-         //dbg_mean_of(scale);
+         // dbg_mean_of(scale);
 
          nnue = nnue * scale / 1024;
 
