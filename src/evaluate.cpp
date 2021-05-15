@@ -1138,7 +1138,7 @@ Value Eval::evaluate(const Position& pos) {
          assert( 0 <= f        && f        <= 78);
          //assert( 0 <= bucket   && bucket   <= 7 );
          
-         int scale =   1024
+         int scale =   880
                      + 141 * f / 128
                      + 10 * material
                      - 14 * pos.rule50_count();
