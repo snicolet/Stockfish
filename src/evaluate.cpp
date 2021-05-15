@@ -1136,7 +1136,7 @@ Value Eval::evaluate(const Position& pos) {
          int scale =  970
                      + 32 * material / 1024
                      + 17 * pawns
-                     - 14 * pos.rule50_count();
+                     - 10 * pos.rule50_count();
                      
          // int bucket   = (pieces - 1) / 4;
          // int bucketWeight[8] = {116, 138, 133, 124, 127, 136, 143, 150};
