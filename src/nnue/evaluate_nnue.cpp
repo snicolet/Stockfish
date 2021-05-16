@@ -158,15 +158,21 @@ namespace Stockfish::Eval::NNUE {
     ASSERT_ALIGNED(buffer, alignment);
 
     std::size_t bucket = (popcount(pos.pieces()) - 1) / 4;
-    if (bucket == 0)
-      bucket = 1;
 
     const auto [psqt, lazy] = featureTransformer->transform(pos, transformedFeatures, bucket);
-    if (lazy) {
+    if (lazy) 
+    {
       return static_cast<Value>(psqt / OutputScale);
-    } else {
-      const auto output = network[bucket]->propagate(transformedFeatures, buffer);
-      return static_cast<Value>((output[0] + psqt) / OutputScale);
+    } 
+    else 
+    {
+      int output_0 =               (network[bucket  ]->propagate(transformedFeatures, buffer))[0] ;
+      int output_1 =  bucket > 0 ? (network[bucket-1]->propagate(transformedFeatures, buffer))[0] : output_0;
+      int output_2 =  bucket < 7 ? (network[bucket+1]->propagate(transformedFeatures, buffer))[0] : output_0;
+      
+      int smoothed = (56 * output_0 + 4 * output_1 + 4 * output_2) / 64;
+      
+      return static_cast<Value>((smoothed + psqt) / OutputScale);
     }
   }
 
