@@ -1114,13 +1114,13 @@ make_v:
 // TUNE(SetRange(-30, 30), A1, A2, A3);
 
 
-// Result of tuning "Tune with SetRange(-30,30) for A1,A2,A3,B1" after 107 on the horizontal axis
-int A0 = 6;
-int A1 = 1;
-int A2 = 5;
-int A3 = -5;
-int B0 = 3;
-int B1 = 2;
+// Result of tuning Result of tuning "Tune only A0,A1,A2,A3"
+int A0 = 15;
+int A1 = 3;
+int A2 = 0;
+int A3 = -8;
+int B0 = 0;
+int B1 = 0;
 
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
