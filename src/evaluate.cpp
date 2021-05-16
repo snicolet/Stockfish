@@ -1118,7 +1118,7 @@ make_v:
 int A0 = 13;
 int A1 = 1;
 int A2 = 4;
-int A3 = -8;
+int A3 = 0;
 int B0 = 5;
 int B1 = 2;
 
