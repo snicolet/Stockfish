@@ -1107,7 +1107,8 @@ int A3 = 0;
 int B0 = 0;
 int B1 = 0;
 
-TUNE(SetRange(-128, 128), A0, A1, A2, A3, B0, B1);
+TUNE(SetRange(-128, 128), A0, B0);
+TUNE(SetRange(-10, 10), A1, A2, A3, B1);
 
 
 
