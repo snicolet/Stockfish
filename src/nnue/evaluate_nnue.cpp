@@ -170,7 +170,7 @@ namespace Stockfish::Eval::NNUE {
       int output_1 =  bucket > 0 ? (network[bucket-1]->propagate(transformedFeatures, buffer))[0] : output_0;
       int output_2 =  bucket < 7 ? (network[bucket+1]->propagate(transformedFeatures, buffer))[0] : output_0;
       
-      int smoothed = (56 * output_0 + 4 * output_1 + 4 * output_2) / 64;
+      int smoothed = (2 * output_0 + output_1 + output_2) / 4;
       
       return static_cast<Value>((smoothed + psqt) / OutputScale);
     }
