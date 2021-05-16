@@ -1107,9 +1107,11 @@ int A3 = 0;
 int B0 = 0;
 int B1 = 0;
 
-TUNE(SetRange(-128, 128), A0, B0);
-TUNE(SetRange(-30, 30), A1, A2, A3, B1);
+// TUNE(SetRange(-128, 128), A0, B0);
+// TUNE(SetRange(-30, 30), A1, A2, A3, B1);
 
+TUNE(SetRange(-128, 128), A0);
+TUNE(SetRange(-30, 30), A1, A2, A3);
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
