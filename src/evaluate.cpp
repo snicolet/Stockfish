@@ -1104,12 +1104,13 @@ make_v:
 // int bucketWeight[8] = {110, 146, 122, 126, 126, 152, 150, 165};  // values extrapolated (v2) by hand from VLTC                Bench : 3828025   Elo = ?
 // int bucketWeight[8] = {110,  70, 122, 126, 126, 152, 150, 165};  // values extrapolated (v3) by hand from VLTC                Bench : 3406750   Elo = ?
 // int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};  // values after 17% of the LTC tune, remove tempo from nuue  Bench : 3605577   Elo = ?
+// int bucketWeight[8] = {116, 138, 133, 124, 127, 136, 143, 150};  // values after 5% of the LTC tune for new net               Bench : 4427747   Elo = 5.49 at LTC
 
 // int bucketWeight[8] = {119, 137, 125, 127, 127, 140, 139, 156};  // values after 17% of the LTC tune, use Tempo / 2     Bench : 3218323   Elo = 0.81...
 // TUNE(SetRange(0,256), bucketWeight);
 
 
-int bucketWeight[8] = {116, 138, 133, 124, 127, 136, 143, 150};  // values after 5% of the LTC tune for new net      Bench : 4427747   Elo = 5.49 at LTC
+int bucketWeight[8] = {128, 128, 128, 128, 128, 128, 128, 128};
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
