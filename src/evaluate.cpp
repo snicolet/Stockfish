@@ -1095,19 +1095,6 @@ make_v:
                                        : -Value(correction);
   }
 
-
-  /// Simple material count, such that SimpleEval(pos) = SimpleEval(pos, WHITE) - SimpleEval(pos, BLACK);
-
-  int SimpleEval(const Position& pos, Color c) {
-
-    return   9 * pos.count<QUEEN>(c)
-           + 5 * pos.count<ROOK>(c)
-           + 3 * pos.count<BISHOP>(c)
-           + 3 * pos.count<KNIGHT>(c)
-           +     pos.count<PAWN>(c);
-  }
-
-
 } // namespace Eval
 
 
@@ -1127,23 +1114,7 @@ Value Eval::evaluate(const Position& pos) {
       {
          Value nnue   = NNUE::evaluate(pos);
          
-         int material = clamp(SimpleEval(pos, WHITE) + SimpleEval(pos, BLACK), 0, 78);   // material with SimpleEval() formula, can be [0..78]
-         int f        = (material + 78) * (material - 78) / 78 + 78 ;
-         //int bucket   = f / 10;
-
-         assert( 0 <= material && material <= 78);
-         assert( 0 <= f        && f        <= 78);
-         //assert( 0 <= bucket   && bucket   <= 7 );
-         
-         int scale =   975
-                     + 141 * f / 128
-                     + 10 * material
-                     - 14 * pos.rule50_count();
-        
-         // Do not use scale less than 10/1024
-         scale = std::max(scale, 10);
-         
-         // dbg_mean_of(scale);
+         int scale = 1500;
 
          nnue = nnue * scale / 1024;
 
