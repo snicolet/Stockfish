@@ -1114,12 +1114,12 @@ make_v:
 // TUNE(SetRange(-30, 30), A1, A2, A3);
 
 
-long A0 = 0;
-long A1 = 0;
-long A2 = 0;
-long A3 = 0;
-long B0 = 0;
-long B1 = 0;
+int_fast64_t A0 = 0;
+int_fast64_t A1 = 0;
+int_fast64_t A2 = 0;
+int_fast64_t A3 = 0;
+int_fast64_t B0 = 0;
+int_fast64_t B1 = 0;
 
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
@@ -1135,22 +1135,22 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         long nnue   = NNUE::evaluate(pos);
+         int_fast64_t nnue   = NNUE::evaluate(pos);
 
-         long material = pos.non_pawn_material();
-         long pawns    = pos.count<PAWN>();
-         long pieces   = pos.count<ALL_PIECES>();
+         int_fast64_t material = pos.non_pawn_material();
+         int_fast64_t pawns    = pos.count<PAWN>();
+         int_fast64_t pieces   = pos.count<ALL_PIECES>();
          
 
-         long scale1 = (970 + A0)
-                     + (32 + A1) * material / 1024
-                     + (17 + A2) * pawns
-                     - (14 + A3) * pos.rule50_count();
+         int_fast64_t scale1 =  (970 + A0)
+                              + (32 + A1) * material / 1024
+                              + (17 + A2) * pawns
+                              - (14 + A3) * pos.rule50_count();
         
-         scale1 = std::clamp(scale1, long(100), long(5000));
+         scale1 = std::clamp(scale1, int_fast64_t(100), int_fast64_t(5000));
                      
-         long scale2 = (900 + B0)
-                     + (10 + B1) * pieces;
+         int_fast64_t scale2 = (900 + B0)
+                             + (10 + B1) * pieces;
 
 
          // dbg_mean_of(scale1);
