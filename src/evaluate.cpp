@@ -1146,6 +1146,8 @@ Value Eval::evaluate(const Position& pos) {
                      + (32 + A1) * material / 1024
                      + (17 + A2) * pawns
                      - (14 + A3) * pos.rule50_count();
+        
+         scale1 = std::clamp(scale1, long(100), long(5000));
                      
          long scale2 = (900 + B0)
                      + (10 + B1) * pieces;
