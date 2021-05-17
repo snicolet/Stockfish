@@ -1095,31 +1095,21 @@ make_v:
                                        : -Value(correction);
   }
 
+
+  /// Simple material count, such that SimpleEval(pos) = SimpleEval(pos, WHITE) - SimpleEval(pos, BLACK);
+
+  int SimpleEval(const Position& pos, Color c) {
+
+    return   9 * pos.count<QUEEN>(c)
+           + 5 * pos.count<ROOK>(c)
+           + 3 * pos.count<BISHOP>(c)
+           + 3 * pos.count<KNIGHT>(c)
+           +     pos.count<PAWN>(c);
+  }
+
+
 } // namespace Eval
 
-
-// We tune the deltas of the model coefficients
-
-// int A0 = 0;
-// int A1 = 0;
-// int A2 = 0;
-// int A3 = 0;
-// int B0 = 0;
-// int B1 = 0;
-
-// TUNE(SetRange(-128, 128), A0, B0);
-// TUNE(SetRange(-30, 30), A1, A2, A3, B1);
-
-// TUNE(SetRange(-128, 128), A0);
-// TUNE(SetRange(-30, 30), A1, A2, A3);
-
-
-int64_t A0 = 0;
-int64_t A1 = 0;
-int64_t A2 = 0;
-int64_t A3 = 0;
-int64_t B0 = 0;
-int64_t B1 = 0;
 
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
@@ -1135,34 +1125,32 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         int64_t nnue   = NNUE::evaluate(pos);
-
-         int64_t material = pos.non_pawn_material();
-         int64_t pawns    = pos.count<PAWN>();
-         int64_t pieces   = pos.count<ALL_PIECES>();
+         Value nnue   = NNUE::evaluate(pos);
          
+         int material = clamp(SimpleEval(pos, WHITE) + SimpleEval(pos, BLACK), 0, 78);   // material with SimpleEval() formula, can be [0..78]
+         int f        = (material + 78) * (material - 78) / 78 + 78 ;
+         //int bucket   = f / 10;
 
-         int64_t scale1 =  (970 + A0)
-                          + (32 + A1) * material / 1024
-                          + (17 + A2) * pawns
-                          - (14 + A3) * pos.rule50_count();
+         assert( 0 <= material && material <= 78);
+         assert( 0 <= f        && f        <= 78);
+         //assert( 0 <= bucket   && bucket   <= 7 );
+         
+         int scale =   975
+                     + 141 * f / 128
+                     + 10 * material
+                     - 14 * pos.rule50_count();
+        
+         // Do not use scale less than 10/1024
+         scale = std::max(scale, 10);
+         
+         // dbg_mean_of(scale);
 
-         // clamp the scale in 10..5000
-         scale1 = std::clamp(scale1, int64_t(10), int64_t(5000));
-
-         int64_t scale2 = (900 + B0)
-                         + (10 + B1) * pieces;
-
-
-         // dbg_mean_of(scale1);
-         // dbg_mean_of(scale2);
-
-         nnue = nnue * (scale1 * scale2 / 1024) / 1024;
+         nnue = nnue * scale / 1024;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
 
-         return Value(int(nnue));
+         return nnue;
       };
 
       // If there is PSQ imbalance we use the classical eval. We also introduce
