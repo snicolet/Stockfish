@@ -1114,12 +1114,12 @@ make_v:
 // TUNE(SetRange(-30, 30), A1, A2, A3);
 
 
-int A0 = 0;
-int A1 = 0;
-int A2 = 0;
-int A3 = 0;
-int B0 = 0;
-int B1 = 0;
+long A0 = 0;
+long A1 = 0;
+long A2 = 0;
+long A3 = 0;
+long B0 = 0;
+long B1 = 0;
 
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
@@ -1154,12 +1154,13 @@ Value Eval::evaluate(const Position& pos) {
          // dbg_mean_of(scale1);
          // dbg_mean_of(scale2);
 
-         nnue = nnue * scale1 * scale2 / (1024 * 1024);
+         //nnue = nnue * (scale1 * scale2 / 1024) / 1024;
+         nnue = (nnue * scale1 * scale2) / (1024 * 1024);
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
 
-         return Value(nnue);
+         return Value(int(nnue));
       };
 
       // If there is PSQ imbalance we use the classical eval. We also introduce
