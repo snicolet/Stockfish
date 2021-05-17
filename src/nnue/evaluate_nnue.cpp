@@ -160,9 +160,6 @@ namespace Stockfish::Eval::NNUE {
     std::size_t bucket = (popcount(pos.pieces()) - 1) / 4;
 
     if (bucket == 0) bucket = 1;
-    if (bucket == 3) bucket = 2;
-    if (bucket == 5) bucket = 4;
-    if (bucket == 7) bucket = 6;
 
     const auto [psqt, lazy] = featureTransformer->transform(pos, transformedFeatures, bucket);
     if (lazy) {
