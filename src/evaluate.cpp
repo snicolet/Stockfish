@@ -1147,6 +1147,7 @@ Value Eval::evaluate(const Position& pos) {
                               + (17 + A2) * pawns
                               - (14 + A3) * pos.rule50_count();
         
+         // clamp the scale in 100..5000
          scale1 = std::clamp(scale1, int_fast64_t(100), int_fast64_t(5000));
                      
          int_fast64_t scale2 = (900 + B0)
