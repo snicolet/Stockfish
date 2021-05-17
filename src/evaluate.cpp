@@ -1111,6 +1111,18 @@ make_v:
 } // namespace Eval
 
 
+// Tune model based on simpleEval
+
+int C0 = 0;
+int C1 = 0;
+int C2 = 0;
+
+TUNE(SetRange(-128, 128), C0);
+TUNE(SetRange(-128, 128), C1);
+TUNE(SetRange(-30, 30)  , C2);
+
+
+
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
@@ -1135,10 +1147,10 @@ Value Eval::evaluate(const Position& pos) {
          assert( 0 <= f        && f        <= 78);
          //assert( 0 <= bucket   && bucket   <= 7 );
          
-         int scale =   975
-                     + 141 * f / 128
-                     + 10 * material
-                     - 14 * pos.rule50_count();
+         int scale =   (975 + C0)
+                     + (141 + C1) * f / 128
+                     + (10  + C2) * material
+                     -  14        * pos.rule50_count();
         
          // Do not use scale less than 10/1024
          scale = std::max(scale, 10);
