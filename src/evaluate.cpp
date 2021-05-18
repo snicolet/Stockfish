@@ -1125,9 +1125,9 @@ int D0 = 0;
 int D1 = 0;
 int D2 = 0;
 
-// TUNE(SetRange(-128, 128), D0);
-// TUNE(SetRange(-30, 30)  , D1);
-// TUNE(SetRange(-30, 30)  , D2);
+TUNE(SetRange(-512, 512), D0);
+TUNE(SetRange(-60, 60)  , D1);
+TUNE(SetRange(-60, 60)  , D2);
 
 
 
