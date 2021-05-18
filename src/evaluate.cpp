@@ -1147,7 +1147,7 @@ Value Eval::evaluate(const Position& pos) {
       {
          int material = clamp(simple_material(pos), 0, 78);   // material with SimpleEval() formula, can be [0..78]
 
-         int scale =    (725 + D0)
+         int scale =    (825 + D0)
                       + (23  + D1) * material * material / 1024
                       + (20  + D2) * material
                       -  14        * pos.rule50_count();
