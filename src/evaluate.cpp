@@ -1147,13 +1147,15 @@ Value Eval::evaluate(const Position& pos) {
       {
          int material = clamp(simple_material(pos), 0, 78);   // material with SimpleEval() formula, can be [0..78]
 
-         int scale =   (1001 + D0)
+         int scale =    (860 + D0)
                       + (15  + D1) * material * material / 1024
                       + (13  + D2) * material
                       - 14         * pos.rule50_count();
         
          // Do not use scale less than 10/1024
          scale = std::max(scale, 10);
+         
+         // dbg_mean_of(scale);
 
          Value nnue = NNUE::evaluate(pos) * scale / 1024;
 
