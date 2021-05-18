@@ -1099,7 +1099,36 @@ make_v:
                                        : -Value(correction);
   }
 
+
+  /// Simple material count, such that SimpleEval(pos) = simple_material(pos, WHITE) - simple_material(pos, BLACK);
+
+  int simple_material(const Position& pos, Color c) {
+    return   9 * pos.count<QUEEN>(c)
+           + 5 * pos.count<ROOK>(c)
+           + 3 * pos.count<BISHOP>(c)
+           + 3 * pos.count<KNIGHT>(c)
+           +     pos.count<PAWN>(c);
+  }
+  
+  int simple_material(const Position& pos) {
+    return simple_material(pos, WHITE) + simple_material(pos, BLACK);
+  }
+
+
+
 } // namespace Eval
+
+
+// Tune model based on simpleEval
+
+int D0 = 0;
+int D1 = 0;
+int D2 = 0;
+
+// TUNE(SetRange(-128, 128), D0);
+// TUNE(SetRange(-30, 30)  , D1);
+// TUNE(SetRange(-30, 30)  , D2);
+
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
@@ -1116,8 +1145,15 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
+         int material = clamp(simple_material(pos), 0, 78);   // material with SimpleEval() formula, can be [0..78]
 
-         int scale = 903 + 28 * pos.count<PAWN>() + 28 * pos.non_pawn_material() / 1024;
+         int scale =   (1001 + D0)
+                      + (15  + D1) * material * material / 1024
+                      + (13  + D2) * material
+                      - 14         * pos.rule50_count();
+        
+         // Do not use scale less than 10/1024
+         scale = std::max(scale, 10);
 
          Value nnue = NNUE::evaluate(pos) * scale / 1024;
 
