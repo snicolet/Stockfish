@@ -1121,8 +1121,8 @@ make_v:
 
 // Tune model based on simpleEval
 
-int D0 = 0;
-int D1 = 0;
+int D0 = 18;
+int D1 = -1;
 int D2 = 0;
 
 // TUNE(SetRange(-512, 512), D0);
