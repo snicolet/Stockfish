@@ -1152,7 +1152,7 @@ Value Eval::evaluate(const Position& pos) {
                       + (13  + D2) * material
                       
                       +  100       * pos.count<QUEEN>()
-                      -  136
+                      -  60
                       
                       -   8        * pos.rule50_count();
 
