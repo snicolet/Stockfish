@@ -1150,7 +1150,7 @@ Value Eval::evaluate(const Position& pos) {
          int scale =   (1070 + D0)
                       + (15  + D1) * material * material / 1024
                       + (13  + D2) * material
-                      -  13        * pos.rule50_count();
+                      -   8        * pos.rule50_count();
 
          // Do not use scale less than 10/1024
          scale = std::max(scale, 10);
