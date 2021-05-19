@@ -1058,7 +1058,7 @@ make_v:
     v = (v / 16) * 16;
 
     // Side to move point of view
-    v = (pos.side_to_move() == WHITE ? v : -v) + Tempo;
+    v = (pos.side_to_move() == WHITE ? v : -v);
 
     return v;
   }
