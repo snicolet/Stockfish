@@ -1121,9 +1121,9 @@ make_v:
 
 // Tune model based on simpleEval
 
-int D0 = 0;
-int D1 = 0;
-int D2 = 0;
+int D0 = 21;
+int D1 = 12;
+int D2 = -4;
 
 // TUNE(SetRange(-128, 128), D0);
 // TUNE(SetRange(-60, 60)  , D1);
@@ -1150,7 +1150,7 @@ Value Eval::evaluate(const Position& pos) {
          int scale =   (1058 + D0)
                       + (27  + D1) * material * material / 1024
                       + (17  + D2) * material
-                      -  14        * pos.rule50_count();
+                      -  8         * pos.rule50_count();
 
          // Do not use scale less than 10/1024
          scale = std::max(scale, 10);
