@@ -1121,15 +1121,15 @@ make_v:
 
 // Tune model based on simpleEval
 
-int E0 = 37;
-int E1 = 0;
+int E0 = 40;
+int E1 = 2;
 int E2 = -2;
-int E3 = 25;
+int E3 = 30;
 
-// TUNE(SetRange(-128, 128), E0);
-// TUNE(SetRange(-60, 60)  , E1);
-// TUNE(SetRange(-60, 60)  , E2);
-// TUNE(SetRange(-60, 60)  , E3);
+TUNE(SetRange(-128, 128), E0);
+TUNE(SetRange(-60, 60)  , E1);
+TUNE(SetRange(-60, 60)  , E2);
+TUNE(SetRange(-60, 60)  , E3);
 
 
 
@@ -1153,7 +1153,7 @@ Value Eval::evaluate(const Position& pos) {
                       + (15  + E1) * material * material / 1024
                       + (13  + E2) * material
                       + ( 0  + E3) * pos.count<PAWN>()
-                      -   7        * pos.rule50_count();
+                      -   8        * pos.rule50_count();
 
          // Do not use scale less than 10/1024
          scale = std::max(scale, 10);
