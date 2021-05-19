@@ -1121,13 +1121,15 @@ make_v:
 
 // Tune model based on simpleEval
 
-int D0 = 18;
-int D1 = -1;
-int D2 = 0;
+int E0 = 18;
+int E1 = -1;
+int E2 = 0;
+int E3 = 0;
 
-// TUNE(SetRange(-512, 512), D0);
-// TUNE(SetRange(-60, 60)  , D1);
-// TUNE(SetRange(-60, 60)  , D2);
+TUNE(SetRange(-128, 128), E0);
+TUNE(SetRange(-60, 60)  , E1);
+TUNE(SetRange(-60, 60)  , E2);
+TUNE(SetRange(-60, 60)  , E3);
 
 
 
@@ -1147,14 +1149,11 @@ Value Eval::evaluate(const Position& pos) {
       {
          int material = clamp(simple_material(pos), 0, 78);   // material with SimpleEval() formula, can be [0..78]
 
-         int scale =   (1070 + D0)
-                      + (15  + D1) * material * material / 1024
-                      + (13  + D2) * material
-                      
-                      +  100       * pos.count<QUEEN>()
-                      -  60
-                      
-                      -   8        * pos.rule50_count();
+         int scale =   (1070 + E0)
+                      + (15  + E1) * material * material / 1024
+                      + (13  + E2) * material
+                      + ( 0  + E3) * pos.count<PAWN>()
+                      -  16        * pos.rule50_count();
 
          // Do not use scale less than 10/1024
          scale = std::max(scale, 10);
