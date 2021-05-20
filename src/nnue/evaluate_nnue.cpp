@@ -168,7 +168,7 @@ namespace Stockfish::Eval::NNUE {
       int materialist = psqt;
       int positional  = output[0];
 
-      int entertainment = abs(psqt) > 3000 ? 10 : 4;
+      int entertainment = std::clamp(abs(psqt) / 800, 2, 5);
 
       //dbg_mean_of(entertainment != 0);
 
