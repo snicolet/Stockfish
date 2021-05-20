@@ -164,7 +164,16 @@ namespace Stockfish::Eval::NNUE {
       return static_cast<Value>(psqt / OutputScale);
     } else {
       const auto output = network[bucket]->propagate(transformedFeatures, buffer);
-      return static_cast<Value>((output[0] + psqt) / OutputScale);
+
+      int materialist = psqt;
+      int positional  = output[0];
+
+      const int A = 129;
+      const int B = 127;
+
+      int sum = (A * materialist + B * positional) / 128;
+
+      return static_cast<Value>( sum / OutputScale );
     }
   }
 
