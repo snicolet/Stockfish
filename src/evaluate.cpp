@@ -1121,15 +1121,15 @@ make_v:
 
 // Tune model based on simpleEval
 
-int E0 = -155;
-int E1 = 14;
-int E2 = -6;
-int E3 = 49;
+int E0 = 0;
+int E1 = 0;
+int E2 = 0;
+int E3 = 0;
 
 // TUNE(SetRange(-128, 128), E0);
-// TUNE(SetRange(-60, 60)  , E1);
-// TUNE(SetRange(-60, 60)  , E2);
-// TUNE(SetRange(-60, 60)  , E3);
+TUNE(SetRange(-60, 60)  , E1);
+TUNE(SetRange(-60, 60)  , E2);
+TUNE(SetRange(-60, 60)  , E3);
 
 
 
@@ -1149,10 +1149,10 @@ Value Eval::evaluate(const Position& pos) {
       {
          int material = clamp(simple_material(pos), 0, 78);   // material with SimpleEval() formula, can be [0..78]
 
-         int scale =   (1070 + E0)
-                      + (15  + E1) * material * material / 1024
-                      + (13  + E2) * material
-                      + ( 0  + E3) * pos.count<PAWN>()
+         int scale =   (870  + E0)
+                      + (30  + E1) * material * material / 1024
+                      + ( 7  + E2) * material
+                      + (50  + E3) * pos.count<PAWN>()
                       -   8        * pos.rule50_count();
 
          // Do not use scale less than 10/1024
