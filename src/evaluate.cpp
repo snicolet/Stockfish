@@ -1121,7 +1121,7 @@ make_v:
 
 // Tune model based on simpleEval
 
-int E0 = -55;
+int E0 = -155;
 int E1 = 14;
 int E2 = -6;
 int E3 = 49;
