@@ -168,7 +168,7 @@ namespace Stockfish::Eval::NNUE {
       int materialist = psqt;
       int positional  = output[0];
 
-      int entertainment = (pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK) ? 0 : 5);
+      int entertainment = (pos.non_pawn_material(WHITE) != pos.non_pawn_material(BLACK) ? 0 : 2);
 
       // dbg_mean_of(entertainment != 0);
       // dbg_mean_of(entertainment);
