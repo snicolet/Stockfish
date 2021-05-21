@@ -1125,7 +1125,7 @@ Value Eval::evaluate(const Position& pos) {
              nnue += fix_FRC(pos);
 
          // evaluation grain
-         nnue = (nnue / 8) * 8;
+         nnue = (nnue / 32) * 32;
 
          return nnue;
       };
