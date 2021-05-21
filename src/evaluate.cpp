@@ -1118,12 +1118,9 @@ Value Eval::evaluate(const Position& pos) {
       {
 
          int scale = 903 
-                    + 28 * pos.count<PAWN>() 
+                    + 28 * pos.count<PAWN>()
                     + 28 * pos.non_pawn_material() / 1024
                     -  4 * pos.rule50_count();
-         
-         // int king_distance = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-         // scale += 64 * (!!pos.count<QUEEN>()) * (king_distance >= 4);
 
          Value nnue = NNUE::evaluate(pos) * scale / 1024;
 
