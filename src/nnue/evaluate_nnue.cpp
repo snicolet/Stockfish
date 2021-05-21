@@ -168,9 +168,12 @@ namespace Stockfish::Eval::NNUE {
       int materialist = psqt;
       int positional  = output[0];
 
-      int entertainment = std::clamp(abs(psqt) / 800, 2, 5);
+      int entertainment = 2;
+      
+      if (abs(psqt) > 8000)
+          entertainment = 20;
 
-      //dbg_mean_of(entertainment != 0);
+      // dbg_mean_of(abs(psqt) > 8000);
 
       const int A = 128 - entertainment;
       const int B = 128 + entertainment;
