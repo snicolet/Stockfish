@@ -1124,6 +1124,10 @@ Value Eval::evaluate(const Position& pos) {
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
 
+         // evaluation grain (round to nearest)
+         nnue += nnue > 0 ? 8 : -8;
+         nnue = (nnue / 16) * 16;
+
          return nnue;
       };
 
