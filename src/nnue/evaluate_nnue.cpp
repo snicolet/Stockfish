@@ -168,8 +168,8 @@ namespace Stockfish::Eval::NNUE {
       int materialist = psqt;
       int positional  = output[0];
 
-      const int A = 122;
-      const int B = 134;
+      const int A = 100;
+      const int B = 128;
 
       int sum = (A * materialist + B * positional) / 128;
 
