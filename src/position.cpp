@@ -1349,7 +1349,9 @@ bool Position::pos_is_ok() const {
 /// with respective probabilities proportional to {1,2,3,4,3,2,1}
 
 int Position::random() const {
-  return  (st->key & 3) + (this_thread()->nodes & 3) - 3;
+  return    2 * (st->key & 7)
+        //  + 2 * (this_thread()->nodes & 7) 
+          - 7;
 }
 
 } // namespace Stockfish
