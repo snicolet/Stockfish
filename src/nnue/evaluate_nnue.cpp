@@ -169,8 +169,8 @@ namespace Stockfish::Eval::NNUE {
       int materialist = psqt;
       int positional  = output[0];
 
-      int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
-      int entertainment = (delta_npm > BishopValueMg - KnightValueMg ? 0 : 7);
+      int delta_npm = pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK);
+      int entertainment = (delta_npm == 0 ? 7 : 0);
 
       // dbg_mean_of(entertainment != 0);
       // dbg_mean_of(entertainment);
