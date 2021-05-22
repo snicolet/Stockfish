@@ -166,11 +166,21 @@ namespace Stockfish::Eval::NNUE {
     {
       const auto output = network[bucket]->propagate(transformedFeatures, buffer);
 
-      int materialist = psqt;
-      int positional  = output[0];
+      int materialist   = psqt;
+      int positional    = output[0];
+      int entertainment = 0;
 
-      int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
-      int entertainment = (adjusted && delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0);
+      if (adjusted)
+      {
+          Color stm        = pos.side_to_move();
+          int   delta_npm  = pos.non_pawn_material(stm) - pos.non_pawn_material(~stm);
+
+          entertainment =   delta_npm > BishopValueMg - KnightValueMg ?   0
+                          : delta_npm < KnightValueMg - BishopValueMg ?  10
+                                                                      :  10;
+        //if (delta_npm < KnightValueMg - BishopValueMg)
+        //  dbg_mean_of(psqt);
+      }
 
       int A = 128 - entertainment;
       int B = 128 + entertainment;
