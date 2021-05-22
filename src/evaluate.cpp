@@ -1124,8 +1124,8 @@ Value Eval::evaluate(const Position& pos) {
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
 
-         // evaluation grain
-         nnue = (nnue / 8) * 8;
+         // Evaluation grain
+         nnue = (nnue / 4) * 4;
 
          return nnue;
       };
