@@ -169,8 +169,17 @@ namespace Stockfish::Eval::NNUE {
       int materialist = psqt;
       int positional  = output[0];
 
+      Color stm = pos.side_to_move();
       int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
-      int entertainment = (adjusted && delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0);
+      int delta_pawn = pos.count<PAWN>(stm) - pos.count<PAWN>(~stm);
+      
+      int entertainment = (delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0);
+      
+     // if (delta_pawn <= -2) entertainment += 7;
+      if (delta_pawn >=  2) entertainment += 7;
+      
+      if (!adjusted)
+         entertainment = 0;
 
       int A = 128 - entertainment;
       int B = 128 + entertainment;
