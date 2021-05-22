@@ -1345,10 +1345,11 @@ bool Position::pos_is_ok() const {
 }
 
 
-/// Position::random() returns the numbers {-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7} 
-/// with respective probabilities proportional to {1,2,3,4,5,6,7,8,7,6,5,6,3,2,1}
+/// Position::random() returns the numbers {-3,-2,-1,0,1,2,3} 
+/// with respective probabilities proportional to {1,2,3,4,3,2,1}
+
 int Position::random() const {
-  return  (st->key & 7) + (this_thread()->nodes & 7) - 7;
+  return  (st->key & 3) + (this_thread()->nodes & 3) - 3;
 }
 
 } // namespace Stockfish
