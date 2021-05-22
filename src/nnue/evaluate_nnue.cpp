@@ -174,7 +174,7 @@ namespace Stockfish::Eval::NNUE {
       
       int entertainment = (delta_npm <= RookValueMg - KnightValueMg ? 7 : 0);
       if (entertainment == 0)
-          entertainment += 7 * !!delta_pawn;
+          entertainment += 7 * delta_pawn;
 
       // dbg_mean_of(entertainment != 0);
       // dbg_mean_of(entertainment);
