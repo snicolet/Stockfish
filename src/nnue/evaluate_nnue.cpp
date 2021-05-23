@@ -157,11 +157,12 @@ namespace Stockfish::Eval::NNUE {
     ASSERT_ALIGNED(transformedFeatures, alignment);
     ASSERT_ALIGNED(buffer, alignment);
 
-    std::size_t bucket = (pos.count<ALL_PIECES>() - 1) / 4;
+    int bucket = (pos.count<ALL_PIECES>() - 1) / 4;
 
     if (adjusted)
     {
-       bucket += std::clamp(pos.random(), 0, 1);  // bucket + 1 with probability 1/4
+       bucket += pos.random();
+       if (bucket < 1) bucket = 1;
        if (bucket > 7) bucket = 7;
     }
     
