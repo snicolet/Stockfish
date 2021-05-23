@@ -159,9 +159,11 @@ namespace Stockfish::Eval::NNUE {
 
     std::size_t bucket = (pos.count<ALL_PIECES>() - 1) / 4;
 
-    bucket += pos.random();
-    if (bucket < 1) bucket = 1;
-    if (bucket > 7) bucket = 7;
+    if (adjusted)
+    {
+       bucket += std::clamp(pos.random(), 0, 1);  // bucket + 1 with probability 1/4
+       if (bucket > 7) bucket = 7;
+    }
     
     const auto [psqt, lazy] = featureTransformer->transform(pos, transformedFeatures, bucket);
 
