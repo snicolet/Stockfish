@@ -177,9 +177,9 @@ namespace Stockfish::Eval::NNUE {
           int   delta_pawn = pos.count<PAWN>(stm) - pos.count<PAWN>(~stm);
 
           entertainment =   delta_npm > BishopValueMg - KnightValueMg ?   0
-                          : delta_pawn >=  2                          ?   7
-                          : delta_pawn <= -2                          ?   25
-                                                                      :   7;
+                          : delta_pawn >=  2                          ?   0
+                          : delta_pawn <= -2                          ?   15
+                                                                      :   10;
       }
 
       int A = 128 - entertainment;
