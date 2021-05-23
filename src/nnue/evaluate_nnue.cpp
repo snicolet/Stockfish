@@ -174,10 +174,10 @@ namespace Stockfish::Eval::NNUE {
       int delta_pawn = pos.count<PAWN>(stm) - pos.count<PAWN>(~stm);
       
       int entertainment = (delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0);
-      
-      if (delta_pawn <= -2) entertainment += 30;
-      if (delta_pawn >=  2) entertainment += 30;
-      
+
+      //if (delta_pawn <= -2) entertainment -= 15;
+      if (delta_pawn >=  2) entertainment -= 15;
+
       if (!adjusted)
          entertainment = 0;
 
