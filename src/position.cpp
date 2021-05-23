@@ -1344,4 +1344,11 @@ bool Position::pos_is_ok() const {
   return true;
 }
 
+/// Position::random() returns one of  {-1, 0, 1} 
+/// with probabilities proportional to { 1, 2, 1}
+
+int Position::random() const {
+  return (st->key & 1) + (this_thread()->nodes & 1) - 1;
+}
+
 } // namespace Stockfish
