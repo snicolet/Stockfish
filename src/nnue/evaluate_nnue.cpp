@@ -178,7 +178,7 @@ namespace Stockfish::Eval::NNUE {
 
           entertainment =   delta_npm > BishopValueMg - KnightValueMg ?   0
                           : delta_pawn >=  2                          ?  -7
-                          : delta_pawn <= -2                          ?   25
+                          : delta_pawn <= -2                          ?   15
                                                                       :   7;
       }
 
