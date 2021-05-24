@@ -336,6 +336,7 @@ void Position::set_check_info(StateInfo* si) const {
 void Position::set_state(StateInfo* si) const {
 
   si->key = si->materialKey = 0;
+  si->passedPawns = InvalidBitboard;
   si->pawnKey = Zobrist::noPawns;
   si->nonPawnMaterial[WHITE] = si->nonPawnMaterial[BLACK] = VALUE_ZERO;
   si->checkersBB = attackers_to(square<KING>(sideToMove)) & pieces(~sideToMove);
@@ -750,6 +751,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
           }
 
           st->pawnKey ^= Zobrist::psq[captured][capsq];
+          st->passedPawns = InvalidBitboard;
       }
       else
           st->nonPawnMaterial[them] -= PieceValue[MG][captured];
@@ -851,6 +853,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
 
       // Update pawn hash key
       st->pawnKey ^= Zobrist::psq[pc][from] ^ Zobrist::psq[pc][to];
+      st->passedPawns = InvalidBitboard;
 
       // Reset rule 50 draw counter
       st->rule50 = 0;
