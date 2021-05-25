@@ -178,7 +178,7 @@ namespace Stockfish::Eval::NNUE {
       
           if (   pos.count<QUEEN>()
               && pos.passed_pawns())
-              entertainment += 6;
+              entertainment += 8;
       }
 
       int A = 128 - entertainment;
