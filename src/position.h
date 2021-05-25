@@ -163,6 +163,9 @@ public:
   Score psq_score() const;
   Value non_pawn_material(Color c) const;
   Value non_pawn_material() const;
+  int simple_material(Color c) const;
+  int simple_material() const;
+  Value simple_eval() const;
 
   // Position consistency check, for debugging
   bool pos_is_ok() const;
@@ -332,6 +335,24 @@ inline Value Position::non_pawn_material(Color c) const {
 inline Value Position::non_pawn_material() const {
   return non_pawn_material(WHITE) + non_pawn_material(BLACK);
 }
+
+inline int Position::simple_material(Color c) const {
+  return   9 * count<QUEEN>(c)
+         + 5 * count<ROOK>(c)
+         + 3 * count<BISHOP>(c)
+         + 3 * count<KNIGHT>(c)
+         +     count<PAWN>(c);
+}
+
+inline int Position::simple_material() const {
+  return simple_material(WHITE) + simple_material(BLACK);
+}
+
+inline Value Position::simple_eval() const {
+  Color stm = side_to_move();
+  return PawnValueMg * (simple_material(stm) - simple_material(~stm));
+}
+
 
 inline int Position::game_ply() const {
   return gamePly;
