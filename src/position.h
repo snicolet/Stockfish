@@ -350,7 +350,7 @@ inline int Position::simple_material() const {
 
 inline Value Position::simple_eval() const {
   Color stm = side_to_move();
-  return PawnValueMg * (simple_material(stm) - simple_material(~stm));
+  return Value(simple_material(stm) - simple_material(~stm));
 }
 
 
