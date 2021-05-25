@@ -172,8 +172,8 @@ namespace Stockfish::Eval::NNUE {
       int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
       int entertainment = (adjusted && delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0);
 
-      int A = 128 ;
-      int B = 128 + entertainment;
+      int A = 128 - entertainment;
+      int B = 128;
 
       int sum = (A * materialist + B * positional) / 128;
 
