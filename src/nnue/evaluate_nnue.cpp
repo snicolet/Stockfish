@@ -175,7 +175,7 @@ namespace Stockfish::Eval::NNUE {
           int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
 
           entertainment = delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0;
-          entertainment += -pos.rule50_count();
+          entertainment += 2 - pos.rule50_count();
       }
 
       int A = 128 - entertainment;
