@@ -1117,13 +1117,13 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&]()
       {
 
-         int scale = 860 + 22 * pos.count<PAWN>() + 30 * pos.non_pawn_material() / 1024;
+         int scale = 920 + 22 * pos.count<PAWN>() + 30 * pos.non_pawn_material() / 1024;
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
-
+         //dbg_mean_of(scale);
          return nnue;
       };
 
