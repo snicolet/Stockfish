@@ -172,7 +172,7 @@ namespace Stockfish::Eval::NNUE {
     
         if (   materialist * positional < 0 
             && positional < -5000 )
-            entertainment += 8;
+            entertainment += 12;
     }
 
     int A = 128 - entertainment;
