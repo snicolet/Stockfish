@@ -158,6 +158,7 @@ namespace Stockfish::Eval::NNUE {
     ASSERT_ALIGNED(buffer, alignment);
 
     const std::size_t bucket = (pos.count<ALL_PIECES>() - 1) / 4;
+    
     const auto psqt = featureTransformer->transform(pos, transformedFeatures, bucket);
     const auto output = network[bucket]->propagate(transformedFeatures, buffer);
 
@@ -167,12 +168,23 @@ namespace Stockfish::Eval::NNUE {
 
     if (adjusted)
     {
-        int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
-        entertainment = (delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0);
-    
-        if (   materialist * positional < 0
-            && positional < -3000 )
+        Color stm     = pos.side_to_move();
+        int delta_npm = pos.non_pawn_material(stm) - pos.non_pawn_material(~stm);
+        entertainment = (abs(delta_npm) <= BishopValueMg - KnightValueMg ? 7 : 0);
+
+        if ( materialist > 0 && positional < -5000 )
             entertainment += 10;
+
+        if ( materialist < 0 && positional > 5000 )
+        {
+            //dbg_mean_of(delta_npm <= -KnightValueMg);
+
+            //if (delta_npm <= -KnightValueMg)
+            //  entertainment -= 10;
+
+            if (delta_npm > -KnightValueMg)
+              entertainment += 30;
+        }
     }
 
     int A = 128 - entertainment;
