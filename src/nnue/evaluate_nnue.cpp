@@ -183,7 +183,7 @@ namespace Stockfish::Eval::NNUE {
             //  entertainment -= 10;
 
             if (delta_npm > -KnightValueMg)
-              entertainment += 10;
+              entertainment += 20;
         }
     }
 
