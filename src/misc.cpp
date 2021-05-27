@@ -298,22 +298,42 @@ std::string compiler_info() {
 }
 
 
-/// Debug functions used mainly to collect run-time statistics
-static std::atomic<int64_t> hits[2], means[2];
+/// Debug functions used mainly to collect run-time statistics.
+/// Use the versions with a integer argument n to get up to 512 counters.
 
-void dbg_hit_on(bool b) { ++hits[0]; if (b) ++hits[1]; }
-void dbg_hit_on(bool c, bool b) { if (c) dbg_hit_on(b); }
-void dbg_mean_of(int v) { ++means[0]; means[1] += v; }
+const int MAX_DEBUG = 512;
+static std::atomic<int64_t> hits[MAX_DEBUG][2]  = {{ 0 }};
+static std::atomic<int64_t> means[MAX_DEBUG][2] = {{ 0 }};
+static std::string          name[MAX_DEBUG]     = {{ "" }};
+
+inline int dbg_find(string s) { 
+  for (int n = MAX_DEBUG - 1; n >= 0; n--)
+      if (name[n] == s || name[n] == "")
+         return name[n] = s, n;
+  return 0; 
+}
+
+void dbg_hit_on(bool b,         int n)  { ++hits[n][0]; if (b) ++hits[n][1]; }
+void dbg_hit_on(bool c, bool b, int n)  { if (c) dbg_hit_on(b, n); }
+void dbg_mean_of(int v,         int n)  { ++means[n][0]; means[n][1] += v; }
+
+void dbg_hit_on(bool b,         string s)  { dbg_hit_on(b,    dbg_find(s)); }
+void dbg_hit_on(bool c, bool b, string s)  { dbg_hit_on(b, c, dbg_find(s)); }
+void dbg_mean_of(int v,         string s)  { dbg_mean_of(v,   dbg_find(s)); }
 
 void dbg_print() {
 
-  if (hits[0])
-      cerr << "Total " << hits[0] << " Hits " << hits[1]
-           << " hit rate (%) " << 100 * hits[1] / hits[0] << endl;
+  auto dbg_name = [&](int n) { return name[n] != "" ? name[n] : to_string(n); };
 
-  if (means[0])
-      cerr << "Total " << means[0] << " Mean "
-           << (double)means[1] / means[0] << endl;
+  for (int n = 0 ; n < MAX_DEBUG ; ++n)
+   	  if (hits[n][0])
+          cerr << "[" << dbg_name(n) << "] Total " << hits[n][0] << " Hits " << hits[n][1]
+               << "  hit rate (%) " << 100 * hits[n][1] / hits[n][0] << endl;
+
+  for (int n = 0 ; n < MAX_DEBUG ; ++n)
+      if (means[n][0])
+          cerr << "[" << dbg_name(n) << "] Total " << means[n][0] << " Mean "
+               << (double)means[n][1] / means[n][0] << endl;
 }
 
 
