@@ -170,21 +170,13 @@ namespace Stockfish::Eval::NNUE {
     {
         Color stm     = pos.side_to_move();
         int delta_npm = pos.non_pawn_material(stm) - pos.non_pawn_material(~stm);
+
         entertainment = (abs(delta_npm) <= BishopValueMg - KnightValueMg ? 7 : 0);
 
-        if ( materialist > 0 && positional < -5000 )
-            entertainment += 10;
-
-        if ( positional > 5000 )
-        {
-            //dbg_mean_of(delta_npm <= -KnightValueMg);
-
-            //if (delta_npm <= -KnightValueMg)
-            //  entertainment -= 10;
-
-            if (delta_npm > -KnightValueMg)
-              entertainment += 10;
-        }
+        if (abs(positional) > 5000)
+           entertainment +=   positional < 0 && materialist > 0            ? 10
+                            : positional > 0 && delta_npm > -KnightValueMg ? 10
+                                                                           : 0  ;
     }
 
     int A = 128 - entertainment;
