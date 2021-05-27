@@ -171,7 +171,7 @@ namespace Stockfish::Eval::NNUE {
         entertainment = (delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0);
     
         if (   materialist * positional < 0
-            && positional < -4000 )
+            && positional < -3000 )
             entertainment += 10;
     }
 
