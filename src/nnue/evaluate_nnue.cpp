@@ -175,7 +175,7 @@ namespace Stockfish::Eval::NNUE {
         if ( materialist > 0 && positional < -5000 )
             entertainment += 10;
 
-        if ( materialist < 0 && positional > 5000 )
+        if ( positional > 5000 )
         {
             //dbg_mean_of(delta_npm <= -KnightValueMg);
 
