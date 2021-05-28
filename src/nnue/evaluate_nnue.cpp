@@ -175,7 +175,7 @@ namespace Stockfish::Eval::NNUE {
 
         if (abs(positional) > 5000)
            entertainment +=   positional < 0 && materialist > 0              ? 10
-                            : positional > 0 && delta_npm > -2 * PawnValueEg ? 10
+                            : positional > 0 && delta_npm > -3 * PawnValueEg ? 10
                                                                              : 0  ;
     }
 
