@@ -174,12 +174,12 @@ namespace Stockfish::Eval::NNUE {
         entertainment = (abs(delta_npm) <= BishopValueMg - KnightValueMg ? 7 : 0);
 
         if (abs(positional) > 5000)
-           entertainment +=   positional < 0 && materialist > 0            ?   7
-                            : positional > 0 && delta_npm > -KnightValueMg ?   7
+           entertainment +=   positional < 0 && materialist > 0            ?   10
+                            : positional > 0 && delta_npm > -KnightValueMg ?   10
                                                                            :   0 ;
     }
 
-    int A = 128 - entertainment;
+    int A = 128;
     int B = 128 + entertainment;
 
     int sum = (A * materialist + B * positional) / 128;
