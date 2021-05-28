@@ -1180,9 +1180,11 @@ moves_loop: // When in check, search starts from here
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
           
-          //Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
-          
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5));
+          Depth x =   r < -1 && moveCount <= 5    ? 1 
+                    : (ss+1)->distanceFromPv <= 4 ? 1
+                                                  : 0;
+    
+          Depth d = std::clamp(newDepth - r, 1, newDepth + x);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
