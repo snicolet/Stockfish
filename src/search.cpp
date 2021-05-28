@@ -1117,6 +1117,8 @@ moves_loop: // When in check, search starts from here
 
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
 
+      if (moveCount > 1 && (ss+1)->distanceFromPv <= 4)
+         newDepth++;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
@@ -1126,8 +1128,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
-              || (!PvNode && !formerPv)
-              || (ss+1)->distanceFromPv <= 3)
+              || (!PvNode && !formerPv))
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1181,8 +1182,7 @@ moves_loop: // When in check, search starts from here
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
           
-          Depth x =   r < -1 && moveCount <= 5    ? 1 
-                    : (ss+1)->distanceFromPv <= 3 ? 1
+          Depth x =   r < -1 && moveCount <= 5    ? 1
                                                   : 0;
     
           Depth d = std::clamp(newDepth - r, 1, newDepth + x);
