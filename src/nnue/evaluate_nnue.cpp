@@ -174,8 +174,8 @@ namespace Stockfish::Eval::NNUE {
         entertainment = (abs(delta_npm) <= BishopValueMg - KnightValueMg ? 7 : 0);
 
         if (abs(positional) > 5000)
-           entertainment +=   positional < 0 && materialist > 0            ?  -100000 / positional
-                            : positional > 0 && delta_npm > -KnightValueMg ?   100000 / positional
+           entertainment +=   positional < 0 && materialist > 0            ?   8
+                            : positional > 0 && delta_npm > -KnightValueMg ?   8
                                                                            :   0 ;
     }
 
