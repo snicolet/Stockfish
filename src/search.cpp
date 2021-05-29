@@ -1125,7 +1125,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
-              || (ss+1)->distanceFromPv <= 1
+              || (ss+1)->distanceFromPv <= 2
               || (!PvNode && !formerPv))
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
@@ -1181,7 +1181,7 @@ moves_loop: // When in check, search starts from here
           // to be searched deeper than the first move.
           
           Depth x =   r < -1 && moveCount <= 5    ? 1
-                    : (ss+1)->distanceFromPv <= 1 ? 1
+                    : (ss+1)->distanceFromPv <= 2 ? 1
                                                   : 0;
     
           Depth d = std::clamp(newDepth - r, 1, newDepth + x);
