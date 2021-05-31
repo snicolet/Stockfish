@@ -1110,14 +1110,14 @@ int A5 = 0;
 int A6 = 0;
 int A7 = 0;
 
-TUNE(SetRange(-300, 300), A0);
-TUNE(SetRange(-30, 30)  , A1);
-TUNE(SetRange(-31, 31)  , A2);
-TUNE(SetRange(-29, 29)  , A3);
-TUNE(SetRange(-32, 32)  , A4);
-TUNE(SetRange(-60, 60)  , A5);
-TUNE(SetRange(-60, 60)  , A6);
-TUNE(SetRange(-60, 60)  , A7);
+TUNE(SetRange(-120, 120)  , A0);
+TUNE(SetRange(-121, 121)  , A1);
+TUNE(SetRange(-119, 119)  , A2);
+TUNE(SetRange(-122, 122)  , A3);
+TUNE(SetRange(-118, 118)  , A4);
+TUNE(SetRange(-123, 123)  , A5);
+TUNE(SetRange(-117, 117)  , A6);
+TUNE(SetRange(-124, 124)  , A7);
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
