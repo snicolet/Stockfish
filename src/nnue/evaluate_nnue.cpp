@@ -171,8 +171,8 @@ namespace Stockfish::Eval::NNUE {
         int   delta_npm  = pos.non_pawn_material(stm) - pos.non_pawn_material(~stm);
 
         entertainment =   delta_npm > BishopValueMg - KnightValueMg ?   0
-                        : delta_npm < KnightValueMg - BishopValueMg ?   0
-                                                                    :   7 ;
+                        : delta_npm < KnightValueMg - BishopValueMg ?   4
+                                                                    :  10 ;
 
         if (abs(positional) > 5000)
            entertainment +=   positional < 0 && materialist > 0            ? 10
@@ -180,7 +180,7 @@ namespace Stockfish::Eval::NNUE {
                                                                            : 0  ;
     }
 
-    int A = 128 ;
+    int A = 128 - entertainment;
     int B = 128 + entertainment;
 
     int sum = (A * materialist + B * positional) / 128;
