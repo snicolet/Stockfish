@@ -1110,6 +1110,16 @@ int A5 = 0;
 int A6 = 0;
 int A7 = 0;
 
+TUNE(SetRange(-300, 300), A0);
+TUNE(SetRange(-30, 30)  , A1);
+TUNE(SetRange(-31, 31)  , A2);
+TUNE(SetRange(-29, 29)  , A3);
+TUNE(SetRange(-32, 32)  , A4);
+TUNE(SetRange(-60, 60)  , A5);
+TUNE(SetRange(-60, 60)  , A6);
+TUNE(SetRange(-60, 60)  , A7);
+
+
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
@@ -1133,14 +1143,14 @@ Value Eval::evaluate(const Position& pos) {
          int ocb         = pos.opposite_bishops();
          Bitboard passed = pos.passed_pawns();
 
-         int scale =  850 
-                     + 28 * pawns
-                     + 32 * !!queen
-                     +  8 * pieces
-                     + 28 * material / 1024
-                     + 64 * (separation >= 4)
-                     - 64 * ocb
-                     + 64 * !!passed;
+         int scale =  (850 + A0)
+                     + (28 + A1) * pawns
+                     + (32 + A2) * !!queen
+                     + ( 8 + A3) * pieces
+                     + (28 + A4) * material / 1024
+                     + (64 + A5) * (separation >= 4)
+                     - (64 + A6) * ocb
+                     + ( 0 + A7) * !!passed;
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
