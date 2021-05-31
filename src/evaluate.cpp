@@ -1101,23 +1101,32 @@ make_v:
 } // namespace Eval
 
 
-int A0 = 0;
-int A1 = 0;
-int A2 = 0;
-int A3 = 0;
-int A4 = 0;
-int A5 = 0;
-int A6 = 0;
-int A7 = 0;
+// int A0 = 0;
+// int A1 = 0;
+// int A2 = 0;
+// int A3 = 0;
+// int A4 = 0;
+// int A5 = 0;
+// int A6 = 0;
+// int A7 = 0;
+// TUNE(SetRange(-120, 120)  , A0);
+// TUNE(SetRange(-121, 121)  , A1);
+// TUNE(SetRange(-119, 119)  , A2);
+// TUNE(SetRange(-122, 122)  , A3);
+// TUNE(SetRange(-118, 118)  , A4);
+// TUNE(SetRange(-123, 123)  , A5);
+// TUNE(SetRange(-117, 117)  , A6);
+// TUNE(SetRange(-124, 124)  , A7);
 
-TUNE(SetRange(-120, 120)  , A0);
-TUNE(SetRange(-121, 121)  , A1);
-TUNE(SetRange(-119, 119)  , A2);
-TUNE(SetRange(-122, 122)  , A3);
-TUNE(SetRange(-118, 118)  , A4);
-TUNE(SetRange(-123, 123)  , A5);
-TUNE(SetRange(-117, 117)  , A6);
-TUNE(SetRange(-124, 124)  , A7);
+
+int A0 =  0  ;
+int A1 =  16 ;
+int A2 = -2  ;
+int A3 =  10 ;
+int A4 =  10 ;
+int A5 = -8  ;
+int A6 = -2  ;
+int A7 =  3  ;
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
