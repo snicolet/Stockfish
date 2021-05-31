@@ -1118,14 +1118,14 @@ make_v:
 // TUNE(SetRange(-117, 117)  , A6);
 // TUNE(SetRange(-124, 124)  , A7);
 
-int A0 =  0  ;
-int A1 =  16 ;
-int A2 = -2  ;
-int A3 =  10 ;
-int A4 =  10 ;
-int A5 = -8  ;
-int A6 = -2  ;
-int A7 =  3  ;
+int A0 =  -2 ;
+int A1 =  19 ;
+int A2 =   1 ;
+int A3 =   5 ;
+int A4 =  12 ;
+int A5 =  -5 ;
+int A6 =  -3 ;
+int A7 =   6 ;
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
