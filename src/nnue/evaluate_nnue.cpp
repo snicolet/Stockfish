@@ -180,7 +180,7 @@ namespace Stockfish::Eval::NNUE {
                                                                            : 0  ;
     }
 
-    int A = 128 - entertainment;
+    int A = 128 ;
     int B = 128 + entertainment;
 
     int sum = (A * materialist + B * positional) / 128;
