@@ -1105,6 +1105,10 @@ int A0 = 0;
 int A1 = 0;
 int A2 = 0;
 int A3 = 0;
+int A4 = 0;
+int A5 = 0;
+int A6 = 0;
+int A7 = 0;
 
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
@@ -1120,21 +1124,23 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-      
-         int pawns      = pos.count<PAWN>();
-         int queen      = pos.count<QUEEN>();
-         int pieces     = pos.count<ALL_PIECES>();
-         int material   = pos.non_pawn_material();
-         int separation = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-         int ocb        = pos.opposite_bishops();
 
-         int scale =  800 
+         int pawns       = pos.count<PAWN>();
+         int queen       = pos.count<QUEEN>();
+         int pieces      = pos.count<ALL_PIECES>();
+         int material    = pos.non_pawn_material();
+         int separation  = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+         int ocb         = pos.opposite_bishops();
+         Bitboard passed = pos.passed_pawns();
+
+         int scale =  850 
                      + 28 * pawns
                      + 32 * !!queen
                      +  8 * pieces
                      + 28 * material / 1024
                      + 64 * (separation >= 4)
-                     - 64 * ocb;
+                     - 64 * ocb
+                     + 64 * !!passed;
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 

@@ -42,6 +42,7 @@ struct StateInfo {
   // Copied when making a move
   Key    pawnKey;
   Key    materialKey;
+  Bitboard passedPawns;
   Value  nonPawnMaterial[COLOR_NB];
   int    castlingRights;
   int    rule50;
@@ -134,6 +135,7 @@ public:
   bool pawn_passed(Color c, Square s) const;
   bool opposite_bishops() const;
   int  pawns_on_same_color_squares(Color c, Square s) const;
+  Bitboard passed_pawns() const;
 
   // Doing and undoing moves
   void do_move(Move m, StateInfo& newSt);
@@ -302,6 +304,31 @@ inline Bitboard Position::check_squares(PieceType pt) const {
 
 inline bool Position::pawn_passed(Color c, Square s) const {
   return !(pieces(~c, PAWN) & passed_pawn_span(c, s));
+}
+
+inline Bitboard Position::passed_pawns() const {
+
+  if (st->passedPawns != InvalidBitboard)
+    return st->passedPawns;
+
+  Bitboard whitePawns = pieces(WHITE, PAWN);
+  Bitboard blackPawns = pieces(BLACK, PAWN);
+  Bitboard b, passed = 0;
+  Square s;
+
+  b = whitePawns;
+  while (b)
+    if (!(blackPawns & passed_pawn_span(WHITE, (s = pop_lsb(b)))))
+      passed |= s;
+
+  b = blackPawns;
+  while (b)
+    if (!(whitePawns & passed_pawn_span(BLACK, (s = pop_lsb(b)))))
+      passed |= s;
+
+  st->passedPawns = passed;
+
+  return passed;
 }
 
 inline int Position::pawns_on_same_color_squares(Color c, Square s) const {
