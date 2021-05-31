@@ -1101,6 +1101,64 @@ make_v:
 } // namespace Eval
 
 
+int A0 = 0;
+int A1 = 0;
+int A2 = 0;
+int A3 = 0;
+int A4 = 0;
+int A5 = 0;
+int A6 = 0;
+int A7 = 0;
+
+/*
+TUNE(SetRange(-120, 120), A0);
+TUNE(SetRange( -60, 60) , A1);
+TUNE(SetRange( -60, 60) , A2);
+TUNE(SetRange( -60, 60) , A3);
+TUNE(SetRange( -60, 60) , A4);
+TUNE(SetRange( -60, 60) , A5);
+TUNE(SetRange( -60, 60) , A6);
+TUNE(SetRange( -60, 60) , A7);
+*/
+
+int B0, B1, B2, B3, B4, B5, B6, B7;
+
+void get_stochastic_coeffs(const Position& pos) {
+   
+   B0 = 903;
+   B1 = 28;
+   B2 = 0;
+   B3 = 0;
+   B4 = 28;
+   B5 = 0;
+   B6 = 0;
+   B7 = 0;
+
+   A0 = 9 - 100;
+   A1 = 9;
+   A2 = -4;
+   A3 = 4;
+   A4 = 9;
+   A5 = -2;
+   A6 = -9;
+   A7 = 5;
+   
+   // if (pos.random() >= 0)
+   {
+      B0 += A0;
+      B1 += A1;
+      B2 += A2;
+      B3 += A3;
+      B4 += A4;
+      B5 += A5;
+      B6 += A6;
+      B7 += A7;
+   }
+
+}
+
+
+
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
@@ -1116,7 +1174,26 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&]()
       {
 
-         int scale = 903 + 28 * pos.count<PAWN>() + 28 * pos.non_pawn_material() / 1024;
+         int pawns       = pos.count<PAWN>();
+         int queen       = pos.count<QUEEN>();
+         int pieces      = pos.count<ALL_PIECES>();
+         int material    = pos.non_pawn_material();
+         int separation  = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+         int ocb         = pos.opposite_bishops();
+         Bitboard passed = pos.passed_pawns();
+         
+         get_stochastic_coeffs(pos);
+
+         int scale =   B0
+                     + B1 * pawns
+                     + B2 * !!queen
+                     + B3 * pieces
+                     + B4 * material / 1024
+                     + B5 * (separation >= 4)
+                     - B6 * ocb
+                     + B7 * !!passed;
+        
+         // dbg_mean_of(scale);
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
