@@ -1101,6 +1101,11 @@ make_v:
 } // namespace Eval
 
 
+int A0 = 0;
+int A1 = 0;
+int A2 = 0;
+int A3 = 0;
+
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
@@ -1115,8 +1120,21 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
+      
+         int pawns      = pos.count<PAWN>();
+         int queen      = pos.count<QUEEN>();
+         int pieces     = pos.count<ALL_PIECES>();
+         int material   = pos.non_pawn_material();
+         int separation = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+         int ocb        = pos.opposite_bishops();
 
-         int scale = 903 + 28 * pos.count<PAWN>() + 28 * pos.non_pawn_material() / 1024;
+         int scale =  800 
+                     + 28 * pawns
+                     + 32 * !!queen
+                     +  8 * pieces
+                     + 28 * material / 1024
+                     + 64 * (separation >= 4)
+                     - 64 * ocb;
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
