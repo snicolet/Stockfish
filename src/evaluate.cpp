@@ -1137,7 +1137,7 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Damp down the evaluation when shuffling, using a quadratic
-  int A = 150;
+  int A = 300;
   int w = v;
   w = w * (100 - pos.rule50_count()) * (A - pos.rule50_count()) / (100 * A);
   
