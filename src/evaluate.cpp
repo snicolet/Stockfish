@@ -1146,13 +1146,13 @@ void get_stochastic_coeffs(const Position& pos) {
    // if (pos.random() >= 0)
    {
       B0 += A0;
-      B1 += A1;
-      B2 += A2;
-      B3 += A3;
-      B4 += A4;
-      B5 += A5;
-      B6 += A6;
-      B7 += A7;
+      B1 += 2 * A1;
+      B2 += 2 * A2;
+      B3 += 2 * A3;
+      B4 += 2 * A4;
+      B5 += 2 * A5;
+      B6 += 2 * A6;
+      B7 += 2 * A7;
    }
 
 }
