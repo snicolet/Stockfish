@@ -1134,7 +1134,7 @@ void get_stochastic_coeffs(const Position& pos) {
    B6 = 0;
    B7 = 0;
 
-   A0 = 7;
+   A0 = 7 - 100;
    A1 = 5;
    A2 = -2;
    A3 = 5;
@@ -1193,7 +1193,7 @@ Value Eval::evaluate(const Position& pos) {
                      - B6 * ocb
                      + B7 * !!passed;
         
-         // dbg_mean_of(scale);
+         //dbg_mean_of(scale);
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
