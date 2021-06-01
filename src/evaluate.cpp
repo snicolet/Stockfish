@@ -1101,31 +1101,51 @@ make_v:
 } // namespace Eval
 
 
-// int A0 = 0;
-// int A1 = 0;
-// int A2 = 0;
-// int A3 = 0;
-// int A4 = 0;
-// int A5 = 0;
-// int A6 = 0;
-// int A7 = 0;
-// TUNE(SetRange(-120, 120)  , A0);
-// TUNE(SetRange(-121, 121)  , A1);
-// TUNE(SetRange(-119, 119)  , A2);
-// TUNE(SetRange(-122, 122)  , A3);
-// TUNE(SetRange(-118, 118)  , A4);
-// TUNE(SetRange(-123, 123)  , A5);
-// TUNE(SetRange(-117, 117)  , A6);
-// TUNE(SetRange(-124, 124)  , A7);
+int A0 = 0;
+int A1 = 0;
+int A2 = 0;
+int A3 = 0;
+int A4 = 0;
+int A5 = 0;
+int A6 = 0;
+int A7 = 0;
 
-int A0 =  -2 ;
-int A1 =  19 ;
-int A2 =   1 ;
-int A3 =   5 ;
-int A4 =  12 ;
-int A5 =  -5 ;
-int A6 =  -3 ;
-int A7 =   6 ;
+TUNE(SetRange(-120, 120), A0);
+TUNE(SetRange( -60, 60) , A1);
+TUNE(SetRange( -60, 60) , A2);
+TUNE(SetRange( -60, 60) , A3);
+TUNE(SetRange( -60, 60) , A4);
+TUNE(SetRange( -60, 60) , A5);
+TUNE(SetRange( -60, 60) , A6);
+TUNE(SetRange( -60, 60) , A7);
+
+int B0, B1, B2, B3, B4, B5, B6, B7;
+
+void get_stochastic_coeffs(const Position& pos) {
+   
+   B0 = 903;
+   B1 = 28;
+   B2 = 0;
+   B3 = 0;
+   B4 = 28;
+   B5 = 0;
+   B6 = 0;
+   B7 = 0;
+
+   if (pos.random() >= 0)
+   {
+      B0 += A0;
+      B1 += A1;
+      B2 += A2;
+      B3 += A3;
+      B4 += A4;
+      B5 += A5;
+      B6 += A6;
+      B7 += A7;
+   }
+
+}
+
 
 
 /// evaluate() is the evaluator for the outer world. It returns a static
@@ -1150,15 +1170,19 @@ Value Eval::evaluate(const Position& pos) {
          int separation  = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
          int ocb         = pos.opposite_bishops();
          Bitboard passed = pos.passed_pawns();
+         
+         get_stochastic_coeffs(pos);
 
-         int scale =  (850 + A0)
-                     + (28 + A1) * pawns
-                     + (32 + A2) * !!queen
-                     + ( 8 + A3) * pieces
-                     + (28 + A4) * material / 1024
-                     + (64 + A5) * (separation >= 4)
-                     - (64 + A6) * ocb
-                     + ( 0 + A7) * !!passed;
+         int scale =   B0
+                     + B1 * pawns
+                     + B2 * !!queen
+                     + B3 * pieces
+                     + B4 * material / 1024
+                     + B5 * (separation >= 4)
+                     - B6 * ocb
+                     + B7 * !!passed;
+        
+         // dbg_mean_of(scale);
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
