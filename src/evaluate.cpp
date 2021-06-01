@@ -1110,6 +1110,7 @@ int A5 = 0;
 int A6 = 0;
 int A7 = 0;
 
+/*
 TUNE(SetRange(-120, 120), A0);
 TUNE(SetRange( -60, 60) , A1);
 TUNE(SetRange( -60, 60) , A2);
@@ -1118,6 +1119,7 @@ TUNE(SetRange( -60, 60) , A4);
 TUNE(SetRange( -60, 60) , A5);
 TUNE(SetRange( -60, 60) , A6);
 TUNE(SetRange( -60, 60) , A7);
+*/
 
 int B0, B1, B2, B3, B4, B5, B6, B7;
 
@@ -1132,6 +1134,15 @@ void get_stochastic_coeffs(const Position& pos) {
    B6 = 0;
    B7 = 0;
 
+   A0 = 7;
+   A1 = 5;
+   A2 = -2;
+   A3 = 5;
+   A4 = 2;
+   A5 = 0;
+   A6 = 3;
+   A7 = 3;
+   
    if (pos.random() >= 0)
    {
       B0 += A0;
