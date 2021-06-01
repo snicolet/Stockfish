@@ -1119,7 +1119,7 @@ Value Eval::evaluate(const Position& pos) {
          int scale =   903
                      + 28 * pos.count<PAWN>()
                      + 28 * pos.non_pawn_material() / 1024
-                     -  4 * pos.rule50_count();
+                     -  5 * pos.rule50_count();
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
