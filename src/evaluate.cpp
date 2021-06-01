@@ -1134,25 +1134,25 @@ void get_stochastic_coeffs(const Position& pos) {
    B6 = 0;
    B7 = 0;
 
-   A0 = 17 - 100;
-   A1 = 5;
+   A0 = 9;
+   A1 = 9;
    A2 = -4;
-   A3 = 2;
-   A4 = 6;
-   A5 = 0;
-   A6 = 0;
-   A7 = 2;
+   A3 = 4;
+   A4 = 9;
+   A5 = -2;
+   A6 = -9;
+   A7 = 5;
    
-   // if (pos.random() >= 0)
+   if (pos.random() >= 0)
    {
       B0 += A0;
-      B1 += 2 * A1;
-      B2 += 2 * A2;
-      B3 += 2 * A3;
-      B4 += 2 * A4;
-      B5 += 2 * A5;
-      B6 += 2 * A6;
-      B7 += 2 * A7;
+      B1 += A1;
+      B2 += A2;
+      B3 += A3;
+      B4 += A4;
+      B5 += A5;
+      B6 += A6;
+      B7 += A7;
    }
 
 }
@@ -1178,8 +1178,8 @@ Value Eval::evaluate(const Position& pos) {
          int queen       = pos.count<QUEEN>();
          int pieces      = pos.count<ALL_PIECES>();
          int material    = pos.non_pawn_material();
-    //     int separation  = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-    //     int ocb         = pos.opposite_bishops();
+         int separation  = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
+         int ocb         = pos.opposite_bishops();
          Bitboard passed = pos.passed_pawns();
          
          get_stochastic_coeffs(pos);
@@ -1189,8 +1189,8 @@ Value Eval::evaluate(const Position& pos) {
                      + B2 * !!queen
                      + B3 * pieces
                      + B4 * material / 1024
-       //              + B5 * (separation >= 4)
-       //              - B6 * ocb
+                     + B5 * (separation >= 4)
+                     - B6 * ocb
                      + B7 * !!passed;
         
          //dbg_mean_of(scale);
