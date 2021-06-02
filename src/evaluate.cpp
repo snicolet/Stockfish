@@ -1155,7 +1155,7 @@ Value Eval::evaluate(const Position& pos) {
          Bitboard ourPassed   = passed & pos.pieces( us, PAWN);
          Bitboard theirPassed = passed & pos.pieces(~us, PAWN);
 
-         int bonus = -pieces * (popcount(ourPassed) - popcount(theirPassed));
+         int bonus = -pieces * (popcount(ourPassed) - popcount(theirPassed)) / 2;
 
          //dbg_mean_of(scale);
 
