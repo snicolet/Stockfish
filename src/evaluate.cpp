@@ -1137,13 +1137,15 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
+         Value    nnue        = NNUE::evaluate(pos, true);
+         Color    us          = pos.side_to_move();
+         int      pawns       = pos.count<PAWN>();
+         int      material    = pos.non_pawn_material();
+         int      pieces      = pos.count<ALL_PIECES>();
+         Bitboard passed      = pos.passed_pawns();
+         Bitboard ourPassed   = passed & pos.pieces( us, PAWN);
+         Bitboard theirPassed = passed & pos.pieces(~us, PAWN);
 
-         Value    nnue     = NNUE::evaluate(pos, true);
-         int      pawns    = pos.count<PAWN>();
-         int      material = pos.non_pawn_material();
-         int      pieces   = pos.count<ALL_PIECES>();
-         Bitboard passed   = pos.passed_pawns();
-         Color    us       = pos.side_to_move();
          //int    separation = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
          //int    ocb        = pos.opposite_bishops();
          //int    queen      = pos.count<QUEEN>();
@@ -1152,12 +1154,9 @@ Value Eval::evaluate(const Position& pos) {
                      + 28 * pawns
                      + 28 * material / 1024;
 
-         Bitboard ourPassed   = passed & pos.pieces( us, PAWN);
-         Bitboard theirPassed = passed & pos.pieces(~us, PAWN);
+         int bonus = -128 * (popcount(ourPassed) - popcount(theirPassed)) / pieces;
 
-         int bonus = -8 * (popcount(ourPassed) - popcount(theirPassed));
-
-         //dbg_mean_of(scale);
+         //dbg_mean_of(128 / pieces);
 
          nnue = (nnue + bonus) * scale / 1024;
 
