@@ -179,9 +179,12 @@ namespace Stockfish::Eval::NNUE {
       const auto& accumulation = pos.state()->accumulator.accumulation;
       const auto& psqtAccumulation = pos.state()->accumulator.psqtAccumulation;
 
+      int psqt_optimism = -20;
+
       const auto psqt = (
             psqtAccumulation[static_cast<int>(perspectives[0])][bucket]
           - psqtAccumulation[static_cast<int>(perspectives[1])][bucket]
+          + psqt_optimism
         ) / 2;
 
   #if defined(USE_AVX512)
