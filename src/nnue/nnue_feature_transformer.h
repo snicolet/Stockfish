@@ -179,10 +179,10 @@ namespace Stockfish::Eval::NNUE {
       const auto& accumulation = pos.state()->accumulator.accumulation;
       const auto& psqtAccumulation = pos.state()->accumulator.psqtAccumulation;
 
-      const auto psqt = 
-            psqtAccumulation[static_cast<int>(perspectives[0])][bucket]
-            - (  psqtAccumulation[static_cast<int>(perspectives[0])][bucket]
-               + psqtAccumulation[static_cast<int>(perspectives[1])][bucket]) / 2;
+      int a = psqtAccumulation[static_cast<int>(perspectives[0])][bucket];
+      int b = psqtAccumulation[static_cast<int>(perspectives[1])][bucket];
+      int avg = (a-b) / 2;
+      const std::int32_t psqt = avg;
 
   #if defined(USE_AVX512)
       constexpr IndexType NumChunks = HalfDimensions / (SimdWidth * 2);
