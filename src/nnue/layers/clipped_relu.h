@@ -22,6 +22,7 @@
 #define NNUE_LAYERS_CLIPPED_RELU_H_INCLUDED
 
 #include "../nnue_common.h"
+#include <math.h>
 
 namespace Stockfish::Eval::NNUE::Layers {
 
@@ -65,23 +66,23 @@ namespace Stockfish::Eval::NNUE::Layers {
     }
 
     // Forward propagation
-    const OutputType* propagate(
-        const TransformedFeatureType* transformedFeatures, char* buffer) const {
-      const auto input = previousLayer.propagate(
-          transformedFeatures, buffer + SelfBufferSize);
-      const auto output = reinterpret_cast<OutputType*>(buffer);
-      
-      constexpr IndexType Start = 0;
+    const OutputType* propagate(const TransformedFeatureType* features, char* buffer) const {
 
-      for (IndexType i = Start; i < InputDimensions; ++i) {
-      
-        int x = (input[i] >> WeightScaleBits);
-        
-        if (x < 0)   x = 0;
-        if (x > 127) x = 127;
-           
-        output[i] = x;
+      const auto input  = previousLayer.propagate(features, buffer + SelfBufferSize);
+      const auto output = reinterpret_cast<OutputType*>(buffer);
+
+      // We shift a little bit the input towards the positive values (giving a more risky
+      // style of play), then implement a clipped Relu of the input, keeping the output
+      // in the 0..127 range.
+      for (IndexType i = 0; i < InputDimensions; ++i) 
+      {
+          int x = (input[i] >> WeightScaleBits) + 5;
+          if (x < 0)   x = 0;
+          if (x > 127) x = 127;
+
+          output[i] = x;
       }
+
       return output;
     }
 
