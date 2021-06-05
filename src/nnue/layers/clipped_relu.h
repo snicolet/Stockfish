@@ -31,7 +31,7 @@ namespace Stockfish::Eval::NNUE::Layers {
    public:
     // Input/output type
     using InputType = typename PreviousLayer::OutputType;
-    using OutputType = std::uint8_t;
+    using OutputType = std::int8_t;
     static_assert(std::is_same<InputType, std::int32_t>::value, "");
 
     // Number of input/output dimensions
