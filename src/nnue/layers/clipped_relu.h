@@ -76,7 +76,7 @@ namespace Stockfish::Eval::NNUE::Layers {
       // in the 0..127 range.
       for (IndexType i = 0; i < InputDimensions; ++i) 
       {
-          int x = (input[i] >> WeightScaleBits) + 5;
+          int x = (input[i] >> WeightScaleBits) + 10;
           if (x < 0)   x = 0;
           if (x > 127) x = 127;
 
