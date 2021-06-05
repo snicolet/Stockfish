@@ -65,16 +65,16 @@ namespace Stockfish::Eval::NNUE::Layers {
     }
 
     // Forward propagation
-    const OutputType* propagate(const TransformedFeatureType* feature, char* buffer) const {
+    const OutputType* propagate(const TransformedFeatureType* features, char* buffer) const {
     
-      const auto input  = previousLayer.propagate(feature, buffer + SelfBufferSize);
+      const auto input  = previousLayer.propagate(features, buffer + SelfBufferSize);
       const auto output = reinterpret_cast<OutputType*>(buffer);
 
       // We implement a clipped ReLu of the input, keeping the output in the 0..127 range
       for (IndexType i = 0; i < InputDimensions; ++i)
       {
-        int x = (input[i] >> WeightScaleBits);
-        output[i] = std::clamp(x, 0, 127);
+          int x = (input[i] >> WeightScaleBits);
+          output[i] = std::clamp(x, 0, 127);
       }
 
       return output;
