@@ -179,7 +179,7 @@ namespace Stockfish::Eval::NNUE {
       const auto& accumulation = pos.state()->accumulator.accumulation;
       const auto& psqtAccumulation = pos.state()->accumulator.psqtAccumulation;
 
-      int psqt_optimism = -10;
+      int psqt_optimism = -15;
 
       const auto psqt = (
             psqtAccumulation[static_cast<int>(perspectives[0])][bucket]
