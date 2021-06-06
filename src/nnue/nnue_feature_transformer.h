@@ -185,7 +185,7 @@ namespace Stockfish::Eval::NNUE {
       // convert input features for side to move
       for (int i = 0; i < halfD; ++i)
       {
-          int sum = accumulation[stm][i] - 3;
+          int sum = accumulation[stm][i];
           output[i] = std::clamp(sum, 0, 127);
       }
 
