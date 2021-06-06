@@ -315,9 +315,9 @@ endif
 ### ==========================================================================
 
 ### 3.1 Selecting compiler (default = gcc)
-CXXFLAGS += -Wall -Wcast-qual -fno-exceptions -std=c++17 $(EXTRACXXFLAGS)
-DEPENDFLAGS += -std=c++17
-LDFLAGS += $(EXTRALDFLAGS)
+CXXFLAGS += -Wall -Wcast-qual -fno-exceptions -std=c++17 $(EXTRACXXFLAGS) -ftree-vectorize -ftree-vectorizer-verbose=6 -fopt-info-vec-optimized -mavx
+DEPENDFLAGS += -std=c++17 -ftree-vectorize  -ftree-vectorizer-verbose=6 -mavx -fopt-info-vec-optimized
+LDFLAGS += $(EXTRALDFLAGS)  -ftree-vectorize  -ftree-vectorizer-verbose=6 -mavx -fopt-info-vec-optimized
 
 ifeq ($(COMP),)
 	COMP=gcc
