@@ -178,26 +178,26 @@ namespace Stockfish::Eval::NNUE {
       const auto& accumulation     = pos.state()->accumulator.accumulation;
       const auto& psqtAccumulation = pos.state()->accumulator.psqtAccumulation;
       const Color stm              = pos.side_to_move();
-      const auto  psqt             = (psqtAccumulation[stm][bucket] - psqtAccumulation[~stm][bucket]) / 2;
+      const Color opponent         = ~stm;
+      const auto  psqt             = (psqtAccumulation[stm][bucket] - psqtAccumulation[opponent][bucket]) / 2;
       const int   halfD            = HalfDimensions;
 
-      // input features for side to move
+      // convert input features for side to move
       for (int i = 0; i < halfD; ++i)
       {
           int sum = accumulation[stm][i];
           output[i] = std::clamp(sum, 0, 127);
       }
 
-      // input features for opponent
+      // convert input features for opponent
       for (int i = 0; i < halfD; ++i)
       {
-          int sum = accumulation[~stm][i];
+          int sum = accumulation[opponent][i];
           output[halfD + i] = std::clamp(sum, 0, 127);
       }
 
       return psqt;
-
-   } // end of function transform()
+    }
 
 
 
