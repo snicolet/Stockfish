@@ -1184,7 +1184,7 @@ moves_loop: // When in check, search starts from here
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
           int deeper =   r < -1 && moveCount <= 5  ? 1 
-                      :  r < -1 && (pos.key() & 1) ? 1
+                      :  r < -2 && (pos.key() & 1) ? 1
                                                    : 0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
