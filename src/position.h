@@ -163,6 +163,7 @@ public:
   Score psq_score() const;
   Value non_pawn_material(Color c) const;
   Value non_pawn_material() const;
+  int random() const;
 
   // Position consistency check, for debugging
   bool pos_is_ok() const;
@@ -371,7 +372,6 @@ inline Thread* Position::this_thread() const {
 }
 
 inline void Position::put_piece(Piece pc, Square s) {
-
   board[s] = pc;
   byTypeBB[ALL_PIECES] |= byTypeBB[type_of(pc)] |= s;
   byColorBB[color_of(pc)] |= s;
@@ -409,7 +409,6 @@ inline void Position::do_move(Move m, StateInfo& newSt) {
 }
 
 inline StateInfo* Position::state() const {
-
   return st;
 }
 

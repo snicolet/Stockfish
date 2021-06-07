@@ -1346,4 +1346,8 @@ bool Position::pos_is_ok() const {
   return true;
 }
 
+int Position::random() const {
+  return (key() & 127) + (this_thread()->nodes & 127) - 127;
+}
+
 } // namespace Stockfish
