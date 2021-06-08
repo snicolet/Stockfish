@@ -163,6 +163,7 @@ public:
   Score psq_score() const;
   Value non_pawn_material(Color c) const;
   Value non_pawn_material() const;
+  uint64_t nodes() const; 
 
   // Position consistency check, for debugging
   bool pos_is_ok() const;

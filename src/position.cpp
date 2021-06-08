@@ -1346,4 +1346,8 @@ bool Position::pos_is_ok() const {
   return true;
 }
 
+uint64_t Position::nodes() const {
+   return this_thread()->nodes;
+}
+
 } // namespace Stockfish
