@@ -172,11 +172,10 @@ namespace Stockfish::Eval::NNUE {
         //int pawns = PawnValueEg * (pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK));
 
         int mat_limit  = BishopValueMg - KnightValueMg;
-        int eval_limit = 1500;
 
-        entertainment +=   (abs(npm) <= mat_limit)  ? (pos.key() & 31)
-                         : (abs(sum) <= eval_limit) ? (pos.key() & 31)
-                                                    : 0;
+        entertainment +=  abs(npm) <= mat_limit ? (pos.key() & 31) :
+                          sum <= 0              ? (pos.key() & 31)
+                                                : 0;
     }
 
     int A = 128 ;
