@@ -163,10 +163,21 @@ namespace Stockfish::Eval::NNUE {
 
     int materialist = psqt;
     int positional  = output[0];
+    int entertainment = 0;
 
-    int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
-    int entertainment = (adjusted && delta_npm <= (BishopValueMg - KnightValueMg) / 2) ? (pos.key() & 31)
-                                                                                       : 0;
+    if (adjusted)
+    {
+        int sum   = materialist + positional;
+        int npm   = pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK);
+        //int pawns = PawnValueEg * (pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK));
+
+        int mat_limit  = BishopValueMg - KnightValueMg;
+        int eval_limit = 500;
+
+        entertainment +=   (abs(npm) <= mat_limit)  ? (pos.key() & 31)
+                         : (abs(sum) <= eval_limit) ? (pos.key() & 31)
+                                                    : 0;
+    }
 
     int A = 128 ;
     int B = 128 + entertainment;
