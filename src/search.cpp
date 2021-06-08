@@ -1072,7 +1072,7 @@ moves_loop: // When in check, search starts from here
 
           if (value < singularBeta)
           {
-              if ((pos.key() & 3) <= 1)
+              if ((pos.key() & 31) <= 16)  // probability 53%
               {
               extension = 1;
               singularQuietLMR = !ttCapture;
