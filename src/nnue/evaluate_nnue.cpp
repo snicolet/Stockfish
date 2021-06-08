@@ -167,15 +167,15 @@ namespace Stockfish::Eval::NNUE {
 
     if (adjusted)
     {
-        int sum   = materialist + positional;
-        int npm   = pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK);
-        //int pawns = PawnValueEg * (pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK));
+        Color stm   = pos.side_to_move();
+        int   sum   = materialist + positional;
+        int   npm   = pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK);
+        int   pawns = pos.count<PAWN>(stm) - pos.count<PAWN>(~stm);
+        int   limit = BishopValueMg - KnightValueMg;
 
-        int mat_limit  = BishopValueMg - KnightValueMg;
-
-        entertainment +=  abs(npm) <= mat_limit ? (pos.key() & 31) :
-                          sum <= 0              ? (pos.key() & 31)
-                                                : 0;
+        entertainment +=   (abs(npm)   <= limit) ? (pos.key() & 31) :
+                           (abs(pawns) == 1    ) ? (pos.key() & 31) 
+                                                 : 0 ;
     }
 
     int A = 128 ;
