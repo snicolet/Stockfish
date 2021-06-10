@@ -1060,7 +1060,6 @@ moves_loop: // When in check, search starts from here
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
-          &&  ss->ply + depth < 2 * thisThread->rootDepth
           && (tte->bound() & BOUND_LOWER)
           &&  tte->depth() >= depth - 3)
       {
@@ -1073,16 +1072,16 @@ moves_loop: // When in check, search starts from here
 
           if (value < singularBeta)
           {
-              if (  (pos.key() & 31) <= 20  // probability 66%
-                 )  
+              if (int(pos.key() & 127) <= 128 - 8 * pos.rule50_count())
               {
               extension = 1;
               singularQuietLMR = !ttCapture;
               if (   !PvNode 
                   && value < singularBeta - 93
-                  && (pos.this_thread()->nodes & 31) <= 20)  // probability 66%
+                  && int(pos.this_thread()->nodes & 127) <= 128 - 8 * pos.rule50_count()
+                 )
                   extension = 2;
-              }
+             }
           }
 
           // Multi-cut pruning
