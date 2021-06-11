@@ -1435,11 +1435,20 @@ moves_loop: // When in check, search starts from here
                 bestValue = ttValue;
         }
         else
+        {
             // In case of null move search use previous static eval with a different sign
-            // and addition of two tempos
-            ss->staticEval = bestValue =
-            (ss-1)->currentMove != MOVE_NULL ? (220 - std::min(ss->ply, 219)) * evaluate(pos) / 220
-                                             : -(ss-1)->staticEval;
+            if ((ss-1)->currentMove == MOVE_NULL)
+                ss->staticEval = bestValue = -(ss-1)->staticEval;
+            else
+            {
+                // Deprecate with move ply
+                int v = evaluate(pos);
+                int p = std::min(ss->ply, 16);
+                v = (32 - p) * v / 32;
+                v = (32 + p) * v / 32;
+                ss->staticEval = bestValue = Value(v);
+            }
+        }
 
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
