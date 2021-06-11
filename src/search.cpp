@@ -1443,7 +1443,7 @@ moves_loop: // When in check, search starts from here
             {
                 // Deprecate with move ply. Function has the shape of f(x) = 1 - x^2
                 int v = evaluate(pos);
-                int p = std::min(ss->ply, 20);
+                int p = std::min(ss->ply, 24);
                 v = (32 - p) * v / 32;
                 v = (32 + p) * v / 32;
                 ss->staticEval = bestValue = Value(v);
