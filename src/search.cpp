@@ -1072,12 +1072,12 @@ moves_loop: // When in check, search starts from here
           ss->excludedMove = MOVE_NONE;
 
           if (   value < singularBeta
-              && ss->ply + depth < 2 * thisThread->rootDepth)
+              && ss->extensions < 30)
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
 
-              // Avoid search explosion by limiting the number of double extensions to at most 3
+              // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
                   && value < singularBeta - 93
                   && ss->extensions < 8)
@@ -1117,7 +1117,6 @@ moves_loop: // When in check, search starts from here
 
       // Add extension to new depth
       newDepth += extension;
-      ss->extensions = (ss-1)->extensions + extension;
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
@@ -1131,6 +1130,8 @@ moves_loop: // When in check, search starts from here
 
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
+
+      ss->extensions = (ss-1)->extensions + extension;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
@@ -1196,9 +1197,10 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
-          int deeper = (   r < -1 
-                        && moveCount <= 5 
+          int deeper = (   r < -1
+                        && moveCount <= 5
                         && ss->extensions < 30) ? 1 : 0;
+          ss->extensions += deeper;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
