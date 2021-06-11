@@ -1072,7 +1072,7 @@ moves_loop: // When in check, search starts from here
           ss->excludedMove = MOVE_NONE;
 
           if (   value < singularBeta
-              && ss->extensions < 30)
+              && ss->ply + depth < 2 * thisThread->rootDepth)
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
