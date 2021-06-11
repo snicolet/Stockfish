@@ -1196,7 +1196,9 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
-          int deeper = ss->extensions < 30 && r < -1 && moveCount <= 5 ? 1 : 0;
+          int deeper = (   r < -1 
+                        && moveCount <= 5 
+                        && ss->extensions < 30) ? 1 : 0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
