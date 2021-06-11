@@ -49,10 +49,10 @@ struct Stack {
   Value staticEval;
   int statScore;
   int moveCount;
+  int extensions;
   bool inCheck;
   bool ttPv;
   bool ttHit;
-  int doubleExtensions;
 };
 
 

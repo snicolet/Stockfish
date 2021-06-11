@@ -613,7 +613,7 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
-    ss->doubleExtensions = (ss-1)->doubleExtensions;
+    ss->extensions       = (ss-1)->extensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -1071,7 +1071,8 @@ moves_loop: // When in check, search starts from here
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
 
-          if (value < singularBeta)
+          if (   value < singularBeta
+              && ss->extensions < 30)
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
@@ -1079,7 +1080,7 @@ moves_loop: // When in check, search starts from here
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
                   && value < singularBeta - 93
-                  && ss->doubleExtensions < 3)
+                  && ss->extensions < 8)
                   extension = 2;
           }
 
@@ -1108,9 +1109,15 @@ moves_loop: // When in check, search starts from here
                && abs(ss->staticEval) > Value(100))
           extension = 1;
 
+      // bool A = (pos.side_to_move() == BLACK);
+      // bool B = (to_sq(move) == SQ_A8);
+      // bool C = (extension > 0);
+      // if (A && B)
+      //     dbg_mean_of(C);
+
       // Add extension to new depth
       newDepth += extension;
-      ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
+      ss->extensions = (ss-1)->extensions + extension;
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
@@ -1189,7 +1196,15 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5));
+          int deeper = ss->extensions < 30 && r < -1 && moveCount <= 5 ? 1 : 0;
+
+          Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
+
+          // bool D = (pos.side_to_move() == BLACK);
+          // bool E = (r < -1 && moveCount <= 5);
+          // bool F = (deeper > 0)
+          // if (D)
+          //   dbg_mean_of(E);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
