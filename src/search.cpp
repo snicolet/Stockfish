@@ -1072,7 +1072,7 @@ moves_loop: // When in check, search starts from here
           ss->excludedMove = MOVE_NONE;
 
           if (   value < singularBeta
-              && ss->extensions < 15)
+              && ss->extensions < 30)
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
@@ -1199,8 +1199,9 @@ moves_loop: // When in check, search starts from here
           // to be searched deeper than the first move.
           int deeper = (   r < -1
                         && moveCount <= 5
+                        && extension <= 1
                         && ss->extensions < 30) ? 1 : 0;
-          ss->extensions += deeper;
+          //ss->extensions += deeper;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
