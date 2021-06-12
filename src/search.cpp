@@ -1201,7 +1201,7 @@ moves_loop: // When in check, search starts from here
                         && moveCount <= 5
                         && extension <= 1
                         && ss->extensions < 30) ? 1 : 0;
-          //ss->extensions += deeper;
+          ss->extensions += deeper;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
