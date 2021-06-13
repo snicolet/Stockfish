@@ -614,6 +614,7 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->extensions       = (ss-1)->extensions;
+  //  ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -1077,11 +1078,20 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
+              
+              /*
+              if (   !PvNode && value < singularBeta - 93)
+              {
+                 bool A = ss->extensions < 9;
+                 bool B = ss->doubleExtensions < 3;
+                 dbg_mean_of(A == B);
+              }
+              */
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
                   && value < singularBeta - 93
-                  && ss->extensions < 8)
+                  && ss->extensions < 9)
               {
                   extension = 2;
                   doubleExtension = true;
@@ -1115,9 +1125,9 @@ moves_loop: // When in check, search starts from here
                && abs(ss->staticEval) > Value(100))
           extension = 1;
 
-
       // Add extension to new depth
       newDepth += extension;
+ //     ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
@@ -1203,7 +1213,7 @@ moves_loop: // When in check, search starts from here
                         && extension == 0        // current son is not already extended
                         && !doubleExtension      // ttMove was not doubly singular 
                         && ss->extensions < 30;  // total amount of extensions since root
-          ss->extensions += deeper;
+          //ss->extensions += deeper;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
