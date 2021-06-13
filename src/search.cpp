@@ -1195,9 +1195,8 @@ moves_loop: // When in check, search starts from here
           // to be searched deeper than the first move, unless ttMove was extended by 2.
           int deeper = (   r < -1 
                         && moveCount <= 5
-                        && extension == 0
                         && !doubleExtension) ? 1 : 0;
-                       
+          ss->doubleExtensions = (ss-1)->doubleExtensions + (extension + deeper >= 2);
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
