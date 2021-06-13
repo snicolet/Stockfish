@@ -1213,7 +1213,7 @@ moves_loop: // When in check, search starts from here
                         && extension == 0        // current son is not already extended
                         && !doubleExtension      // ttMove was not doubly singular 
                         && ss->extensions < 30;  // total amount of extensions since root
-          //ss->extensions += deeper;
+          ss->extensions += deeper;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
