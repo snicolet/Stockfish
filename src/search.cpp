@@ -1194,8 +1194,8 @@ moves_loop: // When in check, search starts from here
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
           
-          int deeper =   doubleExtension           ? 0
-                       : r < -2 && (pos.key() & 1) ? 2
+          int deeper =   r < -2 && (pos.key() & 1) ? 2
+                       : doubleExtension           ? 0
                        : r < -1 && moveCount <= 5  ? 1
                                                    : 0;
 
