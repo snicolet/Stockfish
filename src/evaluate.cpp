@@ -1116,7 +1116,7 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&]()
       {
 
-         int scale = 903 + 25 * pos.count<PAWN>() + 30 * pos.non_pawn_material() / 1024;
+         int scale = 903 + 22 * pos.count<PAWN>() + 32 * pos.non_pawn_material() / 1024;
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
