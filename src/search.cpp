@@ -1448,7 +1448,7 @@ moves_loop: // When in check, search starts from here
             // In case of null move search use previous static eval with a different sign
             // and addition of two tempos
             ss->staticEval = bestValue =
-            (ss-1)->currentMove != MOVE_NULL ? (160 - std::min(ss->ply, 159)) * evaluate(pos) / 160
+            (ss-1)->currentMove != MOVE_NULL ? (250 - std::min(ss->ply, 219)) * evaluate(pos) / 220
                                              : -(ss-1)->staticEval;
 
         // Stand pat. Return immediately if static value is at least beta
