@@ -1125,13 +1125,13 @@ Value Eval::evaluate(const Position& pos) {
          
          //dbg_mean_of(abs(contempt));
          
-         int weight = 28 + contempt / 16;
+         int weight = 28;
 
          int scale = 903
                     + weight * pos.count<PAWN>() 
                     + weight * pos.non_pawn_material() / 1024;
 
-         nnue = nnue * scale / 1024;
+         nnue = (nnue + contempt) * scale / 1024;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
