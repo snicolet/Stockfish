@@ -1125,10 +1125,9 @@ Value Eval::evaluate(const Position& pos) {
          
          //dbg_mean_of(abs(contempt));
          
-         int weight = 28;
+         int weight = 28 + contempt / 16;
 
-         int scale = 903 
-                    + contempt
+         int scale = 903
                     + weight * pos.count<PAWN>() 
                     + weight * pos.non_pawn_material() / 1024;
 
