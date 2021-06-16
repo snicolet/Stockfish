@@ -1117,16 +1117,15 @@ Value Eval::evaluate(const Position& pos) {
       {
       
          int contempt = mg_value(pos.this_thread()->contempt);
-         Color stm    = pos.side_to_move();
-         Value nnue   = NNUE::evaluate(pos, true);
+         if (pos.side_to_move() == BLACK) 
+             contempt = -contempt;
          
-         if (stm == BLACK) contempt = -contempt;
-         if (nnue < 0)     contempt = -contempt;
+         Value nnue = NNUE::evaluate(pos, true) + contempt;
          
-         //dbg_mean_of(abs(contempt));
-         
-         int weight = 28 + contempt / 8;
+         if (nnue < 0) 
+             contempt = -contempt;
 
+         int weight = 28 + contempt / 16;
          int scale = 903
                     + weight * pos.count<PAWN>() 
                     + weight * pos.non_pawn_material() / 1024;
