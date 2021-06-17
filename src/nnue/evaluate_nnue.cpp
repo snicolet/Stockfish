@@ -169,15 +169,12 @@ namespace Stockfish::Eval::NNUE {
     {
         int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
         int contempt  = mg_value(pos.contempt());
-        int nnue      = psqt + output[0];
         Color stm     = pos.side_to_move();
 
         if (stm == BLACK) contempt = -contempt;
-        if (nnue < 0)     contempt = -contempt;
 
-        entertainment = (delta_npm <= BishopValueMg - KnightValueMg) ? 7 : 0;
-
-        entertainment -= contempt / 16;
+        entertainment = (delta_npm <= BishopValueMg - KnightValueMg) ? (7 + contempt / 16) 
+                                                                     : 0;
     }
 
     int A = 128 - entertainment;
