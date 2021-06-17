@@ -1115,21 +1115,19 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-      
          int contempt = mg_value(pos.this_thread()->contempt);
          Color stm    = pos.side_to_move();
          Value nnue   = NNUE::evaluate(pos, true);
-         
+
          if (stm == BLACK) contempt = -contempt;
          if (nnue < 0)     contempt = -contempt;
-         
-         //dbg_mean_of(abs(contempt));
-         
-         int weight = 28 + contempt / 16;
 
-         int scale = 903
-                    + weight * pos.count<PAWN>() 
-                    + weight * pos.non_pawn_material() / 1024;
+         int weight_pieces = std::clamp(28 - contempt / 8, 15, 40);
+         int weight_pawns  = 28 ;
+
+         int scale =  903
+                    + weight_pawns  * pos.count<PAWN>() 
+                    + weight_pieces * pos.non_pawn_material() / 1024;
 
          nnue = nnue * scale / 1024;
 
@@ -1139,7 +1137,7 @@ Value Eval::evaluate(const Position& pos) {
          return nnue;
       };
 
-      // If there is PSQ imbalance we use the classical eval.
+      // If there is PSQ imbalance we use the classical eval
       Value psq = Value(abs(eg_value(pos.psq_score())));
       int   r50 = 16 + pos.rule50_count();
       bool  largePsq = psq * 16 > (NNUEThreshold1 + pos.non_pawn_material() / 64) * r50;
