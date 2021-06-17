@@ -1344,4 +1344,8 @@ bool Position::pos_is_ok() const {
   return true;
 }
 
+Score Position::contempt() const {
+  return this_thread()->contempt;
+}
+
 } // namespace Stockfish

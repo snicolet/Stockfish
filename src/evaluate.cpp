@@ -1115,28 +1115,21 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         
+
          int contempt = mg_value(pos.this_thread()->contempt);
-         if (pos.side_to_move() == BLACK)
-            contempt = -contempt;
-         
-         contempt =   contempt >=  16 ?  16
-                    : contempt <= -16 ? -16
-                                      :  0  ;
-         
-         Value nnue = NNUE::evaluate(pos, true) + contempt;
-         
-         if (nnue < 0) 
-            contempt = -contempt;
+         Color stm    = pos.side_to_move();
+         Value nnue   = NNUE::evaluate(pos, true);
+
+         if (stm == BLACK) contempt = -contempt;
+         if (nnue < 0)     contempt = -contempt;
 
          //dbg_mean_of(abs(contempt));
 
-         int pawn_weight  = 28 + contempt / 4;
-         int piece_weight = 28 + contempt / 4;
+         int weight = 28 + contempt / 16;
 
-         int scale =  903
-                    + pawn_weight  * pos.count<PAWN>() 
-                    + piece_weight * pos.non_pawn_material() / 1024;
+         int scale = 903
+                    + weight * pos.count<PAWN>() 
+                    + weight * pos.non_pawn_material() / 1024;
 
          nnue = nnue * scale / 1024;
 
