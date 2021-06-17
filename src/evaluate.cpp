@@ -1125,13 +1125,19 @@ Value Eval::evaluate(const Position& pos) {
 
          //dbg_mean_of(abs(contempt));
 
-         int weight = 28 + contempt / 8;
+         int weight_pieces = std::clamp(28 - contempt / 8, 15, 40);
+         int weight_pawns  = 28 ;
+         
+         
 
-         int scale = 903
-                    + weight * pos.count<PAWN>() 
-                    + weight * pos.non_pawn_material() / 1024;
+         int scale =  903
+                    + weight_pawns  * pos.count<PAWN>() 
+                    + weight_pieces * pos.non_pawn_material() / 1024;
 
          nnue = nnue * scale / 1024;
+         
+         //dbg_mean_of(scale);
+         //dbg_mean_of(weight_pieces > 40);
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
