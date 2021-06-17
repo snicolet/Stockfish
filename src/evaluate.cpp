@@ -1129,7 +1129,7 @@ Value Eval::evaluate(const Position& pos) {
       // If there is PSQ imbalance we use the classical eval.
       int r50 = pos.rule50_count();
       Value psq = Value(abs(eg_value(pos.psq_score())));
-      bool largePsq = psq * 10 > (NNUEThreshold1 + pos.non_pawn_material() / 64) * (10 + r50);
+      bool largePsq = psq * 12 > (NNUEThreshold1 + pos.non_pawn_material() / 64) * (12 + r50);
 
       // dbg_mean_of(largePsq);
 
