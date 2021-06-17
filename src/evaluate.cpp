@@ -1122,12 +1122,11 @@ Value Eval::evaluate(const Position& pos) {
          if (stm == BLACK) contempt = -contempt;
          if (nnue < 0)     contempt = -contempt;
 
-         int weight_pieces = 28;
-         int weight_pawns  = std::clamp(28 - contempt / 8, 15, 40);
+         int weight = std::clamp(28 - contempt / 8, 15, 40);
 
          int scale =  903
-                    + weight_pawns  * pos.count<PAWN>() 
-                    + weight_pieces * pos.non_pawn_material() / 1024;
+                    + weight * pos.count<PAWN>() 
+                    + weight * pos.non_pawn_material() / 1024;
 
          nnue = nnue * scale / 1024;
 
