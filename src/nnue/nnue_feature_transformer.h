@@ -235,7 +235,7 @@ namespace Stockfish::Eval::NNUE {
           {
               int sum = accumulation[perspectives[p]][j];
 
-              if (sum > 120) sum = 120;
+              if (sum > 110) sum = 110;
               if (sum < 0)   sum = 0;
 
               output[offset + j] = sum;
