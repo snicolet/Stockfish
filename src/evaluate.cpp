@@ -1091,9 +1091,9 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         int weight = 34;
+         int weight = 32;
          
-         int scale =   903 
+         int scale =   950 
                      + weight * pos.count<PAWN>() 
                      + weight * pos.non_pawn_material() / 1024;
 //dbg_mean_of(scale);
