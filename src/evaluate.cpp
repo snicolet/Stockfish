@@ -1093,7 +1093,7 @@ Value Eval::evaluate(const Position& pos) {
       {
          int weight = 32;
          
-         int scale =   950 
+         int scale =   850 
                      + weight * pos.count<PAWN>() 
                      + weight * pos.non_pawn_material() / 1024;
 //dbg_mean_of(scale);
