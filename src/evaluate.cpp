@@ -1091,9 +1091,12 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-
-         int scale = 903 + 28 * pos.count<PAWN>() + 28 * pos.non_pawn_material() / 1024;
-
+         int weight = 29;
+         
+         int scale =   903 
+                     + weight * pos.count<PAWN>() 
+                     + weight * pos.non_pawn_material() / 1024;
+//dbg_mean_of(scale);
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
          if (pos.is_chess960())
