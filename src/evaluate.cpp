@@ -192,8 +192,7 @@ namespace {
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold1    =  Value(1565);
   constexpr Value LazyThreshold2    =  Value(1102);
-  constexpr Value SpaceThreshold    = Value(11551);
-  constexpr Value NNUEThreshold1    =   Value(800);
+  constexpr Value SpaceThreshold    =  Value(11551);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
@@ -1105,7 +1104,7 @@ Value Eval::evaluate(const Position& pos) {
       // If there is PSQ imbalance we use the classical eval
       int r50 = pos.rule50_count();
       Value psq = Value(abs(eg_value(pos.psq_score())));
-      bool largePsq = psq * 8 > (NNUEThreshold1 + pos.non_pawn_material() / 64) * (8 + r50);
+      bool largePsq = psq * 4 > (700 + pos.non_pawn_material() / 64) * (4 + r50);
 
       v = largePsq ? Evaluation<NO_TRACE>(pos).value()  // classical
                    : adjusted_NNUE();                   // NNUE
