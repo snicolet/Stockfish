@@ -1091,7 +1091,7 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         int weight = 32;
+         int weight = 33;
          
          int scale =   903 
                      + weight * pos.count<PAWN>() 
