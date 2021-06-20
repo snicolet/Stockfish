@@ -1104,7 +1104,7 @@ Value Eval::evaluate(const Position& pos) {
       // If there is PSQ imbalance we use the classical eval
       int r50 = pos.rule50_count();
       Value psq = Value(abs(eg_value(pos.psq_score())));
-      bool largePsq = psq * 5 > (700 + pos.non_pawn_material() / 64) * (5 + r50);
+      bool largePsq = psq * 4 > (750 + pos.non_pawn_material() / 64) * (4 + r50);
 
       v = largePsq ? Evaluation<NO_TRACE>(pos).value()  // classical
                    : adjusted_NNUE();                   // NNUE
