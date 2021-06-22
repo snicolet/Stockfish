@@ -1432,11 +1432,14 @@ moves_loop: // When in check, search starts from here
                 bestValue = ttValue;
         }
         else
+        {
             // In case of null move search use previous static eval with a different sign
-            // and addition of two tempos
+
+            int shuffle = std::min(ss->ply + pos.rule50_count(), 159);
             ss->staticEval = bestValue =
-            (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
-                                             : -(ss-1)->staticEval;
+              (ss-1)->currentMove != MOVE_NULL ? (160 - shuffle) * evaluate(pos) / 160
+                                               : -(ss-1)->staticEval;
+        }
 
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
