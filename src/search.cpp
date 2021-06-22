@@ -1435,9 +1435,9 @@ moves_loop: // When in check, search starts from here
         {
             // In case of null move search use previous static eval with a different sign
 
-            int shuffle = std::min(ss->ply + pos.rule50_count(), 255);
+            int shuffle = std::clamp(ss->ply + pos.rule50_count() - 20, 0, 159);
             ss->staticEval = bestValue =
-              (ss-1)->currentMove != MOVE_NULL ? (256 - shuffle) * evaluate(pos) / 256
+              (ss-1)->currentMove != MOVE_NULL ? (160 - shuffle) * evaluate(pos) / 160
                                                : -(ss-1)->staticEval;
         }
 
