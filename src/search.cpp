@@ -1437,7 +1437,7 @@ moves_loop: // When in check, search starts from here
 
             int shuffle = std::clamp(   ss->ply
                                       + pos.rule50_count()
-                                      - pos.this_thread()->rootDepth,
+                                      - pos.this_thread()->rootDepth / 2,
                                       0, 319);
 
             ss->staticEval = bestValue =
