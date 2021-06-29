@@ -177,6 +177,29 @@ namespace Stockfish::Eval::NNUE {
 
     return static_cast<Value>( sum / OutputScale );
   }
+  
+
+  /// NNUE::materialist() : returns a fast approximation of the materialistic (psqt) 
+  /// aspect of the position.
+
+  Value materialist(const Position& pos) {
+
+    #if defined(ALIGNAS_ON_STACK_VARIABLES_BROKEN)
+    constexpr N = FeatureTransformer::BufferSize + CacheLineSize / sizeof(TransformedFeatureType);
+    TransformedFeatureType unaligned[N];
+    TransformedFeatureType features = align_ptr_up<CacheLineSize>(&unaligned[0]);
+    ASSERT_ALIGNED(features, CacheLineSize);
+    #else
+    alignas(CacheLineSize)
+    TransformedFeatureType features[FeatureTransformer::BufferSize];
+    ASSERT_ALIGNED(features, CacheLineSize);
+    #endif
+
+    int bucket = (pos.count<ALL_PIECES>() - 1) / 4;
+    int psqt = featureTransformer->transform(pos, features, bucket);
+
+    return Value( psqt / OutputScale );
+  }
 
   struct NnueEvalTrace {
     static_assert(LayerStacks == PSQTBuckets);
