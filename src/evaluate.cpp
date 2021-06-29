@@ -1005,36 +1005,29 @@ namespace {
 
 Value Eval::evaluate(const Position& pos) {
 
-  Value v;
-
-  if (false)
-      v = Evaluation<NO_TRACE>(pos).value();
-  else
+  // Scale and shift NNUE for compatibility with search
+  auto  adjusted_NNUE = [&]()
   {
-      // Scale and shift NNUE for compatibility with search and classical evaluation
-      auto  adjusted_NNUE = [&]()
-      {
-         int scale =   903
-                     + 32 * pos.count<PAWN>()
-                     + 32 * pos.non_pawn_material() / 1024;
+     int scale =   903
+                 + 32 * pos.count<PAWN>()
+                 + 32 * pos.non_pawn_material() / 1024;
 
-         Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
+     Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
-         if (pos.is_chess960())
-             nnue += fix_FRC(pos);
+     if (pos.is_chess960())
+         nnue += fix_FRC(pos);
 
-         return nnue;
-      };
+     return nnue;
+  };
 
-      // If there is PSQ imbalance we use a faster eval, but we switch to
-      // NNUE eval when shuffling or if the material on the board is high.
-      int r50 = pos.rule50_count();
-      Value psq = Value(abs(eg_value(pos.psq_score())));
-      bool faster = psq * 5 > (750 + pos.non_pawn_material() / 64) * (5 + r50);
+  // If there is PSQ imbalance we use a faster eval as a proxy, but we switch
+  // to full NNUE eval when shuffling or if the material on the board is high.
+  int r50 = pos.rule50_count();
+  Value psq = Value(abs(eg_value(pos.psq_score())));
+  bool faster = psq * 5 > (750 + pos.non_pawn_material() / 64) * (5 + r50);
 
-      v = faster ? NNUE::materialist(pos)
-                 : adjusted_NNUE();
-  }
+  Value v = faster ? NNUE::materialist(pos)
+                   : adjusted_NNUE();
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
