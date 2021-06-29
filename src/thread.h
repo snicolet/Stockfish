@@ -57,7 +57,6 @@ public:
   void wait_for_search_finished();
   size_t id() const { return idx; }
 
-  Pawns::Table pawnsTable;
   Material::Table materialTable;
   size_t pvIdx, pvLast;
   uint64_t ttHitAverage;
