@@ -1045,6 +1045,8 @@ Value Eval::evaluate(const Position& pos) {
 
 std::string Eval::trace(Position& pos) {
 
+  auto to_cp = [&](Value v) { return double(v) / PawnValueEg; };
+
   if (pos.checkers())
       return "Final evaluation: none (in check)";
 
@@ -1053,41 +1055,10 @@ std::string Eval::trace(Position& pos) {
 
   Value v;
 
-  std::memset(scores, 0, sizeof(scores));
-
-  pos.this_thread()->trend = SCORE_ZERO; // Reset any dynamic contempt
-
-  v = Evaluation<TRACE>(pos).value();
-
-  ss << std::showpoint << std::noshowpos << std::fixed << std::setprecision(2)
-     << " Contributing terms for the classical eval:\n"
-     << "+------------+-------------+-------------+-------------+\n"
-     << "|    Term    |    White    |    Black    |    Total    |\n"
-     << "|            |   MG    EG  |   MG    EG  |   MG    EG  |\n"
-     << "+------------+-------------+-------------+-------------+\n"
-     << "|   Material | " << Term(MATERIAL)
-     << "|  Imbalance | " << Term(IMBALANCE)
-     << "|      Pawns | " << Term(PAWN)
-     << "|    Knights | " << Term(KNIGHT)
-     << "|    Bishops | " << Term(BISHOP)
-     << "|      Rooks | " << Term(ROOK)
-     << "|     Queens | " << Term(QUEEN)
-     << "|   Mobility | " << Term(MOBILITY)
-     << "|King safety | " << Term(KING)
-     << "|    Threats | " << Term(THREAT)
-     << "|     Passed | " << Term(PASSED)
-     << "|      Space | " << Term(SPACE)
-     << "|   Winnable | " << Term(WINNABLE)
-     << "+------------+-------------+-------------+-------------+\n"
-     << "|      Total | " << Term(TOTAL)
-     << "+------------+-------------+-------------+-------------+\n";
-
   ss << '\n' << NNUE::trace(pos) << '\n';
 
   ss << std::showpoint << std::showpos << std::fixed << std::setprecision(2) << std::setw(15);
 
-  v = pos.side_to_move() == WHITE ? v : -v;
-  ss << "\nClassical evaluation   " << to_cp(v) << " (white side)\n";
   v = NNUE::evaluate(pos, false);
   v = pos.side_to_move() == WHITE ? v : -v;
   ss << "NNUE evaluation        " << to_cp(v) << " (white side)\n";
