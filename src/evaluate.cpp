@@ -73,7 +73,7 @@ namespace Eval {
 
   void NNUE::init() {
 
-    useNNUE = Options["Use NNUE"];
+    useNNUE = true;
     if (!useNNUE)
         return;
 
@@ -124,13 +124,11 @@ namespace Eval {
         UCI::OptionsMap defaults;
         UCI::init(defaults);
 
-        string msg1 = "If the UCI option \"Use NNUE\" is set to true, network evaluation parameters compatible with the engine must be available.";
-        string msg2 = "The option is set to true, but the network file " + eval_file + " was not loaded successfully.";
+        string msg2 = "The network file " + eval_file + " was not loaded successfully.";
         string msg3 = "The UCI option EvalFile might need to specify the full path, including the directory name, to the network file.";
         string msg4 = "The default net can be downloaded from: https://tests.stockfishchess.org/api/nn/" + string(defaults["EvalFile"]);
         string msg5 = "The engine will be terminated now.";
 
-        sync_cout << "info string ERROR: " << msg1 << sync_endl;
         sync_cout << "info string ERROR: " << msg2 << sync_endl;
         sync_cout << "info string ERROR: " << msg3 << sync_endl;
         sync_cout << "info string ERROR: " << msg4 << sync_endl;
@@ -967,74 +965,8 @@ namespace {
 
     assert(!pos.checkers());
 
-    // Probe the material hash table
-    me = Material::probe(pos);
 
-    // If we have a specialized evaluation function for the current material
-    // configuration, call it and return.
-    if (me->specialized_eval_exists())
-        return me->evaluate(pos);
-
-    // Initialize score by reading the incrementally updated scores included in
-    // the position object (material + piece square tables) and the material
-    // imbalance. Score is computed internally from the white point of view.
-    Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->trend;
-
-    // Probe the pawn hash table
-    pe = Pawns::probe(pos);
-    score += pe->pawn_score(WHITE) - pe->pawn_score(BLACK);
-
-    // Early exit if score is high
-    auto lazy_skip = [&](Value lazyThreshold) {
-        return abs(mg_value(score) + eg_value(score)) / 2 > lazyThreshold + pos.non_pawn_material() / 64;
-    };
-
-    if (lazy_skip(LazyThreshold1))
-        goto make_v;
-
-    // Main evaluation begins here
-    initialize<WHITE>();
-    initialize<BLACK>();
-
-    // Pieces evaluated first (also populates attackedBy, attackedBy2).
-    // Note that the order of evaluation of the terms is left unspecified.
-    score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
-            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
-            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
-            + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
-
-    score += mobility[WHITE] - mobility[BLACK];
-
-    // More complex interactions that require fully populated attack bitboards
-    score +=  king<   WHITE>() - king<   BLACK>()
-            + passed< WHITE>() - passed< BLACK>();
-
-    if (lazy_skip(LazyThreshold2))
-        goto make_v;
-
-    score +=  threats<WHITE>() - threats<BLACK>()
-            + space<  WHITE>() - space<  BLACK>();
-
-make_v:
-    // Derive single value from mg and eg parts of score
-    Value v = winnable(score);
-
-    // In case of tracing add all remaining individual evaluation terms
-    if constexpr (T)
-    {
-        Trace::add(MATERIAL, pos.psq_score());
-        Trace::add(IMBALANCE, me->imbalance());
-        Trace::add(PAWN, pe->pawn_score(WHITE), pe->pawn_score(BLACK));
-        Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
-    }
-
-    // Evaluation grain
-    v = (v / 16) * 16;
-
-    // Side to move point of view
-    v = (pos.side_to_move() == WHITE ? v : -v);
-
-    return v;
+    return VALUE_ZERO;
   }
 
 
@@ -1102,22 +1034,14 @@ Value Eval::evaluate(const Position& pos) {
          return nnue;
       };
 
-      // If there is PSQ imbalance we use the classical eval, but we switch to
-      // NNUE eval faster when shuffling or if the material on the board is high.
+      // If there is PSQ imbalance we use a faster eval, but we switch to
+      // NNUE eval when shuffling or if the material on the board is high.
       int r50 = pos.rule50_count();
       Value psq = Value(abs(eg_value(pos.psq_score())));
-      bool classical = psq * 5 > (750 + pos.non_pawn_material() / 64) * (5 + r50);
+      bool faster = psq * 5 > (750 + pos.non_pawn_material() / 64) * (5 + r50);
 
-      if (classical)
-      {
-         Value c = Evaluation<NO_TRACE>(pos).value();
-         Value m = NNUE::materialist(pos);
-         
-         std::cerr << "(c,m) = " << "(" << c << "," << m << ")" << std::endl;
-      }
-
-      v = classical ? Evaluation<NO_TRACE>(pos).value()  // classical
-                    : adjusted_NNUE();                   // NNUE
+      v = faster ? NNUE::materialist(pos)
+                 : adjusted_NNUE();
   }
 
   // Damp down the evaluation linearly when shuffling
