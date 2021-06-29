@@ -60,7 +60,6 @@ namespace Stockfish {
 
 namespace Eval {
 
-  bool useNNUE;
   string eval_file_loaded = "None";
 
   /// NNUE::init() tries to load a NNUE network at startup time, or when the engine
@@ -72,10 +71,6 @@ namespace Eval {
   /// variable to have the engine search in a special directory in their distro.
 
   void NNUE::init() {
-
-    useNNUE = true;
-    if (!useNNUE)
-        return;
 
     string eval_file = string(Options["EvalFile"]);
 
@@ -119,7 +114,7 @@ namespace Eval {
 
     string eval_file = string(Options["EvalFile"]);
 
-    if (useNNUE && eval_file_loaded != eval_file)
+    if (eval_file_loaded != eval_file)
     {
         UCI::OptionsMap defaults;
         UCI::init(defaults);
@@ -137,10 +132,7 @@ namespace Eval {
         exit(EXIT_FAILURE);
     }
 
-    if (useNNUE)
-        sync_cout << "info string NNUE evaluation using " << eval_file << " enabled" << sync_endl;
-    else
-        sync_cout << "info string classical evaluation enabled" << sync_endl;
+    sync_cout << "info string NNUE evaluation using " << eval_file << " enabled" << sync_endl;
   }
 }
 
@@ -1015,7 +1007,7 @@ Value Eval::evaluate(const Position& pos) {
 
   Value v;
 
-  if (!Eval::useNNUE)
+  if (false)
       v = Evaluation<NO_TRACE>(pos).value();
   else
   {
@@ -1097,25 +1089,20 @@ std::string Eval::trace(Position& pos) {
      << "|      Total | " << Term(TOTAL)
      << "+------------+-------------+-------------+-------------+\n";
 
-  if (Eval::useNNUE)
-      ss << '\n' << NNUE::trace(pos) << '\n';
+  ss << '\n' << NNUE::trace(pos) << '\n';
 
   ss << std::showpoint << std::showpos << std::fixed << std::setprecision(2) << std::setw(15);
 
   v = pos.side_to_move() == WHITE ? v : -v;
   ss << "\nClassical evaluation   " << to_cp(v) << " (white side)\n";
-  if (Eval::useNNUE)
-  {
-      v = NNUE::evaluate(pos, false);
-      v = pos.side_to_move() == WHITE ? v : -v;
-      ss << "NNUE evaluation        " << to_cp(v) << " (white side)\n";
-  }
+  v = NNUE::evaluate(pos, false);
+  v = pos.side_to_move() == WHITE ? v : -v;
+  ss << "NNUE evaluation        " << to_cp(v) << " (white side)\n";
 
   v = evaluate(pos);
   v = pos.side_to_move() == WHITE ? v : -v;
   ss << "Final evaluation       " << to_cp(v) << " (white side)";
-  if (Eval::useNNUE)
-     ss << " [with scaled NNUE, hybrid, ...]";
+  ss << " [with scaled NNUE, hybrid, ...]";
   ss << "\n";
 
   return ss.str();
