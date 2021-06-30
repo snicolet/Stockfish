@@ -174,9 +174,9 @@ namespace Stockfish::Eval::NNUE {
     Color rootColor = pos.root_color();
          
     int risk = 0;
-    if (stm == rootColor && materialist < 0 && positional < 0)
+    if (stm == rootColor && positional < 0)
         risk = 20;
-    if (stm != rootColor && materialist > 0 && positional > 0)
+    if (stm != rootColor && positional > 0)
         risk = 20;
     
     entertainment += risk;
