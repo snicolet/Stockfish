@@ -1090,11 +1090,20 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         int scale =   903
-                     + 32 * pos.count<PAWN>()
-                     + 32 * pos.non_pawn_material() / 1024;
+         Value nnue      = NNUE::evaluate(pos, true);
+         Color stm       = pos.side_to_move();
+         Color rootColor = pos.this_thread()->rootColor;
+         
+         int risk = (rootColor == stm) ? -1 : 1;
+         if (nnue < 0)
+            risk = -risk;
 
-         Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
+         int weight = 32 + risk;
+         int scale =   903
+                     + weight * pos.count<PAWN>()
+                     + weight * pos.non_pawn_material() / 1024;
+
+         nnue = nnue * scale / 1024;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
