@@ -169,6 +169,17 @@ namespace Stockfish::Eval::NNUE {
 
     int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
     int entertainment = (adjusted && delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0);
+    
+    Color stm       = pos.side_to_move();
+    Color rootColor = pos.root_color();
+         
+    int risk = 0;
+    if (stm == rootColor && materialist < 0 && positional < 0)
+        risk = 20;
+    if (stm != rootColor && materialist > 0 && positional > 0)
+        risk = 20;
+    
+    entertainment += risk;
 
     int A = 128 - entertainment;
     int B = 128 + entertainment;

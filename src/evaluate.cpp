@@ -1091,20 +1091,15 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&]()
       {
          Value nnue      = NNUE::evaluate(pos, true);
-         Color stm       = pos.side_to_move();
-         Color rootColor = pos.this_thread()->rootColor;
-         int   shuffling = clamp(pos.rule50_count() - 8, 0, 100);
-
-         int risk = 20;
-         if (stm != rootColor)
-             risk = -risk;
+     //  int   shuffling = clamp(pos.rule50_count() - 8, 0, 100);
 
          int scale =   903
                      + 32 * pos.count<PAWN>()
                      + 32 * pos.non_pawn_material() / 1024
-                     -  4 * shuffling;
+                  // -  4 * shuffling
+                     ;
 
-         nnue = (nnue + risk) * scale / 1024;
+         nnue = nnue * scale / 1024;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
