@@ -1094,7 +1094,7 @@ Value Eval::evaluate(const Position& pos) {
          int scale =  903
                      + 32 * pos.count<PAWN>()
                      + 32 * pos.non_pawn_material() / 1024
-                     -  3 * shuffling;
+                     -  5 * shuffling;
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
