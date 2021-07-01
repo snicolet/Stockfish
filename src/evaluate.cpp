@@ -1094,7 +1094,7 @@ Value Eval::evaluate(const Position& pos) {
          Color stm       = pos.side_to_move();
          Color rootColor = pos.this_thread()->rootColor;
          
-         int risk = (rootColor == stm) ? -1 : 1;
+         int risk = (rootColor == stm) ? -2 : 2;
          if (nnue < 0)
             risk = -risk;
 
