@@ -1091,12 +1091,12 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&]()
       {
          
-         int shuffling = pos.rule50_count() < 8 ? 0 : pos.rule50_count();
+         int shuffling = pos.rule50_count();
          
          int scale =  903
                      + 32 * pos.count<PAWN>()
                      + 32 * pos.non_pawn_material() / 1024
-                     -  2 * shuffling;
+                     -  2 * abs(shuffling - 8);
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
