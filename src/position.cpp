@@ -1344,4 +1344,11 @@ bool Position::pos_is_ok() const {
   return true;
 }
 
+
+/// Position::root_color() returns the color of the side to play at the search root
+
+Color Position::root_color() const {
+    return this_thread()->rootColor;
+}
+
 } // namespace Stockfish
