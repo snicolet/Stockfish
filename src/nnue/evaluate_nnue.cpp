@@ -175,8 +175,8 @@ namespace Stockfish::Eval::NNUE {
         int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
         int delta_pawn = pos.count<PAWN>(rc) - pos.count<PAWN>(~rc);
 
-        entertainment =   delta_pawn == -1                           ? 13
-                        : delta_npm <= BishopValueMg - KnightValueMg ? 13
+        entertainment =   delta_pawn == -1                           ? 7
+                        : delta_npm <= BishopValueMg - KnightValueMg ? 7
                                                                      : 0;
     }
 
