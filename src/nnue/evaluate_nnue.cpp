@@ -172,12 +172,12 @@ namespace Stockfish::Eval::NNUE {
     {
         Color rc = pos.root_color();
 
-        int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
+        int delta_npm = pos.non_pawn_material(rc) - pos.non_pawn_material(~rc);
         int delta_pawn = pos.count<PAWN>(rc) - pos.count<PAWN>(~rc);
 
-        entertainment =   delta_pawn < 0                             ? 7
-                        : delta_npm <= BishopValueMg - KnightValueMg ? 7
-                                                                     : 0;
+        entertainment =   delta_pawn == -1 && delta_npm <= 0              ? 9
+                        : abs(delta_npm) <= BishopValueMg - KnightValueMg ? 9
+                                                                          : 0;
     }
 
     int A = 128 - entertainment;
