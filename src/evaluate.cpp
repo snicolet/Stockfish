@@ -1112,6 +1112,18 @@ Value Eval::evaluate(const Position& pos) {
                     : adjusted_NNUE();                   // NNUE
   }
 
+  // Try to detect fortresses
+  int shuffling = pos.shuffling();
+  v = v * (1040 - shuffling) / 1024;
+  //dbg_mean_of(shuffling);
+  /*
+  if (shuffling > 20)
+  {
+     std::cerr << "shuffling = " << shuffling << endl;
+     std::cerr << pos << endl;
+  }
+  */
+
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
 
