@@ -176,7 +176,7 @@ namespace Stockfish::Eval::NNUE {
         int npm  = pos.non_pawn_material(stm) - pos.non_pawn_material(~stm);
         int pawn = pos.count<PAWN>(stm) - pos.count<PAWN>(~stm);
 
-        entertainment =   npm * pawn > 0 && pawn * positional > 0   ? 9
+        entertainment =   npm * pawn > 0 && pawn * positional < 0   ? 9
                         : abs(npm) <= BishopValueMg - KnightValueMg ? 9
                                                                     : 0;
     }
