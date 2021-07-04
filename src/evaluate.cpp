@@ -1062,9 +1062,12 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       v = Evaluation<NO_TRACE>(pos).value();
   else
   {
-      int nnueComplexity;
-      int scale = 1064 + 106 * pos.non_pawn_material() / 5120;
 
+      int nnueComplexity;
+      int shuffling = pos.shuffling();
+      
+      int scale = 1064 + 106 * pos.non_pawn_material() / 5120;
+      
       Color stm = pos.side_to_move();
       Value optimism = pos.this_thread()->optimism[stm];
 
@@ -1083,6 +1086,15 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       optimism = optimism * (269 + nnueComplexity) / 256;
       v = (nnue * scale + optimism * (scale - 754)) / 1024;
   }
+
+  // dbg_mean_of(shuffling);
+  /*
+  if (shuffling > 20)
+  {
+     std::cerr << "shuffling = " << shuffling << endl;
+     std::cerr << pos << endl;
+  }
+  */
 
   // Damp down the evaluation linearly when shuffling
   v = v * (195 - pos.rule50_count()) / 211;
