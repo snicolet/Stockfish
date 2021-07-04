@@ -170,17 +170,18 @@ namespace Stockfish::Eval::NNUE {
 
     if (adjusted)
     {
-        Color rc = pos.root_color();
+     // Color rc = pos.root_color();
+        Color stm = pos.side_to_move();
 
-        int npm  = pos.non_pawn_material(rc) - pos.non_pawn_material(~rc);
-        int pawn = pos.count<PAWN>(rc) - pos.count<PAWN>(~rc);
+        int npm  = pos.non_pawn_material(stm) - pos.non_pawn_material(~stm);
+        int pawn = pos.count<PAWN>(stm) - pos.count<PAWN>(~stm);
 
-        entertainment =   pawn != 0 &&  npm * pawn >= 0             ? 18
-                        : abs(npm) <= BishopValueMg - KnightValueMg ? 18
+        entertainment =   npm * pawn > 0 && pawn * positional > 0   ? 9
+                        : abs(npm) <= BishopValueMg - KnightValueMg ? 9
                                                                     : 0;
     }
 
-    int A = 128 ;
+    int A = 128 - entertainment;
     int B = 128 + entertainment;
 
     int sum = (A * materialist + B * positional) / 128;
