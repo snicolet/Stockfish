@@ -175,12 +175,12 @@ namespace Stockfish::Eval::NNUE {
         int npm  = pos.non_pawn_material(rc) - pos.non_pawn_material(~rc);
         int pawn = pos.count<PAWN>(rc) - pos.count<PAWN>(~rc);
 
-        entertainment =   pawn == 1 && npm * pawn >= 0              ? 9
-                        : abs(npm) <= BishopValueMg - KnightValueMg ? 9
+        entertainment =   pawn != 0 &&  npm * pawn >= 0             ? 18
+                        : abs(npm) <= BishopValueMg - KnightValueMg ? 18
                                                                     : 0;
     }
 
-    int A = 128 - entertainment;
+    int A = 128 ;
     int B = 128 + entertainment;
 
     int sum = (A * materialist + B * positional) / 128;
