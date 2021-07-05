@@ -346,8 +346,7 @@ inline int Position::rule50_count() const {
 }
 
 inline int Position::shuffling() const {
-  return st->rule50 +
-         st->shuffling[0] + st->shuffling[1] + st->shuffling[2] + st->shuffling[3] +
+  return st->shuffling[0] + st->shuffling[1] + st->shuffling[2] + st->shuffling[3] +
          st->shuffling[4] + st->shuffling[5] + st->shuffling[6] + st->shuffling[7];
 }
 
