@@ -775,7 +775,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
 
       // Reset rule 50 counter
       st->shuffling[st->shufflingIndex] = st->rule50;
-      st->shufflingIndex = (st->shufflingIndex + 1) % 8;
+      st->shufflingIndex = (st->shufflingIndex + 1) % 4;
       st->rule50 = 0;
   }
 
@@ -856,7 +856,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
 
       // Reset rule 50 draw counter
       st->shuffling[st->shufflingIndex] = st->rule50;
-      st->shufflingIndex = (st->shufflingIndex + 1) % 8;
+      st->shufflingIndex = (st->shufflingIndex + 1) % 4;
       st->rule50 = 0;
   }
 
