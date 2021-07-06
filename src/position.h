@@ -317,8 +317,9 @@ inline int Position::pawns_on_same_color_squares(Color c, Square s) const {
 }
 
 inline Key Position::key() const {
-  return st->rule50 < 14 ? st->key
-                         : st->key ^ make_key((st->rule50 - 14) / 8);
+  int shuffling = st->rule50 + st->shufflingTotal;
+  return shuffling < 22 ? st->key
+                        : st->key ^ make_key((shuffling - 22) / 8);
 }
 
 inline Key Position::pawn_key() const {
