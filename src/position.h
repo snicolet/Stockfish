@@ -46,7 +46,7 @@ struct StateInfo {
   int    castlingRights;
   int    rule50;
   int    pliesFromNull;
-  int    shuffling[4];
+  int    shuffling[8];
   int    shufflingIndex;
   int    shufflingTotal;
   Square epSquare;
@@ -317,9 +317,9 @@ inline int Position::pawns_on_same_color_squares(Color c, Square s) const {
 }
 
 inline Key Position::key() const {
-  int shuffling = st->rule50;
-  return shuffling < 14 ? st->key
-                        : st->key ^ make_key((shuffling - 14) / 8);
+  int shuffling = st->rule50 + st->shufflingTotal / 4;
+  return shuffling < 18 ? st->key
+                        : st->key ^ make_key((shuffling - 18) / 8);
 }
 
 inline Key Position::pawn_key() const {
@@ -359,7 +359,7 @@ inline void Position::update_shuffling() {
   int i = st->shufflingIndex;
   st->shufflingTotal += st->rule50 - st->shuffling[i];
   st->shuffling[i]    = st->rule50;
-  st->shufflingIndex  = (i + 1) % 4;
+  st->shufflingIndex  = (i + 1) % 8;
 }
 
 inline bool Position::opposite_bishops() const {
