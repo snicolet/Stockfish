@@ -1113,8 +1113,8 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Try to detect fortresses
-  int shuffling = std::min(pos.shuffling() , 159);
-  v = v * (168 - shuffling) / 160;
+  int shuffling = std::min(pos.shuffling() , 127);
+  v = v * (136 - shuffling) / 128;
 
   //dbg_mean_of(shuffling);
   /*
