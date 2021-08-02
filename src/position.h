@@ -351,7 +351,7 @@ inline int Position::rule50_count() const {
 }
 
 inline int Position::shuffling() const {
-  return st->rule50 + std::clamp(st->shufflingTotal - 16, 0, 64) / 6;
+  return st->rule50 + std::clamp(st->shufflingTotal - 16, 0, 128) / 8;
 }
 
 inline void Position::update_shuffling() {
