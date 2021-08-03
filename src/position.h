@@ -317,9 +317,8 @@ inline int Position::pawns_on_same_color_squares(Color c, Square s) const {
 }
 
 inline Key Position::key() const {
-  int aging = shuffling();
-  return aging < 14 ? st->key
-                    : st->key ^ make_key((aging - 14) / 8);
+  return st->rule50 < 14 ? st->key
+                         : st->key ^ make_key((st->rule50 - 14) / 8);
 }
 
 inline Key Position::pawn_key() const {
@@ -351,7 +350,7 @@ inline int Position::rule50_count() const {
 }
 
 inline int Position::shuffling() const {
-  return st->rule50 + std::clamp(st->shufflingTotal - 16, 0, 128) / 6;
+  return std::clamp(st->shufflingTotal - 16, 0, 128);
 }
 
 inline void Position::update_shuffling() {
