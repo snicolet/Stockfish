@@ -1100,12 +1100,12 @@ Value Eval::evaluate(const Position& pos) {
          Color Stockfish = pos.this_thread()->rootColor;
          Color stm       = pos.side_to_move();
 
-         Style style =   stm == Stockfish && nnue >=    0 ? ATTACKING
-                       : stm == Stockfish && nnue >= -120 ? NEUTRAL
-                       : stm == Stockfish                 ? DEFENDING
-                       : stm != Stockfish && nnue <=    0 ? ATTACKING
-                       : stm != Stockfish && nnue <=  120 ? NEUTRAL
-                      /* stm != Stockfish */              : DEFENDING ;
+         Style style =   stm == Stockfish && nnue >=   0 ? ATTACKING
+                       : stm == Stockfish && nnue >= -60 ? NEUTRAL
+                       : stm == Stockfish                ? DEFENDING
+                       : stm != Stockfish && nnue <=   0 ? ATTACKING
+                       : stm != Stockfish && nnue <=  60 ? NEUTRAL
+                      /* stm != Stockfish */             : DEFENDING ;
 
          int scale =   883
                      + pawn_weight[style]  * pos.count<PAWN>()
