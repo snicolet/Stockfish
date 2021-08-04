@@ -1101,10 +1101,10 @@ Value Eval::evaluate(const Position& pos) {
          Color stm       = pos.side_to_move();
 
          Style style =   stm == Stockfish && nnue >=    0 ? ATTACKING
-                       : stm == Stockfish && nnue >= -250 ? NEUTRAL
+                       : stm == Stockfish && nnue >= -120 ? NEUTRAL
                        : stm == Stockfish                 ? DEFENDING
                        : stm != Stockfish && nnue <=    0 ? ATTACKING
-                       : stm != Stockfish && nnue <=  250 ? NEUTRAL
+                       : stm != Stockfish && nnue <=  120 ? NEUTRAL
                       /* stm != Stockfish */              : DEFENDING ;
 
          int scale =   883
