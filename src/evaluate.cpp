@@ -1076,6 +1076,12 @@ make_v:
 } // namespace Eval
 
 
+enum Style { DEFENDING, NEUTRAL, ATTACKING, STYLE_NB = 3 };
+
+constexpr int pawn_weight[STYLE_NB]  = { 32, 0, 32 };
+constexpr int piece_weight[STYLE_NB] = { 36, 0, 36 };
+
+
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
@@ -1090,11 +1096,22 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         int scale =   883
-                     + 32 * pos.count<PAWN>()
-                     + 32 * pos.non_pawn_material() / 1024;
+         Value nnue      = NNUE::evaluate(pos, true);
+         Color Stockfish = pos.this_thread()->rootColor;
+         Color stm       = pos.side_to_move();
 
-         Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
+         Style style =   stm == Stockfish && nnue >=    0 ? ATTACKING
+                       : stm == Stockfish && nnue >= -250 ? NEUTRAL
+                       : stm == Stockfish                 ? DEFENDING
+                       : stm != Stockfish && nnue <=    0 ? ATTACKING
+                       : stm != Stockfish && nnue <=  250 ? NEUTRAL
+                      /* stm != Stockfish */              : DEFENDING ;
+
+         int scale =   883
+                     + pawn_weight[style]  * pos.count<PAWN>()
+                     + piece_weight[style] * pos.non_pawn_material() / 1024;
+
+         nnue = nnue * scale / 1024;
 
          if (pos.is_chess960())
              nnue += fix_FRC(pos);
