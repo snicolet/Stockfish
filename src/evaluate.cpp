@@ -1112,8 +1112,8 @@ Value Eval::evaluate(const Position& pos) {
                     : adjusted_NNUE();                   // NNUE
   }
   
-  //dbg_mean_of(pos.rule50_count());
-  //dbg_mean_of(pos.shuffling());
+  //dbg_mean_of(pos.rule50_count() >= 14);
+  //dbg_mean_of(pos.shuffling() >= 6);
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.shuffling()) / 100;
