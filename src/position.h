@@ -31,7 +31,7 @@
 
 #include "nnue/nnue_accumulator.h"
 
-constexpr int SHUFFLING_HISTORY = 5;
+constexpr int SHUFFLING_HISTORY = 4;
 
 namespace Stockfish {
 
@@ -319,8 +319,9 @@ inline int Position::pawns_on_same_color_squares(Color c, Square s) const {
 }
 
 inline Key Position::key() const {
-  return st->rule50 < 14 ? st->key
-                         : st->key ^ make_key((st->rule50 - 14) / 8);
+  int s = shuffling();
+  return s < 14 ? st->key
+                : st->key ^ make_key((s - 14) / 8);
 }
 
 inline Key Position::pawn_key() const {
