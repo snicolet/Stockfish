@@ -31,7 +31,7 @@
 
 #include "nnue/nnue_accumulator.h"
 
-constexpr int SHUFFLING_HISTORY = 7;
+constexpr int SHUFFLING_HISTORY = 5;
 
 namespace Stockfish {
 
