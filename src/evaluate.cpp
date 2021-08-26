@@ -1090,14 +1090,10 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         int scale =   883
+         int scale =   907
                      + 32 * pos.count<PAWN>()
-                     + 32 * pos.non_pawn_material() / 1024;
-        
-        
-         //int x = scale * (100 - pos.shuffling()) / 100;
-         //int x = scale * (100 - pos.rule50_count()) / 100;
-         //dbg_mean_of(x);
+                     + 32 * pos.non_pawn_material() / 1024
+                     -  4 * (pos.shuffling() + pos.rule50_count());
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
@@ -1116,12 +1112,9 @@ Value Eval::evaluate(const Position& pos) {
       v = classical ? Evaluation<NO_TRACE>(pos).value()  // classical
                     : adjusted_NNUE();                   // NNUE
   }
-  
-  //dbg_mean_of(pos.rule50_count() >= 14);
-  //dbg_mean_of(pos.shuffling() >= 40);
 
   // Damp down the evaluation linearly when shuffling
-  v = v * (100 - pos.shuffling()) / 100;
+  v = v * (100 - pos.rule50_count()) / 100;
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
