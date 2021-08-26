@@ -1090,9 +1090,9 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         int scale =   892
+         int scale =   907
                      + 32 * pos.count<PAWN>()
-                     + 32 * pos.non_pawn_material() / 1024
+                     + 34 * pos.non_pawn_material() / 1024
                      -  4 * (pos.shuffling() + pos.rule50_count());
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
