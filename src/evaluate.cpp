@@ -1113,9 +1113,6 @@ Value Eval::evaluate(const Position& pos) {
       v = classical ? Evaluation<NO_TRACE>(pos).value()  // classical
                     : adjusted_NNUE();                   // NNUE
   }
-  
-  //dbg_mean_of(pos.rule50_count());
-  //dbg_mean_of(pos.shuffling());
 
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.shuffling()) / 100;

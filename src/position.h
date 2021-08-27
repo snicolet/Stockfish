@@ -356,9 +356,9 @@ inline int Position::shuffling() const {
 }
 
 inline void Position::update_shuffling() {
-  int i = st->shufflingIndex;
+  // invariant: shufflingTotal is equal to the sum of the shuffling[] array
 
-  // invariant : shufflingTotal is equal to the sum `shuffling[0] + ... + shuffling[SHUFFLING_HISTORY-1]`
+  int i = st->shufflingIndex;
   st->shufflingTotal += st->rule50 - st->shuffling[i];
   st->shuffling[i]    = st->rule50;
   st->shufflingIndex  = (i + 1) % SHUFFLING_HISTORY;
