@@ -352,7 +352,7 @@ inline int Position::rule50_count() const {
 }
 
 inline int Position::shuffling() const {
-  return (st->shufflingTotal + st->rule50) / (SHUFFLING_HISTORY + 1);
+  return std::max(st->rule50, st->shufflingTotal / SHUFFLING_HISTORY );
 }
 
 inline void Position::update_shuffling() {
