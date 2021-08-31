@@ -1012,7 +1012,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning
-              if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-268) * depth)) // (~25 Elo)
                   continue;
           }
           else
@@ -1031,7 +1031,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-21 * lmrDepth * lmrDepth - 21 * lmrDepth)))
+              if (!pos.see_ge(move, Value(-28 * lmrDepth * lmrDepth - 21 * lmrDepth)))
                   continue;
           }
       }
