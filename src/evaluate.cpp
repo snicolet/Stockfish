@@ -1098,7 +1098,7 @@ Value Eval::evaluate(const Position& pos) {
 
          int scale =   883
                      + 32 * pawns
-                     + 128 * sqrt(pieces);
+                     + 2  * pieces * pieces;
          
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
