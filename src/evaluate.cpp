@@ -1096,9 +1096,9 @@ Value Eval::evaluate(const Position& pos) {
          int pawns  = pos.count<PAWN>();
          int pieces = pos.non_pawn_material() / 1024;
 
-         int scale =   883
-                     + 128 * sqrt(pawns)
-                     + 2   * pieces * pieces;
+         int scale =   550
+                     + 256 * sqrt(pawns)
+                     + 32  * pieces;
          
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
