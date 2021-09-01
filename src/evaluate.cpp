@@ -1093,11 +1093,13 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         int pawns = pos.count<PAWN>();
-         int scale =   883
-                     + 128 * sqrt(pawns)
-                     + 32 * pos.non_pawn_material() / 1024;
+         int pawns  = pos.count<PAWN>();
+         int pieces = pos.non_pawn_material() / 1024;
 
+         int scale =   883
+                     + 32 * pawns
+                     + 128 * sqrt(pieces);
+         
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
          if (pos.is_chess960())
