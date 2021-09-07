@@ -1039,9 +1039,9 @@ moves_loop: // When in check, search starts here
       // Step 14. Extensions (~75 Elo)
 
       // Capture extensions
-      if (   (PvNode || cutNode) 
-          && captureOrPromotion 
-          && moveCount != 1)
+      if (   captureOrPromotion
+          && (PvNode || cutNode)
+          && depth > 9)
           extension = 1;
 
       // Check extensions
