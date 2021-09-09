@@ -1093,9 +1093,9 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&]()
       {
          int scale =   883
-                     + 24 * pos.count<PAWN>()
+                     + 28 * pos.count<PAWN>()
                      + 32 * pos.non_pawn_material() / 1024
-                     + 16 * pos.pawn_asymmetry();
+                     +  8 * pos.pawn_asymmetry();
         
         /*
         std::cerr << pos.pawn_asymmetry() << std::endl;
