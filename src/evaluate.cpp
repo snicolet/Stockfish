@@ -1093,7 +1093,7 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&]()
       {
          int scale =   883
-                     + 32 * pos.count<PAWN>()
+                     + 30 * pos.count<PAWN>()
                      + 32 * pos.non_pawn_material() / 1024
                      + 3 * pos.pawn_asymmetry();
         
