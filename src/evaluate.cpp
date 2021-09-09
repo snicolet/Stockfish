@@ -1096,7 +1096,7 @@ Value Eval::evaluate(const Position& pos) {
          Color stm = pos.side_to_move();
          Color weakSide = (nnue < 0 ? stm : ~stm);
       
-         int scale =   883
+         int scale =   915
                      + 32 * pos.count<PAWN>()
                      + 32 * pos.non_pawn_material() / 1024
                      - 32 * popcount(pos.passed_pawns() & pos.pieces(weakSide, PAWN));
