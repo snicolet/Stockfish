@@ -71,7 +71,7 @@ constexpr Bitboard KingFlank[FILE_NB] = {
   KingSide, KingSide, KingSide ^ FileEBB
 };
 
-constexpr Bitboard InvalidBitboard = AllSquares;
+constexpr int InvalidAsymmetry = -99;
 
 extern uint8_t PopCnt16[1 << 16];
 extern uint8_t SquareDistance[SQUARE_NB][SQUARE_NB];

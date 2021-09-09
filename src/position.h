@@ -42,8 +42,8 @@ struct StateInfo {
   // Copied when making a move
   Key    pawnKey;
   Key    materialKey;
-  Bitboard passedPawns;
   Value  nonPawnMaterial[COLOR_NB];
+  int    asymmetry;
   int    castlingRights;
   int    rule50;
   int    pliesFromNull;
@@ -135,7 +135,7 @@ public:
   bool pawn_passed(Color c, Square s) const;
   bool opposite_bishops() const;
   int  pawns_on_same_color_squares(Color c, Square s) const;
-  Bitboard passed_pawns() const;
+  int pawn_asymmetry() const;
 
   // Doing and undoing moves
   void do_move(Move m, StateInfo& newSt);
@@ -307,29 +307,30 @@ inline bool Position::pawn_passed(Color c, Square s) const {
   return !(pieces(~c, PAWN) & passed_pawn_span(c, s));
 }
 
-inline Bitboard Position::passed_pawns() const {
+inline int Position::pawn_asymmetry() const {
 
-  if (st->passedPawns != InvalidBitboard)
-    return st->passedPawns;
+  if (st->asymmetry != InvalidAsymmetry)
+    return st->asymmetry;
 
   Bitboard whitePawns = pieces(WHITE, PAWN);
   Bitboard blackPawns = pieces(BLACK, PAWN);
-  Bitboard b, passed = 0;
+  Bitboard b;
+  int asymmetry = 0;
   Square s;
 
   b = whitePawns;
   while (b)
-    if (!(blackPawns & passed_pawn_span(WHITE, (s = pop_lsb(b)))))
-      passed |= s;
+    if (!(blackPawns & forward_file_bb(WHITE, (s = pop_lsb(b)))))
+      asymmetry++;
 
   b = blackPawns;
   while (b)
-    if (!(whitePawns & passed_pawn_span(BLACK, (s = pop_lsb(b)))))
-      passed |= s;
+    if (!(whitePawns & forward_file_bb(BLACK, (s = pop_lsb(b)))))
+      asymmetry++;
 
-  st->passedPawns = passed;
+  st->asymmetry = asymmetry;
 
-  return passed;
+  return asymmetry;
 }
 
 inline int Position::pawns_on_same_color_squares(Color c, Square s) const {
