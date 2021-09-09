@@ -316,16 +316,15 @@ inline int Position::pawn_asymmetry() const {
   Bitboard blackPawns = pieces(BLACK, PAWN);
   Bitboard b;
   int asymmetry = 0;
-  Square s;
 
   b = whitePawns;
   while (b)
-    if (!(blackPawns & forward_file_bb(WHITE, (s = pop_lsb(b)))))
+    if (!(blackPawns & forward_file_bb(WHITE, pop_lsb(b))))
       asymmetry++;
 
   b = blackPawns;
   while (b)
-    if (!(whitePawns & forward_file_bb(BLACK, (s = pop_lsb(b)))))
+    if (!(whitePawns & forward_file_bb(BLACK, pop_lsb(b))))
       asymmetry++;
 
   st->asymmetry = asymmetry;
