@@ -1094,12 +1094,12 @@ Value Eval::evaluate(const Position& pos) {
       {
          Value nnue = NNUE::evaluate(pos, true);
          Color stm = pos.side_to_move();
-         Color strongSide = (nnue >= 0 ? stm : ~stm);
+         Color weakSide = (nnue < 0 ? stm : ~stm);
       
          int scale =   883
                      + 32 * pos.count<PAWN>()
                      + 32 * pos.non_pawn_material() / 1024
-                     + 128 * popcount(pos.passed_pawns() & pos.pieces(strongSide, PAWN));
+                     - 64 * popcount(pos.passed_pawns() & pos.pieces(weakSide, PAWN));
 
          nnue = nnue * scale / 1024;
 
