@@ -1095,7 +1095,7 @@ Value Eval::evaluate(const Position& pos) {
          int scale =   883
                      + 32 * pos.count<PAWN>()
                      + 32 * pos.non_pawn_material() / 1024
-                     + 4 * pos.pawn_asymmetry();
+                     + 3 * pos.pawn_asymmetry();
         
         /*
         std::cerr << pos.pawn_asymmetry() << std::endl;
