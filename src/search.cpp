@@ -1179,7 +1179,7 @@ moves_loop: // When in check, search starts here
           // Explore more the second moves, as they are the most likely to create a cutoff
           if (   moveCount == 2
               && abs(beta) < 10000
-              && ss->staticEval > beta - 100)
+              && ss->staticEval > beta - 150)
               r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
