@@ -61,9 +61,6 @@ namespace {
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV, Root };
 
-  constexpr uint64_t TtHitAverageWindow     = 4096;
-  constexpr uint64_t TtHitAverageResolution = 1024;
-
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
     return Value(214 * (d - improving));
@@ -310,7 +307,12 @@ void Thread::search() {
       multiPV = std::max(multiPV, (size_t)4);
 
   multiPV = std::min(multiPV, rootMoves.size());
-  ttHitAverage = TtHitAverageWindow * TtHitAverageResolution / 2;
+
+  ttHitAverage.set(50, 100);                  // initialize the running average at 50%
+  simpleExtensionAverage[WHITE].set(0, 100);  // initialize the running average at 0%
+  simpleExtensionAverage[BLACK].set(0, 100);  // initialize the running average at 0%
+  doubleExtensionAverage[WHITE].set(0, 100);  // initialize the running average at 0%
+  doubleExtensionAverage[BLACK].set(0, 100);  // initialize the running average at 0%
 
   trend = SCORE_ZERO;
 
@@ -518,6 +520,28 @@ namespace {
   template <NodeType nodeType>
   Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode) {
 
+    Thread* thisThread = pos.this_thread();
+    Color us           = pos.side_to_move();
+
+    // Step 0. Limit search explosion
+
+    // We don't want more than 4% of double extensions
+    if (   0
+        && thisThread->rootDepth > 10
+        && ss->ply > 10
+        && depth >= (ss-1)->depth + 1
+        && thisThread->doubleExtensionAverage[us].is_greater(4, 100))
+       depth = (ss-1)->depth;
+
+    // We don't want more than 6% of simple extensions
+    if (   0
+        && thisThread->rootDepth > 10
+        && ss->ply > 10
+        && depth >= (ss-1)->depth
+        && thisThread->simpleExtensionAverage[us].is_greater(6, 100))
+       depth = (ss-1)->depth - 1;
+
+
     constexpr bool PvNode = nodeType != NonPV;
     constexpr bool rootNode = nodeType == Root;
     const Depth maxNextDepth = rootNode ? depth : depth + 1;
@@ -559,10 +583,8 @@ namespace {
     int moveCount, captureCount, quietCount;
 
     // Step 1. Initialize node
-    Thread* thisThread = pos.this_thread();
     ss->inCheck        = pos.checkers();
     priorCapture       = pos.captured_piece();
-    Color us           = pos.side_to_move();
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
@@ -602,7 +624,18 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
+    ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
+
+    // Update the running averages statistics for simple and double extensions
+    int delta = ss->depth - (ss-1)->depth + 1;
+    thisThread->simpleExtensionAverage[us].update(delta >= 1);
+    thisThread->doubleExtensionAverage[us].update(delta >= 2);
+
+    // dbg_mean_of(delta >= 2);
+    // dbg_mean_of(ss->depth >= (ss-1)->depth);
+    // dbg_mean_of(10000 * thisThread->simpleExtensionAverage / (RESOLUTION * WINDOW));
+    // dbg_mean_of(10000 * thisThread->doubleExtensionAverage[WHITE] / (RESOLUTION * WINDOW));
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -632,9 +665,8 @@ namespace {
         && is_ok((ss-1)->currentMove))
         thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
 
-    // thisThread->ttHitAverage can be used to approximate the running average of ttHit
-    thisThread->ttHitAverage =   (TtHitAverageWindow - 1) * thisThread->ttHitAverage / TtHitAverageWindow
-                                + TtHitAverageResolution * ss->ttHit;
+    // running average of ttHit
+    thisThread->ttHitAverage.update(ss->ttHit);
 
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
@@ -1072,7 +1104,8 @@ moves_loop: // When in check, search starts here
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
                   && value < singularBeta - 93
-                  && ss->doubleExtensions < 3)
+                  && ss->doubleExtensions < 3
+                  )
               {
                   extension = 2;
                   doubleExtension = true;
@@ -1146,7 +1179,7 @@ moves_loop: // When in check, search starts here
               r--;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
-          if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
+          if (thisThread->ttHitAverage.is_greater(537, 1024))
               r--;
 
           // Decrease reduction if position is or has been on the PV
