@@ -88,6 +88,30 @@ namespace {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
   }
 
+  // Check if the current thread is in a search explosion
+  ExplosionState search_explosion(Thread* thisThread) {
+
+    uint64_t now = thisThread->nodes;
+    bool explosive =    thisThread->doubleExtensionAverage[WHITE].is_greater(4, 100)
+                     || thisThread->doubleExtensionAverage[BLACK].is_greater(4, 100);
+
+    if (explosive)
+       thisThread->lastExplosiveTime = now;
+    else
+       thisThread->lastNormalTime = now;
+
+    if (   explosive
+        && thisThread->state == EXPLOSION_NONE
+        && now - thisThread->lastNormalTime > 6000000)
+        thisThread->state = MUST_CALM_DOWN;
+
+    if (   thisThread->state == MUST_CALM_DOWN
+        && now - thisThread->lastExplosiveTime > 6000000)
+        thisThread->state = EXPLOSION_NONE;
+
+    return thisThread->state;
+  }
+
   // Skill structure is used to implement strength limit
   struct Skill {
     explicit Skill(int l) : level(l) {}
@@ -309,11 +333,12 @@ void Thread::search() {
   multiPV = std::min(multiPV, rootMoves.size());
 
   ttHitAverage.set(50, 100);                  // initialize the running average at 50%
-  simpleExtensionAverage[WHITE].set(0, 100);  // initialize the running average at 0%
-  simpleExtensionAverage[BLACK].set(0, 100);  // initialize the running average at 0%
   doubleExtensionAverage[WHITE].set(0, 100);  // initialize the running average at 0%
   doubleExtensionAverage[BLACK].set(0, 100);  // initialize the running average at 0%
 
+  lastExplosiveTime = nodes;
+  lastNormalTime    = nodes;
+  state = EXPLOSION_NONE;
   trend = SCORE_ZERO;
 
   int searchAgainCounter = 0;
@@ -524,23 +549,11 @@ namespace {
     Color us           = pos.side_to_move();
 
     // Step 0. Limit search explosion
-
-    // We don't want more than 4% of double extensions
-    if (   0
-        && thisThread->rootDepth > 10
+    if (   thisThread->rootDepth > 10
         && ss->ply > 10
-        && depth >= (ss-1)->depth + 1
-        && thisThread->doubleExtensionAverage[us].is_greater(4, 100))
+        && search_explosion(thisThread) == MUST_CALM_DOWN
+        && depth >= (ss-1)->depth + 1)
        depth = (ss-1)->depth;
-
-    // We don't want more than 6% of simple extensions
-    if (   0
-        && thisThread->rootDepth > 10
-        && ss->ply > 10
-        && depth >= (ss-1)->depth
-        && thisThread->simpleExtensionAverage[us].is_greater(6, 100))
-       depth = (ss-1)->depth - 1;
-
 
     constexpr bool PvNode = nodeType != NonPV;
     constexpr bool rootNode = nodeType == Root;
@@ -627,15 +640,8 @@ namespace {
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
-    // Update the running averages statistics for simple and double extensions
-    int delta = ss->depth - (ss-1)->depth + 1;
-    thisThread->simpleExtensionAverage[us].update(delta >= 1);
-    thisThread->doubleExtensionAverage[us].update(delta >= 2);
-
-    // dbg_mean_of(delta >= 2);
-    // dbg_mean_of(ss->depth >= (ss-1)->depth);
-    // dbg_mean_of(10000 * thisThread->simpleExtensionAverage / (RESOLUTION * WINDOW));
-    // dbg_mean_of(10000 * thisThread->doubleExtensionAverage[WHITE] / (RESOLUTION * WINDOW));
+    // Update the running average statistics for double extensions
+    thisThread->doubleExtensionAverage[us].update(ss->depth > (ss-1)->depth);
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -1104,8 +1110,7 @@ moves_loop: // When in check, search starts here
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
                   && value < singularBeta - 93
-                  && ss->doubleExtensions < 3
-                  )
+                  && ss->doubleExtensions < 3)
               {
                   extension = 2;
                   doubleExtension = true;
