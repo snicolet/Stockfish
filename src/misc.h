@@ -94,22 +94,21 @@ class RunningAverage {
       RunningAverage() {}
 
       // Reset the running average to rational value p / q
-      void set(uint64_t p, uint64_t q)
+      void set(int64_t p, int64_t q)
         { average = p * WINDOW * RESOLUTION / q; }
 
       // Update average with value v
-      void update(uint64_t v)
+      void update(int64_t v)
         { average = RESOLUTION * v + (WINDOW - 1) * average / WINDOW; }
 
       // Test if average is strictly greater than rational a / b
-      bool is_greater(uint64_t a, uint64_t b)
+      bool is_greater(int64_t a, int64_t b)
         { return b * average > a * WINDOW * RESOLUTION ; }
 
-
   private :
-      static constexpr uint64_t WINDOW     = 4096;
-      static constexpr uint64_t RESOLUTION = 1024;
-      uint64_t average;
+      static constexpr int64_t WINDOW     = 4096;
+      static constexpr int64_t RESOLUTION = 1024;
+      int64_t average;
 };
 
 
