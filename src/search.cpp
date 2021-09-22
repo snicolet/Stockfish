@@ -92,8 +92,8 @@ namespace {
   ExplosionState search_explosion(Thread* thisThread) {
 
     uint64_t now = thisThread->nodes;
-    bool explosive =    thisThread->doubleExtensionAverage[WHITE].is_greater(4, 100)
-                     || thisThread->doubleExtensionAverage[BLACK].is_greater(4, 100);
+    bool explosive =    thisThread->doubleExtensionAverage[WHITE].is_greater(2, 100)
+                     || thisThread->doubleExtensionAverage[BLACK].is_greater(2, 100);
 
     if (explosive)
        thisThread->lastExplosiveTime = now;
@@ -548,8 +548,7 @@ namespace {
     Thread* thisThread = pos.this_thread();
 
     // Step 0. Limit search explosion
-    if (   thisThread->rootDepth > 10
-        && ss->ply > 10
+    if (   ss->ply > 10
         && search_explosion(thisThread) == MUST_CALM_DOWN
         && depth > (ss-1)->depth)
        depth = (ss-1)->depth;
