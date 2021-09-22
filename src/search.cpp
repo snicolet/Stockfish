@@ -546,7 +546,6 @@ namespace {
   Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode) {
 
     Thread* thisThread = pos.this_thread();
-    Color us           = pos.side_to_move();
 
     // Step 0. Limit search explosion
     if (   thisThread->rootDepth > 10
@@ -598,6 +597,7 @@ namespace {
     // Step 1. Initialize node
     ss->inCheck        = pos.checkers();
     priorCapture       = pos.captured_piece();
+    Color us           = pos.side_to_move();
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
@@ -1109,8 +1109,8 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
-                  && value < singularBeta - 93
-                  && ss->doubleExtensions < 3)
+                  && value < singularBeta - 51 - 50 * std::min(1, ss->doubleExtensions)
+                  && ss->doubleExtensions <= 5)
               {
                   extension = 2;
                   doubleExtension = true;
