@@ -1109,7 +1109,7 @@ moves_loop: // When in check, search starts here
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
                   && value < singularBeta - 51 - 50 * std::min(1, ss->doubleExtensions)
-                  && ss->doubleExtensions <= 6)
+                  && ss->doubleExtensions <= 4)
               {
                   extension = 2;
                   doubleExtension = true;
