@@ -1221,12 +1221,12 @@ moves_loop: // When in check, search starts here
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
 
-          // In general we want to cap the LMR depth search at newDepth. But if
-          // reductions are really negative and movecount is low, we allow this move
-          // to be searched deeper than the first move in specific cases (note that
-          // this may lead to hidden double extensions if newDepth got it own extension
-          // before).
+          // In general we want to cap the LMR depth search at newDepth. But if reductions
+          // are really negative and movecount is low, we allow this move to be searched
+          // deeper than the first move in specific cases (note that this may lead to hidden
+          // double extensions if newDepth got it own extension before).
           int deeper =   r >= -1               ? 0
+                       : extension             ? 0
                        : noLMRExtension        ? 0
                        : moveCount <= 5        ? 1
                        : (depth > 6 && PvNode) ? 1
