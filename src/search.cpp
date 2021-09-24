@@ -1108,8 +1108,8 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
-                  && value < singularBeta - 75
-                  && ss->doubleExtensions <= 3)
+                  && value < singularBeta - 65
+                  && ss->doubleExtensions <= 7)
               {
                   extension = 2;
                   noLMRExtension = true;
@@ -1224,7 +1224,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move in specific cases (note that this may lead to hidden
-          // double extensions if newDepth got it own extension before).
+          // double extensions if newDepth got its own extension before).
           int deeper =   r >= -1               ? 0
                        : noLMRExtension        ? 0
                        : moveCount <= 5        ? 1
