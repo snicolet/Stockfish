@@ -1122,7 +1122,10 @@ moves_loop: // When in check, search starts here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-              return singularBeta;
+          {
+              depth = depth - 2;
+              extension = -2;
+          }
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
@@ -1133,10 +1136,8 @@ moves_loop: // When in check, search starts here
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
-              {
-                  depth = depth - 2;
-                  extension = -2;
-              }
+                  return beta;
+              
           }
       }
 
