@@ -996,7 +996,7 @@ moves_loop: // When in check, search starts here
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
+    while ((move = mp.next_move()) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1076,6 +1076,9 @@ moves_loop: // When in check, search starts here
                   continue;
           }
       }
+
+      if (moveCountPruning)
+          newDepth = newDepth - 3;
 
       // Step 14. Extensions (~75 Elo)
 

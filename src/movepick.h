@@ -135,7 +135,7 @@ public:
                                            Move,
                                            const Move*,
                                            int);
-  Move next_move(bool skipQuiets = false);
+  Move next_move();
 
 private:
   template<PickType T, typename Pred> Move select(Pred);
