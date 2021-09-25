@@ -73,7 +73,7 @@ namespace {
     int r = Reductions[d] * Reductions[mn];
     return  (r + 534) / 1024 
           + (!i && r > 904) 
-          + (rangeReduction / 3);
+          + (rangeReduction - 1) / 2;
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
