@@ -69,9 +69,11 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn, bool rangeReduction) {
+  Depth reduction(bool i, Depth d, int mn, int rangeReduction) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 534) / 1024 + (!i && r > 904) + rangeReduction;
+    return  (r + 534) / 1024 
+          + (!i && r > 904) 
+          + (rangeReduction > 2);
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -1042,7 +1044,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction > 2), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1178,7 +1180,7 @@ moves_loop: // When in check, search starts here
               || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
-          Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
+          Depth r = reduction(improving, depth, moveCount, rangeReduction);
 
           if (PvNode)
               r--;
@@ -1239,7 +1241,9 @@ moves_loop: // When in check, search starts here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           // Range reductions (~3 Elo)
-          if (ss->staticEval - value < 30 && depth > 7)
+          if (   depth > 7
+              && abs(ss->staticEval) < 10000
+              && ss->staticEval - value < 30)
               rangeReduction++;
 
           // If the son is reduced and fails high it will be re-searched at full depth
