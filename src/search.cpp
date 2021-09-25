@@ -73,7 +73,7 @@ namespace {
     int r = Reductions[d] * Reductions[mn];
     return  (r + 534) / 1024 
           + (!i && r > 904) 
-          + (rangeReduction - 1) / 2;
+          + (rangeReduction > 2);
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -1243,7 +1243,7 @@ moves_loop: // When in check, search starts here
           // Range reductions (~3 Elo)
           if (   depth > 7
               && abs(ss->staticEval) < 10000
-              && ss->staticEval - value < 30)
+              && abs(ss->staticEval - value) < 100)
               rangeReduction++;
 
           // If the son is reduced and fails high it will be re-searched at full depth
