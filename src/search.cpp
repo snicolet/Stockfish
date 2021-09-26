@@ -636,6 +636,7 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
+    ss->nonFirstMoves    = PvNode ? 0 : (ss-1)->nonFirstMoves + ((ss-1)->moveCount != 1);
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
@@ -1234,11 +1235,12 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions if
           // newDepth got its own extension before).
-          int deeper =   r >= -1               ? 0
-                       : noLMRExtension        ? 0
-                       : moveCount <= 5        ? 1
-                       : (depth > 6 && PvNode) ? 1
-                       :                         0;
+          int deeper =   r >= -1                ? 0
+                       : noLMRExtension         ? 0
+                       : ss->nonFirstMoves <= 0 ? 1
+                       : moveCount <= 5         ? 1
+                       : (depth > 6 && PvNode)  ? 1
+                       :                          0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
