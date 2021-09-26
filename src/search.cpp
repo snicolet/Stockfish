@@ -1250,8 +1250,8 @@ moves_loop: // When in check, search starts here
         
           if (!captureOrPromotion)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth + moveCount)
-                                        : -stat_bonus(newDepth + moveCount);
+              int bonus = value > alpha ?  stat_bonus(d + moveCount)
+                                        : -stat_bonus(d + moveCount);
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
 
