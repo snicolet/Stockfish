@@ -1181,9 +1181,6 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
-          && (  !captureOrPromotion
-              || (cutNode && (ss-1)->moveCount > 1)
-              || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
@@ -1237,7 +1234,7 @@ moves_loop: // When in check, search starts here
           // newDepth got its own extension before).
           int deeper =   r >= -1                    ? 0
                        : noLMRExtension             ? 0
-                       : (ss-1)->nonFirstMoves <= 1 ? 1
+                       : ss->nonFirstMoves <= 1     ? 1
                        : moveCount <= 5             ? 1
                        : (depth > 6 && PvNode)      ? 1
                        :                              0;
