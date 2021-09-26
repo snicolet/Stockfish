@@ -1248,12 +1248,8 @@ moves_loop: // When in check, search starts here
           if (ss->staticEval - value < 30 && depth > 7)
               rangeReduction++;
         
-          if (!captureOrPromotion)
-          {
-              int bonus = value > alpha ?  stat_bonus(d + moveCount)
-                                        : -stat_bonus(d + moveCount);
-              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-          }
+          if (!captureOrPromotion && value > alpha)
+              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(d + moveCount));
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
