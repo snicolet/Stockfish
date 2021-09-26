@@ -1123,8 +1123,8 @@ moves_loop: // When in check, search starts here
           // a soft bound.
           else if (singularBeta >= beta)
           {
-              extension = singularDepth - depth;
-              depth = singularDepth;
+              extension = -4;
+              depth = depth - 4;
           }
 
           // If the eval of ttMove is greater than beta we try also if there is another
