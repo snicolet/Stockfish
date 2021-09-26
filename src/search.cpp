@@ -1248,7 +1248,8 @@ moves_loop: // When in check, search starts here
           if (ss->staticEval - value < 30 && depth > 7)
               rangeReduction++;
         
-          if (!captureOrPromotion && value > alpha)
+          if (   !captureOrPromotion 
+              &&  value > alpha)
               update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(d + moveCount));
 
           // If the son is reduced and fails high it will be re-searched at full depth
@@ -1267,13 +1268,10 @@ moves_loop: // When in check, search starts here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
           // If the move passed LMR update its stats
-          if (didLMR && !captureOrPromotion)
-          {
-              int bonus = value > alpha ?  stat_bonus(newDepth + moveCount)
-                                        : -stat_bonus(newDepth + moveCount);
-
-              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-          }
+          if (    didLMR 
+              && !captureOrPromotion 
+              &&  value > alpha)
+              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(newDepth + moveCount));
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
