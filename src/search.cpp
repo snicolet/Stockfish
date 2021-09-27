@@ -80,7 +80,7 @@ namespace {
 
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
-    return d > 14 ? 8334 - 58338 / d 
+    return d > 14 ? 73
                   : 6 * d * d + 229 * d - 215;
   }
 
@@ -1272,8 +1272,8 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth + moveCount)
-                                        : -stat_bonus(newDepth + moveCount);
+              int bonus = value > alpha ?  1400
+                                        : -1400;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
