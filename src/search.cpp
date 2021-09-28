@@ -80,9 +80,11 @@ namespace {
 
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
-    return d > 14 ? 73
-                  : 6 * d * d + 229 * d - 215;
+    return d > 14 ? 73 : 6 * d * d + 229 * d - 215;
   }
+
+  // Constant for some continuation history updates
+  constexpr int continuationHistoryBonus = 1200;
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
   Value value_draw(Thread* thisThread) {
@@ -693,14 +695,14 @@ namespace {
 
                 // Extra penalty for early quiet moves of the previous ply
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -continuationHistoryBonus);
             }
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
-                update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), -continuationHistoryBonus);
             }
         }
 
@@ -1258,11 +1260,6 @@ moves_loop: // When in check, search starts here
           doFullDepthSearch = !PvNode || moveCount > 1;
           didLMR = false;
       }
-      
-    //  for (int i = 0 ; i <= 100 ; i++)
-    //     std::cerr << " depth = " << i
-    //               << " stat_bonus = " << stat_bonus(i)
-    //               << std::endl;
 
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
@@ -1272,8 +1269,8 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  1800
-                                        : -1800;
+              int bonus = value > alpha ?  continuationHistoryBonus
+                                        : -continuationHistoryBonus;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
