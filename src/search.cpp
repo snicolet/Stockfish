@@ -84,7 +84,7 @@ namespace {
   }
 
   // Constant for some continuation history updates
-  constexpr int continuationHistoryBonus = 1250;
+  constexpr int continuationHistoryBonus = 1300;
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
   Value value_draw(Thread* thisThread) {
