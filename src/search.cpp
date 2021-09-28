@@ -83,9 +83,6 @@ namespace {
     return d > 14 ? 73 : 6 * d * d + 229 * d - 215;
   }
 
-  // Constant for some continuation history updates
-  constexpr int continuationHistoryBonus = 1300;
-
   // Add a small random component to draw evaluations to avoid 3-fold blindness
   Value value_draw(Thread* thisThread) {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
@@ -695,14 +692,14 @@ namespace {
 
                 // Extra penalty for early quiet moves of the previous ply
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -continuationHistoryBonus);
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
-                update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), -continuationHistoryBonus);
+                update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
         }
 
@@ -1269,8 +1266,8 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  continuationHistoryBonus
-                                        : -continuationHistoryBonus;
+              int bonus = value > alpha ?  1200
+                                        : -1200;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
