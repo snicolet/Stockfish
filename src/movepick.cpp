@@ -113,18 +113,19 @@ void MovePicker::score() {
                    + continuationScore / 4;
 
       else if constexpr (Type == QUIETS)
-          m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
-                   +     continuationScore
+          m.value =  (*mainHistory)[pos.side_to_move()][from_to(m)]
+                   + continuationScore
                    + (ply < MAX_LPH ? 6 * (*lowPlyHistory)[ply][from_to(m)] : 0);
 
       else // Type == EVASIONS
       {
           if (pos.capture(m))
               m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
-                       - Value(type_of(pos.moved_piece(m)));
+                       - Value(type_of(pos.moved_piece(m)))
+                       + continuationScore / 16;
           else
               m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
-                       + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
+                       + continuationScore
                        - (1 << 28);
       }
   }
