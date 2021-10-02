@@ -100,6 +100,8 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
+  // std::cerr << "--------------" << std::endl;
+
   for (auto& m : *this)
   {
       int continuationScore =  2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
@@ -107,11 +109,18 @@ void MovePicker::score() {
                              +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                              +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)];
 
+      //std::cerr << continuationScore << std::endl;
+
       if constexpr (Type == CAPTURES)
+      {
           m.value =  int(PieceValue[MG][pos.piece_on(to_sq(m))]) * 6
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]
-                   + continuationScore / 32
+                   + 1024 * (continuationScore > 0)
                    ;
+                   
+         //dbg_mean_of(continuationScore > 0);
+         // std::cerr << m.value << std::endl;
+      }
 
       else if constexpr (Type == QUIETS)
           m.value =  (*mainHistory)[pos.side_to_move()][from_to(m)]
