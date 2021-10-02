@@ -115,7 +115,7 @@ void MovePicker::score() {
       {
           m.value =  int(PieceValue[MG][pos.piece_on(to_sq(m))]) * 6
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]
-                   + 1024 * (continuationScore > 0)
+                   + 512 * (continuationScore > 0)
                    ;
                    
          //dbg_mean_of(continuationScore > 0);
