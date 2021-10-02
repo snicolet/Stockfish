@@ -1051,11 +1051,11 @@ moves_loop: // When in check, search starts here
               if (   !givesCheck
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
-                  extension = -2;
+                  continue;
 
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
-                  continue;
+                  extension = -2;
           }
           else
           {
@@ -1142,20 +1142,20 @@ moves_loop: // When in check, search starts here
       else if (   (PvNode || cutNode)
                && captureOrPromotion
                && moveCount != 1)
-          extension += 1;
+          extension = 1;
 
       // Check extensions
       else if (   givesCheck
                && depth > 6
                && abs(ss->staticEval) > 100)
-          extension += 1;
+          extension = 1;
 
       // Quiet ttMove extensions
       else if (   PvNode
                && move == ttMove
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
-          extension += 1;
+          extension = 1;
 
       // Add extension to new depth
       newDepth += extension;
