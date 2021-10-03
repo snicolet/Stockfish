@@ -1050,7 +1050,7 @@ moves_loop: // When in check, search starts here
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
                   && lmrDepth < 1
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < -3000)
                   continue;
 
               // SEE based pruning
@@ -1266,8 +1266,8 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth)
-                                        : -stat_bonus(newDepth);
+              int bonus = value > alpha ?  1150
+                                        : -1150;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
