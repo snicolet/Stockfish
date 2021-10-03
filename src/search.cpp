@@ -1051,7 +1051,7 @@ moves_loop: // When in check, search starts here
               if (   !givesCheck
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
-                  continue;
+                  extension = -1;
 
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
@@ -1064,7 +1064,7 @@ moves_loop: // When in check, search starts here
                   && (*contHist[0])[movedPiece][to_sq(move)]
                   + (*contHist[1])[movedPiece][to_sq(move)]
                   + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
-                  extension = -2;
+                  continue;
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
