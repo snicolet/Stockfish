@@ -1051,7 +1051,7 @@ moves_loop: // When in check, search starts here
               if (   !givesCheck
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
-                  extension = -3;
+                  continue;
 
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
@@ -1074,7 +1074,7 @@ moves_loop: // When in check, search starts here
 
               // Prune moves with negative SEE (~20 Elo)
               if (!pos.see_ge(move, Value(-21 * lmrDepth * lmrDepth - 21 * lmrDepth)))
-                  continue;
+                  extension = -2;
           }
       }
 
