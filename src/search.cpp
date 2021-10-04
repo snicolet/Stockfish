@@ -82,7 +82,7 @@ namespace {
   int stat_bonus(Depth d) {
     int bonus = 6 * d * d + 229 * d - 215;
 
-    bonus = std::min(bonus, 3000);
+    bonus = std::min(bonus, 4000);
 
     //dbg_mean_of(bonus);
 
