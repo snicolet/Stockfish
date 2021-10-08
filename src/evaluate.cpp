@@ -1079,7 +1079,7 @@ make_v:
 
 Value Eval::evaluate(const Position& pos) {
 
-  Value v;
+  int64_t v;
 
   if (!useNNUE)
       v = Evaluation<NO_TRACE>(pos).value();
@@ -1089,8 +1089,7 @@ Value Eval::evaluate(const Position& pos) {
       auto  adjusted_NNUE = [&]()
       {
          int scale =   883
-                     + 32 * pos.count<PAWN>()
-                     + 32 * pos.non_pawn_material() / 1024;
+                     + 64 * pos.non_pawn_material() / 1024;
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
@@ -1110,13 +1109,16 @@ Value Eval::evaluate(const Position& pos) {
                     : adjusted_NNUE();                   // NNUE
   }
 
-  // Damp down the evaluation linearly when shuffling
-  v = v * (100 - pos.rule50_count()) / 100;
+  // Damp down the evaluation when shuffling
+  // See https://www.desmos.com/calculator/8kl58hn01c
+  int r50 = pos.rule50_count();
+  int A = -80 - 1024 * (pos.this_thread()->nodes & 1);
+  v = v * (A - r50) * (100 - r50) / (A * 100);
 
   // Guarantee evaluation does not hit the tablebase range
-  v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
+  v = std::clamp(Value(v), VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 
-  return v;
+  return Value(v);
 }
 
 /// trace() is like evaluate(), but instead of returning a value, it returns
