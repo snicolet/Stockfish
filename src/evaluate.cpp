@@ -1111,6 +1111,7 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Damp down the evaluation linearly when shuffling
+  // See https://www.desmos.com/calculator/8kl58hn01c
   int r50 = pos.rule50_count();
   int A = -90 - 1024 * (pos.key() & 1);
   v = v * (A - r50) * (100 - r50) / (A * 100);
