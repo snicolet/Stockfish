@@ -1110,7 +1110,7 @@ Value Eval::evaluate(const Position& pos) {
                     : adjusted_NNUE();                   // NNUE
   }
 
-  // Damp down the evaluation linearly when shuffling
+  // Damp down the evaluation when shuffling
   // See https://www.desmos.com/calculator/8kl58hn01c
   int r50 = pos.rule50_count();
   int A = -90 - 1024 * (pos.key() & 1);
