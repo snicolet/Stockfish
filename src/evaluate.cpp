@@ -1113,7 +1113,9 @@ Value Eval::evaluate(const Position& pos) {
   // Damp down the evaluation linearly when shuffling
   // See https://www.desmos.com/calculator/8kl58hn01c
   int r50 = pos.rule50_count();
-  int A = -80 + 180 * (pos.this_thread()->nodes & 3);
+  int A =    -90
+          +    8 * (pos.key() & 3)
+          - 2048 * (pos.this_thread()->nodes & 1);
   v = v * (A - r50) * (100 - r50) / (A * 100);
 
   // Guarantee evaluation does not hit the tablebase range
