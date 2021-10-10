@@ -1079,7 +1079,7 @@ make_v:
 
 Value Eval::evaluate(const Position& pos) {
 
-  Value v;
+  int64_t v;
 
   if (!useNNUE)
       v = Evaluation<NO_TRACE>(pos).value();
@@ -1117,9 +1117,9 @@ Value Eval::evaluate(const Position& pos) {
   v = v * (A - r50) * (100 - r50) / (A * 100);
 
   // Guarantee evaluation does not hit the tablebase range
-  v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
+  v = std::clamp(Value(v), VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 
-  return v;
+  return Value(v);
 }
 
 /// trace() is like evaluate(), but instead of returning a value, it returns
