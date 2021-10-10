@@ -1091,7 +1091,7 @@ Value Eval::evaluate(const Position& pos) {
          int scale =   883
                      + 32 * pos.count<PAWN>()
                      + 32 * pos.non_pawn_material() / 1024
-                     +  2 * pos.rule50_count();
+                     + (2 - 4 * (pos.key() & 1)) * pos.rule50_count();
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
@@ -1114,7 +1114,7 @@ Value Eval::evaluate(const Position& pos) {
   // Damp down the evaluation when shuffling
   // See https://www.desmos.com/calculator/8kl58hn01c
   int r50 = pos.rule50_count();
-  int A = -82 - 1024 * (pos.this_thread()->nodes & 1);
+  int A = -80 - 1024 * (pos.this_thread()->nodes & 1);
   v = v * (A - r50) * (100 - r50) / (A * 100);
 
   // Guarantee evaluation does not hit the tablebase range
