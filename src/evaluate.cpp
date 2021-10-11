@@ -1088,7 +1088,7 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&]()
       {
-         int rnd = pos.key() & 1;
+         int rnd = pos.this_thread()->nodes & 1;
          int scale =   883
                      + (32 - 31 * rnd) * pos.count<PAWN>()
                      + (32 + 31 * rnd) * pos.non_pawn_material() / 1024;
