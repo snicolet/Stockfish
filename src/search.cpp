@@ -1127,7 +1127,7 @@ moves_loop: // When in check, search starts here
           // move that pushes it over beta, if so the position also has probably multiple
           // moves giving fail highs. We will then reduce the ttMove (negative extension).
           else if (ttValue >= beta)
-              extension = -(ttValue - beta + 10) / 8;
+              extension = -(ttValue - beta + 12) / 8;
       }
 
       // Capture extensions for PvNodes and cutNodes
