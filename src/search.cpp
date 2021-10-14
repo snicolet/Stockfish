@@ -335,6 +335,7 @@ void Thread::search() {
   ttHitAverage.set(50, 100);                  // initialize the running average at 50%
   doubleExtensionAverage[WHITE].set(0, 100);  // initialize the running average at 0%
   doubleExtensionAverage[BLACK].set(0, 100);  // initialize the running average at 0%
+  failHighAverage.set(30, 100);               // initialize the running average at 30%
 
   nodesLastExplosive = nodes;
   nodesLastNormal    = nodes;
@@ -1222,6 +1223,9 @@ moves_loop: // When in check, search starts here
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
 
+          if (thisThread->failHighAverage.is_greater(40, 100))
+              r--;
+
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions if
@@ -1387,6 +1391,9 @@ moves_loop: // When in check, search starts here
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
+
+    if (moveCount)
+        thisThread->failHighAverage.update(bestValue >= beta);
 
     // If no good move is found and the previous position was ttPv, then the previous
     // opponent move is probably good and the new position is added to the search tree.
