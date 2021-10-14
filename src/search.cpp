@@ -1218,7 +1218,7 @@ moves_loop: // When in check, search starts here
 
           if (   !PvNode
               && !cutNode
-              && thisThread->failHighAverage[us].is_greater(50, 100))
+              && thisThread->failHighAverage[us].is_greater(36, 100))
               r--;
 
           // In general we want to cap the LMR depth search at newDepth. But if reductions
