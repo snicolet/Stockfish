@@ -1216,7 +1216,8 @@ moves_loop: // When in check, search starts here
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
 
-          if (thisThread->failHighAverage[us].is_greater(40, 100))
+          if (   !PvNode
+              && thisThread->failHighAverage[us].is_greater(40, 100))
               r--;
 
           // In general we want to cap the LMR depth search at newDepth. But if reductions
@@ -1385,7 +1386,7 @@ moves_loop: // When in check, search starts here
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
 
-    if (moveCount)
+    if (!PvNode && moveCount)
         thisThread->failHighAverage[us].update(bestValue >= beta);
 
     // If no good move is found and the previous position was ttPv, then the previous
