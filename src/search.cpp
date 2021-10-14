@@ -1217,6 +1217,7 @@ moves_loop: // When in check, search starts here
           r -= ss->statScore / 14721;
 
           if (   !PvNode
+              && !cutNode
               && thisThread->failHighAverage[us].is_greater(40, 100))
               r--;
 
@@ -1386,7 +1387,9 @@ moves_loop: // When in check, search starts here
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
 
-    if (!PvNode && moveCount)
+    if (   !PvNode
+        && !cutNode
+        && moveCount)
         thisThread->failHighAverage[us].update(bestValue >= beta);
 
     // If no good move is found and the previous position was ttPv, then the previous
