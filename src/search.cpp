@@ -825,7 +825,6 @@ namespace {
 
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
-        &&  cutNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 23767
         &&  eval >= beta
@@ -880,6 +879,7 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
+        &&  cutNode
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
