@@ -817,8 +817,8 @@ namespace {
     
     if (!PvNode)
     {
-       cutNode |= (improvement >  100 && ss->staticEval > beta  + 100);
-       // cutNode &= (improvement > -100 || ss->staticEval > alpha - 100);
+       // cutNode |= (improvement >  100 && ss->staticEval > beta  + 100);
+       cutNode &= (improvement > -100 || ss->staticEval > alpha - 100);
     }
 
     // Step 7. Futility pruning: child node (~50 Elo).
