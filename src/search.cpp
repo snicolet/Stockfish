@@ -817,7 +817,7 @@ namespace {
     
     if (!PvNode)
     {
-       // cutNode |= (improvement >  100 && ss->staticEval > beta  + 100);
+       cutNode |= (improvement >  100 && ss->staticEval > beta  + 100);
        cutNode &= (improvement > -100 || ss->staticEval > alpha - 100);
     }
 
