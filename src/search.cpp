@@ -814,6 +814,12 @@ namespace {
                   :                                    200;
 
     improving = improvement > 0;
+    
+    if (!PvNode)
+    {
+       cutNode |= (improvement >  100 && ss->staticEval > beta  + 100);
+       // cutNode &= (improvement > -100 || ss->staticEval > alpha - 100);
+    }
 
     // Step 7. Futility pruning: child node (~50 Elo).
     // The depth condition is important for mate finding.
@@ -958,7 +964,6 @@ moves_loop: // When in check, search starts here
     probCutBeta = beta + 409;
     if (   ss->inCheck
         && !PvNode
-        && cutNode
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
