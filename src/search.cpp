@@ -879,7 +879,6 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  cutNode
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
@@ -959,6 +958,7 @@ moves_loop: // When in check, search starts here
     probCutBeta = beta + 409;
     if (   ss->inCheck
         && !PvNode
+        && cutNode
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
