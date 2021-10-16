@@ -1223,7 +1223,7 @@ moves_loop: // When in check, search starts here
           // newDepth got its own extension before).
           int deeper =   r >= -1                   ? 0
                        : noLMRExtension            ? 0
-                       : r <= -3 && moveCount == 2 ? 2
+                       : r <= -3 && moveCount <= 3 ? 2
                        : moveCount <= 6            ? 1
                        : depth > 6 && PvNode       ? 1
                        :                             0;
