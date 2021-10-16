@@ -1223,9 +1223,12 @@ moves_loop: // When in check, search starts here
           // newDepth got its own extension before).
           int deeper =   r >= -1               ? 0
                        : noLMRExtension        ? 0
+                       : r <= -3               ? 2
                        : moveCount <= 5        ? 1
                        : (depth > 6 && PvNode) ? 1
                        :                         0;
+        
+          //dbg_mean_of(r <= -3);
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
