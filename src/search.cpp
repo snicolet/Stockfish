@@ -547,8 +547,13 @@ namespace {
     Thread* thisThread = pos.this_thread();
 
     // Step 0. Limit search explosion
+
     if (   ss->ply > 10
         && search_explosion(thisThread) == MUST_CALM_DOWN
+        && depth > (ss-1)->depth)
+       depth = (ss-1)->depth;
+
+    if (   (ss-1)->doubleExtensions >= 6
         && depth > (ss-1)->depth)
        depth = (ss-1)->depth;
 
@@ -634,8 +639,8 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
-    ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
+    ss->doubleExtensions = (ss-1)->doubleExtensions + (ss->ply >= 1 && ss->depth > (ss-1)->depth);
     Square prevSq        = to_sq((ss-1)->currentMove);
 
     // Update the running average statistics for double extensions
@@ -1104,10 +1109,8 @@ moves_loop: // When in check, search starts here
               extension = 1;
               singularQuietLMR = !ttCapture;
 
-              // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
-                  && value < singularBeta - 75
-                  && ss->doubleExtensions <= 6)
+                  && value < singularBeta - 75)
                   extension = 2;
           }
 
@@ -1145,7 +1148,6 @@ moves_loop: // When in check, search starts here
 
       // Add extension to new depth
       newDepth += extension;
-      ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
