@@ -634,8 +634,8 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
-    ss->doubleExtensions = (ss-1)->doubleExtensions + (ss->ply > 1 && ss->depth > (ss-1)->depth);
     ss->depth            = depth;
+    ss->doubleExtensions = (ss-1)->doubleExtensions + (ss->ply >= 1 && ss->depth > (ss-1)->depth);
     Square prevSq        = to_sq((ss-1)->currentMove);
 
     // Update the running average statistics for double extensions
