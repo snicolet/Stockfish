@@ -1143,8 +1143,7 @@ moves_loop: // When in check, search starts here
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension += 1;
 
-      if (moveCount == 1)
-          noLMRExtension = extension >= 2;
+      noLMRExtension |= (extension >= 2);
 
       // Add extension to new depth
       newDepth += extension;
