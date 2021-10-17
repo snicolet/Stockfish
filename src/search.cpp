@@ -1125,26 +1125,26 @@ moves_loop: // When in check, search starts here
       }
 
       // Capture extensions for PvNodes and cutNodes
-      else if (   (PvNode || cutNode)
+      if (   (PvNode || cutNode)
                && captureOrPromotion
                && moveCount != 1)
-          extension = 1;
+          extension += 1;
 
       // Check extensions
-      else if (   givesCheck
+      if (   givesCheck
                && depth > 6
                && abs(ss->staticEval) > 100)
-          extension = 1;
+          extension += 1;
 
       // Quiet ttMove extensions
-      else if (   PvNode
+      if (   PvNode
                && move == ttMove
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
-          extension = 1;
+          extension += 1;
 
       if (moveCount == 1)
-          noLMRExtension = extension > 0;
+          noLMRExtension = extension >= 2;
 
       // Add extension to new depth
       newDepth += extension;
