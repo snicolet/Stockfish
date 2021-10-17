@@ -634,7 +634,7 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
-    ss->doubleExtensions = (ss-1)->doubleExtensions;
+    ss->doubleExtensions = (ss-1)->doubleExtensions + (ss->ply > 1 && ss->depth > (ss-1)->depth);
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
@@ -1145,7 +1145,6 @@ moves_loop: // When in check, search starts here
 
       // Add extension to new depth
       newDepth += extension;
-      ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
