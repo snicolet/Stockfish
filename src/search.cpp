@@ -553,7 +553,7 @@ namespace {
         && depth > (ss-1)->depth)
        depth = (ss-1)->depth;
 
-    if (   (ss-1)->doubleExtensions >= 14
+    if (   (ss-1)->doubleExtensions >= 11
         && depth > (ss-1)->depth)
        depth = (ss-1)->depth;
 
