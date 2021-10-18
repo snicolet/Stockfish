@@ -545,9 +545,17 @@ namespace {
   Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode) {
 
     Thread* thisThread = pos.this_thread();
+    
+    if (thisThread->nodes % 1000000 == 0)
+    {
+        std::cerr << "average WHITE = " << (thisThread->doubleExtensionAverage[WHITE].value() * 100.0) << std::endl
+                  << "average BLACK = " << (thisThread->doubleExtensionAverage[BLACK].value() * 100.0) << std::endl
+                  << "--------------\n" ;
+    }
 
     // Step 0. Limit search explosion
-    if (   ss->ply > 10
+    if (   false 
+        && ss->ply > 10
         && search_explosion(thisThread) == MUST_CALM_DOWN
         && depth > (ss-1)->depth)
        depth = (ss-1)->depth;
