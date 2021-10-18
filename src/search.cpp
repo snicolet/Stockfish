@@ -547,8 +547,13 @@ namespace {
     Thread* thisThread = pos.this_thread();
 
     // Step 0. Limit search explosion
+
     if (   ss->ply > 10
         && search_explosion(thisThread) == MUST_CALM_DOWN
+        && depth > (ss-1)->depth)
+       depth = (ss-1)->depth;
+
+    if (   (ss-1)->doubleExtensions >= 6
         && depth > (ss-1)->depth)
        depth = (ss-1)->depth;
 
@@ -1104,7 +1109,6 @@ moves_loop: // When in check, search starts here
               extension = 1;
               singularQuietLMR = !ttCapture;
 
-              // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
                   && value < singularBeta - 75)
                   extension = 2;
