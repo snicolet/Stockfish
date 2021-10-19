@@ -1101,7 +1101,7 @@ moves_loop: // When in check, search starts here
               if (   !PvNode
                   && value < singularBeta - 75
                   && ss->doubleExtensions <= 6
-                  && depth <= (ss-1)->depth)
+                  && depth < (ss-1)->depth)
                   extension = 2;
           }
 
