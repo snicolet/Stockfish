@@ -1100,7 +1100,6 @@ moves_loop: // When in check, search starts here
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
                   && value < singularBeta - 75
-                  && !ttCapture
                   && ss->doubleExtensions <= 6)
                   extension = 2;
           }
@@ -1108,12 +1107,11 @@ moves_loop: // When in check, search starts here
           // Multi-cut pruning
           // Our ttMove is assumed to fail high, and now we failed high also on a reduced
           // search without the ttMove. So we assume this expected Cut-node is not singular,
-          // that multiple moves fail high, and we can prune the whole subtree by returning
-          // a soft bound.
+          // that multiple moves fail high, and we reduce the whole subtree (negative extension).
           else if (singularBeta >= beta)
-              return singularBeta;
+              extension = -5;
 
-          // If the eval of ttMove is greater than beta, we reduce it (negative extension)
+          // If the eval of ttMove is greater than beta, we reduce the ttMove 
           else if (ttValue >= beta)
               extension = -2;
       }
