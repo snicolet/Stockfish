@@ -1109,7 +1109,7 @@ moves_loop: // When in check, search starts here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that multiple moves fail high, and we reduce the whole subtree (negative extension).
           else if (singularBeta >= beta)
-              extension = -6;
+              extension = -4;
 
           // If the eval of ttMove is greater than beta, we reduce the ttMove 
           else if (ttValue >= beta)
