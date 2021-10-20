@@ -1100,7 +1100,7 @@ moves_loop: // When in check, search starts here
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
                   && value < singularBeta - 75
-                  && ttCapture)
+                  && !ttCapture)
                   extension = 2;
           }
 
