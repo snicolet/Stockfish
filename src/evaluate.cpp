@@ -1099,6 +1099,9 @@ Value Eval::evaluate(const Position& pos) {
            v += fix_FRC(pos);
   }
 
+  // randomize eval a little
+  v += Value(2 * (pos.key() & 7) - 7);
+
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
 
