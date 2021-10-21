@@ -1077,7 +1077,7 @@ moves_loop: // When in check, search starts here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (   !rootNode
-          &&  depth >= 7
+          &&  depth >= 6
           &&  move == ttMove
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1109,7 +1109,7 @@ moves_loop: // When in check, search starts here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that multiple moves fail high, and we reduce the whole subtree (negative extension).
           else if (singularBeta >= beta)
-              extension = -4;
+              extension = -5;
 
           // If the eval of ttMove is greater than beta, we reduce the ttMove 
           else if (ttValue >= beta)
