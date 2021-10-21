@@ -634,7 +634,6 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
-    ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
@@ -1099,8 +1098,7 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
-                  && value < singularBeta - 75
-                  && ss->doubleExtensions <= 6)
+                  && value < singularBeta - 75)
                   extension = 2;
           }
 
@@ -1109,7 +1107,7 @@ moves_loop: // When in check, search starts here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that multiple moves fail high, and we reduce the whole subtree (negative extension).
           else if (singularBeta >= beta)
-              extension = - (2 * depth + 1) / 3;
+              extension = -5;
 
           // If the eval of ttMove is greater than beta, we reduce the ttMove 
           else if (ttValue >= beta)
@@ -1137,7 +1135,6 @@ moves_loop: // When in check, search starts here
 
       // Add extension to new depth
       newDepth += extension;
-      ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
