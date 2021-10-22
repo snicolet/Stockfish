@@ -1100,7 +1100,8 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Randomize eval a little
-  if (pos.count<PAWN>() >= 10)
+  if (   pos.count<BISHOP>() == 0
+      || pos.count<PAWN>() >= 12)
       v += Value(2 * (pos.key() & 7) - 7);
 
   // Damp down the evaluation linearly when shuffling
