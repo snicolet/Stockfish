@@ -1097,7 +1097,6 @@ Value Eval::evaluate(const Position& pos) {
       int scale  =   883
                    + 32 * pawns
                    + 32 * pieces / 1024;
-      scale += 128 * (pawns >= 14);
       scale += 128 * (pawns >= 16);
 
       v = nnue * scale / 1024;  
