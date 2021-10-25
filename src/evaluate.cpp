@@ -1089,14 +1089,21 @@ Value Eval::evaluate(const Position& pos) {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
   else
   {
-      int scale =   883
-                  + 32 * pos.count<PAWN>()
-                  + 32 * pos.non_pawn_material() / 1024;
+      Value nnue = NNUE::evaluate(pos, true);           // NNUE
 
-       v = NNUE::evaluate(pos, true) * scale / 1024;  // NNUE
+      int pawns  = pos.count<PAWN>();
+      int pieces = pos.non_pawn_material();
 
-       if (pos.is_chess960())
-           v += fix_FRC(pos);
+      int scale  =   883
+                   + 32 * pawns
+                   + 32 * pieces / 1024;
+      scale += 128 * (pawns >= 14);
+      scale += 128 * (pawns >= 16);
+
+      v = nnue * scale / 1024;  
+
+      if (pos.is_chess960())
+          v += fix_FRC(pos);
   }
 
   // Damp down the evaluation linearly when shuffling
