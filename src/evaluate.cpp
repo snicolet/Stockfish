@@ -1096,15 +1096,13 @@ Value Eval::evaluate(const Position& pos) {
 
       int scale  =   883
                    + 32 * pawns
-                   + 32 * pieces / 1024;
+                   + 32 * pieces / 1024
+                   + 11 * pos.rule50_count();
 
-      v = nnue * scale / 1024;  
+      v = nnue * scale / 1024;
 
       if (pos.is_chess960())
           v += fix_FRC(pos);
-
-      if (abs(v) < 100)
-          v = std::clamp(2 * v, Value(-100), Value(100));
   }
 
   // Damp down the evaluation linearly when shuffling
