@@ -1097,7 +1097,7 @@ Value Eval::evaluate(const Position& pos) {
                   + 32 * pos.count<PAWN>()
                   + 32 * pos.non_pawn_material() / 1024;
 
-       v = (nnue + optimism) * scale / 1024 - 5 * optimism / 4;
+       v = (nnue + optimism) * scale / 1024 - 3 * optimism / 2;
 
        if (pos.is_chess960())
            v += fix_FRC(pos);
