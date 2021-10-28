@@ -1093,7 +1093,7 @@ Value Eval::evaluate(const Position& pos) {
       Color stm      = pos.side_to_move();
       Value optimism = pos.this_thread()->optimism[stm];
 
-      int scale =   900
+      int scale =   950
                   + 32 * pos.count<PAWN>()
                   + 32 * pos.non_pawn_material() / 1024;
 
