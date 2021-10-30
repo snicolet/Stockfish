@@ -1092,7 +1092,7 @@ Value Eval::evaluate(const Position& pos) {
       Value   nnue     = NNUE::evaluate(pos, true);     // NNUE
       Color   stm      = pos.side_to_move();
       Thread* th       = pos.this_thread();
-      Value   optimism = th->bestValue >= -100 ? th->optimism[stm]
+      Value   optimism = th->bestValue >= -150 ? th->optimism[stm]
                                                : Value(0);
 
       int scale =   750
