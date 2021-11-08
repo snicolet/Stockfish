@@ -1758,7 +1758,7 @@ moves_loop: // When in check, search starts here
 
     // Penalty for reversed move in case of moved piece not being a pawn
     if (type_of(pos.moved_piece(move)) != PAWN)
-        thisThread->mainHistory[us][from_to(reverse_move(move))] << -3 * bonus / 4;
+        thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus / 4;
 
     // Update countermove history
     if (is_ok((ss-1)->currentMove))
