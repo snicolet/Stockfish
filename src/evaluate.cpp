@@ -1103,7 +1103,7 @@ Value Eval::evaluate(const Position& pos) {
 
   // Damp down the evaluation when shuffling
   int shuffling = pos.rule50_count();
-  int A = -85 - 1024 * (pos.this_thread()->nodes & 1);
+  int A = -75 - 1024 * (pos.this_thread()->nodes & 1);
   v = v * (A - shuffling) * (100 - shuffling) / (A * 100);
 
   // Guarantee evaluation does not hit the tablebase range
