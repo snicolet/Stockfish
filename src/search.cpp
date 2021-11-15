@@ -336,8 +336,8 @@ void Thread::search() {
   nodesLastNormal    = nodes;
   state              = EXPLOSION_NONE;
   trend              = SCORE_ZERO;
-  optimism[ us]      = Value( 125);
-  optimism[~us]      = Value(-125);
+  optimism[ us]      = Value( 50);
+  optimism[~us]      = Value(-50);
 
   int searchAgainCounter = 0;
 
@@ -389,8 +389,8 @@ void Thread::search() {
               trend = (us == WHITE ?  make_score(tr, tr / 2)
                                    : -make_score(tr, tr / 2));
 
-              optimism[ us] = Value( (125 + tr));
-              optimism[~us] = Value(-(125 + tr));
+              optimism[ us] = Value( (50 + tr));
+              optimism[~us] = Value(-(50 + tr));
           }
 
           // Start with a small aspiration window and, in the case of a fail
