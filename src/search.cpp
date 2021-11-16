@@ -389,7 +389,7 @@ void Thread::search() {
               trend = (us == WHITE ?  make_score(tr, tr / 2)
                                    : -make_score(tr, tr / 2));
 
-              optimism[ us] = Value(25 + tr);
+              optimism[ us] = Value(25 + tr / 2);
               optimism[~us] = -optimism[us];
           }
 
