@@ -389,7 +389,10 @@ void Thread::search() {
               trend = (us == WHITE ?  make_score(tr, tr / 2)
                                    : -make_score(tr, tr / 2));
 
-              int opt = std::clamp(25 + tr, -70, 70);
+              int opt = 25 + tr;
+              if (opt > 0) opt =  70;
+              if (opt < 0) opt = -70;
+
               optimism[ us] = Value(opt);
               optimism[~us] = -optimism[us];
           }
