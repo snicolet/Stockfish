@@ -387,8 +387,8 @@ void Thread::search() {
               int tr = sigmoid(prev, 0, 0, 147, 113, 1);
               trend = (us == WHITE ?  make_score(tr, tr / 2)
                                    : -make_score(tr, tr / 2));
- 
-              int opt = sigmoid(prev, -50, 25, 50, 14464, 256);
+
+              int opt = sigmoid(prev, -45, 25, 50, 14464, 256);
               optimism[ us] = Value(opt);
               optimism[~us] = -optimism[us];
           }
