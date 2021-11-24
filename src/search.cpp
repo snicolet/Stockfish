@@ -58,6 +58,16 @@ using namespace Search;
 
 namespace {
 
+  int x0 = 0;
+  int y0 = 0;
+  int C  = 0;
+  int P  = 0;
+  
+  TUNE(SetRange(-128, 128), x0);
+  TUNE(SetRange(-128, 128), y0);
+  TUNE(SetRange(-128, 128), C);
+  TUNE(SetRange(-128, 128), P);
+
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV, Root };
 
@@ -387,8 +397,24 @@ void Thread::search() {
               int tr = sigmoid(prev, 0, 0, 147, 113, 1);
               trend = (us == WHITE ?  make_score(tr, tr / 2)
                                    : -make_score(tr, tr / 2));
+  
+  
+              int final_x0 =     0 + x0;
+              int final_y0 =    25 + y0;
+              int final_C  =   147 * (128 + C) / 128;
+              int final_P  = 14464 * (128 + P) / 128;
+              
+              if (final_C <= 0) 
+                  final_C = 1;
+                  
+              if (0)
+              std::cerr << " final_x0 = " << final_x0
+                        << " final_y0 = " << final_y0
+                        << " final_C = "  << final_C
+                        << " final_P = "  << final_P
+                        << std::endl;
 
-              int opt = sigmoid(prev, 0, 25, 147, 14464, 256);
+              int opt = sigmoid(prev, final_x0, final_y0, final_C, final_P, 256);
               optimism[ us] = Value(opt);
               optimism[~us] = -optimism[us];
           }
