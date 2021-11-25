@@ -1098,7 +1098,7 @@ Value Eval::evaluate(const Position& pos) {
                     + popcount(pawn_attacks_bb<BLACK>(b_pawns) & b_pawns);
 
        int scale =   898
-                   - 64 * chains
+                   - 32 * chains
                    + 24 * pos.count<PAWN>()
                    + 33 * pos.non_pawn_material() / 1024;
 
