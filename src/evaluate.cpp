@@ -1097,10 +1097,10 @@ Value Eval::evaluate(const Position& pos) {
        int chains = popcount(  (pawn_attacks_bb<WHITE>(pawn_attacks_bb<WHITE>(wp) & wp) & wp)
                              | (pawn_attacks_bb<BLACK>(pawn_attacks_bb<BLACK>(bp) & bp) & bp) );
 
-       int scale =  906
-                   - 16 * chains
-                   + 24 * pos.count<PAWN>()
-                   + 33 * pos.non_pawn_material() / 1024;
+       int scale =   906
+                   - 128 * chains
+                   +  24 * pos.count<PAWN>()
+                   +  33 * pos.non_pawn_material() / 1024;
 
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
        Color stm      = pos.side_to_move();
