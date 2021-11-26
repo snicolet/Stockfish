@@ -1094,14 +1094,15 @@ Value Eval::evaluate(const Position& pos) {
        Bitboard w_pawns = pos.pieces(WHITE, PAWN);
        Bitboard b_pawns = pos.pieces(BLACK, PAWN);
 
-      // int supported  = popcount(  (pawn_attacks_bb<WHITE>(w_pawns) & w_pawns)
-      //                           | (pawn_attacks_bb<BLACK>(b_pawns) & b_pawns));
-    
+       int supported  = popcount(  (pawn_attacks_bb<WHITE>(w_pawns) & w_pawns)
+                                 | (pawn_attacks_bb<BLACK>(b_pawns) & b_pawns));
+
        int supporting = popcount(  (pawn_attacks_bb<BLACK>(w_pawns) & w_pawns)
                                  | (pawn_attacks_bb<WHITE>(b_pawns) & b_pawns));
 
        int scale =  906
-                   - 16 * supporting
+                   -  8 * supporting
+                   -  8 * supported
                    + 24 * pos.count<PAWN>()
                    + 33 * pos.non_pawn_material() / 1024;
 
