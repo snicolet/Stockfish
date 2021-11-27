@@ -1100,8 +1100,8 @@ Value Eval::evaluate(const Position& pos) {
        int supporting = popcount(  (pawn_attacks_bb<BLACK>(w_pawns) & w_pawns)
                                  | (pawn_attacks_bb<WHITE>(b_pawns) & b_pawns));
 
-       int scale =  1057
-                   - 16 * supporting
+       int scale =  1065
+                   - 32 * supporting
                    +  8 * pos.count<PAWN>()
                    + 20 * pos.non_pawn_material() / 1024;
 
