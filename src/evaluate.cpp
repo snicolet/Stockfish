@@ -1091,7 +1091,17 @@ Value Eval::evaluate(const Position& pos) {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
   else
   {
-       int scale = 1049
+       Bitboard w_pawns = pos.pieces(WHITE, PAWN);
+       Bitboard b_pawns = pos.pieces(BLACK, PAWN);
+
+       // int supported  = popcount(  (pawn_attacks_bb<WHITE>(w_pawns) & w_pawns)
+       //                           | (pawn_attacks_bb<BLACK>(b_pawns) & b_pawns));
+
+       int supporting = popcount(  (pawn_attacks_bb<BLACK>(w_pawns) & w_pawns)
+                                 | (pawn_attacks_bb<WHITE>(b_pawns) & b_pawns));
+
+       int scale =  1057
+                   - 16 * supporting
                    +  8 * pos.count<PAWN>()
                    + 20 * pos.non_pawn_material() / 1024;
 
