@@ -1101,7 +1101,7 @@ Value Eval::evaluate(const Position& pos) {
                                  | (pawn_attacks_bb<WHITE>(b_pawns) & b_pawns));
 
        int scale =  1065
-                   - 32 * supporting
+                   - 16 * supporting
                    +  8 * pos.count<PAWN>()
                    + 20 * pos.non_pawn_material() / 1024;
 
