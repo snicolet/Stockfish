@@ -1097,7 +1097,7 @@ Value Eval::evaluate(const Position& pos) {
 //                    + 20 * pos.non_pawn_material() / 1024;
                    
                    
-       int scale =  970
+       int scale =  990
                    + 16 * pos.count<PAWN>()
                    + 20 * pos.non_pawn_material() / 1024;            
                    
