@@ -1093,7 +1093,8 @@ Value Eval::evaluate(const Position& pos) {
   {
        int scale = 1049
                    +  8 * pos.count<PAWN>()
-                   + 20 * pos.non_pawn_material() / 1024;
+                   + 20 * pos.non_pawn_material() / 1024
+                   + pos.rule50_count();
 
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
        Color stm      = pos.side_to_move();
@@ -1106,7 +1107,7 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Damp down the evaluation linearly when shuffling
-  v = v * (207 - pos.rule50_count()) / 207;
+  v = v * (80 - pos.rule50_count()) / 80;
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
