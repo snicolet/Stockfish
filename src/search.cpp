@@ -1165,14 +1165,17 @@ moves_loop: // When in check, search starts here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      int doDeeperSearch = 0;
+      bool doDeeperSearch = false;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode)
+          &&  moveCount > 1 + 2 * rootNode
+          && (   !ss->ttPv
+              || !captureOrPromotion
+              || (cutNode && (ss-1)->moveCount > 1)))
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
@@ -1238,8 +1241,7 @@ moves_loop: // When in check, search starts here
           didLMR = true;
           doFullDepthSearch = value > alpha && d <  newDepth;
 
-          doDeeperSearch = value > alpha + 88  ? 1
-                                               : 0;
+          doDeeperSearch = value > alpha + 88;
       }
       else
       {
