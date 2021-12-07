@@ -1241,7 +1241,7 @@ moves_loop: // When in check, search starts here
           didLMR = true;
           doFullDepthSearch = value > alpha && d <  newDepth;
 
-          doDeeperSearch = value > alpha + 120 ? 2 :
+          doDeeperSearch = value > alpha + 220 ? 2 :
                            value > alpha + 88  ? 1
                                                : 0;
       }
