@@ -1100,8 +1100,7 @@ Value Eval::evaluate(const Position& pos) {
        Value optimism = pos.this_thread()->optimism[stm];
        optimism *= (1 + (pos.this_thread()->nodes & 1));
 
-       v = nnue * scale / 1024;
-       v += optimism * (scale - 1524) / 1024;
+       v = (nnue + optimism) * scale / 1024 - optimism;
 
        if (pos.is_chess960())
            v += fix_FRC(pos);
