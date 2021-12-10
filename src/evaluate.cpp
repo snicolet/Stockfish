@@ -1098,8 +1098,10 @@ Value Eval::evaluate(const Position& pos) {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
+       optimism *= (1 + (pos.this_thread()->nodes & 1));
 
-       v = (nnue + optimism) * scale / 1024 - optimism;
+       v = nnue * scale / 1024;
+       v += optimism * (scale - 1524) / 1024;
 
        if (pos.is_chess960())
            v += fix_FRC(pos);
