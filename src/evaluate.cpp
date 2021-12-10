@@ -1098,7 +1098,7 @@ Value Eval::evaluate(const Position& pos) {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
-       optimism *= (1 + 2 * (pos.this_thread()->nodes & 1));
+       optimism *= (1 + 3 * (pos.this_thread()->nodes & 1));
 
        v = (nnue + optimism) * scale / 1024 - optimism;
 
