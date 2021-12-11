@@ -390,6 +390,9 @@ void Thread::search() {
                                    : -make_score(tr, tr / 2));
 
               int opt = sigmoid(prev, 0, 25, 147, 14464, 256);
+              if (this->id() & 1)
+                  opt *= 2;
+
               optimism[ us] = Value(opt);
               optimism[~us] = -optimism[us];
           }
