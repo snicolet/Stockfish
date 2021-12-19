@@ -1050,7 +1050,7 @@ moves_loop: // When in check, search starts here
               // SEE based pruning
               Value margin = Value(-218) * depth;
               if (!pos.empty(to_sq(move)))
-                  margin -= captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 8;
+                  margin -= captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 4;
 
               if (!pos.see_ge(move, margin)) // (~25 Elo)
                   continue;
