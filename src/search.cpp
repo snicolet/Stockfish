@@ -1048,11 +1048,10 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning
-              Value margin = Value(-218) * depth;
-              if (!pos.empty(to_sq(move)))
-                  margin += captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 16;
+              int hist = pos.empty(to_sq(move)) ? 0 : captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 16;
+              int margin = -218 * depth - std::abs(hist);
 
-              if (!pos.see_ge(move, margin)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(margin))) // (~25 Elo)
                   continue;
           }
           else
