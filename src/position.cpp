@@ -1244,6 +1244,11 @@ bool Position::has_game_cycle(int ply) const {
 }
 
 
+/// Position::thread_index() return the number of the thread containing the position.
+int Position::thread_index() const {
+   return this_thread()->id();
+}
+
 /// Position::flip() flips position with the white and black sides reversed. This
 /// is only useful for debugging e.g. for finding evaluation symmetry bugs.
 

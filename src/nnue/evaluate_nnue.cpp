@@ -163,7 +163,7 @@ namespace Stockfish::Eval::NNUE {
     const std::size_t bucket = (pos.count<ALL_PIECES>() - 1) / 4;
     const auto psqt = featureTransformer->transform(pos, transformedFeatures, bucket);
     const auto positional = network[bucket]->propagate(transformedFeatures, buffer)[0];
-    int delta = std::min(15, 8 + (pos.rule50_count() / 4));
+    int delta = 8 - (pos.thread_index() % 8);
 
     // Give more value to positional evaluation when adjusted flag is set
     if (adjusted)
