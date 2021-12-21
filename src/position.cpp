@@ -1244,7 +1244,8 @@ bool Position::has_game_cycle(int ply) const {
 }
 
 
-/// Position::thread_index() return the number of the thread containing the position.
+/// Position::thread_index() returns the index of the thread containing the position
+
 int Position::thread_index() const {
    return this_thread()->id();
 }
