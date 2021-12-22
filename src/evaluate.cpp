@@ -1100,7 +1100,7 @@ Value Eval::evaluate(const Position& pos) {
   {
        int scale =  1136
                    +  20 * pos.non_pawn_material() / 1024
-                   - 256 * (classical != VALUE_NONE);
+                   + 512 * (classical != VALUE_NONE);
 
        Value nnue     = NNUE::evaluate(pos, true);      // NNUE
        Color stm      = pos.side_to_move();
