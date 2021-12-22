@@ -1106,7 +1106,7 @@ Value Eval::evaluate(const Position& pos) {
        Value optimism = pos.this_thread()->optimism[stm];
 
        if (classical != VALUE_NONE)
-           nnue = (15 * nnue + classical) / 16;
+           nnue = (7 * nnue + classical) / 8;
 
        v = (nnue + optimism) * scale / 1024 - optimism;
 
