@@ -1081,27 +1081,28 @@ make_v:
 
 Value Eval::evaluate(const Position& pos) {
 
-  Value v;
+  Value v, classical = VALUE_NONE;
 
   // Deciding between classical and NNUE eval (~10 Elo): for high PSQ imbalance we use classical,
   // but we switch to NNUE during long shuffling or with high material on the board.
 
-  bool classical = false;
+  bool useClassical = false;
 
   if (  !useNNUE
       || abs(eg_value(pos.psq_score())) * 5 > (850 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count()))
   {
-      v = Evaluation<NO_TRACE>(pos).value();          // classical
-      classical = abs(v) >= 300;
+      v = classical = Evaluation<NO_TRACE>(pos).value();   // classical
+      useClassical = abs(v) >= 300;
   }
 
   // If result of a classical evaluation is much lower than threshold fall back to NNUE
-  if (!classical && useNNUE)
+  if (useNNUE && !useClassical)
   {
-       int scale = 1136
-                   + 20 * pos.non_pawn_material() / 1024;
+       int scale =  1136
+                   +  20 * pos.non_pawn_material() / 1024
+                   - 512 * (classical != VALUE_NONE);
 
-       Value nnue     = NNUE::evaluate(pos, true);     // NNUE
+       Value nnue     = NNUE::evaluate(pos, true);      // NNUE
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
 
