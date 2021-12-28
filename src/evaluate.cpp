@@ -1103,9 +1103,9 @@ Value Eval::evaluate(const Position& pos) {
        Color strongSide = nnue >= 0 ? stm : ~stm;
        Value optimism   = pos.this_thread()->optimism[stm];
 
-       int scale = 1068
+       int scale = 1100
                    + 20 * pos.non_pawn_material() / 1024
-                   + 16 * pos.count<PAWN>(strongSide);
+                   +  8 * pos.count<PAWN>(strongSide);
 
        v = (nnue + optimism) * scale / 1024 - optimism;
 
