@@ -1105,7 +1105,7 @@ Value Eval::evaluate(const Position& pos) {
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
 
-       v = (nnue + optimism) * scale / 1024 - optimism;
+       v = (nnue + optimism) * scale / 1024 - 2 * optimism;
 
        if (pos.is_chess960())
            v += fix_FRC(pos);
