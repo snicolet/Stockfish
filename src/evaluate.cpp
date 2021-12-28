@@ -1100,11 +1100,12 @@ Value Eval::evaluate(const Position& pos) {
   {
        Value nnue       = NNUE::evaluate(pos, true);     // NNUE
        Color stm        = pos.side_to_move();
+       Color strongSide = nnue >= 0 ? stm : ~stm;
        Value optimism   = pos.this_thread()->optimism[stm];
 
-       int scale = 1136
+       int scale = 1068
                    + 20 * pos.non_pawn_material() / 1024
-                   - 128 * pos.opposite_bishops();
+                   + 16 * pos.count<PAWN>(strongSide);
 
        v = (nnue + optimism) * scale / 1024 - optimism;
 
