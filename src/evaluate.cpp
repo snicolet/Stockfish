@@ -1104,10 +1104,11 @@ Value Eval::evaluate(const Position& pos) {
        int psq        = (stm == WHITE ? 1 : -1) * eg_value(pos.psq_score());
        int complexity = (nnue - psq) / 256;
 
-       int scale = 1136
+       int scale =   1136
                    + 20 * pos.non_pawn_material() / 1024
-                   +  4 * complexity;
+                   +      complexity * complexity ;
 
+       optimism *= (1 + abs(complexity));
        v = (nnue + optimism) * scale / 1024 - optimism;
 
        if (pos.is_chess960())
