@@ -1105,10 +1105,9 @@ Value Eval::evaluate(const Position& pos) {
        int complexity = (nnue - psq) / 256;
 
        int scale =   1136
-                   + 20 * pos.non_pawn_material() / 1024
-                   +      complexity * complexity ;
+                   + 20 * pos.non_pawn_material() / 1024;
 
-       optimism *= (1 + abs(complexity));
+       optimism *= (1 + complexity * complexity);
        v = (nnue + optimism) * scale / 1024 - optimism;
 
        if (pos.is_chess960())
