@@ -1102,12 +1102,12 @@ Value Eval::evaluate(const Position& pos) {
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
        int psq        = (stm == WHITE ? 1 : -1) * eg_value(pos.psq_score());
-       int complexity = (nnue - psq) / 256;
+       int complexity = nnue - psq;
 
        int scale =   1136
-                   + 20 * pos.non_pawn_material() / 1024;
+                   + 20 * pos.non_pawn_material() / 1024
+                   +      complexity / 16;
 
-       optimism *= (1 + complexity * complexity);
        v = (nnue + optimism) * scale / 1024 - optimism;
 
        if (pos.is_chess960())
