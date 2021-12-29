@@ -1106,7 +1106,7 @@ Value Eval::evaluate(const Position& pos) {
 
        int scale = 1136
                    + 20 * pos.non_pawn_material() / 1024
-                   + abs(complexity);
+                   + complexity * complexity;
 
        v = (nnue + optimism) * scale / 1024 - optimism;
 
