@@ -1104,7 +1104,7 @@ Value Eval::evaluate(const Position& pos) {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
-
+dfhgfghdfdgh
        v = (nnue + optimism) * scale / 1024 - optimism;
 
        if (pos.is_chess960())
