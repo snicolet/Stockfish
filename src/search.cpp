@@ -1197,8 +1197,7 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
-                       : (ss+1)->distanceFromPv <= 4 ? 3
-                       : moveCount <= 5            ? 2
+                       : (ss+1)->distanceFromPv <= 5 ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
