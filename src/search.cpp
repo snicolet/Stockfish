@@ -1159,7 +1159,7 @@ moves_loop: // When in check, search starts here
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
-          if (   bestMoveCount <= 2
+          if (   moveCount <= 2
               && ss->ply < 12)
               r--;
 
