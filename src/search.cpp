@@ -84,8 +84,15 @@ namespace {
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
-  Value value_draw(Thread* thisThread) {
-    return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
+  Value value_draw(Position& pos) {
+
+    Thread* th     = pos.this_thread();
+    Color stm      = pos.side_to_move();
+    Value optimism = th->optimism[stm];
+
+    return   VALUE_DRAW
+           - optimism
+           + Value(2 * (th->nodes & 1) - 1);
   }
 
   // Check if the current thread is in a search explosion
@@ -563,7 +570,7 @@ namespace {
         && alpha < VALUE_DRAW
         && pos.has_game_cycle(ss->ply))
     {
-        alpha = value_draw(pos.this_thread());
+        alpha = value_draw(pos);
         if (alpha >= beta)
             return alpha;
     }
@@ -614,7 +621,7 @@ namespace {
             || pos.is_draw(ss->ply)
             || ss->ply >= MAX_PLY)
             return (ss->ply >= MAX_PLY && !ss->inCheck) ? evaluate(pos)
-                                                        : value_draw(pos.this_thread());
+                                                        : value_draw(pos);
 
         // Step 3. Mate distance pruning. Even if we mate at the next move our score
         // would be at best mate_in(ss->ply+1), but if alpha is already bigger because
@@ -771,7 +778,7 @@ namespace {
 
         // Randomize draw evaluation
         if (eval == VALUE_DRAW)
-            eval = value_draw(thisThread);
+            eval = value_draw(pos);
 
         // ttValue can be used as a better position evaluation (~4 Elo)
         if (    ttValue != VALUE_NONE
