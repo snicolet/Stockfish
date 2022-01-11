@@ -92,7 +92,7 @@ namespace {
 
     return   VALUE_DRAW
            - optimism
-           + Value(2 * (th->nodes & 3) - 3);
+           + Value(2 * (th->nodes & 7) - 7);
   }
 
   // Check if the current thread is in a search explosion
