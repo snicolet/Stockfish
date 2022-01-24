@@ -831,9 +831,14 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 209 - 44 * improving;
+    // Improve move ordering
+    if (depth > 6)
+        value = search<NonPV>(pos, ss, beta - 1, beta, depth / 2, cutNode);
+
 
     // Step 9. ProbCut (~4 Elo)
+    probCutBeta = beta + 209 - 44 * improving;
+
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
