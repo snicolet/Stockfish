@@ -831,9 +831,26 @@ namespace {
         }
     }
 
-    // Improve move ordering
-    if (depth > 6)
-        value = search<NonPV>(pos, ss, beta - 1, beta, depth / 2, cutNode);
+    // Mikael Buro's probcut
+    if (   !PvNode
+        && depth > 6)
+    {
+//          if (eval >= beta + 50)
+//          {
+//          Value b = beta + 250;
+//          value = search<NonPV>(pos, ss, b - 1, b, depth / 2, cutNode);
+//          if (value >= b)
+//             return beta;
+//         }
+        
+        if (eval <= alpha - 50)
+        {
+        Value a = alpha - 250;
+        value = search<NonPV>(pos, ss, a, a + 1, depth / 2, cutNode);
+        if (value <= a)
+           return alpha;
+        }
+    }
 
 
     // Step 9. ProbCut (~4 Elo)
