@@ -306,7 +306,7 @@ void Thread::search() {
   complexityAverage.set(211, 1);
 
   trend         = SCORE_ZERO;
-  optimism[ us] = Value(33);
+  optimism[ us] = Value(25);
   optimism[~us] = -optimism[us];
 
   int searchAgainCounter = 0;
@@ -358,7 +358,7 @@ void Thread::search() {
               trend = (us == WHITE ?  make_score(tr, tr / 2)
                                    : -make_score(tr, tr / 2));
 
-              int opt = sigmoid(prev, 9, 18, 115, 12250, 187);
+              int opt = sigmoid(prev, 0, 25, 147, 14464, 256);
               optimism[ us] = Value(opt);
               optimism[~us] = -optimism[us];
           }
