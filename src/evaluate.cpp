@@ -1097,7 +1097,7 @@ Value Eval::evaluate(const Position& pos) {
   if (useNNUE && !useClassical)
   {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
-       int scale      = 1136 + 20 * pos.non_pawn_material() / 1024;
+       int scale      = 1136 + 19 * pos.non_pawn_material() / 1024 + pos.count<PAWN>();
 
        v = nnue * scale / 1024;
 
@@ -1107,7 +1107,7 @@ Value Eval::evaluate(const Position& pos) {
        int complexity = 35 * abs(nnue - psq) / 256;
 
        optimism = optimism * (44 + complexity) / 32;
-       v += optimism * (scale - 1250) / 1024 ;
+       v += optimism * (scale - 1300) / 1024 ;
 
        if (pos.is_chess960())
            v += fix_FRC(pos);
