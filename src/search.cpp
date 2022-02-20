@@ -65,8 +65,8 @@ namespace {
   int search_stage(Thread* thisThread) {
       uint64_t nodes = thisThread->nodes;
       
-      return nodes <  400000 ? 0 :
-             nodes < 2400000 ? 1 :
+      return nodes <  300000 ? 0 :
+             nodes < 1800000 ? 1 :
                                2 ;
   }
 
@@ -468,17 +468,17 @@ void Thread::search() {
           && !Threads.stop
           && !mainThread->stopOnPonderhit)
       {
-          double fallingEval = (69 + 12 * (mainThread->bestPreviousAverageScore - bestValue)
-                                    +  6 * (mainThread->iterValue[iterIdx] - bestValue)) / 781.4;
+          double fallingEval = (66 + 12 * (mainThread->bestPreviousAverageScore - bestValue)
+                                    +  6 * (mainThread->iterValue[iterIdx] - bestValue)) / 809.70;
           fallingEval = std::clamp(fallingEval, 0.5, 1.5);
 
           // If the bestMove is stable over several iterations, reduce time accordingly
-          timeReduction = lastBestMoveDepth + 10 < completedDepth ? 1.63 : 0.73;
-          double reduction = (1.56 + mainThread->previousTimeReduction) / (2.20 * timeReduction);
+          timeReduction = lastBestMoveDepth + 8 < completedDepth ? 1.73 : 0.94;
+          double reduction = (1.66 + mainThread->previousTimeReduction) / (2.35 * timeReduction);
           double bestMoveInstability = 1.073 + std::max(1.0, 2.25 - 9.9 / rootDepth)
                                               * totBestMoveChanges / Threads.size();
           int complexity = mainThread->complexityAverage.value();
-          double complexPosition = std::clamp(1.0 + (complexity - 326) / 1618.1, 0.5, 1.5);
+          double complexPosition = std::clamp(1.0 + (complexity - 293) / 1525.0, 0.5, 1.5);
 
           double totalTime = Time.optimum() * fallingEval * reduction * bestMoveInstability * complexPosition;
 
@@ -499,7 +499,7 @@ void Thread::search() {
           }
           else if (   Threads.increaseDepth
                    && !mainThread->ponder
-                   && Time.elapsed() > totalTime * 0.43)
+                   && Time.elapsed() > totalTime * 0.49)
                    Threads.increaseDepth = false;
           else
                    Threads.increaseDepth = true;
