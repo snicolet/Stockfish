@@ -66,7 +66,7 @@ namespace {
       uint64_t nodes = thisThread->nodes;
       
       return nodes <  300000 ? 0 :
-             nodes < 1800000 ? 2 :
+             nodes < 1200000 ? 1 :
                                2 ;
   }
 
@@ -1077,7 +1077,7 @@ moves_loop: // When in check, search starts here
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
-              Value singularBeta = ttValue - (4 - stage / 2) * depth;
+              Value singularBeta = ttValue - (8 - stage) * depth / 2;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
