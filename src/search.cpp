@@ -65,8 +65,8 @@ namespace {
   int search_stage(Thread* thisThread) {
       uint64_t nodes = thisThread->nodes;
       
-      return nodes <  400000 ? 0 :
-             nodes < 3000000 ? 1 :
+      return nodes <  600000 ? 0 :
+             nodes < 5300000 ? 1 :
                                2 ;
   }
 
