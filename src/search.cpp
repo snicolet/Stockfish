@@ -65,8 +65,8 @@ namespace {
   int search_stage(Thread* thisThread) {
       uint64_t nodes = thisThread->nodes;
       
-      return nodes <  307000 ? 0 :
-             nodes < 2600000 ? 1 :
+      return nodes <  300000 ? 0 :
+             nodes < 2400000 ? 1 :
                                2 ;
   }
 
@@ -1069,7 +1069,7 @@ moves_loop: // When in check, search starts here
           // a reduced search on all the other moves but the ttMove and if the
           // result is lower than ttValue minus a margin, then we will extend the ttMove.
           if (   !rootNode
-              &&  depth >= 6 - stage + 2 * (PvNode && tte->is_pv())
+              &&  depth >= 6 - 2 * stage + 2 * (PvNode && tte->is_pv())
               &&  move == ttMove
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
