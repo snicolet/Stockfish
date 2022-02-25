@@ -66,7 +66,7 @@ namespace {
       uint64_t nodes = thisThread->nodes;
       
       return nodes <  307000 ? 0 :
-             nodes < 2200000 ? 1 :
+             nodes < 2600000 ? 1 :
                                2 ;
   }
 
