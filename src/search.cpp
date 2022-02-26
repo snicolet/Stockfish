@@ -359,7 +359,6 @@ void Thread::search() {
                                    : -make_score(tr, tr / 2));
 
               int opt = sigmoid(prev, -15, 17, 144, 13966, 183);
-              opt = std::max(0, opt);
               optimism[ us] = Value(opt);
               optimism[~us] = -optimism[us];
           }
