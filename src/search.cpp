@@ -61,6 +61,15 @@ namespace {
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV, Root };
 
+  // Search stage (useful for parameters which are sensitive to "time scaling")
+  int search_stage(Thread* thisThread) {
+      uint64_t nodes = thisThread->nodes;
+
+      return nodes <  300000 ? 0 :
+             nodes < 2400000 ? 1 :
+                               2 ;
+  }
+
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
     return Value(168 * (d - improving));
@@ -956,6 +965,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int stage          = search_stage(thisThread);
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1059,7 +1070,7 @@ moves_loop: // When in check, search starts here
           // a reduced search on all the other moves but the ttMove and if the
           // result is lower than ttValue minus a margin, then we will extend the ttMove.
           if (   !rootNode
-              &&  depth >= 4 + 2 * (PvNode && tte->is_pv())
+              &&  depth >= 6 - stage + 2 * (PvNode && tte->is_pv())
               &&  move == ttMove
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
