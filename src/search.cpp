@@ -1107,21 +1107,6 @@ moves_loop: // When in check, search starts here
               else if (ttValue >= beta)
                   extension = -2;
           }
-
-          // Check extensions (~1 Elo)
-          if (     extension == 0
-                   && givesCheck
-                   && depth > 9
-                   && abs(ss->staticEval) > 71)
-              extension = 1;
-
-          // Quiet ttMove extensions (~0 Elo)
-          if (     extension == 0 
-                   && PvNode
-                   && move == ttMove
-                   && move == ss->killers[0]
-                   && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
-              extension = 1;
       }
 
       // Add extension to new depth
