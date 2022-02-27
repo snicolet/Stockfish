@@ -1101,12 +1101,25 @@ moves_loop: // When in check, search starts here
               // that multiple moves fail high, and we can prune the whole subtree by returning
               // a soft bound.
               else if (singularBeta >= beta)
-                  return singularBeta;
+                  extension = -2;
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
                   extension = -2;
           }
+
+          // Check extensions (~1 Elo)
+          else if (   givesCheck
+                   && depth > 9
+                   && abs(ss->staticEval) > 71)
+              extension = 1;
+
+          // Quiet ttMove extensions (~0 Elo)
+          else if (        PvNode
+                   && move == ttMove
+                   && move == ss->killers[0]
+                   && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
+              extension = 1;
       }
 
       // Add extension to new depth
