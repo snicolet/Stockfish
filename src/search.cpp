@@ -58,8 +58,32 @@ using namespace Search;
 
 namespace {
 
+  static int global_stage = -1;
+
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV, Root };
+
+  // Search stage (useful for parameters which are sensitive to "time scaling")
+  int search_stage(Thread* thisThread) {
+
+//      uint64_t nodes = thisThread->nodes;
+//      int stage = nodes <  300000 ? 0 :
+//                  nodes < 2400000 ? 1 :
+//                                    2 ;
+//      if (stage != global_stage)
+//      {
+//          global_stage = stage;
+//          std::cerr << "  global_stage = "          << global_stage
+//                    << "  thisThread->rootDepth = " << thisThread->rootDepth
+//                    << std::endl;
+//      }
+
+     int rootDepth = thisThread->rootDepth;
+     int stage = rootDepth < 15 ? 0 :
+                 rootDepth < 20 ? 1 :
+                                  2 ;
+     return stage;
+  }
 
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
@@ -270,6 +294,8 @@ void Thread::search() {
   double timeReduction = 1, totBestMoveChanges = 0;
   Color us = rootPos.side_to_move();
   int iterIdx = 0;
+  
+  global_stage = -1;
 
   std::memset(ss-7, 0, 10 * sizeof(Stack));
   for (int i = 7; i > 0; i--)
@@ -556,10 +582,11 @@ namespace {
     bool givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, bestMoveCount, improvement, complexity;
+    int moveCount, captureCount, quietCount, bestMoveCount, improvement, complexity, stage;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
+    stage              = search_stage(thisThread);
     ss->inCheck        = pos.checkers();
     priorCapture       = pos.captured_piece();
     Color us           = pos.side_to_move();
@@ -1059,7 +1086,7 @@ moves_loop: // When in check, search starts here
           // a reduced search on all the other moves but the ttMove and if the
           // result is lower than ttValue minus a margin, then we will extend the ttMove.
           if (   !rootNode
-              &&  depth >= 4 + 2 * (PvNode && tte->is_pv())
+              &&  depth >= 6 - stage + 2 * (PvNode && tte->is_pv())
               &&  move == ttMove
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1067,7 +1094,7 @@ moves_loop: // When in check, search starts here
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
-              Value singularBeta = ttValue - 3 * depth;
+              Value singularBeta = ttValue - (8 - stage) * depth / 2;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
@@ -1080,7 +1107,7 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - 26
+                      && value < singularBeta - 52 + 13 * stage
                       && ss->doubleExtensions <= 8)
                       extension = 2;
               }
