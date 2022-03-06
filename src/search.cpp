@@ -79,8 +79,8 @@ namespace {
 //      }
 
      int rootDepth = thisThread->rootDepth;
-     int stage = rootDepth < 14 ? 0 :
-                 rootDepth < 22 ? 1 :
+     int stage = rootDepth < 13 ? 0 :
+                 rootDepth < 21 ? 1 :
                                   2 ;
      return stage;
   }
