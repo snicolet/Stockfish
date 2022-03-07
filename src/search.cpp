@@ -79,7 +79,7 @@ namespace {
 //      }
 
      int rootDepth = thisThread->rootDepth;
-     int stage = rootDepth < 12 ? 0 :
+     int stage = rootDepth < 14 ? 0 :
                  rootDepth < 21 ? 1 :
                                   2 ;
      return stage;
@@ -1086,7 +1086,7 @@ moves_loop: // When in check, search starts here
           // a reduced search on all the other moves but the ttMove and if the
           // result is lower than ttValue minus a margin, then we will extend the ttMove.
           if (   !rootNode
-              &&  depth >= 6 - stage + 2 * (PvNode && tte->is_pv())
+              &&  depth >= 5 - stage + 2 * (PvNode && tte->is_pv())
               &&  move == ttMove
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
