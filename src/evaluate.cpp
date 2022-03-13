@@ -1111,7 +1111,7 @@ Value Eval::evaluate(const Position& pos) {
        int complexity = 35 * abs(nnue - psq) / 256;
 
        optimism = optimism * (44 + complexity) / 31;
-       v += optimism * (scale - 1150) / 1024 ;
+       v += optimism * (scale - 1250) / 1024 ;
 
        if (pos.is_chess960())
            v += fix_FRC(pos);
