@@ -358,7 +358,7 @@ void Thread::search() {
               trend = (us == WHITE ?  make_score(tr, tr / 2)
                                    : -make_score(tr, tr / 2));
 
-              int opt = sigmoid(prev, -100, 35, 144, 13966, 183);
+              int opt = sigmoid(prev, -100, 17, 144, 13966, 183);
               optimism[ us] = Value(opt);
               optimism[~us] = -optimism[us];
           }
@@ -1059,7 +1059,7 @@ moves_loop: // When in check, search starts here
           // a reduced search on all the other moves but the ttMove and if the
           // result is lower than ttValue minus a margin, then we will extend the ttMove.
           if (   !rootNode
-              &&  depth >= 5 + (PvNode && tte->is_pv())
+              &&  depth >= 3 + 3 * (PvNode && tte->is_pv())
               &&  move == ttMove
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1095,7 +1095,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
-                  extension = -4;
+                  extension = -2;
           }
 
           // Check extensions (~1 Elo)
