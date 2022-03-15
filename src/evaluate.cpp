@@ -1098,14 +1098,20 @@ Value Eval::evaluate(const Position& pos) {
   if (useNNUE && !useClassical)
   {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
-       int scale      = 1036 + 20 * pos.non_pawn_material() / 1024;
+       int shuffle    = pos.rule50_count();
+       int scale      = 1036
+                        + 22 * pos.non_pawn_material() / 1024
+                        - shuffle * shuffle / 16;
+
+       v = nnue * scale / 1024;
+
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
        Value psq      = (stm == WHITE ? 1 : -1) * eg_value(pos.psq_score());
        int complexity = 35 * abs(nnue - psq) / 256;
 
        optimism = optimism * (44 + complexity) / 31;
-       v = (nnue + optimism) * scale / 1024 - optimism;
+       v += optimism * (scale - 1200) / 1024 ;
 
        if (pos.is_chess960())
            v += fix_FRC(pos);
