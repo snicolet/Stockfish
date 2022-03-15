@@ -1100,7 +1100,7 @@ Value Eval::evaluate(const Position& pos) {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
        int shuffle    = pos.rule50_count();
        int scale      = 1036
-                        + 26 * pos.non_pawn_material() / 1024
+                        + 28 * pos.non_pawn_material() / 1024
                         - shuffle * shuffle / 16;
 
        v = nnue * scale / 1024;
