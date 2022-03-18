@@ -1110,7 +1110,7 @@ Value Eval::evaluate(const Position& pos) {
        Value psq      = (stm == WHITE ? 1 : -1) * eg_value(pos.psq_score());
        
        int complexity =        abs(nnue - psq) * abs(nnue - psq) / 16384
-                        + 35 * abs(nnue - psq) / 512;
+                        + 35 * abs(nnue - psq) / 256;
        
 
        optimism = optimism * (44 + complexity) / 31;
