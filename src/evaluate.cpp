@@ -1102,7 +1102,7 @@ Value Eval::evaluate(const Position& pos) {
        int p          = (32 - pos.count<ALL_PIECES>());
        int scale      = 1036 
                          + 20 * pos.non_pawn_material() / 1024
-                         - shuffle * shuffle / (8 + 2 * p);
+                         - shuffle * shuffle / (16 + 2 * p);
                          
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
