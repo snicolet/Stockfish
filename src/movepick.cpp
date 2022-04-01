@@ -135,18 +135,24 @@ void MovePicker::score() {
                    +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
 
       else if constexpr (Type == QUIETS)
+      {
+          PieceType p = type_of(pos.moved_piece(m));
+
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
-                   +     (threatened & from_sq(m) ?
-                           (type_of(pos.moved_piece(m)) == QUEEN && !(to_sq(m) & threatenedByRook)  ? 50000
-                          : type_of(pos.moved_piece(m)) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
-                          :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
-                          :                                                                           0)
-                          :                                                                           0);
 
+                   +     (threatened & from_sq(m) ?  (p == QUEEN ? 50000
+                                                    : p == ROOK  ? 25000
+                                                    :              15000) : 0)
+
+                   +       (p == QUEEN  && (to_sq(m) & threatenedByRook)  ? -50000
+                          : p == ROOK   && (to_sq(m) & threatenedByMinor) ? -25000
+                          : p == BISHOP && (to_sq(m) & threatenedByPawn)  ? -15000
+                          : p == KNIGHT && (to_sq(m) & threatenedByPawn)  ? -15000 : 0);
+      }
       else // Type == EVASIONS
       {
           if (pos.capture(m))
