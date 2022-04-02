@@ -106,27 +106,16 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
-  Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
+  // Pieces threatened by pieces of lesser material value, and values of these threats
+  Bitboard threatenedByLess[PIECE_TYPE_NB] = {0};
+  constexpr int threatValue[PIECE_TYPE_NB] = {0, 0, 14200, 14200, 30400, 54000, 0, 0};
+
   if constexpr (Type == QUIETS)
   {
       Color us = pos.side_to_move();
-
-      threatenedByPawn  = pos.attacks_by<PAWN>(~us);
-      threatenedByMinor = pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
-      threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
-
-      // pieces threatened by pieces of lesser material value
-      threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
-                  | (pos.pieces(us, ROOK)  & threatenedByMinor)
-                  | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
-  }
-  else
-  {
-      // Silence unused variable warnings
-      (void) threatened;
-      (void) threatenedByPawn;
-      (void) threatenedByMinor;
-      (void) threatenedByRook;
+      threatenedByLess[KNIGHT] = threatenedByLess[BISHOP] = pos.attacks_by<PAWN>(~us);
+      threatenedByLess[ROOK]   = threatenedByLess[KNIGHT] | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us);
+      threatenedByLess[QUEEN]  = threatenedByLess[ROOK]   | pos.attacks_by<ROOK>(~us) ;
   }
 
   for (auto& m : *this)
@@ -136,22 +125,15 @@ void MovePicker::score() {
 
       else if constexpr (Type == QUIETS)
       {
-          PieceType p = type_of(pos.moved_piece(m));
+          PieceType pt = type_of(pos.moved_piece(m));
 
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
-
-                   +     (threatened & from_sq(m) ?  (p == QUEEN ? 54000
-                                                    : p == ROOK  ? 30400
-                                                    :              14200) : 0)
-
-                   +       (p == QUEEN  && (to_sq(m) & threatenedByRook)  ? -54000
-                          : p == ROOK   && (to_sq(m) & threatenedByMinor) ? -30400
-                          : p == BISHOP && (to_sq(m) & threatenedByPawn)  ? -14200
-                          : p == KNIGHT && (to_sq(m) & threatenedByPawn)  ? -14200 : 0);
+                   +     (threatenedByLess[pt] & from_sq(m) ?  threatValue[pt] : 0)
+                   +     (threatenedByLess[pt] & to_sq(m)   ? -threatValue[pt] : 0);
       }
       else // Type == EVASIONS
       {
