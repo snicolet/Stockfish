@@ -108,7 +108,7 @@ void MovePicker::score() {
 
   // Pieces threatened by pieces of lesser material value, and values of these threats
   Bitboard threatenedByLess[PIECE_TYPE_NB] = {0};
-  constexpr int threatValue[PIECE_TYPE_NB] = {0, 0, 14200, 14200, 30400, 54000, 0, 0};
+  constexpr int threatValue[PIECE_TYPE_NB] = {0, 0, 13500, 13500, 35000, 58000, 0, 0};
 
   if constexpr (Type == QUIETS)
   {
