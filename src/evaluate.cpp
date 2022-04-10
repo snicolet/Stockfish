@@ -1099,10 +1099,10 @@ Value Eval::evaluate(const Position& pos) {
   {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
 
-       int shuffling  = pos.shuffling() / 8;
+       int shuffling  = std::min(pos.shuffling() / 32, 512);
        // dbg_mean_of(shuffling);
 
-       int scale      = 1050 + 20 * pos.non_pawn_material() / 1024 - shuffling;
+       int scale      = 1036 + 20 * pos.non_pawn_material() / 1024 - shuffling;
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
        Value psq      = (stm == WHITE ? 1 : -1) * eg_value(pos.psq_score());
