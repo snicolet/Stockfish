@@ -1099,7 +1099,7 @@ Value Eval::evaluate(const Position& pos) {
   {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
 
-       int shuffling  = std::min(pos.shuffling() / 64, 512);
+       int shuffling  = std::min(pos.shuffling() / 32, 512);
        int scale      = 1036 + 20 * pos.non_pawn_material() / 1024 - shuffling;
 
        // dbg_mean_of(scale);
