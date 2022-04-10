@@ -46,6 +46,8 @@ struct StateInfo {
   int    castlingRights;
   int    rule50;
   int    pliesFromNull;
+  int    shuffling[8];
+  int    shufflingIndex;
   Square epSquare;
 
   // Not copied when making a move (will be recomputed anyhow)
@@ -151,15 +153,19 @@ public:
   Key material_key() const;
   Key pawn_key() const;
 
+  // Repetition and shuffling
+  bool has_game_cycle(int ply) const;
+  bool has_repeated() const;
+  int rule50_count() const;
+  int shuffling() const;
+  void update_shuffling();
+
   // Other properties of the position
   Color side_to_move() const;
   int game_ply() const;
   bool is_chess960() const;
   Thread* this_thread() const;
   bool is_draw(int ply) const;
-  bool has_game_cycle(int ply) const;
-  bool has_repeated() const;
-  int rule50_count() const;
   Score psq_score() const;
   Value non_pawn_material(Color c) const;
   Value non_pawn_material() const;
@@ -356,6 +362,25 @@ inline int Position::game_ply() const {
 
 inline int Position::rule50_count() const {
   return st->rule50;
+}
+
+inline int Position::shuffling() const {
+  return  st->shuffling[0] * st->shuffling[0]
+        + st->shuffling[1] * st->shuffling[1]
+        + st->shuffling[2] * st->shuffling[2]
+        + st->shuffling[3] * st->shuffling[3]
+        + st->shuffling[4] * st->shuffling[4]
+        + st->shuffling[5] * st->shuffling[5]
+        + st->shuffling[6] * st->shuffling[6]
+        + st->shuffling[7] * st->shuffling[7];
+}
+
+inline void Position::update_shuffling() {
+  int i = st->shufflingIndex;
+
+  // st->shufflingTotal += st->rule50 - st->shuffling[i];
+  st->shuffling[i]    = st->rule50;
+  st->shufflingIndex  = (i + 1) % 8;
 }
 
 inline bool Position::opposite_bishops() const {
