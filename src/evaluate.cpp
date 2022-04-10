@@ -1099,7 +1099,13 @@ Value Eval::evaluate(const Position& pos) {
   if (useNNUE && !useClassical)
   {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
-       int scale      = 1036 + 20 * pos.non_pawn_material() / 1024;
+
+       int shuffling  =   std::min(pos.shuffling() / 16, 512) 
+                        + 3 * pos.rule50_count();
+       int scale      = 1024 + 20 * pos.non_pawn_material() / 1024 - shuffling;
+
+       // dbg_mean_of(shuffling >= 2);
+
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
        Value psq      = (stm == WHITE ? 1 : -1) * eg_value(pos.psq_score());
