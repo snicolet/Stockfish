@@ -372,13 +372,12 @@ inline int Position::shuffling() const {
         + st->shuffling[4] * st->shuffling[4]
         + st->shuffling[5] * st->shuffling[5]
         + st->shuffling[6] * st->shuffling[6]
-        + st->shuffling[7] * st->shuffling[7];
+        + st->shuffling[7] * st->shuffling[7]
+        + st->rule50       * st->rule50;
 }
 
 inline void Position::update_shuffling() {
   int i = st->shufflingIndex;
-
-  // st->shufflingTotal += st->rule50 - st->shuffling[i];
   st->shuffling[i]    = st->rule50;
   st->shufflingIndex  = (i + 1) % 8;
 }
