@@ -774,6 +774,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
       prefetch(thisThread->materialTable[st->materialKey]);
 
       // Reset rule 50 counter
+      update_shuffling();
       st->rule50 = 0;
   }
 
@@ -853,6 +854,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
       st->pawnKey ^= Zobrist::psq[pc][from] ^ Zobrist::psq[pc][to];
 
       // Reset rule 50 draw counter
+      update_shuffling();
       st->rule50 = 0;
   }
 
