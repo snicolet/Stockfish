@@ -365,8 +365,8 @@ inline int Position::rule50_count() const {
 }
 
 inline int Position::shuffling() const {
-  int maximum = st->shuffling[0];
-  for (int i = 1; i < 8 ; i++)
+  int maximum = st->rule50;
+  for (int i = 0; i < 8 ; i++)
      maximum = std::max(maximum, st->shuffling[i]);
   return maximum;
 }
