@@ -1101,9 +1101,13 @@ Value Eval::evaluate(const Position& pos) {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
 
        int shuffling  = pos.shuffling();
-       int scale      = 1052 + 20 * pos.non_pawn_material() / 1024 - 4 * shuffling;
+       int scale      =  1036
+                        +  20 * pos.non_pawn_material() / 1024
+                        +   2 * pos.count<PAWN>()
+                        -   4 * shuffling;
 
        // dbg_mean_of(shuffling);
+       // dbg_mean_of(2 * pos.count<PAWN>());
 
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
