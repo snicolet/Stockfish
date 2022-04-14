@@ -1102,8 +1102,8 @@ Value Eval::evaluate(const Position& pos) {
 
        int shuffling  = pos.shuffling();
        int scale      =  1052
-                        +  17 * pos.non_pawn_material() / 1024
-                        +   3 * pos.count<PAWN>()
+                        +  16 * pos.non_pawn_material() / 1024
+                        +   4 * pos.count<PAWN>()
                         -   4 * shuffling;
 
        // dbg_mean_of(shuffling);
