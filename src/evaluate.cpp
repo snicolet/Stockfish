@@ -1099,9 +1099,9 @@ Value Eval::evaluate(const Position& pos) {
   if (useNNUE && !useClassical)
   {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
-       int scale      =  884 
+       int scale      =  808 
                         + 22 * pos.non_pawn_material() / 1024
-                        + 16 * pos.count<PAWN>();
+                        + 24 * pos.count<PAWN>();
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
        Value psq      = (stm == WHITE ? 1 : -1) * eg_value(pos.psq_score());
