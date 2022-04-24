@@ -1298,11 +1298,13 @@ moves_loop: // When in check, search starts here
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
               {
-                  if (   beta         <  VALUE_KNOWN_WIN
-                      && initialAlpha > -VALUE_KNOWN_WIN)
-                      alpha = std::max(value, (beta - 1 + initialAlpha) / 2);
-                  else
-                      alpha = value;
+                  alpha = value;
+
+                  // Prune if we have found at least one score improvement
+                  if (   beta <  VALUE_KNOWN_WIN 
+                      && initialAlpha > -VALUE_KNOWN_WIN
+                      && moveCount >= 2)
+                     break;
               }
               else
               {
