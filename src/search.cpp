@@ -1303,7 +1303,7 @@ moves_loop: // When in check, search starts here
                   // Prune if we have found at least one score improvement
                   if (   beta <  VALUE_KNOWN_WIN 
                       && initialAlpha > -VALUE_KNOWN_WIN
-                      && moveCount >= 2)
+                      && moveCount >= 3)
                      break;
               }
               else
