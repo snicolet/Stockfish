@@ -552,7 +552,7 @@ namespace {
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
-    Value bestValue, value, ttValue, eval, maxValue, probCutBeta, initialAlpha;
+    Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool givesCheck, improving, didLMR, priorCapture;
     bool capture, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
@@ -567,7 +567,6 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
-    initialAlpha       = alpha;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1301,11 +1300,11 @@ moves_loop: // When in check, search starts here
                   alpha = value;
 
                   // Reduce other moves if we have found at least one score improvement
-                  if (   beta         <  VALUE_KNOWN_WIN 
-                      && initialAlpha > -VALUE_KNOWN_WIN
+                  if (   beta  <  VALUE_KNOWN_WIN 
+                      && alpha > -VALUE_KNOWN_WIN
                       && depth < 9
-                      && moveCount >= 1)
-                     depth -= 1;
+                      && moveCount >= 2)
+                     break;
               }
               else
               {
