@@ -1303,6 +1303,7 @@ moves_loop: // When in check, search starts here
                   // Reduce other moves if we have found at least one score improvement
                   if (   beta         <  VALUE_KNOWN_WIN 
                       && initialAlpha > -VALUE_KNOWN_WIN
+                      && depth < 9
                       && moveCount >= 2)
                      depth -= 1;
               }
