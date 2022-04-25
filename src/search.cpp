@@ -556,7 +556,7 @@ namespace {
     bool givesCheck, improving, didLMR, priorCapture;
     bool capture, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, bestMoveCount, improvement, complexity;
+    int moveCount, captureCount, quietCount, improvement, complexity;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -564,7 +564,7 @@ namespace {
     ss->inCheck        = pos.checkers();
     priorCapture       = pos.captured_piece();
     Color us           = pos.side_to_move();
-    moveCount          = bestMoveCount = captureCount = quietCount = ss->moveCount = 0;
+    moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
     initialAlpha       = alpha;
@@ -993,12 +993,9 @@ moves_loop: // When in check, search starts here
       capture = pos.capture(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-      int bestMoveCountReduction =    bestMoveCount >= 2
-                                   && alpha > -VALUE_KNOWN_WIN
-                                   && beta  <  VALUE_KNOWN_WIN;
 
       // Calculate new depth for this move
-      newDepth = depth - 1 - bestMoveCountReduction;
+      newDepth = depth - 1;
 
       Value delta = beta - alpha;
 
@@ -1302,7 +1299,12 @@ moves_loop: // When in check, search starts here
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
               {
                   alpha = value;
-                  bestMoveCount++;
+
+                  // Reduce other moves if we have found at least one score improvement
+                  if (   beta         <  VALUE_KNOWN_WIN 
+                      && initialAlpha > -VALUE_KNOWN_WIN
+                      && moveCount >= 2)
+                     depth -= 1;
               }
               else
               {
