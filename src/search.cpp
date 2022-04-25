@@ -1304,7 +1304,7 @@ moves_loop: // When in check, search starts here
                       && alpha > -VALUE_KNOWN_WIN
                       && depth < 9
                       && moveCount >= 1)
-                     depth -= 1;
+                     depth -= 2;
               }
               else
               {
