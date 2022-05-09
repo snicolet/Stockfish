@@ -1307,7 +1307,8 @@ moves_loop: // When in check, search starts here
                   if (   depth > 2
                       && depth < 7
                       && beta  <  VALUE_KNOWN_WIN
-                      && alpha > -VALUE_KNOWN_WIN)
+                      && alpha > -VALUE_KNOWN_WIN
+                      && value > 0)
                      depth -= 1;
 
                   assert(depth > 0);
