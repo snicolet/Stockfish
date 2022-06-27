@@ -1102,7 +1102,8 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   if (useNNUE && !useClassical)
   {
        int nnueComplexity;
-       int scale = 1092 + 256 * pos.non_pawn_material() / 5120;
+       int scale = 1000 + 156 * pos.non_pawn_material() / 5120;
+       // dbg_mean_of(scale);
        Value optimism = pos.this_thread()->optimism[stm];
 
        Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
