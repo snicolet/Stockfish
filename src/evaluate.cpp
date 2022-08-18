@@ -1068,7 +1068,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
 
       int imbalance = (pos.count<ROOK>(WHITE) != pos.count<ROOK>(BLACK));
 
-      int scale =  1064 
+      int scale =  1032 
                   + 106 * pos.non_pawn_material() / 5120
                   +  64 * imbalance;
 
