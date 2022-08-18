@@ -1068,7 +1068,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
 
       int bishopPairs = (pos.count<BISHOP>(WHITE) >= 2) || (pos.count<BISHOP>(BLACK) >= 2);
 
-      int scale =   936 
+      int scale =  1000 
                   + 106 * pos.non_pawn_material() / 5120
                   + 128 * bishopPairs;
                   
