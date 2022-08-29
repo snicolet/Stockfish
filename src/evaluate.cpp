@@ -1065,12 +1065,18 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   else
   {
       int nnueComplexity;
-      int scale = 1064 + 106 * pos.non_pawn_material() / 5120;
-      Value optimism = pos.this_thread()->optimism[stm];
+
+      int bishopPairs = (pos.count<BISHOP>(WHITE) >= 2) || (pos.count<BISHOP>(BLACK) >= 2);
+      int imbalance   = (pos.count<ROOK>(WHITE) != pos.count<ROOK>(BLACK));
+      int scale       = 1064 + 106 * pos.non_pawn_material() / 5120;
+      Value optimism  = pos.this_thread()->optimism[stm];
 
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
+
       // Blend nnue complexity with (semi)classical complexity
       nnueComplexity = (104 * nnueComplexity + 131 * abs(nnue - psq)) / 256;
+      nnueComplexity += 16 * (!bishopPairs + imbalance);
+
       if (complexity) // Return hybrid NNUE complexity to caller
           *complexity = nnueComplexity;
 
