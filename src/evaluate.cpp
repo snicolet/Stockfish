@@ -1077,7 +1077,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       int pawns = pos.count<PAWN>();
       optimism = optimism * (269 + nnueComplexity) * (pawns + 8) / (256 * 16);
 
-      v = (nnue * scale + optimism * (scale - 600)) / 1024;
+      v = (nnue * scale + optimism * (scale - 700)) / 1024;
   }
 
   // Damp down the evaluation linearly when shuffling
