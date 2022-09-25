@@ -1069,7 +1069,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
 
       int scale = 1064 
                  + 106 * pos.non_pawn_material() / 5120
-                 + optimism * pos.count<ALL_PIECES>() / 32;
+                 + optimism * pos.count<PAWN>() / 16;
 
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
       // Blend nnue complexity with (semi)classical complexity
