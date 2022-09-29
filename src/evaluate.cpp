@@ -1065,7 +1065,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       int nnueComplexity;
 
       int scale =  970 
-                 + 150 * pos.non_pawn_material() / 5120
+                 +  30 * pos.non_pawn_material() / 1024
                  +  32 * abs(pos.count<ALL_PIECES>(WHITE) - pos.count<ALL_PIECES>(BLACK));
       Value optimism = pos.this_thread()->optimism[stm];
 
