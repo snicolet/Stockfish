@@ -1051,7 +1051,6 @@ make_v:
 Value Eval::evaluate(const Position& pos, int* complexity) {
 
   Value v;
-  Color stm = pos.side_to_move();
   Value psq = pos.psq_eg_stm();
 
   // We use the much less accurate but faster Classical eval when the NNUE 
@@ -1062,11 +1061,18 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       v = Evaluation<NO_TRACE>(pos).value();
   else
   {
-      int nnueComplexity;
-      int scale = 1064 + 106 * pos.non_pawn_material() / 5120;
+      int scale, nnueComplexity;
+
+      Color stm = pos.side_to_move();
+      Color stockfish = pos.this_thread()->rootColor;
+      Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
       Value optimism = pos.this_thread()->optimism[stm];
 
-      Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
+      if ((stm == stockfish) == (nnue > 0))
+          scale = 1064 + 106 * pos.non_pawn_material() / 5120;
+      else
+          scale = 1260;
+
       // Blend nnue complexity with (semi)classical complexity
       nnueComplexity = (104 * nnueComplexity + 131 * abs(nnue - psq)) / 256;
       if (complexity) // Return hybrid NNUE complexity to caller
