@@ -141,7 +141,7 @@ void MovePicker::score() {
                           :                                                                           0)
                           :                                                                           0)
                    +     bool(pos.check_squares(type_of(pos.moved_piece(m))) & to_sq(m)) * 16384
-                   - 64 * distance(relative_square(us, to_sq(m)), relative_square(us, SQ_E1));
+                   - 64 * distance(relative_square(us, to_sq(m)), relative_square(us, SQ_E8));
       else // Type == EVASIONS
       {
           if (pos.capture(m))
