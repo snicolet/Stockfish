@@ -993,7 +993,7 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~7 Elo)
-          moveCountPruning =  (!PvNode || depth < 10)
+          moveCountPruning =  !PvNode
                             && moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
