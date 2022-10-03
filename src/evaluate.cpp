@@ -1068,13 +1068,10 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
       Value optimism = pos.this_thread()->optimism[stm];
 
-      if ((stm == stockfish) == (nnue > 0))
+      if ((stm == stockfish) == ((nnue + optimism) > 0))
           scale = 1064 + 106 * pos.non_pawn_material() / 5120;
       else
-      {
           scale = 1260;
-          optimism += (stm == stockfish ? 30 : -30);
-      }
 
       // Blend nnue complexity with (semi)classical complexity
       nnueComplexity = (104 * nnueComplexity + 131 * abs(nnue - psq)) / 256;
