@@ -1067,9 +1067,12 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       Value optimism = pos.this_thread()->optimism[stm];
 
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
+
       // Blend nnue complexity with (semi)classical complexity
-      nnueComplexity = (104 * nnueComplexity + 131 * abs(nnue - psq)) / 256;
-      if (complexity) // Return hybrid NNUE complexity to caller
+      nnueComplexity = (abs(nnue - psq) * optimism + nnueComplexity * pos.count<ALL_PIECES>()) / 1024;
+
+      // Return hybrid NNUE complexity to caller
+      if (complexity)
           *complexity = nnueComplexity;
 
       optimism = optimism * (269 + nnueComplexity) / 256;
