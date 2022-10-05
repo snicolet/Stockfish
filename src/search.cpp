@@ -1032,7 +1032,12 @@ moves_loop: // When in check, search starts here
               if (   !ss->inCheck
                   && lmrDepth < 13
                   && ss->staticEval + 106 + 145 * lmrDepth + history / 52 <= alpha)
-                  continue;
+                  {
+                      if (newDepth >= 4)
+                          newDepth -= 1;
+                      else
+                          continue;
+                  }
 
               // Prune moves with negative SEE (~3 Elo)
               if (!pos.see_ge(move, Value(-24 * lmrDepth * lmrDepth - 15 * lmrDepth)))
