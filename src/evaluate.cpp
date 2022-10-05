@@ -1075,7 +1075,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       int pieces = pos.count<ALL_PIECES>();
 
       // Blend nnue complexity with (semi)classical complexity
-      nnueComplexity = (nnueComplexity + abs(nnue - psq) * optimism / 16) * pieces / 1024;
+      nnueComplexity = (abs(nnue - psq) * optimism + nnueComplexity * pieces) / 1024;
 
       // Return hybrid NNUE complexity to caller
       if (complexity)
