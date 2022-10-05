@@ -1034,7 +1034,7 @@ moves_loop: // When in check, search starts here
                   && ss->staticEval + 106 + 145 * lmrDepth + history / 52 <= alpha)
                   {
                       if (newDepth >= 4)
-                          newDepth -= 1;
+                          newDepth -= 2;
                       else
                           continue;
                   }
