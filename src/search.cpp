@@ -362,6 +362,9 @@ void Thread::search() {
                                    : -make_score(tr, tr / 2));
 
               int opt = 118 * prev / (std::abs(prev) + 169);
+              if (opt < 0)
+                 opt = opt * 4;
+
               optimism[ us] = Value(opt);
               optimism[~us] = -optimism[us];
           }
