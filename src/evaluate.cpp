@@ -1069,7 +1069,7 @@ Value Eval::evaluate(const Position& pos, int* comp) {
 
       int complexity = abs(nnue - psq) * optimism / 1024;
       if (comp)
-          *comp = complexity;
+          *comp = abs(complexity);
 
       optimism = optimism * (269 + complexity) / 256;
       v = (nnue * scale + optimism * (scale - 754)) / 1024;
