@@ -1065,13 +1065,16 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       Value nnue = NNUE::evaluate(pos, true);
 
       Value optimism = pos.this_thread()->optimism[stm];
-      int scale = 1064 + 106 * pos.non_pawn_material() / 5120;
+      int scale = 1000 + 128 * pos.non_pawn_material() / 5120;
+
+      // dbg_mean_of(scale);
 
       int signedComplexity = abs(nnue - psq) * optimism / 1024;
       if (complexity)
           *complexity = signedComplexity;
 
       optimism = optimism * (269 + signedComplexity) / 256;
+
       v = (nnue * scale + optimism * (scale - 754)) / 1024;
   }
 
