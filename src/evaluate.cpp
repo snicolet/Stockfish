@@ -1048,7 +1048,7 @@ make_v:
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
-Value Eval::evaluate(const Position& pos, int* comp) {
+Value Eval::evaluate(const Position& pos, int* complexity) {
 
   Value v;
   Color stm = pos.side_to_move();
@@ -1067,11 +1067,11 @@ Value Eval::evaluate(const Position& pos, int* comp) {
       Value optimism = pos.this_thread()->optimism[stm];
       int scale = 1064 + 106 * pos.non_pawn_material() / 5120;
 
-      int complexity = abs(nnue - psq) * optimism / 1024;
-      if (comp)
-          *comp = abs(complexity);
+      int signedComplexity = abs(nnue - psq) * optimism / 1024;
+      if (complexity)
+          *complexity = signedComplexity;
 
-      optimism = optimism * (269 + complexity) / 256;
+      optimism = optimism * (269 + signedComplexity) / 256;
       v = (nnue * scale + optimism * (scale - 754)) / 1024;
   }
 
@@ -1082,8 +1082,8 @@ Value Eval::evaluate(const Position& pos, int* comp) {
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 
   // When not using NNUE, return classical complexity to caller
-  if (comp && (!useNNUE || useClassical))
-      *comp = abs(v - psq);
+  if (complexity && (!useNNUE || useClassical))
+      *complexity = abs(v - psq);
 
   return v;
 }
