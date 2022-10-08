@@ -1069,13 +1069,13 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
 
       //dbg_mean_of(scale);
 
-      int signedComplexity = abs(nnue - psq) * optimism / 1024;
+      int signedComplexity = abs(nnue - psq) * optimism / 512;
       if (complexity)
           *complexity = signedComplexity;
 
       optimism = optimism * (269 + signedComplexity) / 256;
 
-      v = (nnue * scale + optimism * (scale - 754)) / 1024;
+      v = (nnue * scale + optimism * (scale - 1200)) / 1024;
   }
 
   // Damp down the evaluation linearly when shuffling
