@@ -1066,21 +1066,14 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       int scale = 1064 + 106 * pos.non_pawn_material() / 5120;
 
       Color stm = pos.side_to_move();
-      Color stockfish = pos.this_thread()->rootColor;
       Value optimism = pos.this_thread()->optimism[stm];
 
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
-      int s =    (stm == stockfish && optimism >= 0) ? -1
-               : (stm == stockfish && optimism <= 0) ? -1
-               : (stm != stockfish && optimism >= 0) ?  1
-               : (stm != stockfish && optimism <= 0) ?  1
-               :                                        0;
-
       // Blend nnue complexity with (semi)classical complexity
       nnueComplexity = (  416 * nnueComplexity
                         + 424 * abs(psq - nnue)
-                        + s * int(optimism) * int(psq - nnue)
+                        + abs(optimism) * int(psq - nnue)
                         ) / 1024;
 
       if (complexity) // Return hybrid NNUE complexity to caller
