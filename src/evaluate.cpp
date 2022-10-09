@@ -1071,10 +1071,10 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
 
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
-      int s =    (stm == stockfish && optimism >= 0) ?  1
+      int s =    (stm == stockfish && optimism >= 0) ? -1
                : (stm == stockfish && optimism <= 0) ? -1
                : (stm != stockfish && optimism >= 0) ?  1
-               : (stm != stockfish && optimism <= 0) ? -1
+               : (stm != stockfish && optimism <= 0) ?  1
                :                                        0;
 
       // Blend nnue complexity with (semi)classical complexity
