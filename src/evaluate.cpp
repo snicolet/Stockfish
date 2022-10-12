@@ -1069,11 +1069,14 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       Value optimism = pos.this_thread()->optimism[stm];
 
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
+      
+      // dbg_mean_of((optimism  > 0 ? abs(optimism) * abs(psq - nnue) : 0));
+      // dbg_mean_of(424 * abs(psq - nnue));
 
       // Blend nnue complexity with (semi)classical complexity
       nnueComplexity = (  416 * nnueComplexity
-                        + 424 * abs(psq - nnue)
-                        + ((optimism + 40) > 0 ? int(optimism + 40) * int(psq - nnue) : 0)
+                        + 300 * abs(psq - nnue)
+                        + (optimism  > 0 ? 6 * int(optimism) * int(psq - nnue) : 0)
                         ) / 1024;
 
       if (complexity) // Return hybrid NNUE complexity to caller
