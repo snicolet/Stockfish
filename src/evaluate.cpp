@@ -1070,13 +1070,13 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
 
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
       
-      // dbg_mean_of((optimism  > 0 ? abs(optimism) * abs(psq - nnue) : 0));
-      // dbg_mean_of(424 * abs(psq - nnue));
+      // dbg_mean_of((optimism  > 0 ? 5 * abs(optimism) * abs(psq - nnue) : 0));
+      // dbg_mean_of(200 * abs(psq - nnue));
 
       // Blend nnue complexity with (semi)classical complexity
       nnueComplexity = (  416 * nnueComplexity
-                        + 300 * abs(psq - nnue)
-                        + (optimism  > 0 ? 6 * int(optimism) * int(psq - nnue) : 0)
+                        + 200 * abs(psq - nnue)
+                        + (optimism  > 0 ? 4 * int(optimism) * int(psq - nnue) : 0)
                         ) / 1024;
 
       if (complexity) // Return hybrid NNUE complexity to caller
