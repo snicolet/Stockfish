@@ -361,11 +361,7 @@ void Thread::search() {
               trend = (us == WHITE ?  make_score(tr, tr / 2)
                                    : -make_score(tr, tr / 2));
 
-              // Elo estimate of our advantage over the opponent
-              int deltaElo = 140;
-              int x = deltaElo / 4;
-
-              int opt = sigmoid(prev, 0, x, 169, (118 - x), 1);
+              int opt = sigmoid(prev, 0, 0, 169, 118, 1);
               optimism[ us] = Value(opt);
               optimism[~us] = -optimism[us];
           }
