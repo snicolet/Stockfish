@@ -356,15 +356,16 @@ void Thread::search() {
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
-              // Elo estimate of our advantage over the opponent
-              int deltaElo = 140;
-
               // Adjust trend and optimism based on root move's previousScore
               int tr = 116 * prev / (std::abs(prev) + 89);
               trend = (us == WHITE ?  make_score(tr, tr / 2)
                                    : -make_score(tr, tr / 2));
 
-              int opt = sigmoid(prev, 0, deltaElo / 2, 169, 118, 1);
+              // Elo estimate of our advantage over the opponent
+              int deltaElo = 140;
+              int x = deltaElo / 10;
+
+              int opt = sigmoid(prev, 0, x, 169, (118 - x), 1);
               optimism[ us] = Value(opt);
               optimism[~us] = -optimism[us];
           }
