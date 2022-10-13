@@ -1082,9 +1082,9 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       // Use Ofek's complexity if deltaElo is large
       if (deltaElo > 0)
       {
-          int x = std::clamp(deltaElo, 0, 128);
+          int x = std::clamp(deltaElo, 0, 256);
           int OfekComplexity = abs(nnue - psq) * optimism / 1024;
-          nnueComplexity = ((128 - x) * nnueComplexity + x * OfekComplexity) / 128;
+          nnueComplexity = ((256 - x) * nnueComplexity + x * OfekComplexity) / 256;
       }
 
       // Return hybrid NNUE complexity to caller
