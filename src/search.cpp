@@ -363,7 +363,7 @@ void Thread::search() {
 
               // Elo estimate of our advantage over the opponent
               int deltaElo = 140;
-              int x = deltaElo / 10;
+              int x = deltaElo / 5;
 
               int opt = sigmoid(prev, 0, x, 169, (118 - x), 1);
               optimism[ us] = Value(opt);
