@@ -1063,9 +1063,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   else
   {
       int nnueComplexity;
-      int scale = 1000 
-                 + 128 * pos.non_pawn_material() / 5120
-                 +   4 * pos.count<ALL_PIECES>();
+      int scale = 1064 + 106 * pos.non_pawn_material() / 5120;
 
       Color stm = pos.side_to_move();
       Value optimism = pos.this_thread()->optimism[stm];
@@ -1075,6 +1073,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       // Blend nnue complexity with (semi)classical complexity
       nnueComplexity = (  416 * nnueComplexity
                         + 424 * abs(psq - nnue)
+                        + abs(psq - nnue) * abs(psq - nnue) / 8192
                         + (optimism  > 0 ? int(optimism) * int(psq - nnue) : 0)
                         ) / 1024;
 
@@ -1083,6 +1082,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
           *complexity = nnueComplexity;
 
       optimism = optimism * (269 + nnueComplexity) / 256;
+
       v = (nnue * scale + optimism * (scale - 754)) / 1024;
   }
 
