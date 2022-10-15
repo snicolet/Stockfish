@@ -126,6 +126,10 @@ private:
 };
 
 
+/// sign(x) returns the sign (-1, 0, or 1) of x
+inline int64_t sign(int64_t x) { return (x > 0) - (x < 0); }
+
+
 /// sigmoid(t, x0, y0, C, P, Q) implements a sigmoid-like function using only integers,
 /// with the following properties:
 ///
