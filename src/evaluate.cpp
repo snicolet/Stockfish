@@ -1063,7 +1063,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   else
   {
       int nnueComplexity;
-      int scale = 1100
+      int scale = 1082
                  + 106 * pos.non_pawn_material() / 5120
                  -   8 * (pos.rule50_count() / 2);
 
