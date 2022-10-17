@@ -1063,9 +1063,9 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   else
   {
       int nnueComplexity;
-      int scale = 1120                 
+      int scale = 1080                 
                  + 106 * pos.non_pawn_material() / 5120
-                 -  16 * (abs(pos.rule50_count() - 9) / 2);
+                 -   4 * abs( pos.rule50_count() - 9 );
 
       Color stm = pos.side_to_move();
       Value optimism = pos.this_thread()->optimism[stm];
