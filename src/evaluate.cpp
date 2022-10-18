@@ -1063,9 +1063,9 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   else
   {
       int nnueComplexity;
-      int scale = 1080
+      int scale = 1064
                  + 106 * pos.non_pawn_material() / 5120
-                 +       pos.count<PAWN>()
+                 +   2 * pos.count<PAWN>()
                  -   8 * (abs(pos.rule50_count() - 9) / 2);
 
       Color stm = pos.side_to_move();
