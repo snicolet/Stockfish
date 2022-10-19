@@ -1072,7 +1072,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
 
       // Blend nnue complexity with (semi)classical complexity
       nnueComplexity = (  416 * nnueComplexity
-                        + 424 * abs(psq - nnue)
+                        + 416 * abs(psq - nnue)
                         + (optimism  > 0 ? int(optimism) * int(psq - nnue) : 0)
                         ) / 1024;
 
@@ -1080,8 +1080,8 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       if (complexity)
           *complexity = nnueComplexity;
 
-      optimism = optimism * (269 + nnueComplexity) / 256;
-      v = (nnue * scale + optimism * (scale - 754)) / 1024;
+      optimism = optimism * (263 + nnueComplexity) / 256;
+      v = (nnue * scale + optimism * (scale - 771)) / 1024;
   }
 
   // Damp down the evaluation linearly when shuffling
