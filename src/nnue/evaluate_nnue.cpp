@@ -163,7 +163,7 @@ namespace Stockfish::Eval::NNUE {
         *complexity = abs(psqt - positional) / OutputScale;
 
     int adv = std::abs((psqt + positional) / OutputScale);
-    int delta = (adv <= 250) ? 72 : 24;
+    int delta = (adv <= 250) ? 50 : 0;
 
     // Give more value to positional evaluation when adjusted flag is set
     if (adjusted)
