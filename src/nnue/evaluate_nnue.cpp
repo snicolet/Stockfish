@@ -141,9 +141,7 @@ namespace Stockfish::Eval::NNUE {
 
     // We manually align the arrays on the stack because with gcc < 9.3
     // overaligning stack variables with alignas() doesn't work correctly.
-
     constexpr uint64_t alignment = CacheLineSize;
-    int delta = 24 - pos.non_pawn_material() / 9560;
 
 #if defined(ALIGNAS_ON_STACK_VARIABLES_BROKEN)
     TransformedFeatureType transformedFeaturesUnaligned[
@@ -160,6 +158,9 @@ namespace Stockfish::Eval::NNUE {
     const int bucket = (pos.count<ALL_PIECES>() - 1) / 4;
     const auto psqt = featureTransformer->transform(pos, transformedFeatures, bucket);
     const auto positional = network[bucket]->propagate(transformedFeatures);
+    
+    int adv = std::abs(pos.psq_eg_stm());
+    int delta = (adv <= RookValueEg - BishopValueEg) ? 80 : 0;
 
     if (complexity)
         *complexity = abs(psqt - positional) / OutputScale;
