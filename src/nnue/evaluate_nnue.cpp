@@ -158,12 +158,12 @@ namespace Stockfish::Eval::NNUE {
     const int bucket = (pos.count<ALL_PIECES>() - 1) / 4;
     const auto psqt = featureTransformer->transform(pos, transformedFeatures, bucket);
     const auto positional = network[bucket]->propagate(transformedFeatures);
-    
-    int adv = std::abs(pos.psq_eg_stm());
-    int delta = (adv <= RookValueEg - BishopValueEg) ? 80 : 0;
 
     if (complexity)
         *complexity = abs(psqt - positional) / OutputScale;
+
+    int adv = std::abs((psqt + positional) / OutputScale);
+    int delta = (adv <= 250) ? 72 : 0;
 
     // Give more value to positional evaluation when adjusted flag is set
     if (adjusted)
