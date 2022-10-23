@@ -1087,8 +1087,8 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       
       int mat = 8 * std::max(0, pos.count<ALL_PIECES>() - 22);
       //int mat = 8 * (pos.count<ALL_PIECES>() - 22);
-      v += (pos.side_to_move() == pos.this_thread()->rootColor && optimism < 0) ?  mat : 0;
-      v += (pos.side_to_move() != pos.this_thread()->rootColor && optimism > 0) ? -mat : 0;
+      v += (pos.side_to_move() == pos.this_thread()->rootColor && optimism > 0) ?  mat : 0;
+      v += (pos.side_to_move() != pos.this_thread()->rootColor && optimism < 0) ? -mat : 0;
   }
 
   // Damp down the evaluation linearly when shuffling
