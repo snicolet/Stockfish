@@ -674,7 +674,7 @@ namespace {
        && tte->depth() == depth - 1
        && (tte->bound() & BOUND_UPPER)
        && ttValue != VALUE_NONE
-       && ttValue <= alpha - 150
+       && ttValue <= alpha - 100
        && abs(alpha) < 10000)
          return alpha;
 
