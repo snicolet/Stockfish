@@ -1045,6 +1045,8 @@ make_v:
 } // namespace Eval
 
 
+inline int sign(int x) {return (x > 0) - (x < 0);}
+
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
@@ -1074,6 +1076,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       nnueComplexity = (  208 * nnueComplexity
                         + 212 * abs(psq - nnue)
                         + int(optimism) * int(psq - nnue)
+                        + int(optimism) * pos.count<ALL_PIECES>()
                         ) / 512;
 
       // Return hybrid NNUE complexity to caller
@@ -1081,6 +1084,11 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
           *complexity = abs(nnueComplexity);
 
       optimism = optimism * (269 + nnueComplexity) / 256;
+      
+      
+      
+      
+      
       v = (nnue * scale + optimism * (scale - 754)) / 1024;
   }
 
