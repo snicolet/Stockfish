@@ -1085,8 +1085,8 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       optimism = optimism * (269 + nnueComplexity) / 256;
       v = (nnue * scale + optimism * (scale - 754)) / 1024;
       
-      //int mat = 8 * std::max(0, pos.count<ALL_PIECES>() - 22);
-      int mat = 8 * (pos.count<ALL_PIECES>() - 22);
+      int mat = 8 * std::max(0, pos.count<ALL_PIECES>() - 22);
+      //int mat = 8 * (pos.count<ALL_PIECES>() - 22);
       v += (pos.side_to_move() == pos.this_thread()->rootColor && optimism < 0) ?  mat : 0;
       v += (pos.side_to_move() != pos.this_thread()->rootColor && optimism > 0) ? -mat : 0;
   }
