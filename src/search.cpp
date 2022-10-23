@@ -676,9 +676,9 @@ namespace {
        && tte->depth() == depth - 1
        && (tte->bound() & BOUND_UPPER)
        && ttValue != VALUE_NONE
-       && ttValue <= alpha - 200
+       && ttValue <= alpha - 150
        && abs(alpha) < 10000)
-         return alpha;
+         return ttValue;
 
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
