@@ -667,6 +667,17 @@ namespace {
             return ttValue;
     }
 
+    // An entry coming from one depth lower than we would accept for a TT cutoff will
+    // still be accepted if it appears that failing low will trigger a research.
+    if (  !PvNode
+       && ss->ttHit
+       && tte->depth() == depth - 1
+       && (tte->bound() & BOUND_UPPER)
+       && ttValue != VALUE_NONE
+       && ttValue <= alpha - 150
+       && abs(alpha) < 10000)
+         return alpha;
+
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
