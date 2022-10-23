@@ -670,13 +670,13 @@ namespace {
     // An entry coming from one depth lower than we would accept for a TT cutoff will
     // still be accepted if it appears that failing low will trigger a research.
     if (  !PvNode
-       && depth >= 3
+       && depth >= 2
        && depth <= 7
        && ss->ttHit
        && tte->depth() == depth - 1
        && (tte->bound() & BOUND_UPPER)
        && ttValue != VALUE_NONE
-       && ttValue <= alpha - 150
+       && ttValue <= alpha - 200
        && abs(alpha) < 10000)
          return alpha;
 
