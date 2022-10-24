@@ -1045,7 +1045,6 @@ make_v:
 } // namespace Eval
 
 
-inline int sign(int x) {return (x > 0) - (x < 0);}
 
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
