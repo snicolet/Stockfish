@@ -146,7 +146,7 @@ private:
   Move ttMove;
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
   int stage;
-  Bitboard recaptureSquares;
+  Bitboard activeSquares;
   Value threshold;
   Depth depth;
   ExtMove moves[MAX_MOVES];
