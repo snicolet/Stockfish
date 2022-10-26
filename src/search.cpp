@@ -1484,10 +1484,15 @@ moves_loop: // When in check, search starts here
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     Square prevSq = to_sq((ss-1)->currentMove);
+    Bitboard recaptureSquares = Bitboard(0);
+    for (int i = 1; i > 0; i--)
+        if (is_ok((ss-i)->currentMove))
+            recaptureSquares |= to_sq((ss-i)->currentMove);
+    
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
-                                      prevSq);
+                                      recaptureSquares);
 
     int quietCheckEvasions = 0;
 
