@@ -1485,7 +1485,7 @@ moves_loop: // When in check, search starts here
     // will be generated.
     Square prevSq = to_sq((ss-1)->currentMove);
     Bitboard activeSquares = Bitboard(0);
-    for (int i = 5; i > 0; i--)
+    for (int i = 6; i > 0; i--)
         if (is_ok((ss-i)->currentMove))
             activeSquares |= to_sq((ss-i)->currentMove);
     
