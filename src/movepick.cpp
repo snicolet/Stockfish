@@ -269,7 +269,7 @@ top:
   case QCAPTURE:
       if (select<Next>([&](){ return   depth > DEPTH_QS_RECAPTURES
                                     || (activeSquares & to_sq(*cur))
-                                    || (activeSquares & from_sq(*cur)); }))
+                                    || ((activeSquares & from_sq(*cur)) && pos.see_ge(*cur, Value(0))); }))
           return *(cur - 1);
 
       // If we did not find any move and we do not try checks, we have finished
