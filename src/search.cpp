@@ -361,7 +361,7 @@ void Thread::search() {
               trend = (us == WHITE ?  make_score(tr, tr / 2)
                                    : -make_score(tr, tr / 2));
 
-              int opt = 15 + 118 * prev / (std::abs(prev) + 350);
+              int opt = 8 + 118 * prev / (std::abs(prev) + 255);
               optimism[ us] = Value(opt);
               optimism[~us] = -optimism[us];
           }
