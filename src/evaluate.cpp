@@ -1063,7 +1063,8 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   else
   {
       int nnueComplexity;
-      int scale = 1064 + 106 * pos.non_pawn_material() / 5120;
+      int scale = 900 + 32 * pos.non_pawn_material() / 1024
+                      + 16 * pos.count<PAWN>();
 
       Color stm = pos.side_to_move();
       Value optimism = pos.this_thread()->optimism[stm];
@@ -1079,6 +1080,9 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       // Return hybrid NNUE complexity to caller
       if (complexity)
           *complexity = nnueComplexity;
+
+
+      //dbg_mean_of(scale);
 
       optimism = optimism * (269 + nnueComplexity) / 256;
       v = (nnue * scale + optimism * (scale - 754)) / 1024;
