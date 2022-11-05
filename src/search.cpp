@@ -1191,18 +1191,10 @@ moves_loop: // When in check, search starts here
           {
               const bool doDeeperSearch = value > (alpha + 64 + 11 * (newDepth - d));
               value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
-
-              int bonus = value > alpha ? stat_bonus(newDepth) : 0;
-
-              if (capture)
-                  bonus /= 6;
-
-              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
-          else if (value > alpha)
-          {
+          
+          if (value > alpha)
               update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(d));
-          }
       }
 
       // Step 18. Full depth search when LMR is skipped
