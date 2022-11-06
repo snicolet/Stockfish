@@ -1202,7 +1202,7 @@ moves_loop: // When in check, search starts here
           }
           else if (value <= alpha)
           {
-              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(d));
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(d) / 128);
           }
       }
 
