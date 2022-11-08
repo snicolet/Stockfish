@@ -1063,7 +1063,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   else
   {
       int nnueComplexity;
-      int random = (pos.this_thread()->nodes & 1);
+      int random = (pos.this_thread()->nodes & 3);
 
       int scale = 1064 
                  + 106    * pos.non_pawn_material() / 5120
