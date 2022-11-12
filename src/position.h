@@ -46,7 +46,7 @@ struct StateInfo {
   int    castlingRights;
   int    rule50;
   int    pliesFromNull;
-  int    shuffling[8];
+  int    shuffling[4];
   int    shufflingIndex;
   int    shufflingTotal;
   Square epSquare;
@@ -379,16 +379,16 @@ inline int Position::rule50_count() const {
 }
 
 inline int Position::shuffling() const {
-  return std::clamp(st->shufflingTotal - 16, 0, 128);
+  return st->shufflingTotal;
 }
 
 inline void Position::update_shuffling() {
   int i = st->shufflingIndex;
 
-  // invariant : shufflingTotal is equal to the sum `shuffling[0] + ... + shuffling[7]`
+  // invariant : shufflingTotal is equal to the sum `shuffling[0] + ... + shuffling[3]`
   st->shufflingTotal += st->rule50 - st->shuffling[i];
   st->shuffling[i]    = st->rule50;
-  st->shufflingIndex  = (i + 1) % 8;
+  st->shufflingIndex  = (i + 1) % 4;
 }
 
 inline bool Position::opposite_bishops() const {
