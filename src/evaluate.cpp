@@ -1065,7 +1065,9 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
 
       int nnueComplexity;
 
-      int scale = 1064 + 106 * pos.non_pawn_material() / 5120;
+      int scale = 1080                 
+                 + 106 * pos.non_pawn_material() / 5120
+                 -   8 * (abs(pos.shuffling() - 9) / 2);
 
       Color stm = pos.side_to_move();
       Value optimism = pos.this_thread()->optimism[stm];
@@ -1087,8 +1089,8 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   }
   
   // Try to detect fortresses
-  int shuffling = std::min(pos.shuffling(), 256);
-  v = v * (256 - shuffling) / 256;
+  // int shuffling = std::min(pos.shuffling(), 256);
+  // v = v * (256 - shuffling) / 256;
 
   //dbg_mean_of(shuffling);
   /*
