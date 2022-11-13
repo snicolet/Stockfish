@@ -383,9 +383,12 @@ inline int Position::shuffling() const {
 }
 
 inline void Position::update_shuffling() {
-  int i = st->shufflingIndex;
 
-  // invariant : shufflingTotal is equal to the sum `shuffling[0] + ... + shuffling[3]`
+  // Invariant : shufflingTotal is equal to the sum `shuffling[0] + ... + shuffling[3]`
+  // In other words, this is the sum of the current 50 moves counter and its value
+  // at the point of the last three irreversible moves.  
+
+  int i = st->shufflingIndex;
   st->shufflingTotal += st->rule50 - st->shuffling[i];
   st->shuffling[i]    = st->rule50;
   st->shufflingIndex  = (i + 1) % 4;
