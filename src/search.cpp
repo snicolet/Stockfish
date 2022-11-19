@@ -355,7 +355,7 @@ void Thread::search() {
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
-              int EloDiff = 100;
+              int EloDiff = 0;
 
               // Adjust optimism based on root move's previousScore
               //int opt = sigmoid(prev, 0, 0, 169, 118, 1);
