@@ -1168,10 +1168,6 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
-          // Distance from PV
-          if ((ss+1)->distanceFromPv > 4)
-              r++;
-
           ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1194,7 +1190,8 @@ moves_loop: // When in check, search starts here
               // Adjust full depth search based on LMR results - if result
               // was good enough search deeper, if it was bad enough search shallower
               const bool doDeeperSearch = value > (alpha + 64 + 11 * (newDepth - d));
-              const bool doShallowerSearch = value < bestValue + newDepth;
+              const bool doShallowerSearch =    value < bestValue + newDepth
+                                             || (ss+1)->distanceFromPv > 4;
 
               newDepth += doDeeperSearch - doShallowerSearch;
 
