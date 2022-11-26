@@ -1192,7 +1192,7 @@ moves_loop: // When in check, search starts here
               const bool doDeeperSearch =    value > (alpha + 64 + 11 * (newDepth - d))
                                           || (ss+1)->distanceFromPv <= 4;
               const bool doShallowerSearch =    value < bestValue + newDepth
-                                             && (ss+1)->distanceFromPv > 4;
+                                             || (ss+1)->distanceFromPv > 4;
 
               newDepth += doDeeperSearch - doShallowerSearch;
 
