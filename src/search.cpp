@@ -1169,8 +1169,8 @@ moves_loop: // When in check, search starts here
               r++;
 
           // Distance from PV
-          if ((ss+1)->distanceFromPv <= 4)
-              r--;
+          if ((ss+1)->distanceFromPv > 4)
+              r++;
 
           ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
@@ -1193,7 +1193,7 @@ moves_loop: // When in check, search starts here
           {
               // Adjust full depth search based on LMR results - if result
               // was good enough search deeper, if it was bad enough search shallower
-              const bool doDeeperSearch =    value > (alpha + 64 + 11 * (newDepth - d));
+              const bool doDeeperSearch = value > (alpha + 64 + 11 * (newDepth - d));
               const bool doShallowerSearch = value < bestValue + newDepth;
 
               newDepth += doDeeperSearch - doShallowerSearch;
@@ -1293,7 +1293,7 @@ moves_loop: // When in check, search starts here
 
                   // Reduce other moves if we have found at least one score improvement
                   if (   depth > 1
-                      && depth < 13
+                      && depth < 6
                       && beta  <  VALUE_KNOWN_WIN
                       && alpha > -VALUE_KNOWN_WIN)
                      depth -= 1;
