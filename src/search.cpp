@@ -1180,7 +1180,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
           // beyond the first move depth. This may lead to hidden double extensions.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
+          Depth d = std::clamp(newDepth - r, 1, newDepth + 1 + ((ss+1)->distanceFromPv <= 4));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1189,10 +1189,8 @@ moves_loop: // When in check, search starts here
           {
               // Adjust full depth search based on LMR results - if result
               // was good enough search deeper, if it was bad enough search shallower
-              const bool doDeeperSearch =    value > (alpha + 64 + 11 * (newDepth - d))
-                                          || (ss+1)->distanceFromPv <= 4;
-              const bool doShallowerSearch =    value < bestValue + newDepth
-                                             || (ss+1)->distanceFromPv > 4;
+              const bool doDeeperSearch = value > (alpha + 64 + 11 * (newDepth - d));
+              const bool doShallowerSearch = value < bestValue + newDepth;
 
               newDepth += doDeeperSearch - doShallowerSearch;
 
@@ -1291,7 +1289,7 @@ moves_loop: // When in check, search starts here
 
                   // Reduce other moves if we have found at least one score improvement
                   if (   depth > 1
-                      && depth < 13
+                      && depth < 6
                       && beta  <  VALUE_KNOWN_WIN
                       && alpha > -VALUE_KNOWN_WIN)
                      depth -= 1;
