@@ -1189,9 +1189,9 @@ moves_loop: // When in check, search starts here
           {
               // Adjust full depth search based on LMR results - if result
               // was good enough search deeper, if it was bad enough search shallower
-              const bool doDeeperSearch = value > (alpha + 64 + 11 * (newDepth - d));
-              const bool doShallowerSearch =    value < bestValue + newDepth
-                                             || (ss+1)->distanceFromPv > 6;
+              const bool doDeeperSearch =    value > (alpha + 64 + 11 * (newDepth - d))
+                                          || (ss+1)->distanceFromPv <= 4;
+              const bool doShallowerSearch = value < bestValue + newDepth;
 
               newDepth += doDeeperSearch - doShallowerSearch;
 
@@ -1290,7 +1290,7 @@ moves_loop: // When in check, search starts here
 
                   // Reduce other moves if we have found at least one score improvement
                   if (   depth > 1
-                      && depth < 6
+                      && depth < 13
                       && beta  <  VALUE_KNOWN_WIN
                       && alpha > -VALUE_KNOWN_WIN)
                      depth -= 1;
