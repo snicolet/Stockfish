@@ -1122,7 +1122,7 @@ moves_loop: // When in check, search starts here
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
       
       if (   depth > 1
-          && depth < 12
+          && depth < 14
           && moveCount == 2
           && (ss+1)->distanceFromPv >= 1
           && (ss+1)->distanceFromPv <= 4)
