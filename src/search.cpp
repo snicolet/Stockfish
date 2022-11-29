@@ -1123,10 +1123,9 @@ moves_loop: // When in check, search starts here
       
       if (   depth > 1
           && depth < 10
-          && moveCount >= 2
-          && moveCount <= 3
+          && moveCount == 2
           && (ss+1)->distanceFromPv >= 1
-          && (ss+1)->distanceFromPv <= 4)
+          && (ss+1)->distanceFromPv <= 5)
           newDepth = newDepth + 1;
 
       // Step 17. Late moves reduction / extension (LMR, ~98 Elo)
