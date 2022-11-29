@@ -1122,11 +1122,11 @@ moves_loop: // When in check, search starts here
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
       
       if (   depth > 1
-          && depth < 14
+          && depth < 10
           && moveCount == 2
           && (ss+1)->distanceFromPv >= 1
           && (ss+1)->distanceFromPv <= 4)
-          newDepth = newDepth + 1;
+          newDepth = newDepth + 2;
 
       // Step 17. Late moves reduction / extension (LMR, ~98 Elo)
       // We use various heuristics for the sons of a node after the first son has
