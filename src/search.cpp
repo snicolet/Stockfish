@@ -1123,7 +1123,8 @@ moves_loop: // When in check, search starts here
       
       if (   depth > 1
           && depth < 10
-          && moveCount == 2
+          && moveCount >= 2
+          && moveCount <= 3
           && (ss+1)->distanceFromPv >= 1
           && (ss+1)->distanceFromPv <= 4)
           newDepth = newDepth + 1;
