@@ -1069,7 +1069,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       int scale =  1001 
                   +   5 * pos.count<PAWN>() 
                   +  61 * pos.non_pawn_material() / 4096
-                  -  96 * (pos.rule50_count() / 8);
+                  -  104 * (pos.rule50_count() / 8);
 
       Color stm = pos.side_to_move();
       Value optimism = pos.this_thread()->optimism[stm];
