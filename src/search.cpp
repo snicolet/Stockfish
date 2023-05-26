@@ -1163,7 +1163,7 @@ moves_loop: // When in check, search starts here
           r--;
 
       // Distance from PV
-      if (   (ss+1)->distanceFromPv >= 1
+      if (   moveCount > 1
           && (ss+1)->distanceFromPv <= 4)
           r -= 2;
 
