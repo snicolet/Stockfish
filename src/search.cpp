@@ -1163,7 +1163,8 @@ moves_loop: // When in check, search starts here
           r--;
 
       // Distance from PV
-      if ((ss+1)->distanceFromPv <= 4)
+      if (   (ss+1)->distanceFromPv >= 1
+          && (ss+1)->distanceFromPv <= 4)
           r -= 2;
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
