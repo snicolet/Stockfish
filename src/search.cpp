@@ -1322,8 +1322,8 @@ moves_loop: // When in check, search starts here
                       && beta  <  14001
                       && value > -12754)
                       depth -= ( depth <= 3  ? 1 :
-                                 depth <= 4  ? 2 :
-                                 depth <= 11 ? 3 :
+                                 depth <= 3  ? 2 :
+                                 depth <= 10 ? 3 :
                                  depth <= 11 ? 2 :
                                                1);
 
