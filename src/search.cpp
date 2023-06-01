@@ -1320,11 +1320,12 @@ moves_loop: // When in check, search starts here
                   // Reduce more for depth > 3 and depth < 12 (~1 Elo)
                   if (   depth > 1
                       && beta  <  14001
-                      && value > -12754)
+                      && value > -12754
+                      && moveCount > 1)
                       depth -= ( depth <= 3  ? 1 :
-                                 depth <= 3  ? 2 :
-                                 depth <= 10 ? 3 :
-                                 depth <= 11 ? 2 :
+                                 depth <= 3  ? 1 :
+                                 depth <= 11 ? 3 :
+                                 depth <= 11 ? 3 :
                                                1);
 
                   assert(depth > 0);
