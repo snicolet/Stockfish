@@ -558,6 +558,7 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
+    ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1131,6 +1132,8 @@ moves_loop: // When in check, search starts here
       // Step 16. Make the move
       pos.do_move(move, st, givesCheck);
 
+      (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
+
       // Decrease reduction if position is or has been on the PV
       // and node is not likely to fail low. (~3 Elo)
       // Decrease further on cutNodes. (~1 Elo)
@@ -1187,7 +1190,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
           // beyond the first move depth. This may lead to hidden double extensions.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
+          Depth d = std::clamp(newDepth - r, 1, newDepth + 1 + ((ss+1)->distanceFromPv <= 4));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
