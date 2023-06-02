@@ -1064,6 +1064,12 @@ Value Eval::evaluate(const Position& pos) {
   {
       int nnueComplexity;
       int npm = pos.non_pawn_material() / 64;
+      
+      Bitboard w_pawns = pos.pieces(WHITE, PAWN);
+      Bitboard b_pawns = pos.pieces(BLACK, PAWN);
+
+      int supporting = popcount(  (pawn_attacks_bb<BLACK>(w_pawns) & w_pawns)
+                                | (pawn_attacks_bb<WHITE>(b_pawns) & b_pawns));
 
       Color stm = pos.side_to_move();
       Value optimism = pos.this_thread()->optimism[stm];
@@ -1074,7 +1080,7 @@ Value Eval::evaluate(const Position& pos) {
       nnueComplexity = 25 * (nnueComplexity + abs(psq - nnue)) / 64;
 
       optimism += optimism * nnueComplexity / 256;
-      v = (nnue * (945 + npm) + optimism * (174 + npm)) / 1024;
+      v = (nnue * (953 + npm - 16 * supporting) + optimism * (174 + npm)) / 1024;
   }
 
   // Damp down the evaluation linearly when shuffling
