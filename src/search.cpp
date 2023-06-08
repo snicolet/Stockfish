@@ -1072,7 +1072,7 @@ moves_loop: // When in check, search starts here
               else if (singularBeta >= beta)
                   return singularBeta;
 
-              else if (value >= beta)
+              else if (value >= beta + 100)
                   extension = -1;
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
