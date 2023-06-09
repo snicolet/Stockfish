@@ -1070,22 +1070,22 @@ moves_loop: // When in check, search starts here
               // that multiple moves fail high, and we can prune the whole subtree by returning
               // a soft bound.
               else if (singularBeta >= beta)
-                  extension = -4;
+                  extension = -3;
 
               else if (value >= beta + 50)
-                  extension = -4;
+                  extension = -3;
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
               else if (ttValue >= beta)
-                  extension = -2 - !PvNode;
+                  extension = -3;
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
-                  extension = -1;
+                  extension = -3;
 
               // If the eval of ttMove is less than alpha, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= alpha)
-                  extension = -1;
+                  extension = -3;
           }
 
           // Check extensions (~1 Elo)
