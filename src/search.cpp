@@ -1062,9 +1062,9 @@ moves_loop: // When in check, search starts here
               &&  tte->depth() >= depth - 3)
           {
               [[maybe_unused]] int margin  = (82 + 65 * (ss->ttPv && !PvNode)) * depth / 64;
-              int                  margin2 =  50 / (depth * depth) 
+              int                  margin2 =  (depth * depth) / 32
                                              +  (82 + 65 * (ss->ttPv && !PvNode)) * depth / 64;
-
+            
 /*
 dbg_mean_of(margin, int(depth));
 Mean #4: Total 17609 Mean 5.21239
@@ -1082,19 +1082,18 @@ Mean #15: Total 12 Mean 30.25
 Mean #16: Total 1 Mean 36
 
 dbg_mean_of(margin2, int(depth));
-Mean #4: Total 18936 Mean 8.21546
-Mean #5: Total 13852 Mean 8.35951
-Mean #6: Total 11401 Mean 8.54679
-Mean #7: Total 8656 Mean 10.0305
-Mean #8: Total 6497 Mean 11.4517
-Mean #9: Total 4206 Mean 13.0007
-Mean #10: Total 2406 Mean 15.3915
-Mean #11: Total 1254 Mean 18.5351
-Mean #12: Total 496 Mean 20.6129
-Mean #13: Total 73 Mean 23.3014
-Mean #14: Total 5 Mean 26
-
-
+Mean #4: Total 18877 Mean 5.21677
+Mean #5: Total 13910 Mean 6.34472
+Mean #6: Total 11292 Mean 8.4915
+Mean #7: Total 8733 Mean 10.0095
+Mean #8: Total 6745 Mean 13.447
+Mean #9: Total 4390 Mean 15.046
+Mean #10: Total 2516 Mean 18.2114
+Mean #11: Total 1402 Mean 21.6448
+Mean #12: Total 607 Mean 24.7924
+Mean #13: Total 150 Mean 28.1067
+Mean #14: Total 19 Mean 30.8947
+Mean #15: Total 3 Mean 36
 */
               
               Value singularBeta = ttValue - margin2;           
