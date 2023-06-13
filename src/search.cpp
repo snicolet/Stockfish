@@ -1123,6 +1123,8 @@ moves_loop: // When in check, search starts here
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
+      if (extension < 0)
+          depth = std::clamp(depth + extension, 1, MAX_PLY - 1);
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
