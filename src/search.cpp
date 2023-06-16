@@ -1065,8 +1065,7 @@ moves_loop: // When in check, search starts here
               &&  tte->depth() >= depth - 3)
           {
               int margin =   depth * depth / 32
-                           + 4
-                           + 2 * (ss->ttPv && !PvNode) * (depth - 3);
+                           + (64 + 52 * (ss->ttPv && !PvNode)) * depth / 64;
               Value singularBeta = ttValue - margin;
               Depth singularDepth = (depth - 1) / 2;
 
