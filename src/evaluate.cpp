@@ -1064,7 +1064,7 @@ Value Eval::evaluate(const Position& pos) {
   {
       int nnueComplexity;
       int npm = pos.non_pawn_material() / 64;
-      int shuffling = pos.rule50_count() * npm * npm / 32768;
+      int shuffling = pos.rule50_count() * npm / 64;
       // dbg_mean_of(shuffling);
 
       Color stm = pos.side_to_move();
@@ -1079,7 +1079,7 @@ Value Eval::evaluate(const Position& pos) {
 
   // Damp down the evaluation when shuffling
   v = v * (110 - pos.rule50_count()) / 110;
-  v = v * (87  + pos.rule50_count()) / 100;
+  v = v * (90  + pos.rule50_count()) / 100;
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
