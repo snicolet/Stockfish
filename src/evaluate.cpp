@@ -1065,8 +1065,8 @@ Value Eval::evaluate(const Position& pos) {
       int nnueComplexity;
       int npm = pos.non_pawn_material() / 64;
       
-      int shuffling = (pos.side_to_move() == pos.this_thread()->rootColor) ? -pos.rule50_count()
-                                                                           :  pos.rule50_count();
+      int shuffling = (pos.side_to_move() == pos.this_thread()->rootColor) ? -pos.rule50_count() * npm / 64
+                                                                           :  pos.rule50_count() * npm / 64;
 
       Color stm = pos.side_to_move();
       Value optimism = pos.this_thread()->optimism[stm];
