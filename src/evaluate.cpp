@@ -1070,17 +1070,17 @@ Value Eval::evaluate(const Position& pos) {
 
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
+      bool Stockfish_is_winning = (stm == pos.this_thread()->rootColor) == (nnue > 0);
+      int shuffling = Stockfish_is_winning ? -2 * pos.rule50_count()
+                                           :  2 * pos.rule50_count();
+
       // Blend optimism with nnue complexity and (semi)classical complexity
       optimism += optimism * (nnueComplexity + abs(psq - nnue)) / 512;
-      v = (nnue * (945 + npm) + optimism * (150 + npm)) / 1024;
+      v = (nnue * (961 + npm + shuffling) + optimism * (150 + npm)) / 1024;
   }
 
-  // Damp down or inflate the evaluation linearly when shuffling, depending
-  // whether Stockfish is winning.
-  bool Stockfish_is_winning = (pos.side_to_move() == pos.this_thread()->rootColor) == (v > 0);
-  int shuffling = Stockfish_is_winning ? -pos.rule50_count()
-                                       :  pos.rule50_count();
-  v = v * (200 + shuffling) / 214;
+  // Damp down the evaluation linearly when shuffling
+  v = v * (200 - pos.rule50_count()) / 214;
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
