@@ -335,7 +335,7 @@ template<bool AfterMove>
 inline Key Position::adjust_key50(Key k) const
 {
   return st->rule50 < 15 - AfterMove
-      ? k : k ^ make_key((st->rule50 - (15- AfterMove)) / 8);
+      ? k : k ^ make_key((st->rule50 - (15 - AfterMove)) / 8);
 }
 
 inline Key Position::pawn_key() const {
