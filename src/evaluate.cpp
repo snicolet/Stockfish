@@ -160,7 +160,7 @@ Value Eval::evaluate(const Position& pos) {
   optimism += optimism * (nnueComplexity + abs(psq - nnue)) / 512;
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>() + shuffling)
-       + optimism * (154 + npm +     pos.count<PAWN>())           ) / 1024;
+       + optimism * (154 + npm +     pos.count<PAWN>() + shuffling)) / 1024;
 
   // Damp down the evaluation linearly when shuffling
   v = v * (200 - pos.rule50_count()) / 214;
