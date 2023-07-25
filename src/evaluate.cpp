@@ -155,8 +155,8 @@ Value Eval::evaluate(const Position& pos) {
   bool Stockfish_is_winning = (stm == pos.this_thread()->rootColor) == (nnue > 0);
 
   int offset =  Stockfish_is_winning ?  0  :
-                nnue < 0             ?  40 :
-                nnue > 0             ? -40 :
+                nnue < 0             ?  60 :
+                nnue > 0             ? -60 :
                                         0  ;
 
   int shuffling = Stockfish_is_winning ?  -pos.rule50_count()
