@@ -160,8 +160,8 @@ Value Eval::evaluate(const Position& pos) {
                 nnue > 0             ? -cnt :
                                         0  ;
 
-  int shuffling = Stockfish_is_winning ?     -pos.rule50_count()
-                                       :  2 * pos.rule50_count();
+  int shuffling = Stockfish_is_winning ?  -pos.rule50_count()
+                                       :   0;
 
   // Blend optimism with nnue complexity and (semi)classical complexity
   optimism += optimism * (nnueComplexity + abs(psq - nnue)) / 512;
