@@ -150,14 +150,18 @@ Value Eval::evaluate(const Position& pos) {
 
   Color stm = pos.side_to_move();
   Value optimism = pos.this_thread()->optimism[stm];
-
   Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
+  bool Stockfish_is_winning = (stm == pos.this_thread()->rootColor) == (nnue > 0);
+
+  int shuffling = Stockfish_is_winning ?  -pos.rule50_count()
+                                       :  0;
 
   // Blend optimism with nnue complexity and (semi)classical complexity
   optimism += optimism * (nnueComplexity + abs(psq - nnue)) / 512;
+  nnue     -= nnue     * (nnueComplexity + abs(psq - nnue)) / 65536;
 
-  v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
-       + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
+  v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>() + shuffling)
+       + optimism * (154 + npm +     pos.count<PAWN>())           ) / 1024;
 
   // Damp down the evaluation linearly when shuffling
   v = v * (200 - pos.rule50_count()) / 214;
