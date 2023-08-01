@@ -152,11 +152,11 @@ Value Eval::evaluate(const Position& pos) {
 
   Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
-  int material =   67 * (pos.count<PAWN>(WHITE)   - pos.count<PAWN>(BLACK))
-                + 395 * (pos.count<KNIGHT>(WHITE) - pos.count<KNIGHT>(BLACK))
-                + 288 * (pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK))
-                + 630 * (pos.count<ROOK>(WHITE)   - pos.count<ROOK>(BLACK))
-                + 857 * (pos.count<QUEEN>(WHITE)  - pos.count<QUEEN>(BLACK));
+  int material =   67 * (pos.count<PAWN>(stm)   - pos.count<PAWN>(~stm))
+                + 395 * (pos.count<KNIGHT>(stm) - pos.count<KNIGHT>(~stm))
+                + 288 * (pos.count<BISHOP>(stm) - pos.count<BISHOP>(~stm))
+                + 630 * (pos.count<ROOK>(stm)   - pos.count<ROOK>(~stm))
+                + 857 * (pos.count<QUEEN>(stm)  - pos.count<QUEEN>(~stm));
 
   // Blend optimism with nnue complexity and (semi)classical complexity
   optimism += optimism * (nnueComplexity + abs(material - nnue)) / 512;
