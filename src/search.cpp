@@ -66,7 +66,7 @@ namespace {
   // The squared depth term is important for mate finding.
   Value futility_margin(Depth d, bool noTtCutNode, bool improving) {
     return Value(   (140 - 40 * noTtCutNode) * (d - improving) 
-                  + d * d );
+                  + 4 * d * d );
   }
 
   // Reductions lookup table initialized at startup
