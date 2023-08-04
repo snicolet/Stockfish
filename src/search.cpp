@@ -65,8 +65,18 @@ namespace {
   // Futility margin
   // The squared depth term is important for mate finding.
   Value futility_margin(Depth d, bool noTtCutNode, bool improving) {
-    return Value(   (100 - 40 * noTtCutNode) * (d - improving) 
-                  + 16 * d * d );
+  
+    //int margin  = (140 - 40 * noTtCutNode) * (d - improving);
+    
+    int margin2 = ( 80 - 40 * noTtCutNode) * (d - improving) + 16 * d * d ;
+    
+    //if (d < 9)
+    //{
+    //   dbg_mean_of(margin, 0 * 16 + d);
+    //   dbg_mean_of(margin2, 1 * 16 + d);
+    //}
+  
+    return Value( margin2 );
   }
 
   // Reductions lookup table initialized at startup
