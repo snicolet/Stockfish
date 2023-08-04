@@ -955,11 +955,13 @@ moves_loop: // When in check, search starts here
       if (PvNode)
           (ss+1)->pv = nullptr;
 
+      if (moveCount == 1)
+          (ss+2)->cutoffCnt = 0;
+
       extension = 0;
       capture = pos.capture_stage(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-      (ss+2)->cutoffCnt = 0;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
