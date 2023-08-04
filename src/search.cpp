@@ -955,7 +955,7 @@ moves_loop: // When in check, search starts here
       if (PvNode)
           (ss+1)->pv = nullptr;
 
-      if (moveCount == 1)
+      if (moveCount <= 2)
           (ss+2)->cutoffCnt = 0;
 
       extension = 0;
