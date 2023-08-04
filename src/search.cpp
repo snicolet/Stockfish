@@ -68,7 +68,7 @@ namespace {
   
     //int margin  = (140 - 40 * noTtCutNode) * (d - improving);
     
-    int margin2 = ( 60 - 40 * noTtCutNode) * (d - improving) + 16 * d * d ;
+    int margin2 = (90 - 40 * noTtCutNode) * (d - improving) + 16 * d * d ;
     
     //if (d < 9)
     //{
