@@ -777,7 +777,7 @@ namespace {
 
     // Step 8. Futility pruning: child node (~40 Elo).
     if (   !ss->ttPv
-        &&  depth < 10
+        &&  depth < 11
         &&  eval - futility_margin(depth, cutNode && !ss->ttHit, improving) - (ss-1)->statScore / 306 >= beta
         &&  eval >= beta
         &&  eval < 24923) // larger than VALUE_KNOWN_WIN, but smaller than TB wins
