@@ -763,7 +763,7 @@ namespace {
             return value;
     }
     
-    safety = (ss->ply & 1) ? -30 : 30;
+    safety = (ss->ply & 1) ? 30 : -30;
 
     // Step 8. Futility pruning: child node (~40 Elo).
     // The depth condition is important for mate finding.
