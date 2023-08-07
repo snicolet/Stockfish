@@ -992,24 +992,7 @@ moves_loop: // When in check, search starts here
               // SEE based pruning for captures and checks (~11 Elo)
               Bitboard occupied;
               if (!pos.see_ge(move, occupied, Value(-205) * depth))
-              {
-                 // Don't prune the move if opponent Queen/Rook is under discovered attack after the exchanges
-                 // Don't prune the move if opponent King is under discovered attack after or during the exchanges
-                 Bitboard leftEnemies = (pos.pieces(~us, KING, QUEEN, ROOK)) & occupied;
-                 Bitboard attacks = 0;
-                 occupied |= to_sq(move);
-                 while (leftEnemies && !attacks)
-                 {
-                      Square sq = pop_lsb(leftEnemies);
-                      attacks |= pos.attackers_to(sq, occupied) & pos.pieces(us) & occupied;
-
-                      // Don't consider pieces that were already threatened/hanging before SEE exchanges
-                      if (attacks && (sq != pos.square<KING>(~us) && (pos.attackers_to(sq, pos.pieces()) & pos.pieces(us))))
-                         attacks = 0;
-                 }
-                 if (!attacks)
-                    continue;
-              }
+                  continue;
           }
           else
           {
