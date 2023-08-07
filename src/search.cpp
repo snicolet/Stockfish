@@ -1038,7 +1038,7 @@ moves_loop: // When in check, search starts here
 
               // Prune moves with negative SEE (~4 Elo)
               if (!pos.see_ge(move, Value(-31 * lmrDepth * lmrDepth)))
-                  continue;
+                  extension -= 3;
           }
       }
 
