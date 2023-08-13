@@ -153,7 +153,7 @@ Value Eval::evaluate(const Position& pos) {
   Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
   // Blend optimism with nnue complexity and (semi)classical complexity
-  int material = ((nnue > 100) - (nnue < -100)) * 600;
+  int material = ((nnue > 150) - (nnue < -150)) * 600;
   optimism += optimism * (nnueComplexity + abs(material - nnue)) / 512;
   nnue     -= nnue     * (nnueComplexity + abs(material - nnue)) / 65536;
 
