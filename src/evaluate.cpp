@@ -152,7 +152,7 @@ Value Eval::evaluate(const Position& pos) {
 
   Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
-  int material = ((nnue > PawnValue) - (nnue < -PawnValue)) * 600;
+  int material = ((nnue > PawnValue) - (nnue < -PawnValue)) * 300;
 
   // Blend optimism with nnue complexity and (semi)classical complexity
   optimism += optimism * (nnueComplexity + abs(material - nnue)) / 512;
