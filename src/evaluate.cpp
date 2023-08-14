@@ -162,7 +162,7 @@ Value Eval::evaluate(const Position& pos) {
   if (Stockfish_is_losing)
   {
       int material2 = ((nnue > PawnValue) - (nnue < -PawnValue)) * 300;
-      nnue -= nnue * (nnueComplexity + abs(material2 - nnue)) / 65536;
+      nnue -= nnue * (nnueComplexity + abs(material2 - nnue)) / 32768;
   }
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
