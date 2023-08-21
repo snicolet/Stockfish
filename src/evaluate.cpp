@@ -160,9 +160,9 @@ Value Eval::evaluate(const Position& pos) {
 
   bool Stockfish_is_losing = (stm != pos.this_thread()->rootColor) == (nnue > 0);
   if (Stockfish_is_losing)
-      nnue -= nnue * abs(material - nnue) / 32768;
+      nnue -= nnue * abs(material - nnue) / 16384 ;
   else
-      nnue -= nnue * nnueComplexity / 16384;
+      nnue -= nnue * nnueComplexity / 32768 ;
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
        + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
