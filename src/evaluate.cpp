@@ -152,17 +152,13 @@ Value Eval::evaluate(const Position& pos) {
 
   Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
+  int shuffling = 8 * pos.rule50_count();
   int material =  pos.non_pawn_material(stm) - pos.non_pawn_material(~stm)
                 + 126 * (pos.count<PAWN>(stm) - pos.count<PAWN>(~stm));
 
-  // Blend optimism and eval with nnue complexity and material imbalance
-
-  int complexity =   nnueComplexity 
-                   + abs(material - nnue)
-                   + 16 * pos.rule50_count();
-
-  optimism += optimism * complexity / 512;
-  nnue     -= nnue     * complexity / 32768;
+  // Blend optimism and eval with complexity terms
+  nnue     -= nnue     * (nnueComplexity + abs(material - nnue) + shuffling) / 32768;
+  optimism += optimism * (nnueComplexity + abs(material - nnue) + shuffling) / 512;
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
        + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
