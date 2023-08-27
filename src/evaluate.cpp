@@ -162,7 +162,7 @@ Value Eval::evaluate(const Position& pos) {
   bool Stockfish_is_losing = (stm != pos.this_thread()->rootColor) == (nnue > 0);
   if (Stockfish_is_losing)
   {
-      int target = (nnue / PawnValue) * 300;
+      int target = 300 * nnue / PawnValue;
       nnue -= nnue * abs(target - nnue) / 65536;
   }
 
