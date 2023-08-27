@@ -155,12 +155,11 @@ Value Eval::evaluate(const Position& pos) {
   int material =  pos.non_pawn_material(stm) - pos.non_pawn_material(~stm)
                 + 126 * (pos.count<PAWN>(stm) - pos.count<PAWN>(~stm));
 
-  // Blend optimism and eval with nnue complexity and material imbalance
-
   int complexity =   nnueComplexity 
                    + abs(material - nnue)
-                   + 16 * pos.rule50_count();
+                   + 4 * pos.rule50_count();
 
+  // Blend optimism and eval with complexity
   optimism += optimism * complexity / 512;
   nnue     -= nnue     * complexity / 32768;
 
