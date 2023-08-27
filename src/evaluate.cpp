@@ -157,7 +157,7 @@ Value Eval::evaluate(const Position& pos) {
 
   int complexity =   nnueComplexity 
                    + abs(material - nnue)
-                   + 4 * pos.rule50_count();
+                   + npm;
 
   // Blend optimism and eval with complexity
   optimism += optimism * complexity / 512;
