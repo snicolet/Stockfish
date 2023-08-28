@@ -163,7 +163,7 @@ Value Eval::evaluate(const Position& pos) {
   Color Stockfish = pos.this_thread()->rootColor;
   if (   (stm != Stockfish) == (nnue > 0)
       && pos.count<PAWN>(Stockfish) - pos.count<PAWN>(~Stockfish) == 1)
-      nnue -= nnue / 64;
+      nnue -= nnue / 32;
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
        + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
