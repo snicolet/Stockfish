@@ -159,17 +159,11 @@ Value Eval::evaluate(const Position& pos) {
   nnue     -= nnue     * (nnueComplexity + abs(material - nnue)) / 32768;
   optimism += optimism * (nnueComplexity + abs(material - nnue)) / 512;
 
+  // When Stockfish is defending, prefer positions with exactly one more pawn
   Color Stockfish = pos.this_thread()->rootColor;
-  int pawns = pos.count<PAWN>(Stockfish) - pos.count<PAWN>(~Stockfish);
-
-  // Stockfish is losing and has more pawns
-  if ((stm != Stockfish) == (nnue > 0) && pawns == 1)
-      nnue -= nnue * pawns / 64;  
-
-  // Stockfish is winning and has more pawns
-  if ((stm == Stockfish) == (nnue > 0) && pawns == 1)
-      nnue += nnue * pawns / 64;
-
+  if (   (stm != Stockfish) == (nnue > 0)
+      && pos.count<PAWN>(Stockfish) - pos.count<PAWN>(~Stockfish) == 1)
+      nnue -= nnue / 64;
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
        + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
