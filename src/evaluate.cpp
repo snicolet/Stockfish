@@ -162,13 +162,13 @@ Value Eval::evaluate(const Position& pos) {
   Color Stockfish = pos.this_thread()->rootColor;
   int pawns = pos.count<PAWN>(Stockfish) - pos.count<PAWN>(~Stockfish);
 
-  // Stockfish is losing
-  if ((stm != Stockfish) == (nnue > 0))
-      nnue -= nnue * pawns / 64;  
+  // Stockfish is losing and has more pawns
+  if ((stm != Stockfish) == (nnue > 0) && pawns > 0)
+      nnue -= nnue * pawns / 256;  
 
-  // Stockfish is winning
-  if ((stm == Stockfish) == (nnue > 0))
-      nnue += nnue * pawns / 64;
+  // Stockfish is winning and has more pawns
+  if ((stm == Stockfish) == (nnue > 0) && pawns > 0)
+      nnue += nnue * pawns / 256;
 
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
