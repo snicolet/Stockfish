@@ -159,11 +159,18 @@ Value Eval::evaluate(const Position& pos) {
   nnue     -= nnue     * (nnueComplexity + abs(material - nnue)) / 32768;
   optimism += optimism * (nnueComplexity + abs(material - nnue)) / 512;
 
-  // When Stockfish is defending, prefer positions with exactly one more pawn
+  
   Color Stockfish = pos.this_thread()->rootColor;
+
+  // When Stockfish is defending, prefer positions with one more pawn
   if (   (stm != Stockfish) == (nnue > 0)
       && pos.count<PAWN>(Stockfish) - pos.count<PAWN>(~Stockfish) == 1)
-      nnue -= nnue / 100;   
+      nnue -= nnue / 100;
+
+  // When Stockfish is attacking, decay positions with one less pawn
+  if (   (stm == Stockfish) == (nnue > 0)
+      && pos.count<PAWN>(Stockfish) - pos.count<PAWN>(~Stockfish) == -1)
+      nnue -= nnue / 100;
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
        + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
