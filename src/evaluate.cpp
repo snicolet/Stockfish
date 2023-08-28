@@ -164,11 +164,11 @@ Value Eval::evaluate(const Position& pos) {
 
   // Stockfish is losing and has more pawns
   if ((stm != Stockfish) == (nnue > 0) && pawns > 0)
-      nnue -= nnue * pawns / 64;  
+      nnue -= nnue * pawns / 32;  
 
   // Stockfish is winning and has more pawns
   if ((stm == Stockfish) == (nnue > 0) && pawns > 0)
-      nnue += nnue * pawns / 64;
+      nnue += nnue * pawns / 32;
 
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
