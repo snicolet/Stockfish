@@ -155,12 +155,8 @@ Value Eval::evaluate(const Position& pos) {
   int material =  pos.non_pawn_material(stm) - pos.non_pawn_material(~stm)
                 + 126 * (pos.count<PAWN>(stm) - pos.count<PAWN>(~stm));
 
-  bool Stockfish_is_attacking = (stm == pos.this_thread()->rootColor) == (nnue > 0);
-  if (Stockfish_is_attacking)
-  {
-      int target = (nnue / PawnValue) * 300;
-      nnue -= nnue * abs(target - nnue) / 65536;
-  }
+  int target = (nnue / PawnValue) * 300;
+  nnue -= nnue * abs(target - nnue) / 65536;
 
   // Blend optimism and eval with nnue complexity and material imbalance
   nnue     -= nnue     * (nnueComplexity + abs(material - nnue)) / 32768;
