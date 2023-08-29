@@ -167,11 +167,6 @@ Value Eval::evaluate(const Position& pos) {
       && pos.count<PAWN>(Stockfish) - pos.count<PAWN>(~Stockfish) == 1)
       nnue -= nnue / 16;
 
-  // When Stockfish is attacking, decay positions with one less pawn
-  if (   (stm == Stockfish) == (nnue > 0)
-      && pos.count<PAWN>(Stockfish) - pos.count<PAWN>(~Stockfish) == -1)
-      nnue -= nnue / 16;
-
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
        + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
 
