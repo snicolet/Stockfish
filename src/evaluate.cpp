@@ -159,11 +159,22 @@ Value Eval::evaluate(const Position& pos) {
   nnue     -= nnue     * (nnueComplexity + abs(material - nnue)) / 32768;
   optimism += optimism * (nnueComplexity + abs(material - nnue)) / 512;
 
-  // When Stockfish is defending, prefer positions with exactly one more pawn
   Color Stockfish = pos.this_thread()->rootColor;
-  if (   (stm != Stockfish) == (nnue > 0)
-      && pos.count<PAWN>(Stockfish) - pos.count<PAWN>(~Stockfish) == 1)
-      nnue -= nnue / 32;
+  
+  if ((stm == Stockfish) == (nnue > 0))   
+  {
+      // Heuristics when Stockfish is winning
+  
+      int shuffling = std::min(pos.rule50_count(), 4);
+      nnue -= nnue * shuffling / 100;
+  }
+  else  
+  {   
+      // Heuristics when Stockfish is losing
+  
+      if (pos.count<PAWN>(Stockfish) - pos.count<PAWN>(~Stockfish) == 1)
+          nnue -= nnue / 32;
+  }
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
        + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
