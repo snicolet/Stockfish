@@ -174,6 +174,9 @@ Value Eval::evaluate(const Position& pos) {
   
       if (pos.count<PAWN>(Stockfish) - pos.count<PAWN>(~Stockfish) == 1)
           nnue -= nnue / 32;
+
+      int shuffling = std::min(pos.rule50_count(), 4);
+      nnue += nnue * shuffling / 100;
   }
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
