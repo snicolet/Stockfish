@@ -161,12 +161,13 @@ Value Eval::evaluate(const Position& pos) {
 
   Color Stockfish = pos.this_thread()->rootColor;
   
+  // Heuristics when Stockfish is losing
   if ((stm != Stockfish) == (nnue > 0))
   {   
-      // Heuristics when Stockfish is losing
-  
-      if (pos.count<PAWN>(Stockfish) - pos.count<PAWN>(~Stockfish) == 1)
-          nnue -= nnue / 32;
+      // We use the material from Stockfish point of view
+      int material2 = (stm == Stockfish ? material : -material);
+      if (material2 > 0)
+          nnue -= nnue * material2 / 4096;
   }
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
