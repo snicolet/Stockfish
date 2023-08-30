@@ -160,7 +160,7 @@ Value Eval::evaluate(const Position& pos) {
   int simpleEval = simple_eval(pos, stm);
 
 
-  if (abs(simpleEval) >= RookValue + 16 * shuffling * shuffling)
+  if (abs(simpleEval) >= QueenValue + 16 * shuffling * shuffling)
       v = Value(simpleEval);
   else
   {
