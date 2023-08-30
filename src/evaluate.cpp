@@ -153,7 +153,7 @@ Value Eval::evaluate(const Position& pos) {
   Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
   int material =  pos.non_pawn_material(stm) - pos.non_pawn_material(~stm)
-                + 128 * (pos.count<PAWN>(stm) - pos.count<PAWN>(~stm));
+                + 126 * (pos.count<PAWN>(stm) - pos.count<PAWN>(~stm));
 
   // Blend optimism and eval with nnue complexity and material imbalance
   nnue     -= nnue     * (nnueComplexity + abs(material - nnue)) / 32768;
