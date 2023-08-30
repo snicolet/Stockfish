@@ -157,7 +157,7 @@ Value Eval::evaluate(const Position& pos) {
 
   // Blend optimism and eval with nnue complexity and material imbalance
   optimism += optimism * (nnueComplexity + abs(material - nnue)) / 512;
-  nnue     -= nnue     * (nnueComplexity + abs(material - nnue)) / 32768;
+  nnue     -= nnue     * (nnueComplexity + abs(material - nnue)) / 16384;
 
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
        + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
