@@ -138,8 +138,8 @@ namespace Eval {
 
 /// simple_eval() returns a static, purely materialistic evaluation of
 /// the position from the point of view of the given color. It can be
-/// divided by PawnValue to get an approximation of the material on
-/// the board in terms of pawns.
+/// divided by PawnValue to get an approximation of the material advantage
+/// on the board in terms of pawns.
 
 Value Eval::simple_eval(const Position& pos, Color c) {
    return  PawnValue * (pos.count<PAWN>(c)       - pos.count<PAWN>(~c))
