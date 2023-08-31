@@ -159,7 +159,7 @@ Value Eval::evaluate(const Position& pos) {
   int shuffling  = pos.rule50_count();
   int simpleEval = simple_eval(pos, stm) + (int(pos.key() & 127) - 64);
 
-  if (   abs(simpleEval) >=   RookValue
+  if (   abs(simpleEval) >=   2 * RookValue
                             + 16 * shuffling * shuffling
                             + std::abs(pos.this_thread()->bestValue)
       && (pos.this_thread()->nodes & 15) != 0)
