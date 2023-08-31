@@ -159,7 +159,7 @@ Value Eval::evaluate(const Position& pos) {
   int shuffling  = pos.rule50_count();
   int simpleEval = simple_eval(pos, stm) + (int(pos.key() & 127) - 64);
 
-  if (   abs(simpleEval) >= BishopValue + 16 * shuffling * shuffling
+  if (   abs(simpleEval) >= 2 * PawnValue + 16 * shuffling * shuffling
       && (pos.this_thread()->nodes & 15) != 0)
       v = Value(simpleEval);
   else
