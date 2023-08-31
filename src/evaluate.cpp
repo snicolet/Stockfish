@@ -157,7 +157,7 @@ Value Eval::evaluate(const Position& pos) {
   Value v;
   Color stm      = pos.side_to_move();
   int shuffling  = pos.rule50_count();
-  int simpleEval = simple_eval(pos, stm);
+  int simpleEval = simple_eval(pos, stm) + (int(pos.key() & 127) - 64);
 
 
   if (abs(simpleEval) >= QueenValue + 16 * shuffling * shuffling)
