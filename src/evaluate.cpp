@@ -161,8 +161,7 @@ Value Eval::evaluate(const Position& pos) {
 
   if (   abs(simpleEval) >=   QueenValue
                             + 16 * shuffling * shuffling
-                            + std::abs(pos.this_thread()->bestValue)
-      && (pos.this_thread()->nodes & 15) != 0)
+                            + abs(pos.this_thread()->bestValue))
   {
       v = Value(simpleEval);
   }
