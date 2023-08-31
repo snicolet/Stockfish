@@ -157,14 +157,15 @@ Value Eval::evaluate(const Position& pos) {
   Value v;
   Color stm      = pos.side_to_move();
   int shuffling  = pos.rule50_count();
-  int simpleEval = simple_eval(pos, stm) + (int(pos.key() & 127) - 64);
+  int simpleEval = simple_eval(pos, stm) + (int(pos.key() & 7) - 3);
 
-  if (   abs(simpleEval) >=   QueenValue
-                            + 16 * shuffling * shuffling
-                            + abs(pos.this_thread()->bestValue))
-  {
+  bool lazy = abs(simpleEval) >=   RookValue
+                                 + 16 * shuffling * shuffling
+                                 + abs(pos.this_thread()->bestValue);
+  //dbg_mean_of(lazy);
+
+  if (lazy)
       v = Value(simpleEval);
-  }
   else
   {
       int nnueComplexity;
