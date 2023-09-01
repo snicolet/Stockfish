@@ -169,12 +169,13 @@ Value Eval::evaluate(const Position& pos) {
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
   
   // Evaluation grain
-  if (abs(v) > 100)
-     v = (v / 4) * 4;
   if (abs(v) > 300)
+     v = (v / 4) * 4;
+  if (abs(v) > 600)
      v = (v / 8) * 8;
-  if (abs(v) > 500)
+  if (abs(v) > 1000)
      v = (v / 16) * 16;
+  v += (int(pos.key() & 3) - 1);
 
   return v;
 }
