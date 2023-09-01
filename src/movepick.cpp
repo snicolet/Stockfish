@@ -111,7 +111,7 @@ void MovePicker::score() {
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
   [[maybe_unused]] Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook, threatenedPieces;
-  if constexpr (Type == QUIETS)
+  if constexpr (Type == QUIETS || Type == CAPTURES)
   {
       Color us = pos.side_to_move();
 
@@ -126,24 +126,18 @@ void MovePicker::score() {
   }
 
   for (auto& m : *this)
-      if constexpr (Type == CAPTURES)
-          m.value =  (7 * int(PieceValue[pos.piece_on(to_sq(m))])
-                   + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]) / 16;
 
-      else if constexpr (Type == QUIETS)
+      if constexpr (Type == QUIETS || Type == CAPTURES)
       {
           Piece     pc   = pos.moved_piece(m);
           PieceType pt   = type_of(pos.moved_piece(m));
           Square    from = from_sq(m);
           Square    to   = to_sq(m);
 
-          // histories
-          m.value =  2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
-          m.value += 2 * (*continuationHistory[0])[pc][to];
-          m.value +=     (*continuationHistory[1])[pc][to];
-          m.value +=     (*continuationHistory[3])[pc][to];
-          m.value +=     (*continuationHistory[5])[pc][to];
+          m.value = 0;
 
+          if constexpr (Type == QUIETS)
+          {
           // bonus for checks
           m.value += bool(pos.check_squares(pt) & to) * 16384;
 
@@ -154,9 +148,43 @@ void MovePicker::score() {
                       :                !(to & threatenedByPawn)  ? 15000
                       :                                            0 )
                       :                                            0 ;
+          }
 
-          // malus for putting piece en prise
-          m.value -= !(threatenedPieces & from) ?
+          if constexpr (Type == CAPTURES)
+          {
+               // bonus for most valuable victim, and capture histories
+               m.value +=  4 * (  7 * int(PieceValue[pos.piece_on(to)])
+                                + (*captureHistory)[pc][to][type_of(pos.piece_on(to))]);
+          
+          
+              
+              // m.value += 4 * (7 * int(PieceValue[pos.piece_on(to)])
+              //              + (*captureHistory)[pc][to][type_of(pos.piece_on(to))]);
+              
+              
+            
+              // int x = 4 * (7 * int(PieceValue[pos.piece_on(to)])
+              //             + (*captureHistory)[pc][to][type_of(pos.piece_on(to))]);
+              // dbg_mean_of(abs(x), 0);
+          }
+          else if constexpr (Type == QUIETS)
+          {
+              // quiet histories
+              m.value += 2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
+              m.value += 2 * (*continuationHistory[0])[pc][to];
+              m.value +=     (*continuationHistory[1])[pc][to];
+              m.value +=     (*continuationHistory[3])[pc][to];
+              m.value +=     (*continuationHistory[5])[pc][to];
+              
+              // int y = 2 * (*mainHistory)[pos.side_to_move()][from_to(m)]
+              //       + 2 * (*continuationHistory[0])[pc][to]
+              //       +     (*continuationHistory[1])[pc][to]
+              //       +     (*continuationHistory[3])[pc][to]
+              //       +     (*continuationHistory[5])[pc][to];
+              // dbg_mean_of(abs(y), 1);
+              
+              // malus for putting piece en prise
+              m.value -= !(threatenedPieces & from) ?
                         (pt == QUEEN ?   bool(to & threatenedByRook)  * 50000
                                        + bool(to & threatenedByMinor) * 10000
                                        + bool(to & threatenedByPawn)  * 20000
@@ -165,6 +193,7 @@ void MovePicker::score() {
                        : pt != PAWN ?    bool(to & threatenedByPawn)  * 15000
                        :                                                0 )
                        :                                                0 ;
+          }
       }
 
       else // Type == EVASIONS
@@ -225,7 +254,7 @@ top:
 
   case GOOD_CAPTURE:
       if (select<Next>([&](){
-                       return pos.see_ge(*cur, Value(-cur->value)) ?
+                       return pos.see_ge(*cur, Value(-cur->value / 64)) ?
                               // Move losing capture to endBadCaptures to be tried later
                               true : (*endBadCaptures++ = *cur, false); }))
           return *(cur - 1);
