@@ -159,10 +159,13 @@ Value Eval::evaluate(const Position& pos) {
   int shuffling  = pos.rule50_count();
   int simpleEval = simple_eval(pos, stm) + (int(pos.key() & 7) - 3);
 
-  bool lazy = abs(simpleEval) >=   RookValue + KnightValue
+  bool lazy = abs(simpleEval) >=   RookValue + BishopValue
                                  + 16 * shuffling * shuffling
                                  + abs(pos.this_thread()->bestValue);
-  // dbg_mean_of(lazy);
+
+  dbg_mean_of(lazy, 0);
+  lazy = lazy && ((pos.this_thread()->nodes & 15) != 0);
+  dbg_mean_of(lazy, 1);
 
   if (lazy)
       v = Value(simpleEval);
