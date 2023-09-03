@@ -157,9 +157,9 @@ Value Eval::evaluate(const Position& pos) {
   Value v;
   Color stm      = pos.side_to_move();
   int shuffling  = pos.rule50_count();
-  int simpleEval = simple_eval(pos, stm) + (int(pos.key() & 127) - 63);
+  int simpleEval = simple_eval(pos, stm) + (int(pos.key() & 127) - 64);
 
-  bool lazy = abs(simpleEval) >=   RookValue + KnightValue
+  bool lazy = abs(simpleEval) >=   RookValue + BishopValue
                                  + 16 * shuffling * shuffling
                                  + abs(pos.this_thread()->bestValue)
                                  + abs(pos.this_thread()->rootSimpleEval);
