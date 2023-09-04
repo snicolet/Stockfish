@@ -189,8 +189,7 @@ void MovePicker::score() {
 
           if constexpr (Type == CAPTURES)
              m.value =   captureBonus
-                       + std::max(continuationBonus, 0) / 64
-                       + std::max(mainHistoryBonus , 0) / 64
+                       + checkBonus / 256
                        + escapeBonus / 256;
                        
            // dbg_mean_of(quietBonus                     , 0);
