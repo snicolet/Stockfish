@@ -137,54 +137,65 @@ void MovePicker::score() {
           Square    from = from_sq(m);
           Square    to   = to_sq(m);
 
-          int quietValue   = 0;
-          int captureValue = 0;
+          int quietBonus   = 0;
+          int captureBonus = 0;
 
           // bonus for checks
-          quietValue += bool(pos.check_squares(pt) & to) * 16384;
+          int checkBonus = bool(pos.check_squares(pt) & to) * 16384;
 
           // bonus for escaping from capture
-          quietValue += threatenedPieces & from ?
-                       (pt == QUEEN && !(to & threatenedByRook)  ? 50000
-                      : pt == ROOK  && !(to & threatenedByMinor) ? 25000
-                      :                !(to & threatenedByPawn)  ? 15000
-                      :                                            0 )
-                      :                                            0 ;
+          int escapeBonus = threatenedPieces & from ?
+                              (pt == QUEEN && !(to & threatenedByRook)  ? 50000
+                             : pt == ROOK  && !(to & threatenedByMinor) ? 25000
+                             :                !(to & threatenedByPawn)  ? 15000
+                             :                                            0 )
+                             :                                            0 ;
 
           // bonus for most valuable victim, and capture histories
           if constexpr (Type == CAPTURES)
           {
-          captureValue += 4 * (7 * int(PieceValue[pos.piece_on(to)])
-                                 + (*captureHistory)[pc][to][type_of(pos.piece_on(to))]);
+              captureBonus  = 4 * (7 * int(PieceValue[pos.piece_on(to)])
+                                     + (*captureHistory)[pc][to][type_of(pos.piece_on(to))]);
           }
 
-          // quiet histories
-          quietValue += 2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
-          quietValue += 2 * (*continuationHistory[0])[pc][to];
-          quietValue +=     (*continuationHistory[1])[pc][to];
-          quietValue +=     (*continuationHistory[3])[pc][to];
-          quietValue +=     (*continuationHistory[5])[pc][to];
+          // quiet history (for quiet moves)
+          int mainHistoryBonus = 2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
+          
+          // continuation history
+          int continuationBonus =   2 * (*continuationHistory[0])[pc][to]
+                                  +     (*continuationHistory[1])[pc][to]
+                                  +     (*continuationHistory[3])[pc][to]
+                                  +     (*continuationHistory[5])[pc][to];
 
           // malus for putting piece en prise
-          quietValue -= !(threatenedPieces & from) ?
-                        (pt == QUEEN ?   bool(to & threatenedByRook)  * 50000
-                                       + bool(to & threatenedByMinor) * 10000
-                                       + bool(to & threatenedByPawn)  * 20000
-                       : pt == ROOK  ?   bool(to & threatenedByMinor) * 25000
-                                       + bool(to & threatenedByPawn)  * 10000
-                       : pt != PAWN ?    bool(to & threatenedByPawn)  * 15000
-                       :                                                0 )
-                       :                                                0 ;
+          int enPriseBonus = !(threatenedPieces & from) ?
+                                (pt == QUEEN ?   bool(to & threatenedByRook)  * 50000
+                                               + bool(to & threatenedByMinor) * 10000
+                                               + bool(to & threatenedByPawn)  * 20000
+                               : pt == ROOK  ?   bool(to & threatenedByMinor) * 25000
+                                               + bool(to & threatenedByPawn)  * 10000
+                               : pt != PAWN ?    bool(to & threatenedByPawn)  * 15000
+                               :                                                0 )
+                               :                                                0 ;
+                       
+          quietBonus =   checkBonus
+                       + escapeBonus
+                       + mainHistoryBonus
+                       + continuationBonus
+                       - enPriseBonus;
           
           if constexpr (Type == QUIETS)
-             m.value = quietValue;
+             m.value = quietBonus;
 
           if constexpr (Type == CAPTURES)
-             m.value =   captureValue 
-                       + quietValue / 256;
+             m.value = captureBonus;
                        
-          // dbg_mean_of(quietValue                     , 0);
-          // dbg_mean_of(captureValue                   , 1);
+           dbg_mean_of(quietBonus                     , 0);
+           dbg_mean_of(captureBonus                   , 1);
+           dbg_mean_of(mainHistoryBonus               , 2);
+           dbg_mean_of(continuationBonus              , 3);
+           dbg_mean_of(escapeBonus                    , 4);
+           dbg_mean_of(-enPriseBonus                  , 5);
           
       }
 
