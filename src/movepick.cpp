@@ -181,7 +181,7 @@ void MovePicker::score() {
 
           if constexpr (Type == CAPTURES)
              m.value =   captureValue 
-                       + quietValue / 32;
+                       + quietValue / 256;
                        
           // dbg_mean_of(quietValue                     , 0);
           // dbg_mean_of(captureValue                   , 1);
