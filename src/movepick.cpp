@@ -188,15 +188,19 @@ void MovePicker::score() {
              m.value = quietBonus;
 
           if constexpr (Type == CAPTURES)
-             m.value = captureBonus;
+             m.value =   captureBonus
+                       + std::max(continuationBonus, 0) / 8
+                       + std::max(mainHistoryBonus , 0) / 8;
                        
-           dbg_mean_of(quietBonus                     , 0);
-           dbg_mean_of(captureBonus                   , 1);
-           dbg_mean_of(mainHistoryBonus               , 2);
-           dbg_mean_of(continuationBonus              , 3);
-           dbg_mean_of(escapeBonus                    , 4);
-           dbg_mean_of(-enPriseBonus                  , 5);
-          
+           // dbg_mean_of(quietBonus                     , 0);
+           // dbg_mean_of(captureBonus                   , 1);
+           // dbg_mean_of(mainHistoryBonus               , 2);
+           // dbg_mean_of(continuationBonus              , 3);
+           // dbg_mean_of(escapeBonus                    , 4);
+           // dbg_mean_of(-enPriseBonus                  , 5);
+
+           // dbg_mean_of(std::max(continuationBonus, 0) , 6);
+           // dbg_mean_of(std::max(mainHistoryBonus , 0) , 7);
       }
 
       else // Type == EVASIONS
