@@ -24,6 +24,7 @@
 #include <utility>
 
 #include "bitboard.h"
+#include "misc.h"
 #include "position.h"
 
 namespace Stockfish {
@@ -90,10 +91,12 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
             && pos.pseudo_legal(ttm));
 }
 
-/// MovePicker constructor for ProbCut: we generate captures with SEE greater
-/// than or equal to the given threshold.
-MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePieceToHistory* cph)
-           : pos(p), captureHistory(cph), ttMove(ttm), threshold(th)
+/// MovePicker constructor for ProbCut
+/// We generate captures with SEE greater than or equal to the given threshold.
+MovePicker::MovePicker(const Position& p, Move ttm, Value th, const ButterflyHistory* mh,
+                                                              const CapturePieceToHistory* cph,
+                                                              const PieceToHistory** ch)
+           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), threshold(th)
 {
   assert(!pos.checkers());
 
@@ -134,57 +137,36 @@ void MovePicker::score() {
           Square    from = from_sq(m);
           Square    to   = to_sq(m);
 
-          m.value = 0;
+          int quietValue   = 0;
+          int captureValue = 0;
 
-          if constexpr (Type == QUIETS)
-          {
           // bonus for checks
-          m.value += bool(pos.check_squares(pt) & to) * 16384;
+          quietValue += bool(pos.check_squares(pt) & to) * 16384;
 
           // bonus for escaping from capture
-          m.value += threatenedPieces & from ?
+          quietValue += threatenedPieces & from ?
                        (pt == QUEEN && !(to & threatenedByRook)  ? 50000
                       : pt == ROOK  && !(to & threatenedByMinor) ? 25000
                       :                !(to & threatenedByPawn)  ? 15000
                       :                                            0 )
                       :                                            0 ;
-          }
 
+          // bonus for most valuable victim, and capture histories
           if constexpr (Type == CAPTURES)
           {
-               // bonus for most valuable victim, and capture histories
-               m.value +=  4 * (  7 * int(PieceValue[pos.piece_on(to)])
-                                + (*captureHistory)[pc][to][type_of(pos.piece_on(to))]);
-          
-          
-              
-              // m.value += 4 * (7 * int(PieceValue[pos.piece_on(to)])
-              //              + (*captureHistory)[pc][to][type_of(pos.piece_on(to))]);
-              
-              
-            
-              // int x = 4 * (7 * int(PieceValue[pos.piece_on(to)])
-              //             + (*captureHistory)[pc][to][type_of(pos.piece_on(to))]);
-              // dbg_mean_of(abs(x), 0);
+          captureValue += 4 * (7 * int(PieceValue[pos.piece_on(to)])
+                                 + (*captureHistory)[pc][to][type_of(pos.piece_on(to))]);
           }
-          else if constexpr (Type == QUIETS)
-          {
-              // quiet histories
-              m.value += 2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
-              m.value += 2 * (*continuationHistory[0])[pc][to];
-              m.value +=     (*continuationHistory[1])[pc][to];
-              m.value +=     (*continuationHistory[3])[pc][to];
-              m.value +=     (*continuationHistory[5])[pc][to];
-              
-              // int y = 2 * (*mainHistory)[pos.side_to_move()][from_to(m)]
-              //       + 2 * (*continuationHistory[0])[pc][to]
-              //       +     (*continuationHistory[1])[pc][to]
-              //       +     (*continuationHistory[3])[pc][to]
-              //       +     (*continuationHistory[5])[pc][to];
-              // dbg_mean_of(abs(y), 1);
-              
-              // malus for putting piece en prise
-              m.value -= !(threatenedPieces & from) ?
+
+          // quiet histories
+          quietValue += 2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
+          quietValue += 2 * (*continuationHistory[0])[pc][to];
+          quietValue +=     (*continuationHistory[1])[pc][to];
+          quietValue +=     (*continuationHistory[3])[pc][to];
+          quietValue +=     (*continuationHistory[5])[pc][to];
+
+          // malus for putting piece en prise
+          quietValue -= !(threatenedPieces & from) ?
                         (pt == QUEEN ?   bool(to & threatenedByRook)  * 50000
                                        + bool(to & threatenedByMinor) * 10000
                                        + bool(to & threatenedByPawn)  * 20000
@@ -193,7 +175,17 @@ void MovePicker::score() {
                        : pt != PAWN ?    bool(to & threatenedByPawn)  * 15000
                        :                                                0 )
                        :                                                0 ;
-          }
+          
+          if constexpr (Type == QUIETS)
+             m.value = quietValue;
+
+          if constexpr (Type == CAPTURES)
+             m.value =   captureValue 
+                       + quietValue / 64;
+                       
+          // dbg_mean_of(quietValue                     , 0);
+          // dbg_mean_of(captureValue                   , 1);
+          
       }
 
       else // Type == EVASIONS

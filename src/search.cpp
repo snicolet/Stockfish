@@ -862,8 +862,14 @@ namespace {
              && ttValue < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE);
+        
+        const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
+                                              nullptr                   , (ss-4)->continuationHistory,
+                                              nullptr                   , (ss-6)->continuationHistory };
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &thisThread->mainHistory,
+                                                                 &captureHistory,
+                                                                 contHist);
 
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
