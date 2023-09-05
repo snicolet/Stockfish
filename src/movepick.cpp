@@ -155,7 +155,7 @@ void MovePicker::score() {
                                     +    (*continuationHistory[1])[pc][to]
                                     +    (*continuationHistory[3])[pc][to]
                                     +    (*continuationHistory[5])[pc][to];
-          int safeBonus           = 8192 * !!(safe & to);
+          int safeBonus           = 32768 * !!(safe & to);
           int escapeBonus         =  threatenedPieces & from ?
                                       (pt == QUEEN && !(to & threatenedByRook)  ? 50000
                                      : pt == ROOK  && !(to & threatenedByMinor) ? 25000
