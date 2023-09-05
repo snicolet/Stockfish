@@ -132,65 +132,46 @@ void MovePicker::score() {
 
       if constexpr (Type == QUIETS || Type == CAPTURES)
       {
-          Piece     pc   = pos.moved_piece(m);
-          PieceType pt   = type_of(pos.moved_piece(m));
-          Square    from = from_sq(m);
-          Square    to   = to_sq(m);
+          Piece     pc       = pos.moved_piece(m);
+          PieceType pt       = type_of(pos.moved_piece(m));
+          Square    from     = from_sq(m);
+          Square    to       = to_sq(m);
+          Piece     captured = pos.piece_on(to);
 
-          int quietBonus   = 0;
-          int captureBonus = 0;
+          int checkBonus          = bool(pos.check_squares(pt) & to) * 16384;
+          int victimBonus         = 24 * int(PieceValue[captured]);
+          int captureHistoryBonus =  4 * (*captureHistory)[pc][to][type_of(captured)];
+          int mainHistoryBonus    =  2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
+          int continuationBonus   =  2 * (*continuationHistory[0])[pc][to]
+                                    +    (*continuationHistory[1])[pc][to]
+                                    +    (*continuationHistory[3])[pc][to]
+                                    +    (*continuationHistory[5])[pc][to];
+          int escapeBonus         =  threatenedPieces & from ?
+                                      (pt == QUEEN && !(to & threatenedByRook)  ? 50000
+                                     : pt == ROOK  && !(to & threatenedByMinor) ? 25000
+                                     :                !(to & threatenedByPawn)  ? 15000
+                                     :                                            0 )
+                                     :                                            0 ;
+          int enPriseBonus        =  !(threatenedPieces & from) ?
+                                       (pt == QUEEN ?   bool(to & threatenedByRook)  * 50000
+                                                      + bool(to & threatenedByMinor) * 10000
+                                                      + bool(to & threatenedByPawn)  * 20000
+                                      : pt == ROOK  ?   bool(to & threatenedByMinor) * 25000
+                                                      + bool(to & threatenedByPawn)  * 10000
+                                      : pt != PAWN ?    bool(to & threatenedByPawn)  * 15000
+                                      :                                                0 )
+                                      :                                                0 ;
 
-          // bonus for checks
-          int checkBonus = bool(pos.check_squares(pt) & to) * 16384;
-
-          // bonus for escaping from capture
-          int escapeBonus = threatenedPieces & from ?
-                              (pt == QUEEN && !(to & threatenedByRook)  ? 50000
-                             : pt == ROOK  && !(to & threatenedByMinor) ? 25000
-                             :                !(to & threatenedByPawn)  ? 15000
-                             :                                            0 )
-                             :                                            0 ;
-
-          // bonus for most valuable victim, and capture histories
-          if constexpr (Type == CAPTURES)
-          {
-              captureBonus  = 4 * (7 * int(PieceValue[pos.piece_on(to)])
-                                     + (*captureHistory)[pc][to][type_of(pos.piece_on(to))]);
-          }
-
-          // quiet history (for quiet moves)
-          int mainHistoryBonus = 2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
-          
-          // continuation history
-          int continuationBonus =   2 * (*continuationHistory[0])[pc][to]
-                                  +     (*continuationHistory[1])[pc][to]
-                                  +     (*continuationHistory[3])[pc][to]
-                                  +     (*continuationHistory[5])[pc][to];
-
-          // malus for putting piece en prise
-          int enPriseBonus = !(threatenedPieces & from) ?
-                                (pt == QUEEN ?   bool(to & threatenedByRook)  * 50000
-                                               + bool(to & threatenedByMinor) * 10000
-                                               + bool(to & threatenedByPawn)  * 20000
-                               : pt == ROOK  ?   bool(to & threatenedByMinor) * 25000
-                                               + bool(to & threatenedByPawn)  * 10000
-                               : pt != PAWN ?    bool(to & threatenedByPawn)  * 15000
-                               :                                                0 )
-                               :                                                0 ;
-                       
-          quietBonus =   checkBonus
+          if constexpr (Type == QUIETS)
+             m.value =   checkBonus
                        + escapeBonus
                        + mainHistoryBonus
                        + continuationBonus
                        - enPriseBonus;
-          
-          if constexpr (Type == QUIETS)
-             m.value = quietBonus;
 
           if constexpr (Type == CAPTURES)
-             m.value =   captureBonus
-                       + checkBonus / 256
-                       + escapeBonus / 256;
+             m.value =   victimBonus
+                       + captureHistoryBonus;
                        
            // dbg_mean_of(quietBonus                     , 0);
            // dbg_mean_of(captureBonus                   , 1);

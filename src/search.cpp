@@ -1731,7 +1731,8 @@ moves_loop: // When in check, search starts here
     {
         // Increase stats for the best move in case it was a capture move
         captured = type_of(pos.piece_on(to_sq(bestMove)));
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << quietMoveBonus;
+        if (captured)
+            captureHistory[moved_piece][to_sq(bestMove)][captured] << quietMoveBonus;
     }
 
     // Extra penalty for a quiet early move that was not a TT move or
@@ -1746,7 +1747,8 @@ moves_loop: // When in check, search starts here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -quietMoveBonus;
+        if (captured)
+            captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -quietMoveBonus;
     }
   }
 
