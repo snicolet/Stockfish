@@ -165,7 +165,6 @@ void MovePicker::score() {
 
           if constexpr (Type == QUIETS)
              m.value =   checkBonus
-                       - movedBonus
                        + escapeBonus
                        + mainHistoryBonus
                        + continuationBonus
@@ -174,6 +173,7 @@ void MovePicker::score() {
           if constexpr (Type == CAPTURES)
           {
              m.value =   victimBonus
+                       - movedBonus
                        + captureHistoryBonus
                        ;
           }
