@@ -160,7 +160,7 @@ Value Eval::evaluate(const Position& pos) {
   int simpleEval = simple_eval(pos, stm) + (int(pos.key() & 7) - 3);
 
   bool lazy = abs(simpleEval) >=   RookValue + 2 * PawnValue
-                                 + PawnValue * (shuffling < 2)
+                                 + 2 * PawnValue * (shuffling < 2)
                                  + 16 * shuffling * shuffling
                                  + abs(pos.this_thread()->bestValue)
                                  + abs(pos.this_thread()->rootSimpleEval);
