@@ -114,10 +114,11 @@ void MovePicker::score() {
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
   [[maybe_unused]] Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook, threatenedPieces;
+  [[maybe_unused]] Bitboard safe;
+  [[maybe_unused]] Color us = pos.side_to_move();
+
   if constexpr (Type == QUIETS || Type == CAPTURES)
   {
-      Color us = pos.side_to_move();
-
       threatenedByPawn  = pos.attacks_by<PAWN>(~us);
       threatenedByMinor = pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
       threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
@@ -126,6 +127,13 @@ void MovePicker::score() {
       threatenedPieces = (pos.pieces(us, QUEEN) & threatenedByRook)
                        | (pos.pieces(us, ROOK)  & threatenedByMinor)
                        | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
+    
+      // Their unprotected squares
+      safe =      ~threatenedByPawn
+                & ~threatenedByMinor
+                & ~threatenedByRook
+                & ~pos.attacks_by<QUEEN>(~us)
+                & ~pos.attacks_by<KING>(~us);
   }
 
   for (auto& m : *this)
@@ -139,7 +147,7 @@ void MovePicker::score() {
           Piece     captured = pos.piece_on(to);
 
           int checkBonus          = bool(pos.check_squares(pt) & to) * 16384;
-          int movedBonus          =      int(PieceValue[pc]);
+          // int movedBonus          =      int(PieceValue[pc]);
           int victimBonus         = 28 * int(PieceValue[captured]);
           int captureHistoryBonus =  4 * (*captureHistory)[pc][to][type_of(captured)];
           int mainHistoryBonus    =  2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
@@ -147,6 +155,7 @@ void MovePicker::score() {
                                     +    (*continuationHistory[1])[pc][to]
                                     +    (*continuationHistory[3])[pc][to]
                                     +    (*continuationHistory[5])[pc][to];
+          int safeBonus           = 1024 * !!(safe & to);
           int escapeBonus         =  threatenedPieces & from ?
                                       (pt == QUEEN && !(to & threatenedByRook)  ? 50000
                                      : pt == ROOK  && !(to & threatenedByMinor) ? 25000
@@ -165,6 +174,7 @@ void MovePicker::score() {
 
           if constexpr (Type == QUIETS)
              m.value =   checkBonus
+                       + safeBonus
                        + escapeBonus
                        + mainHistoryBonus
                        + continuationBonus
@@ -173,7 +183,6 @@ void MovePicker::score() {
           if constexpr (Type == CAPTURES)
           {
              m.value =   victimBonus
-                       - movedBonus
                        + captureHistoryBonus
                        ;
           }
