@@ -139,7 +139,7 @@ void MovePicker::score() {
           Piece     captured = pos.piece_on(to);
 
           int checkBonus          = bool(pos.check_squares(pt) & to) * 16384;
-          int victimBonus         = 24 * int(PieceValue[captured]);
+          int victimBonus         = 32 * int(PieceValue[captured]);
           int captureHistoryBonus =  4 * (*captureHistory)[pc][to][type_of(captured)];
           int mainHistoryBonus    =  2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
           int continuationBonus   =  2 * (*continuationHistory[0])[pc][to]
@@ -172,14 +172,13 @@ void MovePicker::score() {
           if constexpr (Type == CAPTURES)
              m.value =   victimBonus
                        + captureHistoryBonus;
-                       
+
            // dbg_mean_of(quietBonus                     , 0);
            // dbg_mean_of(captureBonus                   , 1);
            // dbg_mean_of(mainHistoryBonus               , 2);
            // dbg_mean_of(continuationBonus              , 3);
            // dbg_mean_of(escapeBonus                    , 4);
            // dbg_mean_of(-enPriseBonus                  , 5);
-
            // dbg_mean_of(std::max(continuationBonus, 0) , 6);
            // dbg_mean_of(std::max(mainHistoryBonus , 0) , 7);
       }
