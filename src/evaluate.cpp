@@ -162,8 +162,8 @@ Value Eval::evaluate(const Position& pos) {
   bool lazy = abs(simpleEval) >=   RookValue + 2 * PawnValue
                                  + 2 * PawnValue * (shuffling < 2)
                                  + 16 * shuffling * shuffling
-                                 + abs(pos.this_thread()->bestValue)
-                                 + abs(pos.this_thread()->rootSimpleEval);
+                                 + std::max(abs(pos.this_thread()->bestValue),
+                                            abs(pos.this_thread()->rootSimpleEval));
 
 // dbg_mean_of(lazy);
   if (lazy)
