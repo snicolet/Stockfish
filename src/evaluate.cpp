@@ -164,7 +164,7 @@ Value Eval::evaluate(const Position& pos) {
 
   if (lazy)
       v =   Value(simpleEval)
-          + Value(int(pos.key() & 7) - 3);
+          + Value(int(pos.key() & 15) - 7);
   else
   {
       int nnueComplexity;
