@@ -1060,7 +1060,6 @@ bool Position::see_ge(Move m, Bitboard& occupied, Value threshold) {
       return true;
 
   assert(color_of(piece_on(from)) == sideToMove);
-  occupied = pieces() ^ from ^ to; // xoring to is important for pinned piece logic
   Color stm = sideToMove;
   
   // Discovered checks are difficult to handle in SEE
@@ -1078,7 +1077,7 @@ bool Position::see_ge(Move m, Bitboard& occupied, Value threshold) {
           return true;
   }
   
-  
+  occupied = pieces() ^ from ^ to; // xoring to is important for pinned piece logic
   Bitboard attackers = attackers_to(to, occupied);
   Bitboard stmAttackers, bb;
   int res = 1;
