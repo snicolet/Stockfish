@@ -1062,7 +1062,11 @@ bool Position::see_ge(Move m, Bitboard& occupied, Value threshold) {
   assert(color_of(piece_on(from)) == sideToMove);
   Color stm = sideToMove;
   
-  // Discovered checks are difficult to handle in SEE
+  // Discovered checks are difficult to handle in a Static Exchange Evaluator.
+  // In the following implementation (1) we assume that all double checks will
+  // pass SEE (whatever the threshold) and (2) we also change the "to" square
+  // of the SSE main loop to the square of the checking piece, because this is
+  // the square where the exchanges are most likely to take place.
   if (discovered_check(m))
   {
       StateInfo newSt;

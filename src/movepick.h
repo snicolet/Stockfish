@@ -122,16 +122,24 @@ class MovePicker {
 public:
   MovePicker(const MovePicker&) = delete;
   MovePicker& operator=(const MovePicker&) = delete;
+
+  /// constructor for the main search
   MovePicker(Position&, Move, Depth, const ButterflyHistory*,
-                                           const CapturePieceToHistory*,
-                                           const PieceToHistory**,
-                                           Move,
-                                           const Move*);
+                                     const CapturePieceToHistory*,
+                                     const PieceToHistory**,
+                                     Move,
+                                     const Move*);
+  
+  // constructor for quiescence search
   MovePicker(Position&, Move, Depth, const ButterflyHistory*,
-                                           const CapturePieceToHistory*,
-                                           const PieceToHistory**,
-                                           Square);
+                                     const CapturePieceToHistory*,
+                                     const PieceToHistory**,
+                                     Square);
+
+  // constructor for ProbCut
   MovePicker(Position&, Move, Value, const CapturePieceToHistory*);
+
+  // generating next move for the outer world
   Move next_move(bool skipQuiets = false);
 
 private:
