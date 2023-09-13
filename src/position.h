@@ -125,6 +125,7 @@ public:
   bool capture(Move m) const;
   bool capture_stage(Move m) const;
   bool gives_check(Move m) const;
+  bool discovered_check(Move m) const;
   Piece moved_piece(Move m) const;
   Piece captured_piece() const;
 
@@ -353,9 +354,9 @@ inline bool Position::capture(Move m) const {
           ||  type_of(m) == EN_PASSANT;
 }
 
-// returns true if a move is generated from the capture stage
-// having also queen promotions covered, i.e. consistency with the capture stage move generation
-// is needed to avoid the generation of duplicate moves.
+// capture_stage() returns true if a move is generated from the capture stage.
+// Consistency with the capture stage move generation (i.e. having also queen
+// promotions covered), is required to avoid the generation of duplicate moves.
 inline bool Position::capture_stage(Move m) const {
   assert(is_ok(m));
   return  capture(m) || promotion_type(m) == QUEEN;
@@ -363,6 +364,11 @@ inline bool Position::capture_stage(Move m) const {
 
 inline Piece Position::captured_piece() const {
   return st->capturedPiece;
+}
+
+inline bool Position::discovered_check(Move m) const {
+  return   (discovered_check_candidates() & from_sq(m))
+        && !aligned(from_sq(m), to_sq(m), square<KING>(~sideToMove));
 }
 
 inline Thread* Position::this_thread() const {
