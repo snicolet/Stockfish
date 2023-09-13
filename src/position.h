@@ -137,8 +137,8 @@ public:
   void undo_null_move();
 
   // Static Exchange Evaluation
-  bool see_ge(Move m, Value threshold = VALUE_ZERO) const;
-  bool see_ge(Move m, Bitboard& occupied, Value threshold = VALUE_ZERO) const;
+  bool see_ge(Move m, Value threshold = VALUE_ZERO);
+  bool see_ge(Move m, Bitboard& occupied, Value threshold = VALUE_ZERO);
 
   // Accessing hash keys
   Key key() const;

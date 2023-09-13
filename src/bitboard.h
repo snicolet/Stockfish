@@ -359,6 +359,9 @@ inline Square pop_lsb(Bitboard& b) {
   return s;
 }
 
+inline Square frontmost_sq(Color c, Bitboard b) { return c == WHITE ? msb(b) : lsb(b); }
+inline Square  backmost_sq(Color c, Bitboard b) { return c == WHITE ? lsb(b) : msb(b); }
+
 } // namespace Stockfish
 
 #endif // #ifndef BITBOARD_H_INCLUDED

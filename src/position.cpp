@@ -1041,7 +1041,7 @@ Key Position::key_after(Move m) const {
 /// SEE value of move is greater or equal to the given threshold. We'll use an
 /// algorithm similar to alpha-beta pruning with a null window.
 
-bool Position::see_ge(Move m, Bitboard& occupied, Value threshold) const {
+bool Position::see_ge(Move m, Bitboard& occupied, Value threshold) {
 
   assert(is_ok(m));
 
@@ -1062,6 +1062,23 @@ bool Position::see_ge(Move m, Bitboard& occupied, Value threshold) const {
   assert(color_of(piece_on(from)) == sideToMove);
   occupied = pieces() ^ from ^ to; // xoring to is important for pinned piece logic
   Color stm = sideToMove;
+  
+  // Discovered checks are difficult to handle in SEE
+  if (discovered_check(m))
+  {
+      StateInfo newSt;
+      do_move(m, newSt, true);
+
+      bool double_check = more_than_one(checkers());
+      to = backmost_sq(stm, checkers());
+
+      undo_move(m);
+
+      if (double_check)
+          return true;
+  }
+  
+  
   Bitboard attackers = attackers_to(to, occupied);
   Bitboard stmAttackers, bb;
   int res = 1;
@@ -1142,7 +1159,7 @@ bool Position::see_ge(Move m, Bitboard& occupied, Value threshold) const {
   return bool(res);
 }
 
-bool Position::see_ge(Move m, Value threshold) const {
+bool Position::see_ge(Move m, Value threshold) {
     Bitboard occupied;
     return see_ge(m, occupied, threshold);
 }
