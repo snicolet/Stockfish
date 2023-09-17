@@ -172,8 +172,8 @@ Value Eval::evaluate(const Position& pos) {
       Value optimism = pos.this_thread()->optimism[stm];
 
       // Blend optimism and eval with nnue complexity and material imbalance
-      optimism += optimism * (nnueComplexity + abs(simpleEval - nnue)) / 512;
       nnue     -= nnue     * (nnueComplexity + abs(simpleEval - nnue)) / 32768;
+      optimism += optimism * (nnueComplexity + abs(simpleEval - nnue)) / 512;
 
       int npm = pos.non_pawn_material() / 64;
       v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
@@ -184,7 +184,7 @@ Value Eval::evaluate(const Position& pos) {
   v = v * (200 - shuffling) / 214;
 
   // Stochastic mobility
-  v += Value((pos.key() & 31) - 15);
+  v += Value((pos.key() & 15) - 7);
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
