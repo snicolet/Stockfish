@@ -132,11 +132,11 @@ void MovePicker::score() {
           Square to       = to_sq(m);
           Piece  captured = pos.piece_on(to);
 
-          m.value =  (7 * int(PieceValue[captured])
-                   + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(captured)]) / 16;
+          m.value  =  7 * int(PieceValue[captured]);
+          m.value +=  (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(captured)];
 
           if (type_of(m) == PROMOTION)
-              m.value += 3000;
+              m.value += 48000;
       }
 
       else if constexpr (Type == QUIETS)
@@ -234,7 +234,7 @@ top:
 
   case GOOD_CAPTURE:
       if (select<Next>([&](){
-                       return pos.see_ge(*cur, Value(-cur->value)) ?
+                       return pos.see_ge(*cur, Value(-cur->value) / 64) ?
                               // Move losing capture to endBadCaptures to be tried later
                               true : (*endBadCaptures++ = *cur, false); }))
           return *(cur - 1);
