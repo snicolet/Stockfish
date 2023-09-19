@@ -135,7 +135,7 @@ void MovePicker::score() {
           m.value =  (7 * int(PieceValue[captured])
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(captured)]) / 16;
 
-          if (type_of(m) == PROMOTION && pos.empty(to))
+          if (type_of(m) == PROMOTION)
               m.value += 3000;
       }
 
