@@ -132,11 +132,9 @@ void MovePicker::score() {
           Square to       = to_sq(m);
           Piece  captured = pos.piece_on(to);
 
+          // bonus for most valuable victim, and capture histories
           m.value  =  7 * int(PieceValue[captured]);
-          m.value +=  (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(captured)];
-
-          if (type_of(m) == PROMOTION)
-              m.value += 48000;
+          m.value +=  (*captureHistory)[pos.moved_piece(m)][to][type_of(captured)];
       }
 
       else if constexpr (Type == QUIETS)
