@@ -169,6 +169,13 @@ Value Eval::evaluate(const Position& pos) {
       int nnueComplexity;
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
+      // Keep tension in the position (quadratic material)
+      Value tension = pos.this_thread()->tension[stm];
+      int mat    = (pos.non_pawn_material() + PawnValue * pos.count<PAWN>(stm)) / 32;
+      int weight = std::min(100 * mat * mat / (570 * 570) , 100);
+      nnue += weight * tension / 100;
+
+
       Value optimism = pos.this_thread()->optimism[stm];
 
       // Blend optimism and eval with nnue complexity and material imbalance
@@ -177,7 +184,7 @@ Value Eval::evaluate(const Position& pos) {
 
       int npm = pos.non_pawn_material() / 64;
       v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
-           + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
+           + optimism * (154 + npm - 2 * pos.count<PAWN>())) / 1024;
   }
 
   // Damp down the evaluation linearly when shuffling
@@ -204,6 +211,8 @@ std::string Eval::trace(Position& pos) {
   pos.this_thread()->rootSimpleEval  = VALUE_ZERO;
   pos.this_thread()->optimism[WHITE] = VALUE_ZERO;
   pos.this_thread()->optimism[BLACK] = VALUE_ZERO;
+  pos.this_thread()->tension[WHITE]  = VALUE_ZERO;
+  pos.this_thread()->tension[BLACK]  = VALUE_ZERO;
 
   std::stringstream ss;
   ss << std::showpoint << std::noshowpos << std::fixed << std::setprecision(2);
