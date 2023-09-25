@@ -367,7 +367,7 @@ void Thread::search() {
           optimism[ us] = Value(opt);
           optimism[~us] = -optimism[us];
 
-          tension[ us] = Value(150);
+          tension[ us] = Value(100);
           tension[~us] = -tension[us];
 
           // Start with a small aspiration window and, in the case of a fail
