@@ -182,7 +182,7 @@ Value Eval::evaluate(const Position& pos) {
       v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
            + optimism * (154 + npm - 2 * pos.count<PAWN>())) / 1024;
 
-      v -= pos.this_thread()->tension[stm];
+      v -= pos.this_thread()->tension[stm] / 2;
   }
 
   // Damp down the evaluation linearly when shuffling
