@@ -180,7 +180,7 @@ Value Eval::evaluate(const Position& pos) {
 
       int npm = pos.non_pawn_material() / 64;
       v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
-           + optimism * (154 + npm -     pos.count<PAWN>())) / 1024;
+           + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
 
       v -= 5 * pos.this_thread()->tension[stm] / 4;
   }
