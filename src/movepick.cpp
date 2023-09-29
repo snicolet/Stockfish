@@ -127,11 +127,8 @@ void MovePicker::score() {
 
   for (auto& m : *this)
       if constexpr (Type == CAPTURES)
-      {
-          m.value =  16000 * pos.gives_check(m);
-          m.value += (7 * int(PieceValue[pos.piece_on(to_sq(m))])
+          m.value =  (7 * int(PieceValue[pos.piece_on(to_sq(m))])
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]) / 16;
-      }
 
       else if constexpr (Type == QUIETS)
       {
@@ -148,7 +145,7 @@ void MovePicker::score() {
           m.value +=     (*continuationHistory[5])[pc][to];
 
           // bonus for checks
-          m.value += bool(pos.check_squares(pt) & to) * 16384;
+          m.value += pos.gives_check(m) * 16384;
 
           // bonus for escaping from capture
           m.value += threatenedPieces & from ?
