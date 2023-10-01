@@ -171,7 +171,7 @@ Value Eval::evaluate(const Position& pos) {
 
       // We shift the nnue value a little bit before applying the second-order terms 
       // for optimism, and shift back at the end. This keeps tension in the position.
-      nnue += pos.this_thread()->tension[stm];
+      nnue += pos.this_thread()->tension[stm] * (1 - pos.count<QUEEN>());
 
       Value optimism = pos.this_thread()->optimism[stm];
 
@@ -183,7 +183,7 @@ Value Eval::evaluate(const Position& pos) {
       v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
            + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
 
-      v -= pos.this_thread()->tension[stm];
+      v -= pos.this_thread()->tension[stm] * (1 - pos.count<QUEEN>());
   }
 
   // Damp down the evaluation linearly when shuffling
