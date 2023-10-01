@@ -145,7 +145,7 @@ void MovePicker::score() {
           m.value +=     (*continuationHistory[5])[pc][to];
 
           // bonus for checks
-          m.value += pos.gives_check(m) * 8192;
+          m.value += pos.gives_check(m) * 65536;
 
           // bonus for escaping from capture
           m.value += threatenedPieces & from ?
