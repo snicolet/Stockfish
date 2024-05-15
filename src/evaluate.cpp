@@ -82,7 +82,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
         if (shuffling < 8)
            shufflingConstant += 40;
         if (shuffling > 16)
-           shufflingConstant -= 40;
+           shufflingConstant -= 4;
 
         v = v * (shufflingConstant - shuffling) / 207;
     };
