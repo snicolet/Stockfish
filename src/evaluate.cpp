@@ -78,7 +78,13 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
         // Damp down the evaluation linearly when shuffling
         int shuffling = pos.rule50_count();
-        v             = v * (shufflingConstant - shuffling) / 207;
+
+        if (shuffling < 8)
+           shufflingConstant += 20;
+        if (shuffling > 16)
+           shufflingConstant -= 40;
+
+        v = v * (shufflingConstant - shuffling) / 207;
     };
 
     if (!smallNet)
