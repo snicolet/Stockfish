@@ -80,7 +80,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
         int shuffling = pos.rule50_count();
 
         if (shuffling < 8)
-           shufflingConstant += 20;
+           shufflingConstant += 40;
         if (shuffling > 16)
            shufflingConstant -= 40;
 
