@@ -62,8 +62,13 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     bool smallNet   = use_smallnet(pos);
     int  nnueComplexity;
     int  v;
+    
+    // dbg_mean_of((pos.key() & 15) > 7);
+    
+    if (!smallNet)
+      smallNet = ((pos.key() & 15) > 7);
 
-    Value nnue = smallNet ? networks.small.evaluate(pos, &caches.small, true, &nnueComplexity)
+    Value nnue = smallNet ? networks.small.evaluate(pos, &caches.small, true, &nnueComplexity) 
                           : networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
 
     if (smallNet && nnue * simpleEval < 0)
