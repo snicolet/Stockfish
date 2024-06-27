@@ -70,8 +70,7 @@ namespace Stockfish {
 void* std_aligned_alloc(size_t alignment, size_t size) {
     // Apple requires 10.15, which is enforced in the makefile
 #if defined(_ISOC11_SOURCE) || defined(__APPLE__)
-    return malloc(size);
-    //return aligned_alloc(alignment, size);
+    return aligned_alloc(alignment, size);
 #elif defined(POSIXALIGNEDALLOC)
     void* mem;
     return posix_memalign(&mem, alignment, size) ? nullptr : mem;
