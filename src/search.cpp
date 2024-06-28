@@ -537,7 +537,7 @@ Value Search::Worker::search(
     // Check if we have an upcoming move that draws by repetition, or
     // if the opponent had an alternative move earlier to this position.
     Cycle cycle;
-    if (!rootNode && alpha < VALUE_DRAW && pos.has_game_cycle(ss->ply, cycle))
+    if (!rootNode && alpha < VALUE_DRAW && (cycle = pos.find_game_cycle(ss->ply)))
     if (alpha > VALUE_TB_LOSS_IN_MAX_PLY || cycle == UPCOMING_REPETITION)
     {
         alpha = value_draw(this->nodes);
@@ -1424,7 +1424,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
     // Check if we have an upcoming move that draws by repetition, or if
     // the opponent had an alternative move earlier to this position. (~1 Elo)
     Cycle cycle;
-    if (alpha < VALUE_DRAW && pos.has_game_cycle(ss->ply, cycle))
+    if (alpha < VALUE_DRAW && (cycle = pos.find_game_cycle(ss->ply)))
     if (alpha > VALUE_TB_LOSS_IN_MAX_PLY || cycle == UPCOMING_REPETITION)
     {
         alpha = value_draw(this->nodes);
