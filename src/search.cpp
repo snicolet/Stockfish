@@ -539,7 +539,7 @@ Value Search::Worker::search(
     if (!rootNode && alpha < VALUE_DRAW && alpha > VALUE_TB_LOSS_IN_MAX_PLY
         && pos.has_game_cycle(ss->ply))
     {
-        alpha = VALUE_DRAW;
+        alpha = std::max(value_draw(this->nodes), VALUE_DRAW);
         if (alpha >= beta)
             return alpha;
     }
@@ -1423,7 +1423,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
     // the opponent had an alternative move earlier to this position. (~1 Elo)
     if (alpha < VALUE_DRAW && alpha > VALUE_TB_LOSS_IN_MAX_PLY && pos.has_game_cycle(ss->ply))
     {
-        alpha = VALUE_DRAW;
+        alpha = std::max(value_draw(this->nodes), VALUE_DRAW);
         if (alpha >= beta)
             return alpha;
     }
