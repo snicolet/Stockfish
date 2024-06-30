@@ -85,7 +85,7 @@ int stat_bonus(Depth d) { return std::clamp(186 * d - 285, 20, 1524); }
 int stat_malus(Depth d) { return (d < 4 ? 707 * d - 260 : 2073); }
 
 // Add a small random component to draw evaluations to avoid 3-fold blindness
-Value value_draw(size_t nodes) { return VALUE_DRAW - 1 + Value(nodes & 0x2); }
+Value value_draw(size_t nodes, Key key) { return VALUE_DRAW - Value(key & 0x1) + Value(nodes & 0x1); }
 
 // Skill structure is used to implement strength limit. If we have a UCI_Elo,
 // we convert it to an appropriate skill level, anchored to the Stash engine.
@@ -536,10 +536,10 @@ Value Search::Worker::search(
 
     // Check if we have an upcoming move that draws by repetition, or
     // if the opponent had an alternative move earlier to this position.
-    if (!rootNode && alpha < value_draw(this->nodes) && alpha > VALUE_TB_LOSS_IN_MAX_PLY
+    if (!rootNode && alpha < value_draw(this->nodes, pos.key()) && alpha > VALUE_TB_LOSS_IN_MAX_PLY
         && pos.has_game_cycle(ss->ply))
     {
-        alpha = value_draw(this->nodes);
+        alpha = value_draw(this->nodes, pos.key());
         if (alpha >= beta)
             return alpha;
     }
@@ -588,7 +588,7 @@ Value Search::Worker::search(
             return (ss->ply >= MAX_PLY && !ss->inCheck)
                    ? evaluate(networks[numaAccessToken], pos, refreshTable,
                               thisThread->optimism[us])
-                   : value_draw(thisThread->nodes);
+                   : value_draw(thisThread->nodes, pos.key());
 
         // Step 3. Mate distance pruning. Even if we mate at the next move our score
         // would be at best mate_in(ss->ply + 1), but if alpha is already bigger because
@@ -1421,10 +1421,10 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
     // Check if we have an upcoming move that draws by repetition, or if
     // the opponent had an alternative move earlier to this position. (~1 Elo)
-    if (alpha < value_draw(this->nodes) && alpha > VALUE_TB_LOSS_IN_MAX_PLY 
+    if (alpha < value_draw(this->nodes, pos.key()) && alpha > VALUE_TB_LOSS_IN_MAX_PLY 
         && pos.has_game_cycle(ss->ply))
     {
-        alpha = value_draw(this->nodes);
+        alpha = value_draw(this->nodes, pos.key());
         if (alpha >= beta)
             return alpha;
     }
