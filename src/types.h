@@ -409,6 +409,13 @@ class Move {
     std::uint16_t data;
 };
 
+
+enum Cycle : int {
+    NO_CYCLE = 0,
+    UPCOMING_REPETITION,
+    NO_PROGRESS
+};
+
 }  // namespace Stockfish
 
 #endif  // #ifndef TYPES_H_INCLUDED

@@ -1156,29 +1156,22 @@ bool Position::has_repeated() const {
 }
 
 
-// Tests if the position has a move which draws by repetition.
-// This function accurately matches the outcome of is_draw() over all legal moves.
-bool Position::upcoming_repetition(int ply) const {
+// Tests if the current position has a move which draws by repetition,
+// or an earlier position has a move that directly reaches the current position.
+Cycle Position::find_game_cycle(int ply) const {
 
     int j;
-
     int end = std::min(st->rule50, st->pliesFromNull);
 
     if (end < 3)
-        return false;
+        return NO_CYCLE;
 
     Key        originalKey = st->key;
     StateInfo* stp         = st->previous;
-    Key        other       = originalKey ^ stp->key ^ Zobrist::side;
 
     for (int i = 3; i <= end; i += 2)
     {
-        stp = stp->previous;
-        other ^= stp->key ^ stp->previous->key ^ Zobrist::side;
-        stp = stp->previous;
-
-        if (other != 0)
-            continue;
+        stp = stp->previous->previous;
 
         Key moveKey = originalKey ^ stp->key;
         if ((j = H1(moveKey), cuckoo[j] == moveKey) || (j = H2(moveKey), cuckoo[j] == moveKey))
@@ -1189,19 +1182,31 @@ bool Position::upcoming_repetition(int ply) const {
 
             if (!((between_bb(s1, s2) ^ s2) & pieces()))
             {
+                Cycle cycle;
+            
+                // In the cuckoo table, both moves Rc1c5 and Rc5c1 are stored in
+                // the same location, so we have to select which square to check.
+                if (color_of(piece_on(empty(s1) ? s2 : s1)) == side_to_move())
+                    cycle = UPCOMING_REPETITION;
+                else
+                    cycle = NO_PROGRESS;
+                
                 if (ply > i)
-                    return true;
+                    return cycle;
 
                 // For nodes before or at the root, check that the move is a
                 // repetition rather than a move to the current position.
+                if (cycle == NO_PROGRESS)
+                    continue;
+
+                // For repetitions before or at the root, require one more
                 if (stp->repetition)
-                    return true;
+                    return cycle;
             }
         }
     }
-    return false;
+    return NO_CYCLE;
 }
-
 
 // Flips position with the white and black sides reversed. This
 // is only useful for debugging e.g. for finding evaluation symmetry bugs.
