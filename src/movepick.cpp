@@ -184,7 +184,7 @@ void MovePicker::score() {
             m.value += (*continuationHistory[5])[pc][to];
 
             // bonus for the killer move
-            m.value += (m == killer) * 6 * 65536;
+            m.value += (m == killer) * 8 * 65536;
 
             // bonus for checks
             m.value += bool(pos.check_squares(pt) & to) * 16384;
