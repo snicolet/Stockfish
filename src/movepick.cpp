@@ -183,7 +183,8 @@ void MovePicker::score() {
             m.value += (*continuationHistory[3])[pc][to];
             m.value += (*continuationHistory[5])[pc][to];
 
-            m.value += (m == killer) * 65536;
+            //dbg_mean_of(m == killer);
+            m.value += (m == killer) * 4 * 65536;
 
             // bonus for checks
             m.value += bool(pos.check_squares(pt) & to) * 16384;
