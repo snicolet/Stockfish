@@ -239,8 +239,6 @@ Move MovePicker::next_move(bool skipQuiets) {
 
     auto quiet_threshold = [](Depth d) { return -3560 * d; };
 
-    skipQuiets = skipQuiets && ((pos.key() & 1023) < 960);
-
 top:
     switch (stage)
     {
@@ -266,7 +264,7 @@ top:
     case GOOD_CAPTURE :
         if (select<Next>([&]() {
                 // Move losing capture to endBadCaptures to be tried later
-                return pos.see_ge(*cur, -cur->value / 18) ? true
+                return pos.see_ge(*cur, -cur->value / 18 - 300) ? true
                                                           : (*endBadCaptures++ = *cur, false);
             }))
             return *(cur - 1);
