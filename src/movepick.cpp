@@ -179,7 +179,7 @@ void MovePicker::score() {
             m.value += 2 * (*pawnHistory)[pawn_structure_index(pos)][pc][to];
             m.value += 2 * (*continuationHistory[0])[pc][to];
             m.value += (*continuationHistory[1])[pc][to];
-            m.value += (*continuationHistory[2])[pc][to];
+            m.value += (*continuationHistory[2])[pc][to] / 3;
             m.value += (*continuationHistory[3])[pc][to];
             m.value += (*continuationHistory[5])[pc][to];
 
@@ -238,6 +238,8 @@ Move MovePicker::select(Pred filter) {
 Move MovePicker::next_move(bool skipQuiets) {
 
     auto quiet_threshold = [](Depth d) { return -3560 * d; };
+
+    skipQuiets = skipQuiets && ((pos.key() & 1023) < 960);
 
 top:
     switch (stage)
