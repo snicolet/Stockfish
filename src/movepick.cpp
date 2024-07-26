@@ -146,14 +146,9 @@ void MovePicker::score() {
             m.value =
               7 * int(PieceValue[pos.piece_on(m.to_sq())])
               + (*captureHistory)[pos.moved_piece(m)][m.to_sq()][type_of(pos.piece_on(m.to_sq()))];
-            
-            
-            // if (depth <= 0)
-                // dbg_mean_of( 100 * (-m.value / 16) / PawnValue);
-                // dbg_mean_of( std::abs(m.value) );
-            
-            if (stage == QCAPTURE_INIT && depth < 0 && !pos.see_ge(m, -m.value / 18))
-               m.value -= 25000;
+
+            if (stage == QCAPTURE_INIT && depth <= 0 && !pos.see_ge(m, -100))
+               m.value -= 5000;
         }
 
         else if constexpr (Type == QUIETS)
