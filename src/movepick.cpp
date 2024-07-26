@@ -147,8 +147,8 @@ void MovePicker::score() {
               7 * int(PieceValue[pos.piece_on(m.to_sq())])
               + (*captureHistory)[pos.moved_piece(m)][m.to_sq()][type_of(pos.piece_on(m.to_sq()))];
 
-            if (stage == QCAPTURE_INIT && depth < 0 && !pos.see_ge(m, -100))
-               m.value -= 5000;
+            if (stage == QCAPTURE_INIT && depth == 0 && !pos.see_ge(m, -m.value / 18))
+               m.value -= 25000;
         }
 
         else if constexpr (Type == QUIETS)
