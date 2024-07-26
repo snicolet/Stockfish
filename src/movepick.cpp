@@ -147,7 +147,7 @@ void MovePicker::score() {
               7 * int(PieceValue[pos.piece_on(m.to_sq())])
               + (*captureHistory)[pos.moved_piece(m)][m.to_sq()][type_of(pos.piece_on(m.to_sq()))];
             
-            if (depth <= 0 && !pos.see_ge(m, -m.value / 18))
+            if (depth < 0 && !pos.see_ge(m, -m.value / 18))
                m.value -= 25000;
         }
 
