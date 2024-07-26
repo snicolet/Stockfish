@@ -152,7 +152,7 @@ void MovePicker::score() {
                 // dbg_mean_of( 100 * (-m.value / 16) / PawnValue);
                 // dbg_mean_of( std::abs(m.value) );
             
-            if (stage == QCAPTURE_INIT && depth <= 0 && !pos.see_ge(m, -m.value / 18))
+            if (stage == QCAPTURE_INIT && depth < 0 && !pos.see_ge(m, -m.value / 18))
                m.value -= 25000;
         }
 
