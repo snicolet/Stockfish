@@ -162,12 +162,12 @@ class MovePicker {
     MovePicker(const Position&, Move, int, const CapturePieceToHistory*);
     MovePicker(const MovePicker&)            = delete;
     MovePicker& operator=(const MovePicker&) = delete;
-    
+
     // picker
     Move next_move(int stagesToPick);
 
    private:
-   
+
     enum PickType {
         Next,
         Best
@@ -178,7 +178,7 @@ class MovePicker {
     void     next_stage() { stage *= 2; }
     template<PickType T, typename Pred>Move select(Pred);
     template<GenType>void score();
-    
+
 
     const Position&              pos;
     const ButterflyHistory*      mainHistory;
@@ -220,7 +220,7 @@ enum Stages : int {
     QSEARCH_TT    = 8192,
     QCAPTURE_INIT = 16384,
     QCAPTURE      = 32768,
-    
+
     ALL_CAPTURES   = CAPTURE_INIT + GOOD_CAPTURE + BAD_CAPTURE ,
     ALL_QUIETS     = QUIET_INIT + GOOD_QUIET + BAD_QUIET ,
     ALL_PROBCUT    = PROBCUT_INIT + PROBCUT ,

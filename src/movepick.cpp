@@ -75,7 +75,7 @@ MovePicker::MovePicker(const Position&              p,
 
     else
         stage = (depth > 0 ? MAIN_TT : QSEARCH_TT);
-    
+
     if (!(ttm && pos.pseudo_legal(ttm)))
         next_stage();
 }
@@ -90,7 +90,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, int th, const CapturePieceTo
     assert(!pos.checkers());
 
     stage = PROBCUT_TT;
-    
+
     if (!(ttm && pos.capture_stage(ttm) && pos.pseudo_legal(ttm) && pos.see_ge(ttm, threshold)))
         next_stage();
 }
