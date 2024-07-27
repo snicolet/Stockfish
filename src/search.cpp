@@ -1543,7 +1543,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                   contHist, &thisThread->pawnHistory);
 
     // Step 5. Loop through all moves until no moves remain or a beta cutoff occurs
-    while ((move = mp.next_move(ALL_CAPTURES)) != Move::none())
+    while ((move = mp.next_move(ALL_CAPTURES - BAD_CAPTURE)) != Move::none())
     {
         assert(move.is_ok());
 
