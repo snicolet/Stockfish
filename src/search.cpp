@@ -1545,8 +1545,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
     // Step 5. Loop through all moves until no moves remain or a beta cutoff occurs
     while (true)
     {
-        int stagesToPick =  (depth == 0) ? ALL_CAPTURES
-                                         : ALL_CAPTURES - BAD_CAPTURE;
+        int stagesToPick =  (depth >= -1) ? ALL_CAPTURES
+                                          : ALL_CAPTURES - BAD_CAPTURE;
 
         move = mp.next_move(stagesToPick);
 
