@@ -971,7 +971,7 @@ moves_loop:  // When in check, search starts here
         if (!rootNode && pos.non_pawn_material(us) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
         {
             // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-            moveCountPruningPct = 8 * moveCount / futilityMoveCount;
+            moveCountPruningPct = 4 * moveCount / futilityMoveCount;
             moveCountPruningPct = std::clamp(moveCountPruningPct, 0, 128);
             // dbg_mean_of(moveCountPruningPct , moveCountPruningPct / 8);
 
