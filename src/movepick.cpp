@@ -74,7 +74,7 @@ MovePicker::MovePicker(const Position&              p,
         stage = EVASION_TT;
 
     else
-        stage = (depth > 0 ? MAIN_TT : QSEARCH_TT);
+        stage = MAIN_TT;
 
     if (!(ttm && pos.pseudo_legal(ttm)))
         next_stage();
