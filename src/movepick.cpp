@@ -29,31 +29,6 @@ namespace Stockfish {
 
 namespace {
 
-enum Stages {
-    // generate main search moves
-    MAIN_TT = 1,
-    CAPTURE_INIT = 2,
-    GOOD_CAPTURE = 4,
-    QUIET_INIT = 8,
-    GOOD_QUIET = 16,
-    BAD_CAPTURE = 32,
-    BAD_QUIET = 64,
-
-    // generate evasion moves
-    EVASION_TT = 128,
-    EVASION_INIT = 256,
-    EVASION = 512,
-
-    // generate probcut moves
-    PROBCUT_TT = 1024,
-    PROBCUT_INIT = 2048,
-    PROBCUT = 4096,
-
-    // generate qsearch moves
-    QSEARCH_TT = 8192,
-    QCAPTURE_INIT = 16384,
-    QCAPTURE = 32768
-};
 
 // Sort moves in descending order up to and including a given limit.
 // The order of moves smaller than the limit is left unspecified.
@@ -98,7 +73,7 @@ MovePicker::MovePicker(const Position&              p,
 
     else
         stage = (depth > 0 ? MAIN_TT : QSEARCH_TT);
-    
+
     if (!(ttm && pos.pseudo_legal(ttm)))
         next_stage();
 }
@@ -113,7 +88,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, int th, const CapturePieceTo
     assert(!pos.checkers());
 
     stage = PROBCUT_TT;
-    
+
     if (!(ttm && pos.capture_stage(ttm) && pos.pseudo_legal(ttm) && pos.see_ge(ttm, threshold)))
         next_stage();
 }
@@ -214,9 +189,10 @@ Move MovePicker::select(Pred filter) {
 // This is the most important method of the MovePicker class. We emit one
 // new pseudo-legal move on every call until there are no more moves left,
 // picking the move with the highest score from a list of generated moves.
-Move MovePicker::next_move(bool skipQuiets) {
+Move MovePicker::next_move(int stagesToPick) {
 
     auto quiet_threshold = [](Depth d) { return -3560 * d; };
+    auto do_this_stage = [&]() {return (stage & stagesToPick); };
 
 top:
     switch (stage)
@@ -252,7 +228,7 @@ top:
         [[fallthrough]];
 
     case QUIET_INIT :
-        if (!skipQuiets)
+        if (do_this_stage())
         {
             cur      = endBadCaptures;
             endMoves = beginBadQuiets = endBadQuiets = generate<QUIETS>(pos, cur);
@@ -265,7 +241,7 @@ top:
         [[fallthrough]];
 
     case GOOD_QUIET :
-        if (!skipQuiets && select<Next>([]() { return true; }))
+        if (do_this_stage() && select<Next>([]() { return true; }))
         {
             if ((cur - 1)->value > -7998 || (cur - 1)->value <= quiet_threshold(depth))
                 return *(cur - 1);
@@ -282,7 +258,7 @@ top:
         [[fallthrough]];
 
     case BAD_CAPTURE :
-        if (select<Next>([]() { return true; }))
+        if (do_this_stage() && select<Next>([]() { return true; }))
             return *(cur - 1);
 
         // Prepare the pointers to loop over the bad quiets
@@ -293,7 +269,7 @@ top:
         [[fallthrough]];
 
     case BAD_QUIET :
-        if (!skipQuiets)
+        if (do_this_stage())
             return select<Next>([]() { return true; });
 
         return Move::none();

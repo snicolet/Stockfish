@@ -833,7 +833,7 @@ Value Search::Worker::search(
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &thisThread->captureHistory);
         Piece      captured;
 
-        while ((move = mp.next_move()) != Move::none())
+        while ((move = mp.next_move(ALL_PROBCUT)) != Move::none())
         {
             assert(move.is_ok());
 
@@ -910,10 +910,17 @@ moves_loop:  // When in check, search starts here
     int  moveCount        = 0;
     bool moveCountPruning = false;
 
-    // Step 13. Loop through all pseudo-legal moves until no moves remain
-    // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning)) != Move::none())
+    // Step 13. Loop through all moves until no moves remain or a beta cutoff occurs
+    while (true)
     {
+        int stagesToPick = moveCountPruning ? ALL_CAPTURES 
+                                            : ALL_CAPTURES + ALL_QUIETS;
+
+        move = mp.next_move(stagesToPick);
+
+        if (move == Move::none())
+             break;
+
         assert(move.is_ok());
 
         if (move == excludedMove)
@@ -1526,7 +1533,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain or a beta
     // cutoff occurs.
-    while ((move = mp.next_move()) != Move::none())
+    while ((move = mp.next_move(ALL_QUIESCENCE)) != Move::none())
     {
         assert(move.is_ok());
 
