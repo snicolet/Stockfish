@@ -912,8 +912,7 @@ moves_loop:  // When in check, search starts here
     value = bestValue;
 
     int moveCount            = 0;
-    int futilityMoveCount    = futility_move_count(improving, depth);
-    int moveCountPruningPct  = 0;  // from 0 (no pruning) to 128 (all pruning)
+    int moveCountPruningPct  = 0;
 
     // Step 13. Loop through all moves until no moves remain or a beta cutoff occurs
     while (true)
@@ -970,11 +969,11 @@ moves_loop:  // When in check, search starts here
         // Depth conditions are important for mate finding.
         if (!rootNode && pos.non_pawn_material(us) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
         {
-            // Probability for futility-move-count pruning (0=normal to 128=pruning)
-            moveCountPruningPct = 128 * moveCount / futilityMoveCount;
+            // Degree of futility movecount pruning, range [0..128] = [normal..hard pruning]
+            moveCountPruningPct = 128 * moveCount / futility_move_count(improving, depth);
             moveCountPruningPct = std::clamp(moveCountPruningPct, 0, 128);
-            // dbg_mean_of(moveCountPruningPct , moveCountPruningPct / 8);
 
+            // dbg_mean_of(moveCountPruningPct , moveCountPruningPct / 8);
 
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r;
