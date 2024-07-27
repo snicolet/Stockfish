@@ -1543,8 +1543,16 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                   contHist, &thisThread->pawnHistory);
 
     // Step 5. Loop through all moves until no moves remain or a beta cutoff occurs
-    while ((move = mp.next_move(ALL_CAPTURES - BAD_CAPTURE)) != Move::none())
+    while (true)
     {
+        int stagesToPick =  (depth == 0) ? ALL_CAPTURES
+                                         : ALL_CAPTURES - BAD_CAPTURE;
+
+        move = mp.next_move(stagesToPick);
+
+        if (move == Move::none())
+             break;
+
         assert(move.is_ok());
 
         if (!pos.legal(move))

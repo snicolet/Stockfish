@@ -72,7 +72,6 @@ MovePicker::MovePicker(const Position&              p,
 
     if (pos.checkers())
         stage = EVASION_TT;
-
     else
         stage = MAIN_TT;
 
@@ -202,14 +201,12 @@ top:
 
     case MAIN_TT :
     case EVASION_TT :
-    case QSEARCH_TT :
     case PROBCUT_TT :
         next_stage();
         return ttMove;
 
     case CAPTURE_INIT :
     case PROBCUT_INIT :
-    case QCAPTURE_INIT :
         cur = endBadCaptures = moves;
         endMoves             = generate<CAPTURES>(pos, cur);
 
@@ -290,8 +287,6 @@ top:
     case PROBCUT :
         return select<Next>([&]() { return pos.see_ge(*cur, threshold); });
 
-    case QCAPTURE :
-        return select<Next>([]() { return true; });
     }
 
     assert(false);
