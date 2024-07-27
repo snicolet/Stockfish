@@ -918,9 +918,10 @@ moves_loop:  // When in check, search starts here
     // Step 13. Loop through all moves until no moves remain or a beta cutoff occurs
     while (true)
     {
-        int rnd = (pos.key() & 127);
-        int stagesToPick = (rnd < moveCountPruningPct) ? ALL_CAPTURES
-                                                       : ALL_CAPTURES + ALL_QUIETS;
+        int rnd = (posKey & 127);
+        int stagesToPick =   moveCountPruningPct < 100  ? ALL_CAPTURES + ALL_QUIETS
+                           : rnd >= moveCountPruningPct ? ALL_CAPTURES + ALL_QUIETS
+                                                        : ALL_CAPTURES;
 
         move = mp.next_move(stagesToPick);
 
@@ -971,7 +972,7 @@ moves_loop:  // When in check, search starts here
         if (!rootNode && pos.non_pawn_material(us) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
         {
             // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-            moveCountPruningPct = 4 * moveCount / futilityMoveCount;
+            moveCountPruningPct = 128 * moveCount / futilityMoveCount;
             moveCountPruningPct = std::clamp(moveCountPruningPct, 0, 128);
             // dbg_mean_of(moveCountPruningPct , moveCountPruningPct / 8);
 
