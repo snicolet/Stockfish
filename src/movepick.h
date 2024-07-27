@@ -170,6 +170,7 @@ class MovePicker {
     void     score();
     ExtMove* begin() { return cur; }
     ExtMove* end() { return endMoves; }
+    void     next_stage() { stage *= 2; }
 
     const Position&              pos;
     const ButterflyHistory*      mainHistory;

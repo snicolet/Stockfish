@@ -31,28 +31,28 @@ namespace {
 
 enum Stages {
     // generate main search moves
-    MAIN_TT,
-    CAPTURE_INIT,
-    GOOD_CAPTURE,
-    QUIET_INIT,
-    GOOD_QUIET,
-    BAD_CAPTURE,
-    BAD_QUIET,
+    MAIN_TT = 1,
+    CAPTURE_INIT = 2,
+    GOOD_CAPTURE = 4,
+    QUIET_INIT = 8,
+    GOOD_QUIET = 16,
+    BAD_CAPTURE = 32,
+    BAD_QUIET = 64,
 
     // generate evasion moves
-    EVASION_TT,
-    EVASION_INIT,
-    EVASION,
+    EVASION_TT = 128,
+    EVASION_INIT = 256,
+    EVASION = 512,
 
     // generate probcut moves
-    PROBCUT_TT,
-    PROBCUT_INIT,
-    PROBCUT,
+    PROBCUT_TT = 1024,
+    PROBCUT_INIT = 2048,
+    PROBCUT = 4096,
 
     // generate qsearch moves
-    QSEARCH_TT,
-    QCAPTURE_INIT,
-    QCAPTURE
+    QSEARCH_TT = 8192,
+    QCAPTURE_INIT = 16384,
+    QCAPTURE = 32768
 };
 
 // Sort moves in descending order up to and including a given limit.
@@ -94,10 +94,13 @@ MovePicker::MovePicker(const Position&              p,
     depth(d) {
 
     if (pos.checkers())
-        stage = EVASION_TT + !(ttm && pos.pseudo_legal(ttm));
+        stage = EVASION_TT;
 
     else
-        stage = (depth > 0 ? MAIN_TT : QSEARCH_TT) + !(ttm && pos.pseudo_legal(ttm));
+        stage = (depth > 0 ? MAIN_TT : QSEARCH_TT);
+    
+    if (!(ttm && pos.pseudo_legal(ttm)))
+        next_stage();
 }
 
 // MovePicker constructor for ProbCut: we generate captures with Static Exchange
@@ -109,8 +112,10 @@ MovePicker::MovePicker(const Position& p, Move ttm, int th, const CapturePieceTo
     threshold(th) {
     assert(!pos.checkers());
 
-    stage = PROBCUT_TT
-          + !(ttm && pos.capture_stage(ttm) && pos.pseudo_legal(ttm) && pos.see_ge(ttm, threshold));
+    stage = PROBCUT_TT;
+    
+    if (!(ttm && pos.capture_stage(ttm) && pos.pseudo_legal(ttm) && pos.see_ge(ttm, threshold)))
+        next_stage();
 }
 
 // Assigns a numerical value to each move in a list, used for sorting.
@@ -221,7 +226,7 @@ top:
     case EVASION_TT :
     case QSEARCH_TT :
     case PROBCUT_TT :
-        ++stage;
+        next_stage();
         return ttMove;
 
     case CAPTURE_INIT :
@@ -232,7 +237,7 @@ top:
 
         score<CAPTURES>();
         partial_insertion_sort(cur, endMoves, std::numeric_limits<int>::min());
-        ++stage;
+        next_stage();
         goto top;
 
     case GOOD_CAPTURE :
@@ -243,7 +248,7 @@ top:
             }))
             return *(cur - 1);
 
-        ++stage;
+        next_stage();
         [[fallthrough]];
 
     case QUIET_INIT :
@@ -256,7 +261,7 @@ top:
             partial_insertion_sort(cur, endMoves, quiet_threshold(depth));
         }
 
-        ++stage;
+        next_stage();
         [[fallthrough]];
 
     case GOOD_QUIET :
@@ -273,7 +278,7 @@ top:
         cur      = moves;
         endMoves = endBadCaptures;
 
-        ++stage;
+        next_stage();
         [[fallthrough]];
 
     case BAD_CAPTURE :
@@ -284,7 +289,7 @@ top:
         cur      = beginBadQuiets;
         endMoves = endBadQuiets;
 
-        ++stage;
+        next_stage();
         [[fallthrough]];
 
     case BAD_QUIET :
@@ -298,7 +303,7 @@ top:
         endMoves = generate<EVASIONS>(pos, cur);
 
         score<EVASIONS>();
-        ++stage;
+        next_stage();
         [[fallthrough]];
 
     case EVASION :
@@ -314,5 +319,7 @@ top:
     assert(false);
     return Move::none();  // Silence warning
 }
+
+
 
 }  // namespace Stockfish
