@@ -48,11 +48,6 @@ enum Stages {
     PROBCUT_TT,
     PROBCUT_INIT,
     PROBCUT,
-
-    // generate qsearch moves
-    QSEARCH_TT,
-    QCAPTURE_INIT,
-    QCAPTURE
 };
 
 // Sort moves in descending order up to and including a given limit.
@@ -98,7 +93,7 @@ MovePicker::MovePicker(const Position&              p,
     if (pos.checkers())
         stage = EVASION_TT;
     else
-        stage = (depth == 0 ? QSEARCH_TT : MAIN_TT);
+        stage = MAIN_TT;
     
     if (!(ttm && pos.pseudo_legal(ttm)))
         stage++;
@@ -223,14 +218,12 @@ top:
 
     case MAIN_TT :
     case EVASION_TT :
-    case QSEARCH_TT :
     case PROBCUT_TT :
         ++stage;
         return ttMove;
 
     case CAPTURE_INIT :
     case PROBCUT_INIT :
-    case QCAPTURE_INIT :
         cur = endBadCaptures = moves;
         endMoves             = generate<CAPTURES>(pos, cur);
 
@@ -311,8 +304,6 @@ top:
     case PROBCUT :
         return select<Next>([&]() { return pos.see_ge(*cur, threshold); });
 
-    case QCAPTURE :
-        return select<Next>([]() { return true; });
     }
 
     assert(false);
