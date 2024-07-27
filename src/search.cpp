@@ -918,9 +918,8 @@ moves_loop:  // When in check, search starts here
     // Step 13. Loop through all moves until no moves remain or a beta cutoff occurs
     while (true)
     {
-        int rnd = (posKey & 127);
         int stagesToPick =   moveCountPruningPct < 100  ? ALL_CAPTURES + ALL_QUIETS
-                           : rnd >= moveCountPruningPct ? ALL_CAPTURES + ALL_QUIETS
+                           : moveCountPruningPct < 128  ? ALL_CAPTURES + ALL_QUIETS - BAD_QUIET
                                                         : ALL_CAPTURES;
 
         move = mp.next_move(stagesToPick);
@@ -971,7 +970,7 @@ moves_loop:  // When in check, search starts here
         // Depth conditions are important for mate finding.
         if (!rootNode && pos.non_pawn_material(us) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
         {
-            // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
+            // Probability for futility-move-count pruning (0=normal to 128=pruning)
             moveCountPruningPct = 128 * moveCount / futilityMoveCount;
             moveCountPruningPct = std::clamp(moveCountPruningPct, 0, 128);
             // dbg_mean_of(moveCountPruningPct , moveCountPruningPct / 8);
