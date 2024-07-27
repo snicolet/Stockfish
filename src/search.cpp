@@ -1532,7 +1532,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain or a beta
     // cutoff occurs.
-    while ((move = mp.next_move()) != Move::none())
+    while ((move = mp.next_move(true)) != Move::none())
     {
         assert(move.is_ok());
 

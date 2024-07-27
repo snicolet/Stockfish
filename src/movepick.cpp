@@ -96,10 +96,12 @@ MovePicker::MovePicker(const Position&              p,
     depth(d) {
 
     if (pos.checkers())
-        stage = EVASION_TT + !(ttm && pos.pseudo_legal(ttm));
-
+        stage = EVASION_TT;
     else
-        stage = (depth > 0 ? MAIN_TT : QSEARCH_TT) + !(ttm && pos.pseudo_legal(ttm));
+        stage = (depth > 0 ? MAIN_TT : QSEARCH_TT);
+    
+    if (!(ttm && pos.pseudo_legal(ttm)))
+        stage++;
 }
 
 // Constructor for ProbCut: we generate captures with SEE greater than or equal
