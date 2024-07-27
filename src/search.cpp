@@ -917,8 +917,8 @@ moves_loop:  // When in check, search starts here
     // Step 13. Loop through all moves until no moves remain or a beta cutoff occurs
     while (true)
     {
-        int stagesToPick =   moveCountPruningPct < 100  ? ALL_CAPTURES + ALL_QUIETS
-                           : moveCountPruningPct < 128  ? ALL_CAPTURES + ALL_QUIETS - BAD_QUIET
+        int stagesToPick =   moveCountPruningPct < 90   ? ALL_CAPTURES + ALL_QUIETS
+                           : moveCountPruningPct < 128  ? ALL_CAPTURES + ALL_GOOD_QUIETS
                                                         : ALL_CAPTURES;
 
         move = mp.next_move(stagesToPick);
