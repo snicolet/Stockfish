@@ -911,14 +911,16 @@ moves_loop:  // When in check, search starts here
 
     value = bestValue;
 
-    int  moveCount        = 0;
-    bool moveCountPruning = false;
+    int moveCount            = 0;
+    int futilityMoveCount    = futility_move_count(improving, depth);
+    int moveCountPruningPct  = 0;  // from 0 (no pruning) to 128 (all pruning)
 
     // Step 13. Loop through all moves until no moves remain or a beta cutoff occurs
     while (true)
     {
-        int stagesToPick = moveCountPruning ? ALL_CAPTURES - BAD_CAPTURE + ALL_QUIETS - BAD_QUIET
-                                            : ALL_CAPTURES + ALL_QUIETS;
+        int rnd = (pos.key() & 127);
+        int stagesToPick = (rnd < moveCountPruningPct) ? ALL_CAPTURES
+                                                       : ALL_CAPTURES + ALL_QUIETS;
 
         move = mp.next_move(stagesToPick);
 
@@ -968,8 +970,11 @@ moves_loop:  // When in check, search starts here
         // Depth conditions are important for mate finding.
         if (!rootNode && pos.non_pawn_material(us) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
         {
-            // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-            moveCountPruning = moveCount >= futility_move_count(improving, depth);
+            // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
+            moveCountPruningPct = 16 * moveCount / futilityMoveCount;
+            moveCountPruningPct = std::clamp(moveCountPruningPct, 0, 128);
+            // dbg_mean_of(moveCountPruningPct , moveCountPruningPct / 8);
+
 
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r;
