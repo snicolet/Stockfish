@@ -919,7 +919,7 @@ moves_loop:  // When in check, search starts here
     {
         int stagesToPick =   moveCountPruningPct < 100  ? ALL_CAPTURES + ALL_QUIETS
                            : moveCountPruningPct < 128  ? ALL_CAPTURES + ALL_GOOD_QUIETS
-                                                        : ALL_CAPTURES;
+                                                        : ALL_GOOD_CAPTURES + ALL_GOOD_QUIETS;
 
         move = mp.next_move(stagesToPick);
 
@@ -960,7 +960,6 @@ moves_loop:  // When in check, search starts here
             moveCountPruningPct  = 128 * moveCount / futility_move_count(improving, depth);
             moveCountPruningPct += (ss->ply & 1) ? -10 : 10 ;
             moveCountPruningPct  = std::clamp(moveCountPruningPct, 0, 128);
-            // dbg_mean_of(moveCountPruningPct , moveCountPruningPct / 8);
         }
 
         if (PvNode)
