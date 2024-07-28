@@ -919,7 +919,7 @@ moves_loop:  // When in check, search starts here
     {
         int stagesToPick =   moveCountPruningPct < 100  ? ALL_CAPTURES + ALL_QUIETS
                            : moveCountPruningPct < 128  ? ALL_CAPTURES + ALL_GOOD_QUIETS
-                                                        : ALL_GOOD_CAPTURES + ALL_GOOD_QUIETS;
+                                                        : ALL_CAPTURES;
 
         move = mp.next_move(stagesToPick);
 
@@ -953,9 +953,10 @@ moves_loop:  // When in check, search starts here
 
         // Degree of futility movecount pruning, range [0..128] = [normal..hard pruning]
         if (   !PvNode
-            && pos.non_pawn_material(us)
-            && pos.non_pawn_material(~us)
-            && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
+            &&  pos.non_pawn_material(us)
+            &&  pos.non_pawn_material(~us)
+            && !pos.capture_stage(move)
+            &&  bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
         {
             moveCountPruningPct  = 128 * moveCount / futility_move_count(improving, depth);
             moveCountPruningPct += (ss->ply & 1) ? -10 : 10 ;
