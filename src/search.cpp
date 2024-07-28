@@ -913,9 +913,9 @@ moves_loop:  // When in check, search starts here
     // Step 13. Loop through all moves until no moves remain or a beta cutoff occurs
     while (true)
     {
-        int stagesToPick =   moveCountPruningPct < 100   ? ALL_CAPTURES + ALL_QUIETS
+        int stagesToPick =   moveCountPruningPct < 100  ? ALL_CAPTURES + ALL_QUIETS
                            : moveCountPruningPct < 128  ? ALL_CAPTURES + ALL_GOOD_QUIETS
-                                                        : ALL_CAPTURES + ALL_GOOD_QUIETS;
+                                                        : ALL_CAPTURES;
 
         move = mp.next_move(stagesToPick);
 
@@ -946,6 +946,18 @@ moves_loop:  // When in check, search starts here
             main_manager()->updates.onIter(
               {depth, UCIEngine::move(move, pos.is_chess960()), moveCount + thisThread->pvIdx});
         }
+
+        // Degree of futility movecount pruning, range [0..128] = [normal..hard pruning]
+        if (   !PvNode
+            &&  pos.non_pawn_material(us)
+            &&  pos.non_pawn_material(~us)
+            &&  bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
+        {
+            moveCountPruningPct  = 128 * moveCount / futility_move_count(improving, depth);
+            moveCountPruningPct += (ss->ply & 1) ? -10 : 10 ;
+            moveCountPruningPct  = std::clamp(moveCountPruningPct, 0, 128);
+        }
+
         if (PvNode)
             (ss + 1)->pv = nullptr;
 
@@ -965,12 +977,6 @@ moves_loop:  // When in check, search starts here
         // Depth conditions are important for mate finding.
         if (!rootNode && pos.non_pawn_material(us) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
         {
-            // Degree of futility movecount pruning, range [0..128] = [normal..hard pruning]
-            moveCountPruningPct = 128 * moveCount / futility_move_count(improving, depth);
-            moveCountPruningPct = std::clamp(moveCountPruningPct, 0, 128);
-
-            // dbg_mean_of(moveCountPruningPct , moveCountPruningPct / 8);
-
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r;
 
