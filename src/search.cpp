@@ -955,7 +955,6 @@ moves_loop:  // When in check, search starts here
         if (   !PvNode
             &&  pos.non_pawn_material(us)
             &&  pos.non_pawn_material(~us)
-            && !pos.capture_stage(move)
             &&  bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
         {
             moveCountPruningPct  = 128 * moveCount / futility_move_count(improving, depth);
