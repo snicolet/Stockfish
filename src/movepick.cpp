@@ -209,15 +209,19 @@ top:
     case PROBCUT_INIT :
     case QCAPTURE_INIT :
         cur = endBadCaptures = moves;
-        endMoves             = generate<CAPTURES>(pos, cur);
+        
+        if (do_this_stage())
+        {
+            endMoves = generate<CAPTURES>(pos, cur);
+            score<CAPTURES>();
+            partial_insertion_sort(cur, endMoves, std::numeric_limits<int>::min());
+        }
 
-        score<CAPTURES>();
-        partial_insertion_sort(cur, endMoves, std::numeric_limits<int>::min());
         next_stage();
         goto top;
 
     case GOOD_CAPTURE :
-        if (select<Next>([&]() {
+        if (do_this_stage() && select<Next>([&]() {
                 // Move losing capture to endBadCaptures to be tried later
                 return pos.see_ge(*cur, -cur->value / 18) ? true
                                                           : (*endBadCaptures++ = *cur, false);
@@ -272,6 +276,7 @@ top:
         if (do_this_stage())
             return select<Next>([]() { return true; });
 
+        // That's all Folks!
         return Move::none();
 
     case EVASION_INIT :
