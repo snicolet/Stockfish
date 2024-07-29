@@ -74,8 +74,8 @@ Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorseni
     return futilityMult * d - improvingDeduction - worseningDeduction;
 }
 
-constexpr int futility_move_count(bool improving, Depth depth) {
-    return (3 + depth * depth) / (2 - improving);
+constexpr int futility_move_count(Depth depth) {
+    return (3 + depth * depth);
 }
 
 // Add correctionHistory value to raw staticEval and guarantee evaluation
@@ -953,9 +953,10 @@ moves_loop:  // When in check, search starts here
             &&  pos.non_pawn_material(~us)
             &&  std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY)
         {
-            //dbg_mean_of(futility_move_count(improving, depth), std::min(depth, 31));
-            moveCountPruningPct  = 128 * moveCount / futility_move_count(improving, depth);
-            moveCountPruningPct += (ss->ply & 1) ? -10 : 10 ;
+            // dbg_mean_of(futility_move_count(improving, depth), std::min(depth, 31));
+            moveCountPruningPct  = 128 * moveCount / futility_move_count(depth);
+            moveCountPruningPct += (ss->ply & 1) ? -10 : 10  ;
+            moveCountPruningPct += improving     ?   0 : 20  ;
             moveCountPruningPct  = std::clamp(moveCountPruningPct, 0, 128);
         }
 
