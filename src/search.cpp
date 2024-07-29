@@ -913,7 +913,7 @@ moves_loop:  // When in check, search starts here
     // Step 13. Loop through all moves until no moves remain or a beta cutoff occurs
     while (true)
     {
-        int stagesToPick =   moveCountPruningPct < 95   ? ALL_CAPTURES + ALL_QUIETS
+        int stagesToPick =   moveCountPruningPct < 90   ? ALL_CAPTURES + ALL_QUIETS
                            : moveCountPruningPct < 128  ? ALL_CAPTURES + ALL_GOOD_QUIETS
                                                         : ALL_CAPTURES;
 
@@ -956,7 +956,7 @@ moves_loop:  // When in check, search starts here
             // dbg_mean_of(futility_move_count(improving, depth), std::min(depth, 31));
             moveCountPruningPct  = 128 * moveCount / futility_move_count(depth);
             moveCountPruningPct += (ss->ply & 1) ? -10 : 10  ;
-            moveCountPruningPct += improving     ?  0  : 50  ;
+            moveCountPruningPct += improving     ?  0  : 20  ;
             moveCountPruningPct  = std::clamp(moveCountPruningPct, 0, 128);
         }
 
