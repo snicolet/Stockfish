@@ -917,7 +917,7 @@ moves_loop:  // When in check, search starts here
     // Step 13. Loop through all moves until no moves remain or a beta cutoff occurs
     while (true)
     {
-        int stagesToPick =   moveCountPruningPct < 100  ? ALL_CAPTURES + ALL_QUIETS
+        int stagesToPick =   moveCountPruningPct < 95   ? ALL_CAPTURES + ALL_QUIETS
                            : moveCountPruningPct < 128  ? ALL_CAPTURES + ALL_GOOD_QUIETS
                                                         : ALL_CAPTURES;
 
@@ -955,8 +955,9 @@ moves_loop:  // When in check, search starts here
         if (   !PvNode
             &&  pos.non_pawn_material(us)
             &&  pos.non_pawn_material(~us)
-            &&  bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
+            &&  std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY)
         {
+            //dbg_mean_of(futility_move_count(improving, depth), std::min(depth, 31));
             moveCountPruningPct  = 128 * moveCount / futility_move_count(improving, depth);
             moveCountPruningPct += (ss->ply & 1) ? -10 : 10 ;
             moveCountPruningPct  = std::clamp(moveCountPruningPct, 0, 128);
