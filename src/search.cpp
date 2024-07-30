@@ -737,7 +737,7 @@ Value Search::Worker::search(
     // bigger than the previous static evaluation at our turn (if we were in
     // check at our previous move we go back until we weren't in check) and is
     // false otherwise. The improving flag is used in various pruning heuristics.
-    improving = ss->staticEval > (ss - 2)->staticEval + 8;
+    improving = ss->staticEval > (ss - 2)->staticEval;
 
     opponentWorsening = ss->staticEval + (ss - 1)->staticEval > 2;
 
@@ -948,7 +948,7 @@ moves_loop:  // When in check, search starts here
         }
 
         // Degree of futility movecount pruning, range [0..128] = [normal..hard pruning]
-        if (   !PvNode
+        if (   !rootNode
             &&  pos.non_pawn_material(us)
             &&  pos.non_pawn_material(~us)
             &&  std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY)
