@@ -992,7 +992,7 @@ moves_loop:  // When in check, search starts here
 
                 // Continuation history based pruning (~2 Elo)
                 if (history < -4165 * depth)
-                    continue;
+                    extension = -3;
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
 
