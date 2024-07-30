@@ -75,7 +75,7 @@ Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorseni
 }
 
 constexpr int futility_move_count(Depth depth) {
-    return 4 + depth * depth;
+    return 3 + depth * depth;
 }
 
 // Add correctionHistory value to raw staticEval and guarantee evaluation
@@ -737,7 +737,7 @@ Value Search::Worker::search(
     // bigger than the previous static evaluation at our turn (if we were in
     // check at our previous move we go back until we weren't in check) and is
     // false otherwise. The improving flag is used in various pruning heuristics.
-    improving = ss->staticEval > (ss - 2)->staticEval;
+    improving = ss->staticEval > (ss - 2)->staticEval + 8;
 
     opponentWorsening = ss->staticEval + (ss - 1)->staticEval > 2;
 
