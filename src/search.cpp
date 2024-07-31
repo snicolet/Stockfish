@@ -75,7 +75,7 @@ Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorseni
 }
 
 constexpr int futility_move_count(Depth depth) {
-    return 3 + depth * depth;
+    return 2 + depth * depth;
 }
 
 // Add correctionHistory value to raw staticEval and guarantee evaluation
@@ -948,7 +948,7 @@ moves_loop:  // When in check, search starts here
         }
 
         // Degree of futility movecount pruning, range [0..128] = [normal..hard pruning]
-        if (   !rootNode
+        if (   !PvNode
             &&  pos.non_pawn_material(us)
             &&  pos.non_pawn_material(~us)
             &&  std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY)
