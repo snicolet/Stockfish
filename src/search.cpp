@@ -75,7 +75,7 @@ Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorseni
 }
 
 constexpr int futility_move_count(Depth depth) {
-    return 1 + depth * depth;
+    return 2 + depth * depth / 2;
 }
 
 // Add correctionHistory value to raw staticEval and guarantee evaluation
@@ -913,9 +913,13 @@ moves_loop:  // When in check, search starts here
     // Step 13. Loop through all moves until no moves remain or a beta cutoff occurs
     while (true)
     {
-        int stagesToPick =   moveCountPruningPct < 95   ? ALL_CAPTURES + ALL_QUIETS
+        int stagesToPick =   moveCountPruningPct < 75   ? ALL_CAPTURES + ALL_QUIETS
                            : moveCountPruningPct < 128  ? ALL_CAPTURES + ALL_GOOD_QUIETS
                                                         : ALL_CAPTURES;
+        
+        // dbg_mean_of(stagesToPick == ALL_CAPTURES + ALL_QUIETS, 0);
+        // dbg_mean_of(stagesToPick == ALL_CAPTURES + ALL_GOOD_QUIETS, 1);
+        // dbg_mean_of(stagesToPick == ALL_CAPTURES , 2);
 
         move = mp.next_move(stagesToPick);
 
