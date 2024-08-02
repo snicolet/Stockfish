@@ -76,7 +76,7 @@ Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorseni
 
 constexpr int futility_move_count(Depth depth) {
     assert(depth > 0);
-    return 3 + depth * depth / 2;
+    return 2 + depth * depth;
 }
 
 // Add correctionHistory value to raw staticEval and guarantee evaluation
@@ -961,8 +961,9 @@ moves_loop:  // When in check, search starts here
         {
             // dbg_mean_of(futility_move_count(depth), std::min(depth, 31));
             moveCountPruningPct  = 128 * moveCount / futility_move_count(depth);
-            moveCountPruningPct += (ss->ply & 1) ? -10 : 10  ;
-            moveCountPruningPct += improving     ?  0  : 20  ;
+            moveCountPruningPct += (ss->ply & 1)          ? -10 : 10  ;
+            moveCountPruningPct += improving              ?  0  : 20  ;
+            moveCountPruningPct += ss->staticEval >= beta ? -50 : 0;
             moveCountPruningPct  = std::clamp(moveCountPruningPct, 0, 128);
         }
 
