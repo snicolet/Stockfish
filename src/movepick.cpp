@@ -29,31 +29,6 @@ namespace Stockfish {
 
 namespace {
 
-enum Stages {
-    // generate main search moves
-    MAIN_TT,
-    CAPTURE_INIT,
-    GOOD_CAPTURE,
-    QUIET_INIT,
-    GOOD_QUIET,
-    BAD_CAPTURE,
-    BAD_QUIET,
-
-    // generate evasion moves
-    EVASION_TT,
-    EVASION_INIT,
-    EVASION,
-
-    // generate probcut moves
-    PROBCUT_TT,
-    PROBCUT_INIT,
-    PROBCUT,
-
-    // generate qsearch moves
-    QSEARCH_TT,
-    QCAPTURE_INIT,
-    QCAPTURE
-};
 
 // Sort moves in descending order up to and including a given limit.
 // The order of moves smaller than the limit is left unspecified.
@@ -94,10 +69,13 @@ MovePicker::MovePicker(const Position&              p,
     depth(d) {
 
     if (pos.checkers())
-        stage = EVASION_TT + !(ttm && pos.pseudo_legal(ttm));
+        stage = EVASION_TT;
 
     else
-        stage = (depth > 0 ? MAIN_TT : QSEARCH_TT) + !(ttm && pos.pseudo_legal(ttm));
+        stage = (depth > 0 ? MAIN_TT : QSEARCH_TT);
+
+    if (!(ttm && pos.pseudo_legal(ttm)))
+        next_stage();
 }
 
 // MovePicker constructor for ProbCut: we generate captures with Static Exchange
@@ -109,8 +87,10 @@ MovePicker::MovePicker(const Position& p, Move ttm, int th, const CapturePieceTo
     threshold(th) {
     assert(!pos.checkers());
 
-    stage = PROBCUT_TT
-          + !(ttm && pos.capture_stage(ttm) && pos.pseudo_legal(ttm) && pos.see_ge(ttm, threshold));
+    stage = PROBCUT_TT;
+
+    if (!(ttm && pos.capture_stage(ttm) && pos.pseudo_legal(ttm) && pos.see_ge(ttm, threshold)))
+        next_stage();
 }
 
 // Assigns a numerical value to each move in a list, used for sorting.
@@ -209,9 +189,10 @@ Move MovePicker::select(Pred filter) {
 // This is the most important method of the MovePicker class. We emit one
 // new pseudo-legal move on every call until there are no more moves left,
 // picking the move with the highest score from a list of generated moves.
-Move MovePicker::next_move(bool skipQuiets) {
+Move MovePicker::next_move(int stagesToPick) {
 
     auto quiet_threshold = [](Depth d) { return -3560 * d; };
+    auto do_this_stage = [&]() {return (stage & stagesToPick); };
 
 top:
     switch (stage)
@@ -221,33 +202,37 @@ top:
     case EVASION_TT :
     case QSEARCH_TT :
     case PROBCUT_TT :
-        ++stage;
+        next_stage();
         return ttMove;
 
     case CAPTURE_INIT :
     case PROBCUT_INIT :
     case QCAPTURE_INIT :
         cur = endBadCaptures = moves;
-        endMoves             = generate<CAPTURES>(pos, cur);
 
-        score<CAPTURES>();
-        partial_insertion_sort(cur, endMoves, std::numeric_limits<int>::min());
-        ++stage;
+        if (do_this_stage())
+        {
+            endMoves = generate<CAPTURES>(pos, cur);
+            score<CAPTURES>();
+            partial_insertion_sort(cur, endMoves, std::numeric_limits<int>::min());
+        }
+
+        next_stage();
         goto top;
 
     case GOOD_CAPTURE :
-        if (select<Next>([&]() {
+        if (do_this_stage() && select<Next>([&]() {
                 // Move losing capture to endBadCaptures to be tried later
                 return pos.see_ge(*cur, -cur->value / 18) ? true
                                                           : (*endBadCaptures++ = *cur, false);
             }))
             return *(cur - 1);
 
-        ++stage;
+        next_stage();
         [[fallthrough]];
 
     case QUIET_INIT :
-        if (!skipQuiets)
+        if (do_this_stage())
         {
             cur      = endBadCaptures;
             endMoves = beginBadQuiets = endBadQuiets = generate<QUIETS>(pos, cur);
@@ -256,11 +241,11 @@ top:
             partial_insertion_sort(cur, endMoves, quiet_threshold(depth));
         }
 
-        ++stage;
+        next_stage();
         [[fallthrough]];
 
     case GOOD_QUIET :
-        if (!skipQuiets && select<Next>([]() { return true; }))
+        if (do_this_stage() && select<Next>([]() { return true; }))
         {
             if ((cur - 1)->value > -7998 || (cur - 1)->value <= quiet_threshold(depth))
                 return *(cur - 1);
@@ -273,24 +258,25 @@ top:
         cur      = moves;
         endMoves = endBadCaptures;
 
-        ++stage;
+        next_stage();
         [[fallthrough]];
 
     case BAD_CAPTURE :
-        if (select<Next>([]() { return true; }))
+        if (do_this_stage() && select<Next>([]() { return true; }))
             return *(cur - 1);
 
         // Prepare the pointers to loop over the bad quiets
         cur      = beginBadQuiets;
         endMoves = endBadQuiets;
 
-        ++stage;
+        next_stage();
         [[fallthrough]];
 
     case BAD_QUIET :
-        if (!skipQuiets)
+        if (do_this_stage())
             return select<Next>([]() { return true; });
 
+        // That's all Folks!
         return Move::none();
 
     case EVASION_INIT :
@@ -298,7 +284,7 @@ top:
         endMoves = generate<EVASIONS>(pos, cur);
 
         score<EVASIONS>();
-        ++stage;
+        next_stage();
         [[fallthrough]];
 
     case EVASION :
@@ -314,5 +300,7 @@ top:
     assert(false);
     return Move::none();  // Silence warning
 }
+
+
 
 }  // namespace Stockfish

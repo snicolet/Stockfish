@@ -74,8 +74,9 @@ Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorseni
     return futilityMult * d - improvingDeduction - worseningDeduction;
 }
 
-constexpr int futility_move_count(bool improving, Depth depth) {
-    return (3 + depth * depth) / (2 - improving);
+constexpr int futility_move_count(Depth depth) {
+    assert(depth > 0);
+    return 2 + depth * depth;
 }
 
 // Add correctionHistory value to raw staticEval and guarantee evaluation
@@ -839,7 +840,7 @@ Value Search::Worker::search(
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &thisThread->captureHistory);
         Piece      captured;
 
-        while ((move = mp.next_move()) != Move::none())
+        while ((move = mp.next_move(ALL_PROBCUT)) != Move::none())
         {
             assert(move.is_ok());
 
@@ -913,13 +914,27 @@ moves_loop:  // When in check, search starts here
 
     value = bestValue;
 
-    int  moveCount        = 0;
-    bool moveCountPruning = false;
+    int moveCount            = 0;
+    int moveCountPruningPct  = 0;
 
-    // Step 13. Loop through all pseudo-legal moves until no moves remain
-    // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning)) != Move::none())
+    // Step 13. Loop through all moves until no moves remain or a beta cutoff occurs
+    while (true)
     {
+        int stagesToPick =   moveCountPruningPct < 95   ? ALL_CAPTURES + ALL_QUIETS
+                           : moveCountPruningPct < 128  ? ALL_CAPTURES + ALL_GOOD_QUIETS
+                                                        : ALL_CAPTURES;
+
+        // dbg_mean_of(stagesToPick == ALL_CAPTURES + ALL_QUIETS, 0);
+        // dbg_mean_of(stagesToPick == ALL_CAPTURES + ALL_GOOD_QUIETS, 1);
+        // dbg_mean_of(stagesToPick == ALL_CAPTURES , 2);
+        // dbg_mean_of(stagesToPick == ALL_GOODCAPTURES , 3);
+        // dbg_mean_of(stagesToPick == ALL_QUIETS , 4);
+
+        move = mp.next_move(stagesToPick);
+
+        if (move == Move::none())
+             break;
+
         assert(move.is_ok());
 
         if (move == excludedMove)
@@ -944,6 +959,21 @@ moves_loop:  // When in check, search starts here
             main_manager()->updates.onIter(
               {depth, UCIEngine::move(move, pos.is_chess960()), moveCount + thisThread->pvIdx});
         }
+
+        // Degree of futility movecount pruning, range [0..128] = [normal..hard pruning]
+        if (   !PvNode
+            &&  pos.non_pawn_material(us)
+            &&  pos.non_pawn_material(~us)
+            &&  std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY)
+        {
+            // dbg_mean_of(futility_move_count(depth), std::min(depth, 31));
+            moveCountPruningPct  = 128 * moveCount / futility_move_count(depth);
+            moveCountPruningPct += (ss->ply & 1)               ? -10 : 10  ;
+            moveCountPruningPct += improving                   ?  0  : 20  ;
+            moveCountPruningPct += ss->staticEval >= beta + 20 ? -50 : 0   ;
+            moveCountPruningPct  = std::clamp(moveCountPruningPct, 0, 128);
+        }
+
         if (PvNode)
             (ss + 1)->pv = nullptr;
 
@@ -963,9 +993,6 @@ moves_loop:  // When in check, search starts here
         // Depth conditions are important for mate finding.
         if (!rootNode && pos.non_pawn_material(us) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
         {
-            // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-            moveCountPruning = moveCount >= futility_move_count(improving, depth);
-
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r;
 
@@ -1532,7 +1559,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain or a beta
     // cutoff occurs.
-    while ((move = mp.next_move()) != Move::none())
+    while ((move = mp.next_move(ALL_QUIESCENCE)) != Move::none())
     {
         assert(move.is_ok());
 

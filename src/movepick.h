@@ -34,6 +34,9 @@
 
 namespace Stockfish {
 
+
+// Pawn history statistics table
+
 constexpr int PAWN_HISTORY_SIZE        = 512;    // has to be a power of 2
 constexpr int CORRECTION_HISTORY_SIZE  = 16384;  // has to be a power of 2
 constexpr int CORRECTION_HISTORY_LIMIT = 1024;
@@ -137,6 +140,7 @@ using PawnHistory = Stats<int16_t, 8192, PAWN_HISTORY_SIZE, PIECE_NB, SQUARE_NB>
 using CorrectionHistory =
   Stats<int16_t, CORRECTION_HISTORY_LIMIT, COLOR_NB, CORRECTION_HISTORY_SIZE>;
 
+
 // The MovePicker class is used to pick one pseudo-legal move at a time from the
 // current position. The most important method is next_move(), which emits one
 // new pseudo-legal move on every call, until there are no moves left, when
@@ -145,14 +149,9 @@ using CorrectionHistory =
 // a cut-off first.
 class MovePicker {
 
-    enum PickType {
-        Next,
-        Best
-    };
-
    public:
-    MovePicker(const MovePicker&)            = delete;
-    MovePicker& operator=(const MovePicker&) = delete;
+
+    // constructors
     MovePicker(const Position&,
                Move,
                Depth,
@@ -161,15 +160,25 @@ class MovePicker {
                const PieceToHistory**,
                const PawnHistory*);
     MovePicker(const Position&, Move, int, const CapturePieceToHistory*);
-    Move next_move(bool skipQuiets = false);
+    MovePicker(const MovePicker&)            = delete;
+    MovePicker& operator=(const MovePicker&) = delete;
+
+    // picker
+    Move next_move(int stagesToPick);
 
    private:
-    template<PickType T, typename Pred>
-    Move select(Pred);
-    template<GenType>
-    void     score();
+
+    enum PickType {
+        Next,
+        Best
+    };
+
     ExtMove* begin() { return cur; }
     ExtMove* end() { return endMoves; }
+    void     next_stage() { stage *= 2; }
+    template<PickType T, typename Pred>Move select(Pred);
+    template<GenType>void score();
+
 
     const Position&              pos;
     const ButterflyHistory*      mainHistory;
@@ -183,6 +192,45 @@ class MovePicker {
     Depth                        depth;
     ExtMove                      moves[MAX_MOVES];
 };
+
+
+// Stages used in MovePicker
+
+enum Stages : int {
+    // generate main search moves
+    MAIN_TT       = 1,
+    CAPTURE_INIT  = 2,
+    GOOD_CAPTURE  = 4,
+    QUIET_INIT    = 8,
+    GOOD_QUIET    = 16,
+    BAD_CAPTURE   = 32,
+    BAD_QUIET     = 64,
+
+    // generate evasion moves
+    EVASION_TT    = 128,
+    EVASION_INIT  = 256,
+    EVASION       = 512,
+
+    // generate probcut moves
+    PROBCUT_TT    = 1024,
+    PROBCUT_INIT  = 2048,
+    PROBCUT       = 4096,
+
+    // generate qsearch moves
+    QSEARCH_TT    = 8192,
+    QCAPTURE_INIT = 16384,
+    QCAPTURE      = 32768,
+
+    ALL_CAPTURES        = CAPTURE_INIT + GOOD_CAPTURE + BAD_CAPTURE ,
+    ALL_GOOD_CAPTURES   = CAPTURE_INIT + GOOD_CAPTURE ,
+    ALL_QUIETS          = QUIET_INIT + GOOD_QUIET + BAD_QUIET ,
+    ALL_GOOD_QUIETS     = QUIET_INIT + GOOD_QUIET ,
+    ALL_PROBCUT         = PROBCUT_INIT + PROBCUT ,
+    ALL_QUIESCENCE      = QCAPTURE_INIT + QCAPTURE ,
+    ALL_EVASIONS        = EVASION_INIT + EVASION
+};
+
+
 
 }  // namespace Stockfish
 
