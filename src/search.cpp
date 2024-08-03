@@ -971,6 +971,7 @@ moves_loop:  // When in check, search starts here
             moveCountPruningPct += (ss->ply & 1)               ? -10 : 10  ;
             moveCountPruningPct += improving                   ?  0  : 20  ;
             moveCountPruningPct += ss->staticEval >= beta + 20 ? -50 : 0   ;
+            moveCountPruningPct += cutNode                     ? -50 : 0   ;
             moveCountPruningPct  = std::clamp(moveCountPruningPct, 0, 128);
         }
 
