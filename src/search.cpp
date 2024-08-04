@@ -931,6 +931,7 @@ moves_loop:  // When in check, search starts here
         // dbg_mean_of(stagesToPick == ALL_CAPTURES , 3);
         // dbg_mean_of(stagesToPick == ALL_GOOD_CAPTURES , 4);
         // dbg_mean_of(stagesToPick == ALL_QUIETS , 5);
+        // dbg_mean_of(stagesToPick == ALL_GOOD_QUIETS , 6);
 
         move = mp.next_move(stagesToPick);
 
@@ -972,7 +973,7 @@ moves_loop:  // When in check, search starts here
             moveCountPruningPct  = 128 * moveCount / futility_move_count(depth);
             moveCountPruningPct += (ss->ply & 1)               ? -10 : 10  ;
             moveCountPruningPct += improving                   ?  0  : 20  ;
-            moveCountPruningPct += ss->staticEval >= beta      ? -50 : 0   ;
+            moveCountPruningPct += ss->staticEval >= beta + 20 ? -50 : 0   ;
             moveCountPruningPct  = std::clamp(moveCountPruningPct, 0, 128);
         }
 
