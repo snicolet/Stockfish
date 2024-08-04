@@ -921,14 +921,16 @@ moves_loop:  // When in check, search starts here
     while (true)
     {
         int stagesToPick =   moveCountPruningPct < 95   ? ALL_CAPTURES + ALL_QUIETS
-                           : moveCountPruningPct < 128  ? ALL_CAPTURES + ALL_GOOD_QUIETS
-                                                        : ALL_CAPTURES;
+                           : moveCountPruningPct < 115  ? ALL_CAPTURES + ALL_GOOD_QUIETS
+                           : moveCountPruningPct < 128  ? ALL_CAPTURES 
+                                                        : ALL_GOOD_CAPTURES;
 
         // dbg_mean_of(stagesToPick == ALL_CAPTURES + ALL_QUIETS, 0);
         // dbg_mean_of(stagesToPick == ALL_CAPTURES + ALL_GOOD_QUIETS, 1);
-        // dbg_mean_of(stagesToPick == ALL_CAPTURES , 2);
-        // dbg_mean_of(stagesToPick == ALL_GOODCAPTURES , 3);
-        // dbg_mean_of(stagesToPick == ALL_QUIETS , 4);
+        // dbg_mean_of(stagesToPick == ALL_GOOD_CAPTURES + ALL_GOOD_QUIETS, 2);
+        // dbg_mean_of(stagesToPick == ALL_CAPTURES , 3);
+        // dbg_mean_of(stagesToPick == ALL_GOOD_CAPTURES , 4);
+        // dbg_mean_of(stagesToPick == ALL_QUIETS , 5);
 
         move = mp.next_move(stagesToPick);
 
