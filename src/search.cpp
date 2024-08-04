@@ -921,9 +921,8 @@ moves_loop:  // When in check, search starts here
     while (true)
     {
         int stagesToPick =   moveCountPruningPct < 95   ? ALL_CAPTURES + ALL_QUIETS
-                           : moveCountPruningPct < 115  ? ALL_CAPTURES + ALL_GOOD_QUIETS
-                           : moveCountPruningPct < 128  ? ALL_GOOD_CAPTURES + ALL_GOOD_QUIETS 
-                                                        : ALL_GOOD_CAPTURES;
+                           : moveCountPruningPct < 128  ? ALL_CAPTURES + ALL_GOOD_QUIETS
+                                                        : ALL_GOOD_CAPTURES + ALL_GOOD_QUIETS;
 
         // dbg_mean_of(stagesToPick == ALL_CAPTURES + ALL_QUIETS, 0);
         // dbg_mean_of(stagesToPick == ALL_CAPTURES + ALL_GOOD_QUIETS, 1);
