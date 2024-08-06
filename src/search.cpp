@@ -970,7 +970,7 @@ moves_loop:  // When in check, search starts here
         {
             // dbg_mean_of(futility_move_count(depth), std::min(depth, 31));
             moveCountPruningPct  = 128 * moveCount / futility_move_count(depth);
-            moveCountPruningPct += (ss->ply & 1)               ?  0  : 30  ;
+            moveCountPruningPct += (ss->ply & 1)               ?  0  : 50  ;
             moveCountPruningPct += improving                   ?  0  : 20  ;
             moveCountPruningPct += ss->staticEval >= beta      ? -50 : 0   ;
             moveCountPruningPct  = std::clamp(moveCountPruningPct, 0, 128);
