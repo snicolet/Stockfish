@@ -80,7 +80,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     int material = (smallNet ? 553 : 532) * pos.count<PAWN>() + pos.non_pawn_material();
     
-    material += 1000 * abs(pos.count<ROOK>(WHITE) - pos.count<ROOK>(BLACK));
+    material += 5000 * abs(pos.count<ROOK>(WHITE) - pos.count<ROOK>(BLACK));
     
     
     int v        = (nnue * (77777 + material) + optimism * (7777 + material)) / 77777;
