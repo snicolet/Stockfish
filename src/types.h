@@ -145,6 +145,12 @@ enum Bound : int8_t {
     BOUND_EXACT = BOUND_UPPER | BOUND_LOWER
 };
 
+
+enum ExplosionState {
+  EXPLOSION_NONE,
+  MUST_CALM_DOWN
+};
+
 // Value is used as an alias for int, this is done to differentiate between a search
 // value and any other integer value. The values used in search are always supposed
 // to be in the range (-VALUE_NONE, VALUE_NONE] and should not exceed this range.

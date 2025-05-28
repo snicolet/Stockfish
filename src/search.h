@@ -68,6 +68,7 @@ struct Stack {
     Move                        currentMove;
     Move                        excludedMove;
     Value                       staticEval;
+    Depth                       depth;
     int                         statScore;
     int                         moveCount;
     bool                        inCheck;
@@ -313,6 +314,8 @@ class Worker {
     Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta);
 
     Depth reduction(bool i, Depth d, int mn, int delta) const;
+    
+    ExplosionState search_explosion();
 
     // Pointer to the search manager, only allowed to be called by the main thread
     SearchManager* main_manager() const {
@@ -330,6 +333,10 @@ class Worker {
     size_t                pvIdx, pvLast;
     std::atomic<uint64_t> nodes, tbHits, bestMoveChanges;
     int                   selDepth, nmpMinPly;
+    ExplosionState        state;
+    RunningAverage        doubleExtensionAverage[COLOR_NB];
+    uint64_t              nodesLastExplosive;
+    uint64_t              nodesLastNormal;
 
     Value optimism[COLOR_NB];
 

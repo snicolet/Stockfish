@@ -148,6 +148,53 @@ Search::Worker::Worker(SharedState&                    sharedState,
     clear();
 }
 
+// Check if the current thread is in a search explosion
+  ExplosionState Search::Worker::search_explosion() {
+
+    Worker* thisThread = this;
+    
+    
+    uint64_t nodesNow = thisThread->nodes;
+    bool explosive =    thisThread->doubleExtensionAverage[WHITE].is_greater(2, 100)
+                     || thisThread->doubleExtensionAverage[BLACK].is_greater(2, 100);
+
+    if (explosive)
+       thisThread->nodesLastExplosive = nodesNow;
+    else
+       thisThread->nodesLastNormal = nodesNow;
+
+    if (   explosive
+        && thisThread->state == EXPLOSION_NONE
+        && nodesNow - thisThread->nodesLastNormal > 5000000)
+        {
+        thisThread->state = MUST_CALM_DOWN;
+        // std::cerr << "MUST_CALM_DOWN" << std::endl;
+        }
+
+    if (   thisThread->state == MUST_CALM_DOWN
+        && nodesNow - thisThread->nodesLastExplosive > 5000000)
+        {
+        thisThread->state = EXPLOSION_NONE;
+        // std::cerr << "EXPLOSION_NONE" << std::endl;
+        }
+    
+//     double w_expl = 100.0 * thisThread->doubleExtensionAverage[WHITE].float_value();
+//     double b_expl = 100.0 * thisThread->doubleExtensionAverage[BLACK].float_value();
+//     auto result = (thisThread->state == MUST_CALM_DOWN ? "MUST_CALM_DOWN" : "EXPLOSION_NONE");
+//     
+//     if ((nodesNow % 1000000) == 0)
+//     std::cerr << nodesNow << "  " 
+//               << w_expl << "  " 
+//               << b_expl << "  " 
+//               << explosive << "  "
+//               << nodesNow - thisThread->nodesLastNormal << "  "
+//               << nodesNow - thisThread->nodesLastExplosive << "  "
+//               << result << std::endl;
+    
+
+    return thisThread->state;
+  }
+
 void Search::Worker::ensure_network_replicated() {
     // Access once to force lazy initialization.
     // We do this because we want to avoid initialization during search.
@@ -282,6 +329,13 @@ void Search::Worker::iterative_deepening() {
         multiPV = std::max(multiPV, size_t(4));
 
     multiPV = std::min(multiPV, rootMoves.size());
+
+    doubleExtensionAverage[WHITE].set(0, 100);  // initialize the running average at 0%
+    doubleExtensionAverage[BLACK].set(0, 100);  // initialize the running average at 0%
+
+    nodesLastExplosive = nodes;
+    nodesLastNormal    = nodes;
+    state = EXPLOSION_NONE;
 
     int searchAgainCounter = 0;
 
@@ -566,6 +620,13 @@ void Search::Worker::clear() {
 template<NodeType nodeType>
 Value Search::Worker::search(
   Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode) {
+  
+    // Step 0. Limit search explosion
+    if (   ss->ply > 10
+        && (ss-1)->depth > 0
+        && search_explosion() == MUST_CALM_DOWN
+        && depth > (ss-1)->depth)
+       depth = (ss-1)->depth;
 
     constexpr bool PvNode   = nodeType != NonPV;
     constexpr bool rootNode = nodeType == Root;
@@ -615,8 +676,15 @@ Value Search::Worker::search(
     priorCapture       = pos.captured_piece();
     Color us           = pos.side_to_move();
     ss->moveCount      = 0;
+    ss->depth          = depth;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
+    
+    // Update the running average statistics for double extensions
+    if (ss->depth > (ss-1)->depth && (ss-1)->depth > 0 )
+        thisThread->doubleExtensionAverage[us].update(ss->depth - (ss-1)->depth);
+    else
+        thisThread->doubleExtensionAverage[us].update(0);
 
     // Check for the available remaining time
     if (is_mainthread())
@@ -881,9 +949,11 @@ Value Search::Worker::search(
             // Do verification search at high depths, with null move pruning disabled
             // until ply exceeds nmpMinPly.
             thisThread->nmpMinPly = ss->ply + 3 * (depth - R) / 4;
+            Depth savedDepth = ss->depth;
 
             Value v = search<NonPV>(pos, ss, beta - 1, beta, depth - R, false);
 
+            ss->depth = savedDepth;
             thisThread->nmpMinPly = 0;
 
             if (v >= beta)
@@ -1125,8 +1195,12 @@ moves_loop:  // When in check, search starts here
             Value singularBeta  = ttData.value - (58 + 76 * (ss->ttPv && !PvNode)) * depth / 57;
             Depth singularDepth = newDepth / 2;
 
+            Depth savedDepth = ss->depth;
             ss->excludedMove = move;
+
             value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
+
+            ss->depth = savedDepth;
             ss->excludedMove = Move::none();
 
             if (value < singularBeta)
