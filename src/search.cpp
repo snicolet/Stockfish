@@ -1231,7 +1231,7 @@ moves_loop:  // When in check, search starts here
                 //dbg_mean_of(doubleMargin > 0, 1);
 
                 extension =
-                  1 + (value < singularBeta - doubleMargin / 2) + (value < singularBeta - tripleMargin);
+                  1 + (value < singularBeta - doubleMargin / 4) + (value < singularBeta - tripleMargin);
 
                 depth++;
             }
