@@ -155,8 +155,8 @@ Search::Worker::Worker(SharedState&                    sharedState,
     
     
     uint64_t nodesNow = thisThread->nodes;
-    bool explosive =    thisThread->doubleExtensionAverage[WHITE].is_greater(2, 100)
-                     || thisThread->doubleExtensionAverage[BLACK].is_greater(2, 100);
+    bool explosive =    thisThread->doubleExtensionAverage[WHITE].is_greater(1, 100)
+                     || thisThread->doubleExtensionAverage[BLACK].is_greater(1, 100);
 
     if (explosive)
        thisThread->nodesLastExplosive = nodesNow;
@@ -165,14 +165,14 @@ Search::Worker::Worker(SharedState&                    sharedState,
 
     if (   explosive
         && thisThread->state == EXPLOSION_NONE
-        && nodesNow - thisThread->nodesLastNormal > 5000000)
+        && nodesNow - thisThread->nodesLastNormal > 4000000)
         {
         thisThread->state = MUST_CALM_DOWN;
         // std::cerr << "MUST_CALM_DOWN" << std::endl;
         }
 
     if (   thisThread->state == MUST_CALM_DOWN
-        && nodesNow - thisThread->nodesLastExplosive > 5000000)
+        && nodesNow - thisThread->nodesLastExplosive > 9000000)
         {
         thisThread->state = EXPLOSION_NONE;
         // std::cerr << "EXPLOSION_NONE" << std::endl;
@@ -680,9 +680,10 @@ Value Search::Worker::search(
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
     
-    // Update the running average statistics for double extensions
-    if (ss->depth > (ss-1)->depth && (ss-1)->depth > 0 )
-        thisThread->doubleExtensionAverage[us].update(ss->depth - (ss-1)->depth);
+    // Update the running average statistics for multiple extensions
+    int deltaDepth = ss->depth - (ss-1)->depth;
+    if (deltaDepth > 0 && (ss-1)->depth > 0)
+        thisThread->doubleExtensionAverage[us].update(deltaDepth * deltaDepth);
     else
         thisThread->doubleExtensionAverage[us].update(0);
 
@@ -1211,6 +1212,10 @@ moves_loop:  // When in check, search starts here
                                  - (ss->ply > thisThread->rootDepth) * 47;
                 int tripleMargin = 84 + 269 * PvNode - 253 * !ttCapture + 91 * ss->ttPv - corrValAdj
                                  - (ss->ply * 2 > thisThread->rootDepth * 3) * 54;
+
+                //if (doubleMargin > 0)
+                //    dbg_mean_of(doubleMargin, 0);
+                //dbg_mean_of(doubleMargin > 0, 1);
 
                 extension =
                   1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
