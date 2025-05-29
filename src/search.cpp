@@ -596,6 +596,7 @@ Value Search::Worker::search(
 
     Move      pv[MAX_PLY + 1];
     StateInfo st;
+    Stack     savedStack;
 
     Key   posKey;
     Move  move, excludedMove, bestMove;
@@ -892,7 +893,9 @@ Value Search::Worker::search(
             // until ply exceeds nmpMinPly.
             thisThread->nmpMinPly = ss->ply + 3 * (depth - R) / 4;
 
+            savedStack = ss[0];
             Value v = search<NonPV>(pos, ss, beta - 1, beta, depth - R, false);
+            ss[0] = savedStack;
 
             thisThread->nmpMinPly = 0;
 
@@ -1138,7 +1141,11 @@ moves_loop:  // When in check, search starts here
             Depth singularDepth = newDepth / 2;
 
             ss->excludedMove = move;
+            
+            savedStack = ss[0];
             value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
+            ss[0] = savedStack;
+            
             ss->excludedMove = Move::none();
 
             if (value < singularBeta)
