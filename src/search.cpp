@@ -1226,8 +1226,12 @@ moves_loop:  // When in check, search starts here
                 int tripleMargin = 84 + 269 * PvNode - 253 * !ttCapture + 91 * ss->ttPv
                                  - corrValAdj2 - (ss->ply * 2 > thisThread->rootDepth * 3) * 54;
 
+                //if (doubleMargin > 0)
+                //    dbg_mean_of(doubleMargin, 0);
+                //dbg_mean_of(doubleMargin > 0, 1);
+
                 extension =
-                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
+                  1 + (value < singularBeta - doubleMargin / 2) + (value < singularBeta - tripleMargin);
 
                 depth++;
             }
