@@ -1220,7 +1220,7 @@ moves_loop:  // When in check, search starts here
             {
                 int corrValAdj1  = std::abs(correctionValue) / 248400;
                 int corrValAdj2  = std::abs(correctionValue) / 249757;
-                int doubleMargin = -4 + 244 * PvNode - 206 * !ttCapture - corrValAdj1
+                int doubleMargin = -14 + 244 * PvNode - 206 * !ttCapture - corrValAdj1
                                  - 997 * ttMoveHistory / 131072
                                  - (ss->ply > thisThread->rootDepth) * 47;
                 int tripleMargin = 84 + 269 * PvNode - 253 * !ttCapture + 91 * ss->ttPv
@@ -1231,7 +1231,7 @@ moves_loop:  // When in check, search starts here
                 //dbg_mean_of(doubleMargin > 0, 1);
 
                 extension =
-                  1 + (value < singularBeta - doubleMargin / 4) + (value < singularBeta - tripleMargin);
+                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
 
                 depth++;
             }
