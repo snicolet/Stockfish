@@ -1220,7 +1220,7 @@ moves_loop:  // When in check, search starts here
             {
                 int corrValAdj1  = std::abs(correctionValue) / 248400;
                 int corrValAdj2  = std::abs(correctionValue) / 249757;
-                int doubleMargin = -24 + 244 * PvNode - 206 * !ttCapture - corrValAdj1
+                int doubleMargin = -14 + 244 * PvNode - 206 * !ttCapture - corrValAdj1
                                  - 997 * ttMoveHistory / 131072
                                  - (ss->ply > thisThread->rootDepth) * 47;
                 int tripleMargin = 84 + 269 * PvNode - 253 * !ttCapture + 91 * ss->ttPv
