@@ -1293,14 +1293,14 @@ moves_loop:  // When in check, search starts here
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
         }
 
-        // If singular move is losing, pretend it is losing
-        // a little bit less: this will drive the search to 
-        // explore this branch a little bit more in the future. 
+        // If singular move is winning, pretend it is winning
+        // a little bit more: this will drive the search to
+        // explore this branch a little bit more in the future.
         if (   moveCount == 1
             && extension > 0
-            && value < -10
-            && value > -2000
-            && value <= alpha - 6)
+            && value > 10
+            && value < 2000
+            && value >= beta + 5)
            value += 5;
 
         // Step 19. Undo move
