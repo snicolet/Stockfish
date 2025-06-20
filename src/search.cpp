@@ -1294,14 +1294,14 @@ moves_loop:  // When in check, search starts here
         }
 
         // If singular move is winning, pretend it is winning
-        // a little bit more: this will drive the search to
-        // explore this branch a little bit more in the future.
+        // a little bit less: this will drive the search to
+        // explore this branch a little bit less in the future.
         if (   moveCount == 1
             && extension > 0
             && value > 10
             && value < 2000
-            && value >= beta + 5)
-           value += 5;
+            && value >= beta + 11)
+           value -= 5;
 
         // Step 19. Undo move
         undo_move(pos, move);
