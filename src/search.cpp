@@ -1298,10 +1298,10 @@ moves_loop:  // When in check, search starts here
         // explore this branch a little bit less in the future.
         if (   moveCount == 1
             && extension > 0
-            && value > 10
-            && value < 2000
-            && value >= beta + 11)
-           value -= 5;
+            && value <  200
+            && value > -2000
+            && value <= alpha - 6)
+           value += 5;
 
         // Step 19. Undo move
         undo_move(pos, move);
