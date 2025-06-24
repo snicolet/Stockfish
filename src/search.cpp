@@ -1301,7 +1301,7 @@ moves_loop:  // When in check, search starts here
             && value <  -10
             && value > -2000
             && value <= alpha - 6)
-           value = std::min(value + 20, alpha - 1);
+           value += 2;
 
         // Step 19. Undo move
         undo_move(pos, move);
