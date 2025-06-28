@@ -1293,12 +1293,12 @@ moves_loop:  // When in check, search starts here
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
         }
 
-        // If singular move is winning, pretend it is winning
+        // If singular move is losing, pretend it is losing
         // a little bit less: this will drive the search to
-        // explore this branch a little bit less in the future.
+        // explore this branch a little bit more in the future.
         if (   moveCount == 1
             && extension > 0
-            && value <  -30
+            && value <  -50
             && value > -2000
             && value <= alpha - 25)
            value += 20;
