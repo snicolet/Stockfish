@@ -79,7 +79,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     int material = 535 * pos.count<PAWN>() + pos.non_pawn_material() - 256 * pos.rule50_count();
     material = std::max(material, 0);
-    int v        = (nnue * (78000 + material) + optimism * (8000 + material)) / 77777;
+    int v        = (nnue * (78250 + material) + optimism * (8250 + material)) / 77777;
 
     // Damp down the evaluation linearly when shuffling
     v -= v * pos.rule50_count() / 212;
