@@ -79,7 +79,8 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     int pieces = pos.count<ALL_PIECES>();
     int material = 535 * pos.count<PAWN>() + pos.non_pawn_material();
-    material += pieces * pieces * pieces / 4;
+    material += 4 * pieces * pieces;
+    material -= 16 * pos.rule50_count();
 
     int v        = (nnue * (77777 + material) + optimism * (7777 + material)) / 77777;
 
