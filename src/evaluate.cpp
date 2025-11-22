@@ -83,9 +83,9 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     // Queen imbalance
     Color stm = pos.side_to_move();
     if (pos.count<QUEEN>(stm) < pos.count<QUEEN>(~stm))
-        v += 6 * pos.count<ALL_PIECES>(stm);
+        v += 7 * pos.count<ALL_PIECES>(stm);
     if (pos.count<QUEEN>(stm) > pos.count<QUEEN>(~stm))
-        v -= 6 * pos.count<ALL_PIECES>(~stm);
+        v -= 7 * pos.count<ALL_PIECES>(~stm);
 
     // Damp down the evaluation linearly when shuffling
     v -= v * pos.rule50_count() / 212;
