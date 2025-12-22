@@ -80,6 +80,9 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
     int v        = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
 
+    // Quantum
+    v = (v / 16) * 16 - 1 + (pos.key() & 0x2);
+
     // Damp down the evaluation linearly when shuffling
     v -= v * pos.rule50_count() / 199;
 
