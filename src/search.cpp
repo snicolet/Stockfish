@@ -1277,7 +1277,7 @@ moves_loop:  // When in check, search starts here
         // Small armageddon idea: rescore drawish values as win/loss
         if (   abs(value) < 100
             && pos.count<ALL_PIECES>() <= 16 ) 
-            value += ((ss->ply & 1) ? 10 : -10);
+            value += ((ss->ply & 1) ? 5 : -5);
 
         // Step 19. Undo move
         undo_move(pos, move);
