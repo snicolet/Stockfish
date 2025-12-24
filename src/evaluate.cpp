@@ -62,10 +62,10 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     auto [psqt, positional] = smallNet ? networks.small.evaluate(pos, accumulators, caches.small)
                                        : networks.big.evaluate(pos, accumulators, caches.big);
 
-    int random_balance = (pos.key() & 7) - 3;
+    int random_balance = (pos.key() & 3) - 2;
     //dbg_mean_of(random_balance);
 
-    Value nnue = ((123+random_balance) * psqt + (133-random_balance) * positional) / 128;
+    Value nnue = ((124+random_balance) * psqt + (132-random_balance) * positional) / 128;
 
     // Re-evaluate the position when higher eval accuracy is worth the time spent
     if (smallNet && (std::abs(nnue) < 277))
