@@ -1,0 +1,1 @@
+printf "setoption name Threads value 288\nsetoption name Hash value 28800\nucinewgame\n" | ./stockfish

@@ -1,0 +1,3 @@
+nodes1=$(printf "setoption name Threads value 288\nsetoption name Hash value 28800\ngo movetime 15000\nucinewgame\n" | ./stockfish | grep -B1 bestmove | grep -o 'nps [0-9]*' | grep -o '[0-9]*')
+nodes2=$(printf "setoption name Threads value 288\nsetoption name Threads value 288\nsetoption name Hash value 28800\ngo movetime 15000\nucinewgame\n" | ./stockfish | grep -B1 bestmove | grep -o 'nps [0-9]*' | grep -o '[0-9]*')
+printf "fast: $nodes1 slow: $nodes2 relative: $(((nodes1-nodes2)*100/nodes2))%%\n"

@@ -172,18 +172,34 @@ void TranspositionTable::resize(size_t mbSize, ThreadPool& threads) {
 void TranspositionTable::clear(ThreadPool& threads) {
     generation8              = 0;
     const size_t threadCount = threads.num_threads();
+    
+    std::cerr << "... entering TranspositionTable::clear() with "
+              << "(threadCount,clusterCount) = " 
+              << "(" << threadCount << "," << clusterCount << ")"
+              << std::endl;
 
     for (size_t i = 0; i < threadCount; ++i)
     {
+    
+        // The following line seems necessary to avoid a race
+        threads.wait_on_thread(i);
+        
         threads.run_on_thread(i, [this, i, threadCount]() {
             // Each thread will zero its part of the hash table
             const size_t stride = clusterCount / threadCount;
             const size_t start  = stride * i;
             const size_t len    = i + 1 != threadCount ? stride : clusterCount - start;
+            
+            dbg_mean_of(len, i);
 
             std::memset(&table[start], 0, len * sizeof(Cluster));
         });
     }
+    
+    
+    std::cerr << "-->  stats after TranspositionTable::clear() : " << std::endl;
+    dbg_print();
+    std::cerr << "...  leaving TranspositionTable::clear() : " << std::endl;
 
     for (size_t i = 0; i < threadCount; ++i)
         threads.wait_on_thread(i);
