@@ -76,7 +76,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     int nnueComplexity = psqt > 0 ? std::max(0, psqt - positional) 
                                   : std::max(0, positional - psqt);
     optimism += optimism * nnueComplexity / 476;
-    nnue -= nnue * nnueComplexity / 15000;
+    nnue -= nnue * nnueComplexity / 17000;
 
     int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
     int v        = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
