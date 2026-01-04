@@ -190,7 +190,12 @@ void TranspositionTable::clear(ThreadPool& threads) {
             const size_t start  = stride * i;
             const size_t len    = i + 1 != threadCount ? stride : clusterCount - start;
             
-            dbg_mean_of(len, i);
+            int numaNodeID = 0;
+            if (i >= 72) numaNodeID++;
+            if (i >= 144) numaNodeID++;
+            if (i >= 216) numaNodeID++;
+            
+            dbg_mean_of(len, numaNodeID);
 
             std::memset(&table[start], 0, len * sizeof(Cluster));
         });
