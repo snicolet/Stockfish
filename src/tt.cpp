@@ -182,7 +182,7 @@ void TranspositionTable::clear(ThreadPool& threads) {
     {
     
         // The following line seems necessary to avoid a race
-        threads.wait_on_thread(i);
+        // threads.wait_on_thread(i);
         
         threads.run_on_thread(i, [this, i, threadCount]() {
             // Each thread will zero its part of the hash table
@@ -196,13 +196,12 @@ void TranspositionTable::clear(ThreadPool& threads) {
         });
     }
     
+    for (size_t i = 0; i < threadCount; ++i)
+        threads.wait_on_thread(i);
     
     std::cerr << "-->  stats after TranspositionTable::clear() : " << std::endl;
     dbg_print();
     std::cerr << "...  leaving TranspositionTable::clear() : " << std::endl;
-
-    for (size_t i = 0; i < threadCount; ++i)
-        threads.wait_on_thread(i);
 }
 
 
