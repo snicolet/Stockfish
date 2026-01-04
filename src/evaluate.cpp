@@ -73,7 +73,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     }
 
     // Blend optimism and eval with nnue complexity
-    int nnueComplexity = std::max(0, (psqt - positional));
+    int nnueComplexity = std::max(0, (positional - psqt));
     optimism += optimism * nnueComplexity / 256;
     nnue -= nnue * nnueComplexity / 18236;
 
