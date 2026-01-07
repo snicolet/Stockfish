@@ -57,13 +57,9 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     assert(!pos.checkers());
 
-    int v;
+    // We use the small net when there is material progress from root
+    bool smallNet  = std::abs(simple_eval(pos)) > 900 + lazyThreshold;
 
-    int simpleEval = simple_eval(pos);
-    bool smallNet  = std::abs(simpleEval) > 900 + lazyThreshold;
-        
-    // dbg_mean_of(smallNet, 4);
-        
     auto [psqt, positional] = smallNet ? networks.small.evaluate(pos, accumulators, caches.small)
                                        : networks.big.evaluate(pos, accumulators, caches.big);
 
@@ -79,12 +75,11 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     // Blend optimism and eval with nnue complexity
     int nnueComplexity = std::abs(psqt - positional);
-    int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
-
     optimism += optimism * nnueComplexity / 476;
     nnue -= nnue * nnueComplexity / 18236;
-   
-    v = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
+
+    int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
+    int v = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
 
     // Damp down the evaluation linearly when shuffling
     v -= v * pos.rule50_count() / 199;
