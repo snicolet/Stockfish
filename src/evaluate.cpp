@@ -54,7 +54,8 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
                      const Position&                pos,
                      Eval::NNUE::AccumulatorStack&  accumulators,
                      Eval::NNUE::AccumulatorCaches& caches,
-                     int                            optimism) {
+                     int                            optimism,
+                     int                            lazyThreshold) {
 
     assert(!pos.checkers());
 
@@ -63,10 +64,15 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     int shuffling  = pos.rule50_count();
     int random     = pos.key();
     int simpleEval = simple_eval(pos) + (int(random & 7) - 3);
-    bool c = (random & 7) != 0;
-
+    bool c = (random & 0x7000) != 0;    // true 87.5% of the time
+    
     bool lazy = abs(simpleEval) >=   RookValue + KnightValue
-                                   + 16 * shuffling * shuffling;
+                                   + 16 * shuffling * shuffling
+                                   + lazyThreshold;
+    
+    // dbg_mean_of(lazyThreshold, 0);
+    // dbg_mean_of(lazy, 1);
+    // dbg_mean_of(c, 2);
 
     if (lazy && c)
         v = simpleEval;
@@ -128,7 +134,7 @@ std::string Eval::trace(Position& pos, const Eval::NNUE::Networks& networks) {
     v                       = pos.side_to_move() == WHITE ? v : -v;
     ss << "NNUE evaluation        " << 0.01 * UCIEngine::to_cp(v, pos) << " (white side)\n";
 
-    v = evaluate(networks, pos, *accumulators, *caches, VALUE_ZERO);
+    v = evaluate(networks, pos, *accumulators, *caches, VALUE_ZERO, VALUE_ZERO);
     v = pos.side_to_move() == WHITE ? v : -v;
     ss << "Final evaluation       " << 0.01 * UCIEngine::to_cp(v, pos) << " (white side)";
     ss << " [with scaled NNUE, ...]";
