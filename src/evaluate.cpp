@@ -66,19 +66,23 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     bool c = (random & 0x7000) != 0;    // true 87.5% of the time
     
-    bool lazy = abs(simpleEval2) >=   RookValue + KnightValue
-                                   + 16 * shuffling * shuffling
-                                   + lazyThreshold;
+    bool lazy = simpleEval2 >=   RookValue
+                               + 16 * shuffling * shuffling
+                               + lazyThreshold;
     
     // dbg_mean_of(lazyThreshold, 0);
     // dbg_mean_of(lazy, 1);
     // dbg_mean_of(c, 2);
+    // dbg_mean_of(lazy && c, 3);
 
     if (lazy && c)
         v = simpleEval2;
     else
     {
         bool smallNet           = std::abs(simpleEval) > 962;
+        
+        // dbg_mean_of(smallNet, 4);
+        
         auto [psqt, positional] = smallNet ? networks.small.evaluate(pos, accumulators, caches.small)
                                            : networks.big.evaluate(pos, accumulators, caches.big);
 
