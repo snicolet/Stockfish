@@ -46,8 +46,6 @@ int Eval::simple_eval(const Position& pos) {
          - pos.non_pawn_material(~c);
 }
 
-bool Eval::use_smallnet(const Position& pos) { return std::abs(simple_eval(pos)) > 962; }
-
 // Evaluate is the evaluator for the outer world. It returns a static evaluation
 // of the position from the point of view of the side to move.
 Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
@@ -61,14 +59,17 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     int v;
 
-    int shuffling  = pos.rule50_count();
-    int random     = pos.key();
-    int simpleEval = simple_eval(pos) + (int(random & 7) - 3);
-    bool c = (random & 0x8000) != 0;
+    int random      = pos.key();
+    int simpleEval  = simple_eval(pos);
+    int simpleEval2 = simpleEval + (int(random & 7) - 3);
+    int shuffling   = pos.rule50_count();
     
-    bool lazy = abs(simpleEval) >=   RookValue + PawnValue
-                                   + 16 * shuffling * shuffling
-                                   + lazyThreshold;
+    
+    bool c = (random & 0x7000) != 0;
+    
+    bool lazy = abs(simpleEval2) >=   RookValue + KnightValue
+                                    + 16 * shuffling * shuffling
+                                    + lazyThreshold;
     
     // dbg_mean_of(lazyThreshold, 0);
     // dbg_mean_of(lazy, 1);
@@ -79,7 +80,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
         v = simpleEval;
     else
     {
-        bool smallNet           = use_smallnet(pos);
+        bool smallNet           = std::abs(simpleEval) > 962;
         auto [psqt, positional] = smallNet ? networks.small.evaluate(pos, accumulators, caches.small)
                                            : networks.big.evaluate(pos, accumulators, caches.big);
 
