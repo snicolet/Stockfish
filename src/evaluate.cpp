@@ -59,52 +59,32 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     int v;
 
-    int shuffling  = pos.rule50_count();
-    int random     = pos.key();
     int simpleEval = simple_eval(pos);
-    int simpleEval2 = simpleEval + (int(random & 7) - 3);
+    bool smallNet  = std::abs(simpleEval) > 900 + lazyThreshold;
+        
+    // dbg_mean_of(smallNet, 4);
+        
+    auto [psqt, positional] = smallNet ? networks.small.evaluate(pos, accumulators, caches.small)
+                                       : networks.big.evaluate(pos, accumulators, caches.big);
 
-    bool c = (random & 0x7000) != 0;    // true 87.5% of the time
-    
-    bool lazy = simpleEval >=    RookValue
-                               + 16 * shuffling * shuffling
-                               + lazyThreshold;
-    
-    // dbg_mean_of(lazyThreshold, 0);
-    // dbg_mean_of(lazy, 1);
-    // dbg_mean_of(c, 2);
-    // dbg_mean_of(lazy && c, 3);
+    Value nnue = (125 * psqt + 131 * positional) / 128;
 
-    if (lazy && c)
-        v = simpleEval2;
-    else
+    // Re-evaluate the position when higher eval accuracy is worth the time spent
+    if (smallNet && (std::abs(nnue) < 277))
     {
-        bool smallNet           = std::abs(simpleEval) > 962;
-        
-        // dbg_mean_of(smallNet, 4);
-        
-        auto [psqt, positional] = smallNet ? networks.small.evaluate(pos, accumulators, caches.small)
-                                           : networks.big.evaluate(pos, accumulators, caches.big);
-
-        Value nnue = (125 * psqt + 131 * positional) / 128;
-
-        // Re-evaluate the position when higher eval accuracy is worth the time spent
-        if (smallNet && (std::abs(nnue) < 277))
-        {
-            std::tie(psqt, positional) = networks.big.evaluate(pos, accumulators, caches.big);
-            nnue                       = (125 * psqt + 131 * positional) / 128;
-            smallNet                   = false;
-        }
-
-        // Blend optimism and eval with nnue complexity
-        int nnueComplexity = std::abs(psqt - positional);
-        int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
-
-        optimism += optimism * nnueComplexity / 476;
-        nnue -= nnue * nnueComplexity / 18236;
-   
-        v = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
+        std::tie(psqt, positional) = networks.big.evaluate(pos, accumulators, caches.big);
+        nnue                       = (125 * psqt + 131 * positional) / 128;
+        smallNet                   = false;
     }
+
+    // Blend optimism and eval with nnue complexity
+    int nnueComplexity = std::abs(psqt - positional);
+    int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
+
+    optimism += optimism * nnueComplexity / 476;
+    nnue -= nnue * nnueComplexity / 18236;
+   
+    v = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
 
     // Damp down the evaluation linearly when shuffling
     v -= v * pos.rule50_count() / 199;
