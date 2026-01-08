@@ -63,7 +63,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     int shuffling  = pos.rule50_count();
     int random     = pos.key();
-    int simpleEval = simple_eval(pos) + (int(random & 7) - 3);
+    int simpleEval = simple_eval(pos);
     bool c = (random & 0x7000) != 0;    // true 87.5% of the time
     
     bool lazy = abs(simpleEval) >=   RookValue + BishopValue
@@ -76,7 +76,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     // dbg_mean_of(lazy && c, 3);
 
     if (lazy && c)
-        v = simpleEval;
+        v = simpleEval + (int(random & 7) - 3);
     else
     {
         bool smallNet           = use_smallnet(pos);
