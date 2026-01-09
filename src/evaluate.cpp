@@ -64,7 +64,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     int shuffling  = pos.rule50_count();
     int random     = pos.key();
     int simpleEval = simple_eval(pos) + (int(random & 7) - 3);
-    bool c = (random & 0x3000) != 0;    // true 75% of the time
+    bool c = (random & 0xF000) != 0;    // true 94% of the time
 
     bool lazy = abs(simpleEval) >=   RookValue + BishopValue
                                    + 16 * shuffling * shuffling
