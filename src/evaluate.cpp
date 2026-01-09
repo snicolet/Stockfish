@@ -64,15 +64,18 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     int shuffling  = pos.rule50_count();
     int random     = pos.key();
     int simpleEval = simple_eval(pos) + (int(random & 7) - 3);
-    
+    bool c = (random & 0x7000) != 0;    // true 87.5% of the time
+
     bool lazy = abs(simpleEval) >=   RookValue + BishopValue
                                    + 16 * shuffling * shuffling
                                    + lazyThreshold;
-    
+
     // dbg_mean_of(lazyThreshold, 0);
     // dbg_mean_of(lazy, 1);
+    // dbg_mean_of(c, 2);
+    // dbg_mean_of(lazy && c, 3);
 
-    if (lazy)
+    if (lazy && c)
         v = simpleEval;
     else
     {
