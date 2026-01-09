@@ -79,7 +79,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
         v = simpleEval;
     else
     {
-        bool smallNet           = use_smallnet(pos);
+        bool smallNet           = false;
         auto [psqt, positional] = smallNet ? networks.small.evaluate(pos, accumulators, caches.small)
                                            : networks.big.evaluate(pos, accumulators, caches.big);
 
