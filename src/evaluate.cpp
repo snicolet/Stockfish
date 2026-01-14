@@ -76,6 +76,13 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     int nnueComplexity = std::abs(psqt - positional);
     optimism += optimism * nnueComplexity / 476;
     nnue -= nnue * nnueComplexity / 18236;
+    
+    // Add a small simple_eval component to fine-tune the materialistic balance.
+    // Positive weight for simpleEval is more materialistic (Korchnoi style), 
+    // while negative weight for simpleEval is less materialistic (Tal style).
+    int simpleEval = simple_eval(pos);
+    int w = -1;
+    nnue = ((128 - w) * nnue + w * simpleEval) / 128;
 
     int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
     int v        = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
