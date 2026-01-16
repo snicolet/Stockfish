@@ -81,9 +81,12 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     // Positive weight for simpleEval is more materialistic (Korchnoi style), 
     // while negative weight for simpleEval is less materialistic (Tal style).
     int simpleEval = simple_eval(pos);
-    int w = simpleEval * nnue < 0 ?  3 :
-            simpleEval * nnue > 0 ? -3 : 0;
-    nnue = ((128 - w) * nnue + w * simpleEval) / 128;
+    if (abs(simpleEval) >= PawnValue)
+    {
+       int w = simpleEval * nnue < 0 ?  5 :
+               simpleEval * nnue > 0 ? -5  : 0;
+       nnue = ((128 - w) * nnue + w * simpleEval) / 128;
+    }
 
     int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
     int v        = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
