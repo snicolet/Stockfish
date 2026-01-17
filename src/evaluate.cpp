@@ -82,7 +82,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     // while negative weight for simpleEval is less materialistic (Tal style).
     int simpleEval = simple_eval(pos);
     int w = -5;
-    if (simpleEval * nnue < 0)
+    if (simpleEval != 0)
         nnue = ((128 - w) * nnue + w * 2 * simpleEval) / 128;
 
 
