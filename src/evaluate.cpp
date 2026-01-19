@@ -83,7 +83,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     int simpleEval = simple_eval(pos);
     if (abs(simpleEval) >= PawnValue)
     {
-       int w = simpleEval * nnue < 0 ?  10 :
+       int w = simpleEval * nnue < 0 ?  6 :
                simpleEval * nnue > 0 ? -3  : 0;
        nnue = ((128 - w) * nnue + w * simpleEval) / 128;
     }
