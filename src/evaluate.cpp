@@ -85,7 +85,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     {
        int w = simpleEval * nnue < 0 ?  3 :
                simpleEval * nnue > 0 ? -3 : 0;
-       nnue = ((128 - w) * nnue + w * 4 * simpleEval) / 128;
+       nnue = ((128 - w) * nnue + w * 3 * simpleEval) / 128;
     }
 
     // Scale the evaluation with material, as exchanges have a drawing tendency
