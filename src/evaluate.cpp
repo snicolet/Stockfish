@@ -83,9 +83,9 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     int simpleEval = simple_eval(pos);
     if (abs(simpleEval) >= PawnValue)
     {
-       int w = simpleEval * nnue < 0 ?  4 :
-               simpleEval * nnue > 0 ? -4 : 0;
-       nnue = ((128 - w) * nnue + w * simpleEval) / 128;
+       int w = simpleEval * nnue < 0 ?  2 :
+               simpleEval * nnue > 0 ? -2 : 0;
+       nnue = ((128 - w) * nnue + w * 2 * simpleEval) / 128;
     }
 
     // Scale the evaluation with material, as exchanges have a drawing tendency
