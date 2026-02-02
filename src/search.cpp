@@ -322,6 +322,15 @@ void Search::Worker::iterative_deepening() {
     while (++rootDepth < MAX_PLY && !threads.stop
            && !(limits.depth && mainThread && rootDepth > limits.depth))
     {
+        // For multi-threads search, let odd threads search odd depths
+        // and even threads search even depths. The main thread still
+        // searches all depths.
+        if (!mainThread && rootDepth > 6)
+        {
+        	if ((rootDepth & 1) != (threadIdx & 1))
+        	    continue;
+        }
+    
         // Age out PV variability metric
         if (mainThread)
             totBestMoveChanges /= 2;
