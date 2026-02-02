@@ -327,7 +327,7 @@ void Search::Worker::iterative_deepening() {
         // searches all depths.
         if (!mainThread && rootDepth > 6)
         {
-        	if ((rootDepth & 1) != (threadIdx & 1))
+        	if ((rootDepth % 4) != (threadIdx % 4))
         	    continue;
         }
     
