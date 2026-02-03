@@ -323,12 +323,11 @@ void Search::Worker::iterative_deepening() {
     while (++rootDepth < MAX_PLY && !threads.stop
            && !(limits.depth && mainThread && rootDepth > limits.depth))
     {
-        // For multi-threads search, let odd threads search odd depths
-        // and even threads search even depths. The main thread still
-        // searches all depths.
+        // For multi-threads searches, let odd threads search odd depths only.
+        // The other threads still searches all the depths.
         if (!mainThread && rootDepth > 6)
         {
-        	if ((rootDepth % 4) != (threadIdx % 4))
+        	if ((threadIdx % 2 == 1) && (rootDepth % 2 == 1))
         	    continue;
         }
     
