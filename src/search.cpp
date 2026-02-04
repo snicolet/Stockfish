@@ -323,13 +323,16 @@ void Search::Worker::iterative_deepening() {
     while (++rootDepth < MAX_PLY && !threads.stop
            && !(limits.depth && mainThread && rootDepth > limits.depth))
     {
+
         // For multi-threads searches, let some threads search only a fraction 
         // of the depths. The other threads still search all the depths. It is
-        // important that the main thread  always searches all depths, because 
+        // important that the main thread always searches all depths, because 
         // this thread is responsible for stopping the global search.
         if (!mainThread && rootDepth > 6)
         {
-        	if ((threadIdx % 4 == 2) && (rootDepth % 2 == 0))
+            if ((threadIdx % 8 == 1) && (rootDepth % 4 != 0))
+                continue;
+            if ((threadIdx % 8 == 2) && (rootDepth % 2 == 0))
         	    continue;
         }
     
