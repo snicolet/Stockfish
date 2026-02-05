@@ -330,10 +330,8 @@ void Search::Worker::iterative_deepening() {
         // this thread is responsible for stopping the global search.
         if (!mainThread && rootDepth > 6)
         {
-            if ((threadIdx % 8 == 1) && (rootDepth % 5 != 0))
+            if ((threadIdx % 8 >= 6) && (rootDepth % 4 != 0))
                 continue;
-            if ((threadIdx % 8 == 2) && (rootDepth % 2 == 0))
-        	    continue;
         }
     
         // Age out PV variability metric
