@@ -1735,14 +1735,21 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
 Depth Search::Worker::reduction(bool i, Depth d, int mn, int delta) const {
 
+    // Try specialising some threads during smp, giving them either one less 
+    // reduction ply to search wider, or one more reduction ply to search deeper.
+    int wider  = 1024 * (d > 6 && (threadIdx % 8) == 3);
+    int deeper = 1024 * (d > 6 && (threadIdx % 8) == 4);
+
     // This is the normal reduction
-    int reductionScale = reductions[d] * reductions[mn];
+    int base = reductions[d] * reductions[mn];
 
-    // Try specialising a thread during smp, giving it one less ply reduction 
-    // to search wider. Make every 8th thread have this role.
-    int wider = 1024 * (d > 6 && (threadIdx % 8) == 3);
+    int reduction = base;
+    reduction += deeper - wider;
+    reduction -= delta * 608 / rootDelta;
+    reduction += !i * base * 238 / 512;
+    reduction += 1182;
 
-    return reductionScale - wider - delta * 608 / rootDelta + !i * reductionScale * 238 / 512 + 1182;
+    return reduction;
 }
 
 // elapsed() returns the time elapsed since the search started. If the
