@@ -1736,11 +1736,11 @@ Depth Search::Worker::reduction(bool i, Depth d, int mn, int delta) const {
     // This is the normal reduction
     int reductionScale = reductions[d] * reductions[mn];
 
-    // Try specialising a thread during smp, allow it an extra ply reduction 
-    // to search faster, like a miner. Make every 8th thread have this role.
-    int miner = 1024 * (d > 6 && (threadIdx % 8) == 3);
+    // Try specialising a thread during smp, giving it one less ply reduction 
+    // to search wider. Make every 8th thread have this role.
+    int wider = 1024 * (d > 6 && (threadIdx % 8) == 3);
 
-    return reductionScale + miner - delta * 608 / rootDelta + !i * reductionScale * 238 / 512 + 1182;
+    return reductionScale - wider - delta * 608 / rootDelta + !i * reductionScale * 238 / 512 + 1182;
 }
 
 // elapsed() returns the time elapsed since the search started. If the
