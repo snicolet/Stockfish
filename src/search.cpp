@@ -1732,8 +1732,15 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 }
 
 Depth Search::Worker::reduction(bool i, Depth d, int mn, int delta) const {
+
+    // This is the normal reduction
     int reductionScale = reductions[d] * reductions[mn];
-    return reductionScale - delta * 608 / rootDelta + !i * reductionScale * 238 / 512 + 1182;
+
+    // Try specialising a thread during smp, allow it an extra ply reduction 
+    // to search faster, like a miner. Make every 8th thread have this role.
+    int miner = 1024 * (d > 6 && (threadIdx % 8) == 3);
+
+    return reductionScale + miner - delta * 608 / rootDelta + !i * reductionScale * 238 / 512 + 1182;
 }
 
 // elapsed() returns the time elapsed since the search started. If the
