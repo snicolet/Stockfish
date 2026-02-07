@@ -662,7 +662,7 @@ Value Search::Worker::search(
     ss->moveCount = 0;
     bestValue     = -VALUE_INFINITE;
     maxValue      = VALUE_INFINITE;
-    safety        = ((pos.key() + nodes) & 31);
+    safety        = ((pos.key() + nodes) & 7);
 
     // Check for the available remaining time
     if (is_mainthread())
