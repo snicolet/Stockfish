@@ -1737,8 +1737,8 @@ Depth Search::Worker::reduction(bool i, Depth d, int mn, int delta) const {
 
     // Try specialising some threads during smp, giving them either one less 
     // reduction ply to search wider, or one more reduction ply to search deeper.
-    int wider  = 1024 * (d > 6 && (threadIdx % 8) == 3);
-    int deeper = 1024 * (d > 6 && (threadIdx % 8) == 4);
+    int wider  = 512 * (d > 6 && (threadIdx % 8) == 3);
+    int deeper = 512 * (d > 6 && (threadIdx % 8) == 4);
 
     // This is the normal reduction
     int base = reductions[d] * reductions[mn];
