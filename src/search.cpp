@@ -1039,6 +1039,8 @@ moves_loop:  // When in check, search starts here
         int delta = beta - alpha;
 
         Depth r = reduction(improving, depth, moveCount, delta);
+        
+        r += int((pos.key() + nodes) & 31) - 15;
 
         // Increase reduction for ttPv nodes (*Scaler)
         // Larger values scale well
@@ -1735,8 +1737,8 @@ Depth Search::Worker::reduction(bool i, Depth d, int mn, int delta) const {
 
     // Try specialising some threads during smp, giving them either one less 
     // reduction ply to search wider, or one more reduction ply to search deeper.
-    int wider  = 512 * (d > 6 && (threadIdx % 8) == 3);
-    int deeper = 512 * (d > 6 && (threadIdx % 8) == 4);
+    int wider  = 0;   // was 512 * (d > 6 && (threadIdx % 8) == 3);
+    int deeper = 0;   // was 512 * (d > 6 && (threadIdx % 8) == 4);
 
     // This is the normal reduction
     int base = reductions[d] * reductions[mn];
