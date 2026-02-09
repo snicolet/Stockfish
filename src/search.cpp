@@ -1020,6 +1020,9 @@ moves_loop:  // When in check, search starts here
 
         ss->moveCount = ++moveCount;
 
+        if (rootNode && ((threadIdx % 2) == 1) && moveCount > 4 && depth > 6)
+            continue;
+
         if (rootNode && is_mainthread() && nodes > 10000000)
         {
             main_manager()->updates.onIter(
