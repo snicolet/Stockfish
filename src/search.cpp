@@ -1040,7 +1040,7 @@ moves_loop:  // When in check, search starts here
 
         Depth r = reduction(improving, depth, moveCount, delta);
         
-        r += int((pos.key() + nodes) & 31) - 15;
+        r += int((pos.key() + nodes) & 63) - 31;
 
         // Increase reduction for ttPv nodes (*Scaler)
         // Larger values scale well
