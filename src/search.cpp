@@ -150,6 +150,51 @@ bool is_shuffling(Move move, Stack* const ss, const Position& pos) {
         && (ss - 2)->currentMove.from_sq() == (ss - 4)->currentMove.to_sq();
 }
 
+// Breadcrumbs are used to mark nodes as being searched by a given worker thread
+struct Breadcrumb {
+    std::atomic<Worker*> worker;
+    std::atomic<Key> key;
+};
+std::array<Breadcrumb, 8192> breadcrumbs;
+
+
+// WorkerHolding keeps track of which worker left breadcrumbs at the given node.
+// A free node will be marked upon entering the moves loop, and unmarked upon
+// leaving that loop, by the constructor/destructor of this struct.
+struct WorkerHolding {
+    explicit WorkerHolding(Worker* thisWorker, Key posKey, int ply) {
+       location = ply <= 8 ? &breadcrumbs[posKey & (breadcrumbs.size() - 1)] : nullptr;
+       otherWorker = false;
+       owning = false;
+       if (location)
+       {
+          // See if another already marked this location, if not, mark it ourselves
+          Worker* tmp = (*location).worker.load(std::memory_order_relaxed);
+          if (tmp == nullptr)
+          {
+              (*location).worker.store(thisWorker, std::memory_order_relaxed);
+              (*location).key.store(posKey, std::memory_order_relaxed);
+              owning = true;
+          }
+          else if (   tmp != thisWorker
+                   && (*location).key.load(std::memory_order_relaxed) == posKey)
+              otherWorker = true;
+       }
+    }
+
+    ~WorkerHolding() {
+       if (owning) // free the marked location
+           (*location).worker.store(nullptr, std::memory_order_relaxed);
+    }
+
+    bool by_other() { return otherWorker; }
+
+    private:
+    Breadcrumb* location;
+    bool otherWorker, owning;
+};
+
+
 }  // namespace
 
 Search::Worker::Worker(SharedState&                    sharedState,
@@ -707,6 +752,9 @@ Value Search::Worker::search(
     ss->ttPv     = excludedMove ? ss->ttPv : PvNode || (ttHit && ttData.is_pv);
     ttCapture    = ttData.move && pos.capture_stage(ttData.move);
 
+    // Mark this node as being searched our worker
+    WorkerHolding held(this, posKey, ss->ply);
+
     // Step 6. Static evaluation of the position
     Value      unadjustedStaticEval = VALUE_NONE;
     const auto correctionValue      = correction_value(*this, pos, ss);
@@ -796,6 +844,21 @@ Value Search::Worker::search(
                 return ttData.value;
         }
     }
+
+    // SMP speculative fail-low. If other thread(s) are exploring the node,
+    // the node is most probably an ALL node, so we can let the other threads
+    // finish to prove it while we take a speculative fail-low from the
+    // transposition table (with some level of risk).
+    int risk = 8;
+    if (   held.by_other()
+        && ss->ply >= 1
+        && is_valid(ttData.value)
+        && !is_decisive(ttData.value)
+        && ttData.value <= alpha + risk
+        && (ttData.bound & BOUND_UPPER)
+        && !excludedMove
+        && std::abs(alpha) <= 2000)
+        return std::min(ttData.value, alpha);
 
     // Step 5. Tablebases probe
     if (!rootNode && !excludedMove && tbConfig.cardinality)
@@ -990,7 +1053,7 @@ moves_loop:  // When in check, search starts here
       (ss - 1)->continuationHistory, (ss - 2)->continuationHistory, (ss - 3)->continuationHistory,
       (ss - 4)->continuationHistory, (ss - 5)->continuationHistory, (ss - 6)->continuationHistory};
 
-
+    // Create a MovePicker object, which will emit the sequence of moves
     MovePicker mp(pos, ttData.move, depth, &mainHistory, &lowPlyHistory, &captureHistory, contHist,
                   &sharedHistory, ss->ply);
 
