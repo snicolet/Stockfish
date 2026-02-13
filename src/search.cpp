@@ -1039,8 +1039,13 @@ moves_loop:  // When in check, search starts here
     // Mark this node as being searched our worker
     WorkerHolding held(this, posKey, ss->ply);
 
-    MovePicker mp(pos, ttData.move, depth, &mainHistory, &lowPlyHistory, &captureHistory, contHist,
-                  &sharedHistory, ss->ply, int(threadIdx));
+    // Create a MovePicker object, which will create the move list and emit
+    // and emit the moves in order. If the node is searched by various threads,
+    // we pass the thread index to the constructor to give the move picker the
+    // opportunity to change the move order for each thread.
+    int threadIndex = held.by_other() ? int(threadIdx) : -1;
+    MovePicker mp(pos, ttData.move, depth, &mainHistory, &lowPlyHistory, &captureHistory, 
+                  contHist, &sharedHistory, ss->ply, threadIndex);
     
     value = bestValue;
 
