@@ -99,7 +99,7 @@ MovePicker::MovePicker(const Position&              p,
     ttMove(ttm),
     depth(d),
     ply(pl),
-    threadIndex(thrIdx) 
+    threadIndex(thrIdx)
 {
 
     if (pos.checkers())
@@ -116,7 +116,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, int th, const CapturePieceTo
     captureHistory(cph),
     ttMove(ttm),
     threshold(th),
-    threadIndex(thrIdx) 
+    threadIndex(thrIdx)
 {
     assert(!pos.checkers());
 
@@ -143,7 +143,7 @@ ExtMove* MovePicker::score(MoveList<Type>& ml) {
         threatByLesser[QUEEN] = pos.attacks_by<ROOK>(~us) | threatByLesser[ROOK];
         threatByLesser[KING]  = pos.attacks_by<QUEEN>(~us) | threatByLesser[QUEEN];
     }
-    
+
     [[maybe_unused]] int count = 0;
 
     ExtMove* it = cur;
@@ -183,7 +183,7 @@ ExtMove* MovePicker::score(MoveList<Type>& ml) {
 
             if (ply < LOW_PLY_HISTORY_SIZE)
                 m.value += 8 * (*lowPlyHistory)[ply][m.raw()] / (1 + ply);
-            
+
             // let different threads prioritize different quiet moves at ply 1
             count++;
             if (ply <= 2 && threadIndex >= 1)
