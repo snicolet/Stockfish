@@ -186,7 +186,7 @@ ExtMove* MovePicker::score(MoveList<Type>& ml) {
 
             // let different threads prioritize different quiet moves at ply 1
             count++;
-            if (ply <= 3 && threadIndex >= 1)
+            if (ply <= 2 && threadIndex >= 1)
                 if ((threadIndex % 8) == (count % 8))
                     m.value += 40000;
         }
