@@ -1039,8 +1039,8 @@ moves_loop:  // When in check, search starts here
     // Mark this node as being searched our worker
     WorkerHolding held(this, posKey, ss->ply);
 
-    // Create a MovePicker object, which will create the move list and emit
-    // and emit the moves in order. If the node is searched by various threads,
+    // Create a MovePicker object, which will create the move list and emit 
+    // the move sequence one by one. If the node is searched by various threads,
     // we pass the thread index to the constructor to give the move picker the
     // opportunity to change the move order for each thread.
     int threadIndex = held.by_other() ? int(threadIdx) : -1;
