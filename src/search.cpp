@@ -155,7 +155,7 @@ struct Breadcrumb {
     std::atomic<Worker*> worker;
     std::atomic<Key> key;
 };
-std::array<Breadcrumb, 1024> breadcrumbs;
+std::array<Breadcrumb, 8192> breadcrumbs;
 
 
 // WorkerHolding keeps track of which worker left breadcrumbs at the given node.
@@ -163,7 +163,7 @@ std::array<Breadcrumb, 1024> breadcrumbs;
 // leaving that loop, by the constructor/destructor of this struct.
 struct WorkerHolding {
     explicit WorkerHolding(Worker* thisWorker, Key posKey, int ply) {
-       location = ply < 8 ? &breadcrumbs[posKey & (breadcrumbs.size() - 1)] : nullptr;
+       location = ply <= 8 ? &breadcrumbs[posKey & (breadcrumbs.size() - 1)] : nullptr;
        otherWorker = false;
        owning = false;
        if (location)
