@@ -150,6 +150,51 @@ bool is_shuffling(Move move, Stack* const ss, const Position& pos) {
         && (ss - 2)->currentMove.from_sq() == (ss - 4)->currentMove.to_sq();
 }
 
+// Breadcrumbs are used to mark nodes as being searched by a given worker thread
+struct Breadcrumb {
+    std::atomic<Worker*> worker;
+    std::atomic<Key> key;
+};
+std::array<Breadcrumb, 8192> breadcrumbs;
+
+
+// WorkerHolding keeps track of which worker left breadcrumbs at the given node.
+// A free node will be marked upon entering the moves loop, and unmarked upon
+// leaving that loop, by the constructor/destructor of this struct.
+struct WorkerHolding {
+    explicit WorkerHolding(Worker* thisWorker, Key posKey, int ply) {
+       location = ply <= 8 ? &breadcrumbs[posKey & (breadcrumbs.size() - 1)] : nullptr;
+       otherWorker = false;
+       owning = false;
+       if (location)
+       {
+          // See if another already marked this location, if not, mark it ourselves
+          Worker* tmp = (*location).worker.load(std::memory_order_relaxed);
+          if (tmp == nullptr)
+          {
+              (*location).worker.store(thisWorker, std::memory_order_relaxed);
+              (*location).key.store(posKey, std::memory_order_relaxed);
+              owning = true;
+          }
+          else if (   tmp != thisWorker
+                   && (*location).key.load(std::memory_order_relaxed) == posKey)
+              otherWorker = true;
+       }
+    }
+
+    ~WorkerHolding() {
+       if (owning) // free the marked location
+           (*location).worker.store(nullptr, std::memory_order_relaxed);
+    }
+
+    bool by_other() { return otherWorker; }
+
+    private:
+    Breadcrumb* location;
+    bool otherWorker, owning;
+};
+
+
 }  // namespace
 
 Search::Worker::Worker(SharedState&                    sharedState,
@@ -350,7 +395,7 @@ void Search::Worker::iterative_deepening() {
             selDepth = 0;
 
             // Reset aspiration window starting size
-            delta     = 5 + threadIdx % 8 + std::abs(rootMoves[pvIdx].meanSquaredScore) / 9000;
+            delta     = 5 + (threadIdx % 8) + std::abs(rootMoves[pvIdx].meanSquaredScore) / 9000;
             Value avg = rootMoves[pvIdx].averageScore;
             alpha     = std::max(avg - delta, -VALUE_INFINITE);
             beta      = std::min(avg + delta, VALUE_INFINITE);
@@ -942,7 +987,7 @@ Value Search::Worker::search(
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
-        MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory, int(threadIdx));
+        MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory, -1);
         Depth      probCutDepth = depth - 5;
 
         while ((move = mp.next_move()) != Move::none())
@@ -991,8 +1036,16 @@ moves_loop:  // When in check, search starts here
       (ss - 4)->continuationHistory, (ss - 5)->continuationHistory, (ss - 6)->continuationHistory};
 
 
-    MovePicker mp(pos, ttData.move, depth, &mainHistory, &lowPlyHistory, &captureHistory, contHist,
-                  &sharedHistory, ss->ply, int(threadIdx));
+    // Mark this node as being searched our worker
+    WorkerHolding held(this, posKey, ss->ply);
+
+    // Create a MovePicker object, which will emit the sequence of moves. If
+    // the node is searched by at least another thread, we pass our thread
+    // index to the constructor to give the move picker the opportunity to
+    // split the search by changing the move order for each thread.
+    int threadIndex = held.by_other() && ttData.move ? int(threadIdx) : -1;
+    MovePicker mp(pos, ttData.move, depth, &mainHistory, &lowPlyHistory, &captureHistory,
+                  contHist, &sharedHistory, ss->ply, threadIndex);
 
     value = bestValue;
 
