@@ -74,7 +74,7 @@ class MovePicker {
     int                          ply;
     bool                         skipQuiets = false;
     ExtMove                      moves[MAX_MOVES];
-    int                          threadIndex;          
+    int                          threadIndex;
 };
 
 }  // namespace Stockfish
