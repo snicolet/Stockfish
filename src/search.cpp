@@ -159,7 +159,7 @@ std::array<Breadcrumb, 8192> breadcrumbs;
 
 
 // WorkerHolding keeps track of which worker left breadcrumbs at the given node.
-// A free node will be marked upon entering the moves loop, and unmarked upon 
+// A free node will be marked upon entering the moves loop, and unmarked upon
 // leaving that loop, by the constructor/destructor of this struct.
 struct WorkerHolding {
     explicit WorkerHolding(Worker* thisWorker, Key posKey, int ply) {
@@ -987,7 +987,7 @@ Value Search::Worker::search(
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
-        MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory, int(threadIdx));
+        MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory, -1);
         Depth      probCutDepth = depth - 5;
 
         while ((move = mp.next_move()) != Move::none())
@@ -1039,14 +1039,14 @@ moves_loop:  // When in check, search starts here
     // Mark this node as being searched our worker
     WorkerHolding held(this, posKey, ss->ply);
 
-    // Create a MovePicker object, which will create the move list and emit 
-    // the move sequence one by one. If the node is searched by various threads,
-    // we pass the thread index to the constructor to give the move picker the
-    // opportunity to change the move order for each thread.
-    int threadIndex = held.by_other() ? int(threadIdx) : -1;
-    MovePicker mp(pos, ttData.move, depth, &mainHistory, &lowPlyHistory, &captureHistory, 
+    // Create a MovePicker object, which will emit the sequence of moves. If
+    // the node is searched by at least another thread, we pass our thread
+    // index to the constructor to give the move picker the opportunity to
+    // split the search by changing the move order for each thread.
+    int threadIndex = held.by_other() && ttData.move ? int(threadIdx) : -1;
+    MovePicker mp(pos, ttData.move, depth, &mainHistory, &lowPlyHistory, &captureHistory,
                   contHist, &sharedHistory, ss->ply, threadIndex);
-    
+
     value = bestValue;
 
     int moveCount = 0;
