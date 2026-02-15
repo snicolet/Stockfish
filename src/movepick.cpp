@@ -144,8 +144,6 @@ ExtMove* MovePicker::score(MoveList<Type>& ml) {
         threatByLesser[KING]  = pos.attacks_by<QUEEN>(~us) | threatByLesser[QUEEN];
     }
 
-    [[maybe_unused]] int count = 0;
-
     ExtMove* it = cur;
     for (auto move : ml)
     {
