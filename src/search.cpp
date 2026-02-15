@@ -752,6 +752,9 @@ Value Search::Worker::search(
     ss->ttPv     = excludedMove ? ss->ttPv : PvNode || (ttHit && ttData.is_pv);
     ttCapture    = ttData.move && pos.capture_stage(ttData.move);
 
+    // Mark this node as being searched our worker
+    WorkerHolding held(this, posKey, ss->ply);
+
     // Step 6. Static evaluation of the position
     Value      unadjustedStaticEval = VALUE_NONE;
     const auto correctionValue      = correction_value(*this, pos, ss);
@@ -841,6 +844,16 @@ Value Search::Worker::search(
                 return ttData.value;
         }
     }
+
+    // If other thread(s) are exploring the node, the node is most probably
+    // EXACT or LOWERBOUND, so we can take a fail-low from the transposition
+    // table with more confidence.
+    if (   held.by_other()
+        && is_valid(ttData.value)
+        && ttData.value <= alpha
+        && (ttData.bound & BOUND_UPPER)
+        && !excludedMove)
+        return ttData.value;
 
     // Step 5. Tablebases probe
     if (!rootNode && !excludedMove && tbConfig.cardinality)
@@ -1034,10 +1047,6 @@ moves_loop:  // When in check, search starts here
     const PieceToHistory* contHist[] = {
       (ss - 1)->continuationHistory, (ss - 2)->continuationHistory, (ss - 3)->continuationHistory,
       (ss - 4)->continuationHistory, (ss - 5)->continuationHistory, (ss - 6)->continuationHistory};
-
-
-    // Mark this node as being searched our worker
-    WorkerHolding held(this, posKey, ss->ply);
 
     // Create a MovePicker object, which will emit the sequence of moves. If
     // the node is searched by at least another thread, we pass our thread
