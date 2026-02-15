@@ -845,6 +845,7 @@ Value Search::Worker::search(
         }
     }
 
+    // SMP speculative fail-low.
     // If other thread(s) are exploring the node, the node is most probably
     // EXACT or LOWERBOUND, so we can take a fail-low from the transposition
     // table (with some level of risk).
