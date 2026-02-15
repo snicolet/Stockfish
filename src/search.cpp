@@ -850,7 +850,7 @@ Value Search::Worker::search(
     // table with more confidence.
     if (   held.by_other()
         && is_valid(ttData.value)
-        && ttData.value <= alpha - 3
+        && ttData.value <= alpha - 10
         && (ttData.bound & BOUND_UPPER)
         && !excludedMove)
         return ttData.value;
