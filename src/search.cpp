@@ -867,7 +867,7 @@ Value Search::Worker::search(
     if (   held.by_other()
         && is_valid(ttData.value)
         && !is_decisive(ttData.value)
-        && ttData.value >= beta - risk
+        && ttData.value >= beta + risk
         && (ttData.bound & BOUND_LOWER)
         && !excludedMove
         && std::abs(beta) <= 2000)
