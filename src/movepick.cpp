@@ -183,12 +183,6 @@ ExtMove* MovePicker::score(MoveList<Type>& ml) {
 
             if (ply < LOW_PLY_HISTORY_SIZE)
                 m.value += 8 * (*lowPlyHistory)[ply][m.raw()] / (1 + ply);
-
-            // let different threads prioritize different moves
-            count++;
-            if (ply <= 8 && threadIndex >= 1)
-                if ((threadIndex % 8) == (count % 8))
-                    m.value += 4000000;
         }
 
         else  // Type == EVASIONS
