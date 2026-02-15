@@ -845,16 +845,15 @@ Value Search::Worker::search(
         }
     }
 
-    // If other thread(s) are exploring the node and we find a LOWERBOUND
-    // compatible with our beta, the node may be a true LOWERBOUND with the
-    // other threads searching on a different alpha-beta window which prevented
-    // them to prune the node. So we take the risk to trust the fail-high from
-    // the transposition table.
+    // If other thread(s) are exploring the node and we find a value in the
+    // transposition table which would allow us to fail low or high, we take 
+    // the risk to trust the value from the transposition table even if the
+    // depth or PvNode flag would otherwise incite us not to.
     if (   held.by_other()
         && is_valid(ttData.value)
-        && ttData.value >= beta
-        && (ttData.bound & BOUND_LOWER)
-        && !excludedMove)
+        && !excludedMove
+        && (   (ttData.value <= alpha && (ttData.bound & BOUND_UPPER))
+            || (ttData.value >= beta  && (ttData.bound & BOUND_LOWER))))
         return ttData.value;
 
     // Step 5. Tablebases probe
