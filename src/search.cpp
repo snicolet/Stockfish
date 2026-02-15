@@ -849,7 +849,7 @@ Value Search::Worker::search(
     // If other thread(s) are exploring the node, the node is most probably
     // EXACT or LOWERBOUND, so we can take a fail-low from the transposition
     // table (with some level of risk).
-    int risk = 4;
+    int risk = 2;
     if (   held.by_other()
         && is_valid(ttData.value)
         && !is_decisive(ttData.value)
@@ -858,6 +858,21 @@ Value Search::Worker::search(
         && !excludedMove
         && std::abs(alpha) <= 2000)
         return std::min(ttData.value, alpha);
+
+    // SMP speculative fail-high.
+    // If other thread(s) are exploring the node and the transposition table
+    // value seems to indicate a fail-high, we take a speculative fail-high
+    // (with some level of risk).
+    risk = 2;
+    if (   held.by_other()
+        && is_valid(ttData.value)
+        && !is_decisive(ttData.value)
+        && ttData.value >= beta - risk
+        && (ttData.bound & BOUND_LOWER)
+        && !excludedMove
+        && std::abs(beta) <= 2000)
+        return std::max(ttData.value, beta);
+
 
     // Step 5. Tablebases probe
     if (!rootNode && !excludedMove && tbConfig.cardinality)
