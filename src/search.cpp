@@ -847,13 +847,16 @@ Value Search::Worker::search(
 
     // If other thread(s) are exploring the node, the node is most probably
     // EXACT or LOWERBOUND, so we can take a fail-low from the transposition
-    // table with more confidence.
+    // table (with some level of risk).
+    int risk = 1;
     if (   held.by_other()
         && is_valid(ttData.value)
-        && ttData.value <= alpha - 10
+        && !is_decisive(ttData.value)
+        && ttData.value <= alpha + risk
         && (ttData.bound & BOUND_UPPER)
-        && !excludedMove)
-        return ttData.value;
+        && !excludedMove
+        && std::abs(alpha) <= 2000)
+        return std::min(ttData.value, alpha);
 
     // Step 5. Tablebases probe
     if (!rootNode && !excludedMove && tbConfig.cardinality)
