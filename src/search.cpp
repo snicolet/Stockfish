@@ -851,7 +851,7 @@ Value Search::Worker::search(
     // table (with some level of risk).
     int risk = 4;
     if (   held.by_other()
-        && ply >= 2
+        && ss->ply >= 2
         && is_valid(ttData.value)
         && !is_decisive(ttData.value)
         && ttData.value <= alpha + risk
