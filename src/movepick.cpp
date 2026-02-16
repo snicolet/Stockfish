@@ -144,6 +144,8 @@ ExtMove* MovePicker::score(MoveList<Type>& ml) {
         threatByLesser[KING]  = pos.attacks_by<QUEEN>(~us) | threatByLesser[QUEEN];
     }
 
+    [[maybe_unused]] int count = 0;
+
     ExtMove* it = cur;
     for (auto move : ml)
     {
@@ -181,6 +183,12 @@ ExtMove* MovePicker::score(MoveList<Type>& ml) {
 
             if (ply < LOW_PLY_HISTORY_SIZE)
                 m.value += 8 * (*lowPlyHistory)[ply][m.raw()] / (1 + ply);
+
+            // let different threads prioritize different quiet moves
+            count++;
+            if (ply <= 4 && threadIndex >= 1)
+                if ((threadIndex % 8) == (count % 8))
+                    m.value += 40000;
         }
 
         else  // Type == EVASIONS
