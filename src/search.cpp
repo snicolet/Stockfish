@@ -849,9 +849,8 @@ Value Search::Worker::search(
     // If other thread(s) are exploring the node, the node is most probably
     // EXACT or LOWERBOUND, so we can take a fail-low from the transposition
     // table (with some level of risk).
-    int risk = 4;
+    int risk = 6;
     if (   held.by_other()
-        && ss->ply >= 1
         && is_valid(ttData.value)
         && !is_decisive(ttData.value)
         && ttData.value <= alpha + risk
