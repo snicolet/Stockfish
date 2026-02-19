@@ -850,7 +850,8 @@ Value Search::Worker::search(
     // finish to prove it while we take a speculative fail-low from the
     // transposition table (with some level of risk).
     int risk = 4;
-    if (   held.by_other()
+    if (   !PvNode
+        && held.by_other()
         && is_valid(ttData.value)
         && !is_decisive(ttData.value)
         && ttData.value <= alpha + risk
