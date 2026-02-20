@@ -460,7 +460,7 @@ void Search::Worker::iterative_deepening() {
         if (!mainThread)
         {
             // Values taken from Ethereal/Laser/Rubichess
-            int SkipSize[16] = { 1, 1, 1, 2, 2, 2, 1, 3, 2, 2, 1, 3, 3, 2, 2, 1 };
+            int SkipSize[16]   = { 1, 1, 1, 2, 2, 2, 1, 3, 2, 2, 1, 3, 3, 2, 2, 1 };
             int SkipDepths[16] = { 1, 2, 2, 4, 4, 3, 2, 5, 4, 3, 2, 6, 5, 4, 3, 2 };
             int cycle = threadIdx % 16;
             if ((rootDepth + cycle) % SkipDepths[cycle] == 0)
