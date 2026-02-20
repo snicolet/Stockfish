@@ -455,6 +455,17 @@ void Search::Worker::iterative_deepening() {
             lastBestScore     = rootMoves[0].score;
             lastBestMoveDepth = rootDepth;
         }
+        
+        // Skip some depths depending on current depth and thread number using Laser's method
+        if (!mainThread)
+        {
+            // Values taken from Ethereal/Laser/Rubichess
+            int SkipSize[16] = { 1, 1, 1, 2, 2, 2, 1, 3, 2, 2, 1, 3, 3, 2, 2, 1 };
+            int SkipDepths[16] = { 1, 2, 2, 4, 4, 3, 2, 5, 4, 3, 2, 6, 5, 4, 3, 2 };
+            int cycle = threadIdx % 16;
+            if ((rootDepth + cycle) % SkipDepths[cycle] == 0)
+                rootDepth += SkipSize[cycle];
+        }
 
         if (!mainThread)
             continue;
