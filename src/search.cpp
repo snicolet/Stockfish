@@ -1243,7 +1243,7 @@ moves_loop:  // When in check, search starts here
 
             // Do a full-depth search when reduced LMR search fails high
             // (*Scaler) Shallower searches here don't scale well
-            if (value > alpha)
+            if (value > alpha && !rootNode)
             {
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
