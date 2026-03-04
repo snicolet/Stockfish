@@ -1583,6 +1583,10 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
             unadjustedStaticEval = evaluate(pos);
             ss->staticEval       = bestValue =
               to_corrected_static_eval(unadjustedStaticEval, correctionValue);
+
+            ttWriter.write(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_NONE,
+                               DEPTH_UNSEARCHED, Move::none(), unadjustedStaticEval,
+                               tt.generation());
         }
 
         // Stand pat. Return immediately if static value is at least beta
