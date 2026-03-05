@@ -1038,7 +1038,7 @@ moves_loop:  // When in check, search starts here
       (ss - 4)->continuationHistory, (ss - 5)->continuationHistory, (ss - 6)->continuationHistory};
 
 
-    // Mark this node as being searched our worker
+    // Mark this node as being searched by our worker
     WorkerHolding held(this, posKey, ss->ply);
 
     // Create a MovePicker object, which will emit the sequence of moves
