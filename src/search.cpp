@@ -982,11 +982,11 @@ Value Search::Worker::search(
 
 moves_loop:  // When in check, search starts here
 
-    // Step 12. A small Probcut idea
+    // Step 12. A small ProbCut idea
     probCutBeta = beta + 416;
     if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
-        && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
-        return (3 * ttData.value + beta) / 4;
+        && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value) && !is_decisive(probCutBeta))
+        return (3 * ttData.value + probCutBeta) / 4;
 
     const PieceToHistory* contHist[] = {
       (ss - 1)->continuationHistory, (ss - 2)->continuationHistory, (ss - 3)->continuationHistory,
