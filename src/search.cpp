@@ -975,7 +975,7 @@ Value Search::Worker::search(
                                probCutDepth + 1, move, unadjustedStaticEval, tt.generation());
 
                 if (!is_decisive(value))
-                    return (2 * value + beta - probCutBeta) / 2;
+                    return (3 * value + beta) / 4;
             }
         }
     }
@@ -986,7 +986,7 @@ moves_loop:  // When in check, search starts here
     probCutBeta = beta + 416;
     if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
         && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
-        return probCutBeta;
+        return (3 * ttData.value + beta) / 4;
 
     const PieceToHistory* contHist[] = {
       (ss - 1)->continuationHistory, (ss - 2)->continuationHistory, (ss - 3)->continuationHistory,
