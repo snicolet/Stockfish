@@ -79,9 +79,10 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     nnue -= nnue * nnueComplexity / 18236;
 
     int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
-
-    if ((pos.side_to_move() == stockfish) == (-150 < nnue && nnue < 0))
-        material = -material;
+    
+    bool sf_is_losing = ((pos.side_to_move() == stockfish) == (nnue < 0));
+    if (sf_is_losing && abs(nnue) < 150)
+        material = 0;
 
     int v = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
 
