@@ -54,7 +54,8 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
                      const Position&                pos,
                      Eval::NNUE::AccumulatorStack&  accumulators,
                      Eval::NNUE::AccumulatorCaches& caches,
-                     int                            optimism) {
+                     int                            optimism,
+                     Color                          stockfish) {
 
     assert(!pos.checkers());
 
@@ -78,7 +79,11 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     nnue -= nnue * nnueComplexity / 18236;
 
     int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
-    int v        = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
+
+    if ((pos.side_to_move() == stockfish) == (nnue < 0))
+        material = 0;
+
+    int v = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
 
     // Damp down the evaluation linearly when shuffling
     v -= v * pos.rule50_count() / 199;
@@ -112,7 +117,7 @@ std::string Eval::trace(Position& pos, const Eval::NNUE::Networks& networks) {
     v                       = pos.side_to_move() == WHITE ? v : -v;
     ss << "NNUE evaluation        " << 0.01 * UCIEngine::to_cp(v, pos) << " (white side)\n";
 
-    v = evaluate(networks, pos, *accumulators, *caches, VALUE_ZERO);
+    v = evaluate(networks, pos, *accumulators, *caches, VALUE_ZERO, pos.side_to_move());
     v = pos.side_to_move() == WHITE ? v : -v;
     ss << "Final evaluation       " << 0.01 * UCIEngine::to_cp(v, pos) << " (white side)";
     ss << " [with scaled NNUE, ...]";

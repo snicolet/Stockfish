@@ -342,6 +342,7 @@ class Worker {
     RootMoves rootMoves;
     Depth     rootDepth, completedDepth;
     Value     rootDelta;
+    Color     rootColor;
 
     std::vector<Move> lastIterationPV;
 
