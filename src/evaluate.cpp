@@ -78,8 +78,19 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     optimism += optimism * nnueComplexity / 476;
     nnue -= nnue * nnueComplexity / 18236;
 
+    // Create a quasi gaussian random variable by summing four uniform discrete variables
+    int64_t h = pos.key();
+    int64_t a = h & 0x00ff;
+    int64_t b = (h >> 16) & 0x00ff;
+    int64_t c = (h >> 32) & 0x00ff;
+    int64_t d = (h >> 48) & 0x00ff;
+    int64_t r = 2783 * (a + b + c + d - 510) / 4096;  // mean 0, std dev 100
+
+    // Add some noise to the eval
+    nnue += 12 * r / 100;
+
+    // Calculate material
     int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
-    
     bool sf_is_losing = ((pos.side_to_move() == stockfish) == (nnue < 0));
     if (sf_is_losing && abs(nnue) < 150)
         material = 0;
