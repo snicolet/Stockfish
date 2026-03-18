@@ -86,7 +86,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     int64_t r = 2783 * (a + b + c + d - 510) / 4096;  // mean 0, std dev 100
 
     // Add some noise to the eval
-    nnue += 40 * r / 100;
+    nnue += 60 * r / 100;
 
     int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
     int v        = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
