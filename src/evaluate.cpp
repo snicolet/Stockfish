@@ -82,7 +82,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     
     bool sf_is_winning = ((pos.side_to_move() == stockfish) == (nnue > 0));
     if (sf_is_winning)
-        material += material / 2;
+        material += material;
 
     int v = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
 
