@@ -81,8 +81,8 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     int material = 534 * pos.count<PAWN>() + pos.non_pawn_material();
     
     bool sf_is_winning = ((pos.side_to_move() == stockfish) == (nnue > 0));
-    if (sf_is_winning && abs(nnue) < 150)
-        material = 3 * material;
+    if (sf_is_winning)
+        material += material / 2;
 
     int v = (nnue * (77871 + material) + optimism * (7191 + material)) / 77871;
 
