@@ -995,7 +995,7 @@ Value Search::Worker::search(
                                probCutDepth + 1, move, unadjustedStaticEval, tt.generation());
 
                 if (!is_decisive(value))
-                    return (value + 2 * probCutBeta) / 3;
+                    return (value + 2 * beta) / 3;
             }
         }
     }
