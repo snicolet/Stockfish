@@ -974,7 +974,7 @@ Value Search::Worker::search(
                       &mainHistory, &lowPlyHistory, &captureHistory, contHist, &sharedHistory, ss->ply);
 
         int moveCount = 0;
-        while (moveCount < 2 && (move = mp.next_move()) != Move::none())
+        while (moveCount < 3 && (move = mp.next_move()) != Move::none())
         {
             assert(move.is_ok());
 
