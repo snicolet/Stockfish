@@ -964,19 +964,24 @@ Value Search::Worker::search(
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
-        MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
-        Depth      probCutDepth = depth - 4;
+        Depth probCutDepth = depth - 4;
+        const PieceToHistory* contHist[] = {
+           (ss - 1)->continuationHistory, (ss - 2)->continuationHistory, (ss - 3)->continuationHistory,
+           (ss - 4)->continuationHistory, (ss - 5)->continuationHistory, (ss - 6)->continuationHistory};
 
-        while ((move = mp.next_move()) != Move::none())
+        MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, depth, 
+                      &mainHistory, &lowPlyHistory, &captureHistory, contHist, &sharedHistory, ss->ply);
+
+        int moveCount = 0;
+        while (moveCount < 4 && (move = mp.next_move()) != Move::none())
         {
             assert(move.is_ok());
 
             if (move == excludedMove || !pos.legal(move))
                 continue;
 
-            assert(pos.capture_stage(move));
-
             do_move(pos, move, st, ss);
+            moveCount++;
 
             // Perform a preliminary qsearch to verify that the move holds
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
@@ -995,7 +1000,7 @@ Value Search::Worker::search(
                                probCutDepth + 1, move, unadjustedStaticEval, tt.generation());
 
                 if (!is_decisive(value))
-                    return value - (probCutBeta - beta);
+                    return (3 * value + probCutBeta) / 4;
             }
         }
     }
@@ -1013,8 +1018,8 @@ moves_loop:  // When in check, search starts here
       (ss - 4)->continuationHistory, (ss - 5)->continuationHistory, (ss - 6)->continuationHistory};
 
 
-    MovePicker mp(pos, ttData.move, depth, &mainHistory, &lowPlyHistory, &captureHistory, contHist,
-                  &sharedHistory, ss->ply);
+    MovePicker mp(pos, ttData.move, 0, depth, 
+                  &mainHistory, &lowPlyHistory, &captureHistory, contHist, &sharedHistory, ss->ply);
 
     value = bestValue;
 
@@ -1632,8 +1637,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     // Initialize a MovePicker object for the current position, and prepare to search
     // the moves. We presently use two stages of move generator in quiescence search:
     // captures, or evasions only when in check.
-    MovePicker mp(pos, ttData.move, DEPTH_QS, &mainHistory, &lowPlyHistory, &captureHistory,
-                  contHist, &sharedHistory, ss->ply);
+    MovePicker mp(pos, ttData.move, 0, DEPTH_QS, 
+                  &mainHistory, &lowPlyHistory, &captureHistory, contHist, &sharedHistory, ss->ply);
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain or a beta
     // cutoff occurs.

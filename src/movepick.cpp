@@ -45,11 +45,6 @@ enum Stages {
     EVASION_INIT,
     EVASION,
 
-    // generate probcut moves
-    PROBCUT_TT,
-    PROBCUT_INIT,
-    PROBCUT,
-
     // generate qsearch moves
     QSEARCH_TT,
     QCAPTURE_INIT,
@@ -75,13 +70,12 @@ void partial_insertion_sort(ExtMove* begin, ExtMove* end, int limit) {
 }  // namespace
 
 
-// Constructors of the MovePicker class. As arguments, we pass information
+// Constructor of the MovePicker class. As arguments, we pass information
 // to decide which class of moves to emit, to help sorting the (presumably)
 // good moves first, and how important move ordering is at the current node.
-
-// MovePicker constructor for the main search and for the quiescence search
 MovePicker::MovePicker(const Position&              p,
                        Move                         ttm,
+                       int                          th,
                        Depth                        d,
                        const ButterflyHistory*      mh,
                        const LowPlyHistory*         lph,
@@ -96,6 +90,7 @@ MovePicker::MovePicker(const Position&              p,
     continuationHistory(ch),
     sharedHistory(sh),
     ttMove(ttm),
+    threshold(th),
     depth(d),
     ply(pl) {
 
@@ -104,18 +99,6 @@ MovePicker::MovePicker(const Position&              p,
 
     else
         stage = (depth > 0 ? MAIN_TT : QSEARCH_TT) + !(ttm && pos.pseudo_legal(ttm));
-}
-
-// MovePicker constructor for ProbCut: we generate captures with Static Exchange
-// Evaluation (SEE) greater than or equal to the given threshold.
-MovePicker::MovePicker(const Position& p, Move ttm, int th, const CapturePieceToHistory* cph) :
-    pos(p),
-    captureHistory(cph),
-    ttMove(ttm),
-    threshold(th) {
-    assert(!pos.checkers());
-
-    stage = PROBCUT_TT + !(ttm && pos.capture_stage(ttm) && pos.pseudo_legal(ttm));
 }
 
 // Assigns a numerical value to each move in a list, used for sorting.
@@ -215,12 +198,10 @@ top:
     case MAIN_TT :
     case EVASION_TT :
     case QSEARCH_TT :
-    case PROBCUT_TT :
         ++stage;
         return ttMove;
 
     case CAPTURE_INIT :
-    case PROBCUT_INIT :
     case QCAPTURE_INIT : {
         MoveList<CAPTURES> ml(pos);
 
@@ -234,7 +215,7 @@ top:
 
     case GOOD_CAPTURE :
         if (select([&]() {
-                if (pos.see_ge(*cur, -cur->value / 18))
+                if (pos.see_ge(*cur, threshold - cur->value / 18))
                     return true;
                 std::swap(*endBadCaptures++, *cur);
                 return false;
@@ -299,9 +280,6 @@ top:
     case EVASION :
     case QCAPTURE :
         return select([]() { return true; });
-
-    case PROBCUT :
-        return select([&]() { return pos.see_ge(*cur, threshold); });
     }
 
     assert(false);
