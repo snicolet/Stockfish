@@ -969,11 +969,12 @@ Value Search::Worker::search(
            (ss - 1)->continuationHistory, (ss - 2)->continuationHistory, (ss - 3)->continuationHistory,
            (ss - 4)->continuationHistory, (ss - 5)->continuationHistory, (ss - 6)->continuationHistory};
 
-        MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, depth, 
+        Move m = ttCapture ? ttData.move : Move::none();
+        MovePicker mp(pos, m, probCutBeta - ss->staticEval, depth, 
                       &mainHistory, &lowPlyHistory, &captureHistory, contHist, &sharedHistory, ss->ply);
 
         int moveCount = 0;
-        while (moveCount < 4 && (move = mp.next_move()) != Move::none())
+        while (moveCount < 2 && (move = mp.next_move()) != Move::none())
         {
             assert(move.is_ok());
 
