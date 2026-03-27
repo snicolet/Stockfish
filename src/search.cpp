@@ -648,7 +648,7 @@ Value Search::Worker::search(
     int64_t a4 = (h >> 48) & 0x00ff;
     int64_t gs = 2783 * (a1 + a2 + a3 + a4 - 510) / 4096;  // mean 0, std dev 100
     
-    if (depth < 10 && (ss->ply & 1))
+    if (depth < 10 && (ss->ply & 1) && abs(alpha) < 1500 && abs(beta) < 1500)
     {
         gs = 2 * abs(gs) / 100;
         alpha = alpha + gs;
