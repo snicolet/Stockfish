@@ -638,6 +638,22 @@ Value Search::Worker::search(
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
         return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
+    
+    
+    // Create a quasi gaussian random variable by summing four uniform discrete variables
+    int64_t h = pos.key();
+    int64_t a1 = h & 0x00ff;
+    int64_t a2 = (h >> 16) & 0x00ff;
+    int64_t a3 = (h >> 32) & 0x00ff;
+    int64_t a4 = (h >> 48) & 0x00ff;
+    int64_t gs = 2783 * (a1 + a2 + a3 + a4 - 510) / 4096;  // mean 0, std dev 100
+    
+    if (depth < 10 && !!(ss->ply & 1))
+    {
+        gs = 2 * gs / 100;
+        alpha = alpha + gs;
+        beta = beta + gs;
+    }
 
     // Limit the depth if extensions made it too large
     depth = std::min(depth, MAX_PLY - 1);
