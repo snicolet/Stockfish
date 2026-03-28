@@ -1268,8 +1268,8 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
 
-                newDepth += (value > bestValue + 44 + 4 * d);
-                newDepth += (value > bestValue + 768);
+                newDepth += (d < newDepth && value > bestValue + 44 + 4 * d);
+                newDepth += (d < newDepth && value > bestValue + 768);
                 newDepth -= (value < bestValue + 5 + d);
 
                 if (newDepth > d)
