@@ -1268,9 +1268,9 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
 
-                newDepth += (d < newDepth && value > bestValue + 48);
-                newDepth += (d < newDepth && value > bestValue + 735);
-                newDepth -= (value < bestValue + 9);
+                newDepth += (d < newDepth && value > bestValue + 44 + 4 * d);
+                newDepth += (d < newDepth && value > bestValue + 600);
+                newDepth -= (value < bestValue + 5 + d);
 
                 if (newDepth > d)
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
