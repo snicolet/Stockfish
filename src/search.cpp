@@ -1269,7 +1269,7 @@ moves_loop:  // When in check, search starts here
                 // good enough search deeper, if it was bad enough search shallower.
 
                 newDepth += (d < newDepth && value > bestValue + 48);
-                newDepth += (d < newDepth && value > bestValue + 650);
+                newDepth += (d < newDepth && value > bestValue + 650) * 2;
                 newDepth -= (value < bestValue + 9);
 
                 if (newDepth > d)
