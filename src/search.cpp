@@ -911,7 +911,7 @@ Value Search::Worker::search(
             return futilityMult * d
                  - (2686 * improving + 362 * opponentWorsening) * futilityMult / 1024  //
                  + std::abs(correctionValue) / 180600 
-                 + pruning_safety<BETA>(ss->ply) - 25;
+                 + pruning_safety<BETA>(ss->ply);
         };
 
         if (!ss->ttPv && depth < 15 && eval - futility_margin(depth) >= beta && eval >= beta
