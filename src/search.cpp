@@ -871,7 +871,10 @@ Value Search::Worker::search(
     }
 
     if (ss->inCheck)
+    {
+        depth++;
         goto moves_loop;
+    }
 
     // Use static evaluation difference to improve quiet move ordering
     if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture)
