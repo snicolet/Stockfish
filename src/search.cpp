@@ -92,6 +92,18 @@ int correction_value(const Worker& w, const Position& pos, const Stack* const ss
     return 12153 * pcv + 8620 * micv + 12355 * (wnpcv + bnpcv) + 7982 * cntcv;
 }
 
+// PruningSafety[rootColor][cut type] : pruning safety table
+const int PruningSafety[2][2] = {
+      {  75 , 50 },   //  rootColor : alpha, beta
+      {  0  , 0  }    // ~rootColor : alpha, beta
+};
+enum CutType { ALPHA, BETA };
+template <CutType T> 
+int pruning_safety(int ply) {
+    return PruningSafety[ply & 1][T];
+}
+
+
 // Add correctionHistory value to raw staticEval and guarantee evaluation
 // does not hit the tablebase range.
 Value to_corrected_static_eval(const Value v, const int cv) {
@@ -898,7 +910,8 @@ Value Search::Worker::search(
 
             return futilityMult * d
                  - (2686 * improving + 362 * opponentWorsening) * futilityMult / 1024  //
-                 + std::abs(correctionValue) / 180600;
+                 + std::abs(correctionValue) / 180600 
+                 + pruning_safety<BETA>(ss->ply) - 75;
         };
 
         if (!ss->ttPv && depth < 15 && eval - futility_margin(depth) >= beta && eval >= beta
@@ -1112,7 +1125,7 @@ moves_loop:  // When in check, search starts here
                 lmrDepth += history / 2995;
 
                 Value futilityValue = ss->staticEval + 42 + 151 * !bestMove + 120 * lmrDepth
-                                    + 86 * (ss->staticEval > alpha);
+                                    + 86 * (ss->staticEval > alpha) + pruning_safety<ALPHA>(ss->ply);
 
                 // Futility pruning: parent node
                 // (*Scaler): Generally, more frequent futility pruning
