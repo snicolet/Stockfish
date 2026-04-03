@@ -872,7 +872,7 @@ Value Search::Worker::search(
 
     if (ss->inCheck)
     {
-        if ((pos.key() + nodes) % 8 < 6)
+        if ((pos.key() + nodes) % 8 < 5)
             depth++;
         goto moves_loop;
     }
