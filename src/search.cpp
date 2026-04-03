@@ -94,8 +94,8 @@ int correction_value(const Worker& w, const Position& pos, const Stack* const ss
 
 // PruningSafety[rootColor][cut type] : pruning safety table
 const int PruningSafety[2][2] = {
-      {  75 , 50 },   //  rootColor : alpha, beta
-      {  0  , 0  }    // ~rootColor : alpha, beta
+      {  75 ,  0  },   //  rootColor : alpha, beta
+      {  0  , -50 }    // ~rootColor : alpha, beta
 };
 enum CutType { ALPHA, BETA };
 template <CutType T> 
@@ -911,7 +911,7 @@ Value Search::Worker::search(
             return futilityMult * d
                  - (2686 * improving + 362 * opponentWorsening) * futilityMult / 1024  //
                  + std::abs(correctionValue) / 180600 
-                 + pruning_safety<BETA>(ss->ply) - 50;
+                 + pruning_safety<BETA>(ss->ply);
         };
 
         if (!ss->ttPv && depth < 15 && eval - futility_margin(depth) >= beta && eval >= beta
