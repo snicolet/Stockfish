@@ -1782,8 +1782,32 @@ TimePoint Search::Worker::elapsed() const {
 TimePoint Search::Worker::elapsed_time() const { return main_manager()->tm.elapsed_time(); }
 
 Value Search::Worker::evaluate(const Position& pos) {
-    return Eval::evaluate(networks[numaAccessToken], pos, accumulatorStack, refreshTable,
+
+    int eval = Eval::evaluate(networks[numaAccessToken], pos, accumulatorStack, refreshTable,
                           optimism[pos.side_to_move()]);
+
+    // Lasso method : calculate the L1-norm of the change of parameters compared to master
+    int lasso = 0;
+    lasso += abs(PruningSafety[0][0]) +
+             abs(PruningSafety[0][1]) +
+             abs(PruningSafety[1][0]) +
+             abs(PruningSafety[1][1]) ;
+    // lasso = lasso / 4 ;  // because we tune four parameters
+
+    // dbg_mean_of(lasso);
+    
+    // Create a quasi gaussian random variable by summing four uniform discrete variables
+    int64_t h = pos.key();
+    int64_t a = h & 0x00ff;
+    int64_t b = (h >> 16) & 0x00ff;
+    int64_t c = (h >> 32) & 0x00ff;
+    int64_t d = (h >> 48) & 0x00ff;
+    int64_t r = 2783 * (a + b + c + d - 510) / 4096;  // mean 0, std dev 100
+
+    // Add some noise to the eval, mean 0, std dev lasso
+    int noise = lasso * r / 100;
+
+    return Value(eval + noise);
 }
 
 namespace {
