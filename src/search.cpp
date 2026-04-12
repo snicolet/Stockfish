@@ -105,7 +105,7 @@ int pruning_safety(int ply) {
     return PruningSafety[ply & 1][T];
 }
 
-TUNE(SetRange(-100, 100), PruningSafety);
+TUNE(SetRange(-50, 50), PruningSafety);
 
 
 
