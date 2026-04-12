@@ -1792,7 +1792,7 @@ Value Search::Worker::evaluate(const Position& pos) {
              abs(PruningSafety[0][1]) +
              abs(PruningSafety[1][0]) +
              abs(PruningSafety[1][1]) ;
-    // lasso = lasso / 4 ;  // because we tune four parameters
+    lasso = lasso / 4 ;  // because we tune four parameters
 
     // dbg_mean_of(lasso);
     
