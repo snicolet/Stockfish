@@ -96,7 +96,7 @@ int correction_value(const Worker& w, const Position& pos, const Stack* const ss
 
 // PruningSafety[rootColor][cut type] : pruning safety table
 const int PruningSafety[2][2] = {
-      { -30 , -50 },   //  rootColor : alpha, beta
+      { -45 , -75 },   //  rootColor : alpha, beta
       {  0  ,  0  }    // ~rootColor : alpha, beta
 };
 enum CutType { ALPHA, BETA };
