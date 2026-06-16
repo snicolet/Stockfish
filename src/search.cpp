@@ -275,6 +275,7 @@ bool Search::Worker::iterative_deepening() {
 
     Value  alpha, beta;
     Value  bestValue     = -VALUE_INFINITE;
+    rootBestValue        = -VALUE_INFINITE;
     Color  us            = rootPos.side_to_move();
     double timeReduction = 1, totBestMoveChanges = 0;
     int    delta, iterIdx                        = 0;
@@ -390,7 +391,7 @@ bool Search::Worker::iterative_deepening() {
                 Depth adjustedDepth =
                   std::max(1, rootDepth - failedHighCnt - 3 * (searchAgainCounter + 1) / 4);
                 rootDelta = beta - alpha;
-                bestValue = search<Root>(rootPos, ss, alpha, beta, adjustedDepth, false);
+                rootBestValue = bestValue = search<Root>(rootPos, ss, alpha, beta, adjustedDepth, false);
 
                 // Bring the best move to the front. It is critical that sorting
                 // is done with a stable algorithm because all the values but the
@@ -1840,9 +1841,25 @@ TimePoint Search::Worker::elapsed() const {
     return main_manager()->tm.elapsed([this]() { return threads.nodes_searched(); });
 }
 
+
+// Returns an evaluation of the position from the point of view of the side 
+// to move. We use a lazy evaluation with simple_eval() about 1.7% of the time.
 Value Search::Worker::evaluate(const Position& pos) {
-    return Eval::evaluate(network[numaAccessToken], pos, accumulatorStack, refreshTable,
-                          optimism[pos.side_to_move()]);
+
+    int shuffling  = pos.rule50_count();
+    int simpleEval = Eval::simple_eval(pos) + (int(pos.key() & 7) - 3);
+    bool lazy = abs(simpleEval) >=   RookValue + PawnValue + PawnValue
+                                   + 16 * shuffling * shuffling
+                                   + abs(rootBestValue)
+                                   + abs(rootSimpleEval);
+
+    // dbg_mean_of(lazy);
+
+    if (lazy)
+    	return Value(simpleEval);
+    else
+    	return Eval::evaluate(network[numaAccessToken], pos, accumulatorStack, refreshTable,
+                          	  optimism[pos.side_to_move()]);
 }
 
 namespace {

@@ -42,6 +42,7 @@ class AccumulatorStack;
 }
 
 std::string trace(Position& pos, const Eval::NNUE::Network& network);
+int simple_eval(const Position& pos);
 
 Value evaluate(const NNUE::Network&           network,
                const Position&                pos,
