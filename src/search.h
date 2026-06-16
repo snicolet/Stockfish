@@ -384,6 +384,8 @@ class Worker {
     RootMoves rootMoves;
     Depth     rootDepth;
     Value     rootDelta;
+    Value     rootSimpleEval;
+    Value     rootBestValue;
 
     PVMoves lastIterationIdxPV;
 

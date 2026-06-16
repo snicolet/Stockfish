@@ -37,6 +37,19 @@
 
 namespace Stockfish {
 
+
+// Returns a static, purely materialistic evaluation of the position from
+// the point of view of the side to move. It can be divided by PawnValue to get
+// an approximation of the material advantage on the board in terms of pawns.
+int Eval::simple_eval(const Position& pos) {
+    Color c = pos.side_to_move();
+    int v = 0;
+    v += pos.non_pawn_material(c) - pos.non_pawn_material(~c);
+    v += (pos.count<PAWN>(c) - pos.count<PAWN>(~c)) * PawnValue;
+    return v;
+}
+
+
 // Evaluate is the evaluator for the outer world. It returns a static evaluation
 // of the position from the point of view of the side to move.
 Value Eval::evaluate(const Eval::NNUE::Network&     network,
