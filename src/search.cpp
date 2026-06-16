@@ -1851,7 +1851,7 @@ Value Search::Worker::evaluate(const Position& pos) {
 
     int shuffling  = pos.rule50_count();
     int simpleEval = Eval::simple_eval(pos) + (int(pos.key() & 7) - 3);
-    bool lazy = abs(simpleEval) >=   RookValue + BishopValue + PawnValue
+    bool lazy = abs(simpleEval) >=   RookValue + PawnValue + PawnValue
                                    + 16 * shuffling * shuffling
                                    + abs(rootBestValue)
                                    + abs(rootSimpleEval);
