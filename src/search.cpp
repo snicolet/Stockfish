@@ -130,6 +130,7 @@ void update_correction_history(const Position& pos,
 
 // Add a small random component to draw evaluations to avoid 3-fold blindness
 Value value_draw(usize nodes) { return VALUE_DRAW - 1 + Value(nodes & 0x2); }
+Value value_draw_with_contempt(int ply) { return (ply & 1) ? 200 : -200; }
 Value value_to_tt(Value v, int ply);
 Value value_from_tt(Value v, int ply, int r50c);
 void  update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
@@ -763,7 +764,8 @@ Value Search::Worker::search(
         // Step 2. Check for aborted search and immediate draw
         if (threads.stop.load(std::memory_order_relaxed) || pos.is_draw(ss->ply)
             || ss->ply >= MAX_PLY)
-            return (ss->ply >= MAX_PLY && !ss->inCheck) ? evaluate(pos) : value_draw(nodes);
+            return (ss->ply >= MAX_PLY && !ss->inCheck) ? evaluate(pos) 
+                                                        : value_draw_with_contempt(ss->ply);
 
         // Step 3. Mate distance pruning. Even if we mate at the next move our score
         // would be at best mate_in(ss->ply + 1), but if alpha is already bigger because
@@ -1632,7 +1634,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
     // Step 2. Check for an immediate draw or maximum ply reached
     if (pos.is_draw(ss->ply) || ss->ply >= MAX_PLY)
-        return (ss->ply >= MAX_PLY && !ss->inCheck) ? evaluate(pos) : VALUE_DRAW;
+        return (ss->ply >= MAX_PLY && !ss->inCheck) ? evaluate(pos) 
+                                                    : value_draw_with_contempt(ss->ply);
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
