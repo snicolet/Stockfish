@@ -750,6 +750,7 @@ Value Search::Worker::search(
     ss->moveCount = 0;
     bestValue     = -VALUE_INFINITE;
     maxValue      = VALUE_INFINITE;
+    ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
 
     ss->followPV = rootNode
                 || ((ss - 1)->followPV
@@ -1285,6 +1286,8 @@ moves_loop:  // When in check, search starts here
 
         // Step 16. Make the move
         do_move(pos, move, st, givesCheck, ss);
+        
+        (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
 
         // Add extension to new depth
         newDepth += extension;
@@ -1329,6 +1332,10 @@ moves_loop:  // When in check, search starts here
         if (allNode)
             r += r * 272 / (256 * depth + 285);
 
+        // Extend a bit more the branches near the PV in the game tree
+        if (moveCount > 1 && ss->distanceFromPv <= 4)
+            r -= 2048;
+
         // Step 17. Late moves reduction / extension (LMR)
         if (depth >= 2 && moveCount > 1)
         {
@@ -1337,7 +1344,8 @@ moves_loop:  // When in check, search starts here
             // beyond the first move depth.
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
-            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + 2)) + PvNode;
+            int distance = ss->distanceFromPv;
+            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + 2 + (distance <= 4))) + PvNode;
 
             ss->reduction = newDepth - d;
             value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
