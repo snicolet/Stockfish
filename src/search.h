@@ -111,6 +111,7 @@ struct Stack {
     Value                       staticEval;
     int                         statScore;
     int                         moveCount;
+    int                         distanceFromPv;
     bool                        inCheck;
     bool                        ttPv;
     bool                        ttHit;
@@ -369,7 +370,7 @@ class Worker {
 
     TimePoint elapsed() const;
 
-    Value evaluate(const Position&);
+    Value evaluate(const Position&, Stack* const ss);
 
     LimitsType limits;
 
