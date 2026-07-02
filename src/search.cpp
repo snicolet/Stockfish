@@ -1854,7 +1854,7 @@ Value Search::Worker::evaluate(const Position& pos, Stack* const ss) {
     int simpleEval = Eval::simple_eval(pos) + (int(pos.key() & 7) - 3);
 
     bool lazy = abs(simpleEval) >=   RookValue + PawnValue + PawnValue
-                                   + QueenValue * (distancePv <= 4)
+                                   + RookValue * (distancePv <= 3)
                                    + 16 * shuffling * shuffling
                                    + abs(rootBestValue)
                                    + abs(rootSimpleEval);
