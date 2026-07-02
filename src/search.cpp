@@ -1853,8 +1853,8 @@ Value Search::Worker::evaluate(const Position& pos, Stack* const ss) {
     int distancePv = ss->distanceFromPv;
     int simpleEval = Eval::simple_eval(pos) + (int(pos.key() & 7) - 3);
 
-    bool lazy = abs(simpleEval) >=   RookValue + PawnValue + PawnValue
-                                   + RookValue * (distancePv <= 3)
+    bool lazy = abs(simpleEval) >=   RookValue + PawnValue
+                                   + QueenValue * (distancePv <= 5)
                                    + 16 * shuffling * shuffling
                                    + abs(rootBestValue)
                                    + abs(rootSimpleEval);
