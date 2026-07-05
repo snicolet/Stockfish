@@ -1332,7 +1332,7 @@ moves_loop:  // When in check, search starts here
 
         // Extend a bit more the branches near the PV in the game tree
         if (moveCount > 1 && ss->distanceFromPv <= 4)
-            r -= 1024;
+            r -= 2048;
 
         // Step 17. Late moves reduction / extension (LMR)
         if (depth >= 2 && moveCount > 1)
