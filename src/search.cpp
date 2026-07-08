@@ -1250,7 +1250,7 @@ moves_loop:  // When in check, search starts here
                                  - (ss->ply > rootDepth) * 45;
 
                 extension =
-                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin) + (distance <= 4);
+                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin) + (distance == 1);
 
                 depth++;
             }
