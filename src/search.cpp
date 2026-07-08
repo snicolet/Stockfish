@@ -1345,7 +1345,7 @@ moves_loop:  // When in check, search starts here
             // std::clamp has been replaced by a more robust implementation.
             int distance = ss->distanceFromPv;
             int upper = newDepth + 2 + (distance <= 1) + (distance <= 4);
-            Depth d = std::max(1, std::min(newDepth - r / 1024, upper));
+            Depth d = std::max(1, std::min(newDepth - r / 1024, upper)) + PvNode;
 
             ss->reduction = newDepth - d;
             value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
