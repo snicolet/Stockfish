@@ -1244,6 +1244,7 @@ moves_loop:  // When in check, search starts here
 
             if (value < singularBeta)
             {
+                int distance     = ss->distanceFromPv;
                 int corrValAdj   = std::abs(correctionValue) / 194822;
                 int doubleMargin = -3 + 201 * PvNode - 157 * !ttCapture - corrValAdj
                                  - 1081 * ttMoveHistory / 117824 - (ss->ply > rootDepth) * 41;
@@ -1251,7 +1252,7 @@ moves_loop:  // When in check, search starts here
                                  - (ss->ply > rootDepth) * 45;
 
                 extension =
-                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
+                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin) + (distance == 1);
 
                 depth++;
             }
