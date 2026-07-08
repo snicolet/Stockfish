@@ -783,6 +783,7 @@ Value Search::Worker::search(
     }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
+    assert(ss->distanceFromPv >= (ss-1)->distanceFromPv);
 
     Square prevSq  = ((ss - 1)->currentMove).is_ok() ? ((ss - 1)->currentMove).to_sq() : SQ_NONE;
     bestMove       = Move::none();
@@ -994,10 +995,11 @@ Value Search::Worker::search(
     {
         assert((ss - 1)->currentMove != Move::null());
 
+        do_null_move(pos, st, ss);
+        (ss+1)->distanceFromPv = ss->distanceFromPv + 1000;
+
         // Null move dynamic reduction based on depth
         Depth R = 7 + depth / 3;
-        do_null_move(pos, st, ss);
-
         Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, false);
 
         undo_null_move(pos);
@@ -1056,6 +1058,7 @@ Value Search::Worker::search(
             assert(pos.capture_stage(move));
 
             do_move(pos, move, st, ss);
+            (ss+1)->distanceFromPv = ss->distanceFromPv + 1000;
 
             // Perform a preliminary qsearch to verify that the move holds
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
