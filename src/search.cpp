@@ -1244,7 +1244,6 @@ moves_loop:  // When in check, search starts here
 
             if (value < singularBeta)
             {
-                int distance     = ss->distanceFromPv;
                 int corrValAdj   = std::abs(correctionValue) / 194822;
                 int doubleMargin = -3 + 201 * PvNode - 157 * !ttCapture - corrValAdj
                                  - 1081 * ttMoveHistory / 117824 - (ss->ply > rootDepth) * 41;
@@ -1252,7 +1251,7 @@ moves_loop:  // When in check, search starts here
                                  - (ss->ply > rootDepth) * 45;
 
                 extension =
-                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin) + (distance == 1);
+                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
 
                 depth++;
             }
@@ -1345,7 +1344,7 @@ moves_loop:  // When in check, search starts here
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
             int distance = ss->distanceFromPv;
-            int upper = newDepth + 2 + (distance <= 4);
+            int upper = newDepth + 1 + (distance <= 1) + (distance <= 4);
             Depth d = std::max(1, std::min(newDepth - r / 1024, upper)) + PvNode;
 
             ss->reduction = newDepth - d;
