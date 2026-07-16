@@ -1345,7 +1345,7 @@ moves_loop:  // When in check, search starts here
             // std::clamp has been replaced by a more robust implementation.
             int distance = ss->distanceFromPv;
             int distanceOfSon = (ss+1)->distanceFromPv;
-            int upper = newDepth + 2 + (distance == 2) + (distanceOfSon == 3);
+            int upper = newDepth + 2 + ((distance == 2) || (distanceOfSon == 3));
             Depth d = std::max(1, std::min(newDepth - r / 1024, upper)) + PvNode;
 
             ss->reduction = newDepth - d;
