@@ -1350,7 +1350,7 @@ moves_loop:  // When in check, search starts here
             bool almostPv = (ss->distanceFromPv == 2) || ((ss+1)->distanceFromPv == 3);
             
             if (almostPv)
-                r -= 512;
+                r -= 1024;
 
             int upper = newDepth + 2 + almostPv;
             Depth d = std::max(1, std::min(newDepth - r / 1024, upper)) + PvNode;
