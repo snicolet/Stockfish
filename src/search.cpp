@@ -752,6 +752,7 @@ Value Search::Worker::search(
     ss->moveCount = 0;
     bestValue     = -VALUE_INFINITE;
     maxValue      = VALUE_INFINITE;
+    ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
 
     ss->followPV = rootNode
                 || ((ss - 1)->followPV
@@ -786,6 +787,7 @@ Value Search::Worker::search(
     }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
+    assert(ss->distanceFromPv >= (ss-1)->distanceFromPv);
 
     Square prevSq  = ((ss - 1)->currentMove).is_ok() ? ((ss - 1)->currentMove).to_sq() : SQ_NONE;
     bestMove       = Move::none();
@@ -997,10 +999,11 @@ Value Search::Worker::search(
     {
         assert((ss - 1)->currentMove != Move::null());
 
+        do_null_move(pos, st, ss);
+        (ss+1)->distanceFromPv = ss->distanceFromPv + 1000;
+
         // Null move dynamic reduction based on depth
         Depth R = 7 + depth / 3;
-        do_null_move(pos, st, ss);
-
         Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, false);
 
         undo_null_move(pos);
@@ -1059,6 +1062,7 @@ Value Search::Worker::search(
             assert(pos.capture_stage(move));
 
             do_move(pos, move, st, ss);
+            (ss+1)->distanceFromPv = ss->distanceFromPv + 1000;
 
             // Perform a preliminary qsearch to verify that the move holds
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
@@ -1287,6 +1291,8 @@ moves_loop:  // When in check, search starts here
 
         // Step 16. Make the move
         do_move(pos, move, st, givesCheck, ss);
+        
+        (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
 
         // Add extension to new depth
         newDepth += extension;
@@ -1340,7 +1346,11 @@ moves_loop:  // When in check, search starts here
             // beyond the first move depth.
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
-            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + 2)) + PvNode;
+
+            bool almostPv = (ss->distanceFromPv == 2) || ((ss+1)->distanceFromPv == 3);
+
+            int upper = newDepth + 2 + almostPv;
+            Depth d = std::max(1, std::min(newDepth - r / 1024, upper)) + PvNode;
 
             ss->reduction = newDepth - d;
             value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
