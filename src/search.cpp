@@ -1347,10 +1347,7 @@ moves_loop:  // When in check, search starts here
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
 
-            bool almostPv = (ss->distanceFromPv == 2) || ((ss+1)->distanceFromPv == 3);
-            
-            if (almostPv)
-                r -= 1024;
+            bool almostPv = (ss->distanceFromPv == 2);
 
             int upper = newDepth + 2 + almostPv;
             Depth d = std::max(1, std::min(newDepth - r / 1024, upper)) + PvNode;
