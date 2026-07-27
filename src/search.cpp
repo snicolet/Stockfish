@@ -980,7 +980,7 @@ Value Search::Worker::search(
     
     // The depth condition is important for mate finding
     int futilityDepth;
-    futilityDepth = 9 + 10 / (1 + (abs(beta) + abs(eval)) / 150);
+    futilityDepth = 9 + 10 / (1 + (abs(beta) + abs(eval)) / 100);
 
     if (!ss->ttPv && depth < futilityDepth && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta)
         && !is_win(eval))
