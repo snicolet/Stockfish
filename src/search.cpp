@@ -1277,7 +1277,7 @@ moves_loop:  // When in check, search starts here
             // over the original beta, we assume this expected cut-node is not
             // singular (multiple moves fail high), and we can prune the whole
             // subtree by returning a softbound.
-            else if (value >= beta + 45 + depth && !is_decisive(value))
+            else if (value >= beta + 25 && !is_decisive(value))
             {
                 ttMoveHistory << -421 - 110 * depth;
 
