@@ -73,11 +73,11 @@ Value scale_evaluation(Value nnue, int optimism, const Position& pos) {
     int base_eval = nnue + (nnue * alignment) / 65536 + (optimism * alignment) / 16384;
 
     // Scale the combined evaluation by total material
-    int material = 1024 * pos.count<PAWN>() + pos.non_pawn_material();
-    int v        = base_eval * i64(90649 + material - 350 * pos.rule50_count()) / 90649;
+    int material = 800 * pos.count<PAWN>() + pos.non_pawn_material();
+    int v        = base_eval * i64(90649 + material) / 90649;
 
     // Damp down the evaluation linearly when shuffling
-    v -= v * pos.rule50_count() / 189;
+    v -= v * pos.rule50_count() / 180;
 
     // Guarantee that the evaluation does not hit the tablebase range
     v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
